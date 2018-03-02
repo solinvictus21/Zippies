@@ -1,5 +1,7 @@
 # Zippies
 
+[Fully Assembled Zippy](https://solinvictus21.github.io/images/FullyAssembledZippy1.png)
+
 This is the first-time check-in for an open source robot which includes...
 
 1. 3D models built in SketchUp for the entire body of the robot that can be easily exported to STL files and printed on a 3D printer.
