@@ -5,8 +5,8 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 1. 2x [BP104-FASZ](https://www.digikey.com/product-detail/en/osram-opto-semiconductors-inc/BP-104-FAS-Z/475-1344-1-ND/1227850) These are the IR sensors, the eyes of the circuit
 2. 1x [TLV2464ID](https://www.digikey.com/product-detail/en/texas-instruments/TLV2464ID/296-10608-5-ND/380874) The heart of the circuit: a fast and reliable quad op-amp from TI.
 3. First phase: voltage divider.
-  - 2x [27k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-3EKF2702V/P27.0KHCT-ND/1746753) Required for the voltage divider leading into the photodiode amplification.
-  - 2x [100nF capacictors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B104JB8NNNC/1276-1033-1-ND/3889119) A component of the voltage divider.
+  - 2x [27k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-3EKF2702V/P27.0KHCT-ND/1746753)
+  - 2x [100nF capacictors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B104JB8NNNC/1276-1033-1-ND/3889119)
 4. Second phase: transimpedance amplification
   - 4x [100k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PA3J104V/P100KBZCT-ND/5036238) Also used in fourth-phase inverting amplification.
   - 2x [2.2pF capacitcors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10C2R2BB8NNNC/1276-1084-1-ND/3889170)
