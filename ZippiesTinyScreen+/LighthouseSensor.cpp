@@ -414,9 +414,8 @@ void Lighthouse::recalculate()
     previousOrientationVector.set(&orientationVector);
     previousOrientationTimeStamp = orientationTimeStamp;
   
-    //calculate the current orientation
-    //the orientation vector is just the down direction (0,0,-1) crossed with the vector between the sensors represented as a unit vector
-    //this calculation simplifies to the following
+    //calculate the current orientation; the orientation vector is just the down direction (0,0,-1) crossed
+    //with the vector between the sensors; this calculation simplifies to the following
     orientationVector.set(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
         -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()), 1.0d);
 #ifdef LIGHTHOUSE_DEBUG_SIGNAL
