@@ -9,4 +9,4 @@ The following is a BOM to build a Zippy...
 5. 2x [Micro Metal Gearmotors](https://www.pololu.com/product/2363) from Pololu.com.
 6. 1x [Bluetooh Low Energy Tinyshield](https://tinycircuits.com/collections/communication/products/bluetooth-low-energy-tinyshield) Optional. Provides communication with the iOS app, useful for debugging.
 
-It's true that it's not cheap. The main components alone add up to ~$94, not including Bluetooth, and that's before the cost of a 3D printer and all the tools required to solder a circuit board this small. This is not a project for the feint-hearted. But it IS a project for anyone excited about doing something new.
+It's true that it's not cheap. The main components alone add up to ~$96, not including Bluetooth, and that's before the cost of a 3D printer and all the tools required to solder a circuit board this small. This is not a project for the feint-hearted. But it IS a project for anyone excited about doing something new.
