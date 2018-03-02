@@ -8,3 +8,5 @@ The following is a BOM to build a Zippy...
 4. 1x [Proto-Board Tinysheild](https://tinycircuits.com/collections/proto-boards/products/proto-board-tinyshield?variant=14984618887) Be sure to get it with no top connector. It will get in the way of attaching the HTC Vive Lighthouse sensor circuit.
 5. 2x [Micro Metal Gearmotors](https://www.pololu.com/product/2363) from Pololu.com.
 6. 1x [Bluetooh Low Energy Tinyshield](https://tinycircuits.com/collections/communication/products/bluetooth-low-energy-tinyshield) Optional. Provides communication with the iOS app, useful for debugging.
+
+It's true that it's not cheap. The main components alone add up to $96, not including Bluetooth, and that's before the cost of a 3D printer and all the tools required to solder a circuit board this small. This is not a project for the feignt-hearted. But it IS a project for anyone excited about doing something new.
