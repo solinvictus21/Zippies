@@ -16,4 +16,10 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 6. Fourth phase: inverting amplification
   - 2x [1k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PB3D1001V/P20283CT-ND/6214538)
 
-The passives can be soldered onto the board in any orientation, but pay particular attention to the orientation of the op-amp and diodes.
+The passives can be soldered onto the board in any orientation, but pay particular attention to the orientation of the op-amp and diodes. Schematic diagram follows below if you're not an Eagle user.
+
+![Lighthouse Sensor Schematic](https://solinvictus21.github.io/images/LighthouseSensorSchematic.png)
+
+This is essentially a mash-up and a doubling of the circuit I originally started with from [Alex Shtuchkin's project](https://github.com/ashtuchkin/vive-diy-position-sensor) and [another circuit](https://trmm.net/Lighthouse) tweeted about by Alan Yates along with [some lessons I've learned about op-amps](http://www.radio-electronics.com/info/circuits/opamp_non_inverting/op_amp_non-inverting.php) along the way and a LOT of experimentation. At this point, the circuit seems to be fairly reliable across the range of distances that I experiment with.
+
+For the curious, it has been suggested that, if you only have one Lighthouse, you must have three sensors to determine orientation along a 2D plane. Not true, actually. To do it with only two sensors, all you need to know is which sensor was hit first, which is exactly how this project determines orientation along the ground with only two sensors.
