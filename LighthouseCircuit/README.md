@@ -19,3 +19,5 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 2x [4.7nf capacitors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B472JB8NNNC/1276-2061-1-ND/3890147)
 
 2x [2.2pF capacitcors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10C2R2BB8NNNC/1276-1084-1-ND/3889170)
+
+The board layout is published on [Osh Park](https://oshpark.com/shared_projects/vZVPRIY6) for easy reordering.
