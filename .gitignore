@@ -1,0 +1,12 @@
+.DS_Store
+*~.skp
+Autosave_*.skp
+*.b#?
+*.s#?
+*.ger
+*.gpi
+*.dri
+*.xln
+*.job
+*.pro
+*.?#?
