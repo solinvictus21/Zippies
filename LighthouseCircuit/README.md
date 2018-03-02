@@ -12,4 +12,4 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 8. 2x [4.7nf capacitors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B472JB8NNNC/1276-2061-1-ND/3890147)
 9. 2x [2.2pF capacitcors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10C2R2BB8NNNC/1276-1084-1-ND/3889170)
 
-The passives can be soldered onto the board in any orientation, but pleace pay particular attention to the orientation of the op-amp and diodes.
+The passives can be soldered onto the board in any orientation, but please pay particular attention to the orientation of the op-amp and diodes.
