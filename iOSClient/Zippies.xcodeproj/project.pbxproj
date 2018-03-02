@@ -1,0 +1,337 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C31026312048F608004C817B /* Zippy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262D2048F608004C817B /* Zippy.swift */; };
+		C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262E2048F608004C817B /* ZippyNavigationController.swift */; };
+		C31026332048F608004C817B /* ZippyControls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C310262F2048F608004C817B /* ZippyControls.storyboard */; };
+		C31026342048F608004C817B /* ZippyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026302048F608004C817B /* ZippyManager.swift */; };
+		C31026392048F616004C817B /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026352048F616004C817B /* DebugViewController.swift */; };
+		C310263A2048F616004C817B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026362048F616004C817B /* AppDelegate.swift */; };
+		C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026382048F616004C817B /* UserDriveViewController.swift */; };
+		C33485C11F0FE85F000E02E0 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */; };
+		C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E36D242049B85F005759AC /* SnappingSlider.swift */; };
+		C3E36D272049B875005759AC /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C3E36D262049B875005759AC /* Default-568h@2x.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C310262D2048F608004C817B /* Zippy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Zippy.swift; sourceTree = SOURCE_ROOT; };
+		C310262E2048F608004C817B /* ZippyNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZippyNavigationController.swift; sourceTree = SOURCE_ROOT; };
+		C310262F2048F608004C817B /* ZippyControls.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ZippyControls.storyboard; sourceTree = SOURCE_ROOT; };
+		C31026302048F608004C817B /* ZippyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZippyManager.swift; sourceTree = SOURCE_ROOT; };
+		C31026352048F616004C817B /* DebugViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = SOURCE_ROOT; };
+		C31026362048F616004C817B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = SOURCE_ROOT; };
+		C31026372048F616004C817B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
+		C31026382048F616004C817B /* UserDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDriveViewController.swift; sourceTree = SOURCE_ROOT; };
+		C33485AA1F0FE6FF000E02E0 /* Zippies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zippies.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		C3E36D242049B85F005759AC /* SnappingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnappingSlider.swift; sourceTree = SOURCE_ROOT; };
+		C3E36D262049B875005759AC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C33485A71F0FE6FF000E02E0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C33485C11F0FE85F000E02E0 /* CoreBluetooth.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C310262C2048F5EB004C817B /* Zippies */ = {
+			isa = PBXGroup;
+			children = (
+				C31026362048F616004C817B /* AppDelegate.swift */,
+				C31026352048F616004C817B /* DebugViewController.swift */,
+				C31026372048F616004C817B /* Info.plist */,
+				C31026382048F616004C817B /* UserDriveViewController.swift */,
+				C310262D2048F608004C817B /* Zippy.swift */,
+				C310262F2048F608004C817B /* ZippyControls.storyboard */,
+				C31026302048F608004C817B /* ZippyManager.swift */,
+				C310262E2048F608004C817B /* ZippyNavigationController.swift */,
+				C3E36D242049B85F005759AC /* SnappingSlider.swift */,
+				C3E36D262049B875005759AC /* Default-568h@2x.png */,
+			);
+			path = Zippies;
+			sourceTree = "<group>";
+		};
+		C33485A11F0FE6FF000E02E0 = {
+			isa = PBXGroup;
+			children = (
+				C310262C2048F5EB004C817B /* Zippies */,
+				C33485AB1F0FE6FF000E02E0 /* Products */,
+				C33485BF1F0FE85F000E02E0 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C33485AB1F0FE6FF000E02E0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C33485AA1F0FE6FF000E02E0 /* Zippies.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C33485BF1F0FE85F000E02E0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C33485A91F0FE6FF000E02E0 /* Zippies */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C33485BC1F0FE700000E02E0 /* Build configuration list for PBXNativeTarget "Zippies" */;
+			buildPhases = (
+				C33485A61F0FE6FF000E02E0 /* Sources */,
+				C33485A71F0FE6FF000E02E0 /* Frameworks */,
+				C33485A81F0FE6FF000E02E0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Zippies;
+			productName = Zippies;
+			productReference = C33485AA1F0FE6FF000E02E0 /* Zippies.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C33485A21F0FE6FF000E02E0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0820;
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "Davis, Kyle";
+				TargetAttributes = {
+					C33485A91F0FE6FF000E02E0 = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 84MU2LDRQH;
+						LastSwiftMigration = 0920;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C33485A51F0FE6FF000E02E0 /* Build configuration list for PBXProject "Zippies" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C33485A11F0FE6FF000E02E0;
+			productRefGroup = C33485AB1F0FE6FF000E02E0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C33485A91F0FE6FF000E02E0 /* Zippies */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C33485A81F0FE6FF000E02E0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C31026332048F608004C817B /* ZippyControls.storyboard in Resources */,
+				C3E36D272049B875005759AC /* Default-568h@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C33485A61F0FE6FF000E02E0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */,
+				C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */,
+				C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */,
+				C31026342048F608004C817B /* ZippyManager.swift in Sources */,
+				C31026392048F616004C817B /* DebugViewController.swift in Sources */,
+				C310263A2048F616004C817B /* AppDelegate.swift in Sources */,
+				C31026312048F608004C817B /* Zippy.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C33485BA1F0FE700000E02E0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 84MU2LDRQH;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C33485BB1F0FE700000E02E0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 84MU2LDRQH;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C33485BD1F0FE700000E02E0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		C33485BE1F0FE700000E02E0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C33485A51F0FE6FF000E02E0 /* Build configuration list for PBXProject "Zippies" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C33485BA1F0FE700000E02E0 /* Debug */,
+				C33485BB1F0FE700000E02E0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C33485BC1F0FE700000E02E0 /* Build configuration list for PBXNativeTarget "Zippies" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C33485BD1F0FE700000E02E0 /* Debug */,
+				C33485BE1F0FE700000E02E0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C33485A21F0FE6FF000E02E0 /* Project object */;
+}
