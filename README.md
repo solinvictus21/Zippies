@@ -1,6 +1,6 @@
 # Zippies
 
-[Fully Assembled Zippy](https://solinvictus21.github.io/images/FullyAssembledZippy1.png)
+![Fully Assembled Zippy](https://solinvictus21.github.io/images/FullyAssembledZippy1.png)
 
 This is the first-time check-in for an open source robot which includes...
 
