@@ -6,7 +6,7 @@ This is the first-time check-in for a tiny, open source robot which uses the HTC
 
 This repository includes all the details you need to get a Zippy up and running, including the following...
 
-1. 3D models built in SketchUp for the entire body of the robot that can be easily exported to STL files and printed on a 3D printer.
+1. 3D models built in [SketchUp](https://www.sketchup.com/) for the entire body of the robot that can be easily exported to STL files and printed on a 3D printer.
 2. A schematic for a circuit designed to sense IR signals from a single HTC Vive Lighthouse to enable highly accurate (sub-millimeter) localized positioning and orientation.
 3. A complete list of all the hardware required to build a Zippy.
 4. All the software required to allow your Zippy robot to move around on your floor all by itself.
