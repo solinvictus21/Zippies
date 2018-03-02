@@ -8,4 +8,4 @@ This is the first-time check-in for an open source robot which includes...
 4. An iPhone app to aid in debugging over Bluetooth.
 5. All the software required to allow your Zippy robot to move around on your floor all by itself.
 
-All of the items above are built and ready for check-in. I'm in the process now of organizing the directory structure to clean it up in preparation for check-in. Stay tuned.
+All of the items above are built and ready for check-in. I'm in the process now of organizing the directory structure to clean it up in preparation for check-in. I plan to make YouTube videos available in the coming days demoing the fully-assembled robot and going through the details of the assembly process. Stay tuned.
