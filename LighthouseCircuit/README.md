@@ -1,6 +1,6 @@
 # Lighthouse Sensor Circuit
 
-This circuit is designed to provide sensors that detect IR signals from the HTC Vive Lighthouse in order to provide localized positioning for the Zippy. The BOM and links to Digikey components are provided below.
+This circuit is designed to provide sensors that detect IR signals from the HTC Vive Lighthouse in order to provide localized positioning for the Zippy. The board layout is published on [Osh Park](https://oshpark.com/shared_projects/vZVPRIY6) for easy ordering. All you have to do is solder the components onto it. The BOM and links to Digikey components are provided below.
 
 1. 2x [BP104-FASZ](https://www.digikey.com/product-detail/en/osram-opto-semiconductors-inc/BP-104-FAS-Z/475-1344-1-ND/1227850) These are the IR sensors, the eyes of the circuit
 2. 1x [TLV2464ID](https://www.digikey.com/product-detail/en/texas-instruments/TLV2464ID/296-10608-5-ND/380874) The heart of the circuit: a fast and reliable quad op-amp from TI.
@@ -11,5 +11,3 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 7. 2x [100nF capacictors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B104JB8NNNC/1276-1033-1-ND/3889119)
 8. 2x [4.7nf capacitors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B472JB8NNNC/1276-2061-1-ND/3890147)
 9. 2x [2.2pF capacitcors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10C2R2BB8NNNC/1276-1084-1-ND/3889170)
-
-The board layout is published on [Osh Park](https://oshpark.com/shared_projects/vZVPRIY6) for easy reordering.
