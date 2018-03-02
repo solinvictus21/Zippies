@@ -1,8 +1,10 @@
 # Zippies
 
+This is the first-time check-in for a tiny, open source robot which uses the HTC Vive Lighthouse for 2D position and orientation tracking. Picture below with nickel for scale.
+
 ![Fully Assembled Zippy](https://solinvictus21.github.io/FullyAssembledZippy.png)
 
-This is the first-time check-in for an open source robot which includes...
+This repository includes all the details you need to get a Zippy up and running, including the following...
 
 1. 3D models built in SketchUp for the entire body of the robot that can be easily exported to STL files and printed on a 3D printer.
 2. A schematic for a circuit designed to sense IR signals from a single HTC Vive Lighthouse to enable highly accurate (sub-millimeter) localized positioning and orientation.
