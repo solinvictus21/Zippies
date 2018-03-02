@@ -8,7 +8,7 @@
 #include "Bluetooth.h"
 #include "ZippyModes.h"
 #include "LighthouseSensor.h"
-#include "math/KVector.h"
+#include "KVector.h"
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
 #define BLE_RECEIVE_MOTORS_SET       0x15

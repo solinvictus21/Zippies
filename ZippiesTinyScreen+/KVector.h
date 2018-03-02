@@ -4,7 +4,7 @@
 
 class KVector2
 {
-private:
+protected:
   double x;
   double y;
   double d, d2;
@@ -50,7 +50,7 @@ public:
 
 class KVector3
 {
-private:
+protected:
   double d, d2;
   bool dValid, d2Valid;
   double x;
@@ -95,32 +95,6 @@ public:
   void rotate(double x2, double y2, double z2, double w2);
 
   void printDebug();
-
-};
-
-
-class KCubicBezier
-{
-private:
-    KVector2* anchor1;
-    KVector2* control1;
-    KVector2* anchor2;
-    KVector2* control2;
-    
-    double ax, bx, cx;
-    double ay, by, cy;
-    double az, bz, cz;
-
-public:
-  KCubicBezier(KVector2*a1, KVector2* c1, KVector2* a2, KVector2* c2);
-
-/*
-+(GLfloat)lerpFromA1:(GLfloat)a1
-                  c1:(GLfloat)c1
-                  a2:(GLfloat)a2
-                  c2:(GLfloat)c2
-                   t:(GLfloat)t;
-*/
 
 };
 

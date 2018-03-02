@@ -2,8 +2,8 @@
 #pragma once
 
 #include <Arduino.h>
-#include "math/KVector.h"
-#include "math/KQuaternion.h"
+#include "KVector.h"
+#include "KQuaternion.h"
 
 #define BUFFER_SIZE 32
 #define BASE_STATION_INFO_BLOCK_SIZE 33
