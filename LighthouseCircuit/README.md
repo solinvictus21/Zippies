@@ -16,4 +16,4 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
 6. Fourth phase: inverting amplification
   - 2x [1k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PB3D1001V/P20283CT-ND/6214538)
 
-The passives can be soldered onto the board in any orientation, but please pay particular attention to the orientation of the op-amp and diodes.
+The passives can be soldered onto the board in any orientation, but pay particular attention to the orientation of the op-amp and diodes.
