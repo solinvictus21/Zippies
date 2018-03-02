@@ -8,8 +8,8 @@ This circuit is designed to provide sensors that detect IR signals from the HTC 
   - 2x [27k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-3EKF2702V/P27.0KHCT-ND/1746753)
   - 2x [100nF capacictors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B104JB8NNNC/1276-1033-1-ND/3889119)
 4. Second phase: transimpedance amplification
-  - 4x [100k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PA3J104V/P100KBZCT-ND/5036238) Also used in fourth-phase inverting amplification.
   - 2x [2.2pF capacitcors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10C2R2BB8NNNC/1276-1084-1-ND/3889170)
+  - 4x [100k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PA3J104V/P100KBZCT-ND/5036238) Also used in fourth-phase inverting amplification.
 5. Third phase: high-pass filter.
   - 2x [4.7nf capacitors](https://www.digikey.com/product-detail/en/samsung-electro-mechanics/CL10B472JB8NNNC/1276-2061-1-ND/3890147)
   - 2x [18k resistors](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-3EKF1802V/P18.0KHCT-ND/1746738)
