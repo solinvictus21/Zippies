@@ -1,6 +1,6 @@
 # 3D Models for Zippy Body
 
-Nearly all parts required to build a Zippy are included in these 3D models, with a few minor additions. The full BOM required to build a Zippy is below...
+Nearly all parts required to build a Zippy are included in these 3D models, with a few minor additions. The full BOM required to build the outer body of a Zippy is below...
 
 1. 3D-Printed Items
   - 1x Body Bottom
