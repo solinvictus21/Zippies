@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="8.6.0">
+<eagle version="8.6.3">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -1124,15 +1124,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="1.9812" y1="3.556" x2="3.0988" y2="3.556" width="0.1524" layer="51"/>
 <wire x1="3.0988" y1="3.556" x2="3.0988" y2="4.064" width="0.1524" layer="51"/>
 <wire x1="3.0988" y1="4.064" x2="1.9812" y2="4.064" width="0.1524" layer="51"/>
-<wire x1="-1.9812" y1="-4.3688" x2="1.9812" y2="-4.3688" width="0.1524" layer="51"/>
-<wire x1="1.9812" y1="-4.3688" x2="1.9812" y2="4.3688" width="0.1524" layer="51"/>
-<wire x1="1.9812" y1="4.3688" x2="0.3048" y2="4.3688" width="0.1524" layer="51"/>
-<wire x1="0.3048" y1="4.3688" x2="-0.3048" y2="4.3688" width="0.1524" layer="51"/>
-<wire x1="-0.3048" y1="4.3688" x2="-1.9812" y2="4.3688" width="0.1524" layer="51"/>
-<wire x1="-1.9812" y1="4.3688" x2="-1.9812" y2="-4.3688" width="0.1524" layer="51"/>
-<wire x1="0.3048" y1="4.3688" x2="-0.3048" y2="4.3688" width="0.1524" layer="51" curve="-180"/>
+<wire x1="1.9812" y1="-4.4958" x2="1.9812" y2="4.4958" width="0.1524" layer="51"/>
+<wire x1="-1.9812" y1="4.4958" x2="-1.9812" y2="-4.4958" width="0.1524" layer="51"/>
+<wire x1="0.3048" y1="4.4958" x2="-0.3048" y2="4.4958" width="0.1524" layer="21" curve="-180"/>
 <wire x1="-2.1336" y1="-4.4958" x2="2.1336" y2="-4.4958" width="0.1524" layer="21"/>
-<wire x1="2.1336" y1="4.4958" x2="-2.1336" y2="4.4958" width="0.1524" layer="21"/>
+<wire x1="2.1336" y1="4.4958" x2="0.3048" y2="4.4958" width="0.1524" layer="21"/>
 <polygon width="0.0254" layer="51">
 <vertex x="4.1656" y="-1.0795"/>
 <vertex x="4.1656" y="-1.4605"/>
@@ -1140,6 +1136,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <vertex x="3.9116" y="-1.0795"/>
 </polygon>
 <text x="-2.0066" y="4.699" size="1.27" layer="25" ratio="6" rot="SR0">&gt;Name</text>
+<wire x1="0.3048" y1="4.4958" x2="-0.3048" y2="4.4958" width="0.1524" layer="21"/>
+<wire x1="-0.3048" y1="4.4958" x2="-2.1336" y2="4.4958" width="0.1524" layer="21"/>
 </package>
 <package name="PASSIVE-0603">
 <wire x1="-1.6" y1="0.7" x2="1.6" y2="0.7" width="0.0508" layer="39"/>
