@@ -30,6 +30,8 @@ As the name implies, this is the top that attaches to the body to fully enclose 
 
 The gears which attach to the axles on the two motors. Note that the gear is actually modeled as a proper "involute gear" and that the center hole is D-shaped to ensure tight attachment to the motor axles.
 
+I have been asked why I don't just attach the wheels directly to the motors and just let them be offset from each other on either side of the Zippy. That's a good question, and I did not do that for a good reason. The PID controllers in the software codebase used to control each wheel would have to account for the offset of each wheel from the diode sensors on the top of the Zippy, complicating the math required to do proper path-following. Having the wheels centered on either side eliminates this complexity, and...honestly...I think it just looks better this way.
+
 ### Wheels (2x)
 
 The name is self-explanatory. The important thing to note about this part is that the axle of the wheel and the outer rim of the wheel must be printed together even though they are technically modeled as two separate parts. That's because the axle has two endcaps to hold the rim in place which are larger than the hole in the rim for the central rod of the axle, a rather ingenious idea that I stole from another wheel model I found while randomly browsing around Thingiverse. Once the part is printed and the raft is fully removed, the axle should be able to turn within the rim, allowing the wheel to rotate once attached to the body. I even recommend applying a small amount of a light oil-based lubricant to this part after it is printed and cleaned up, to ensure that the outer rim turns freely around the axle.
