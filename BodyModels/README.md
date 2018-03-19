@@ -24,7 +24,7 @@ This part likely does not require printing with supports. The overhangs for the 
 
 ### Body Top (1x)
 
-As the name implies, this is the top that attaches to the body to fully enclose the Zippy. Notable features include (1) two cantilever snap fits on either side to connect the body top to the body, (2) lugs on the back corners to ensure proper alignment with the body when attached, (3) two holes for the infrared sensors from the Lighthouse circuit, and (4) a hole for the USB port to allow reprogramming of the Zippy without requiring the top to be removed.
+As the name implies, this is the top that attaches to the body to fully enclose the Zippy. Notable features include (1) cantilever snap fits on either side to connect the body top to the body, (2) lugs on the back corners to ensure proper alignment with the body when attached, (3) two holes for the infrared sensors from the Lighthouse circuit, and (4) a hole for the USB port to allow reprogramming of the Zippy without requiring the top to be removed.
 
 ### Wheel Motor Gears (2x)
 
