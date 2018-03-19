@@ -8,7 +8,7 @@ Nearly all parts required to build a Zippy are included in the 3D models in this
 
 The parts are all modeled using [SketchUp](https://www.sketchup.com/), inspected for 3D printing solidity with the [Solid Inspector² extension](https://extensions.sketchup.com/en/content/solid-inspector%C2%B2), and exported to STL files using [this excellent STL exporter extension](https://extensions.sketchup.com/en/content/sketchup-stl).
 
-I currently slice these models with [Ultimaker Cura](https://ultimaker.com/en/products/ultimaker-cura-software) and print them with ABS on a [Monoprice Select Mini V2](https://www.monoprice.com/product?p_id=21711) 3D printer, but other slicers, materials, and 3D printers should work just fine. I print all parts with a raft to prevent compression of the bottom layers of each part. You will likely need to adjust 3D print settings during slicing for some of the parts to ensure they print properly as noted for each part.
+I then slice the STL files with [Ultimaker Cura](https://ultimaker.com/en/products/ultimaker-cura-software) and print them with ABS on a [Monoprice Select Mini V2](https://www.monoprice.com/product?p_id=21711) 3D printer, but other slicers, materials, and 3D printers should work just fine. I print all parts with a raft to prevent compression of the bottom layers of each part. You will likely need to adjust 3D print settings during slicing for some of the parts to ensure they print properly as noted for each part.
 
 ### Body Bottom (1x)
 
