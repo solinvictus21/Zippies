@@ -18,7 +18,7 @@ I recommend printing this part with supports so that the bottom pillow forms cle
 
 ### Body (1x)
 
-The main/center portion of the body and is the housing for the various circuit boards. Notable features include (1) four insets along the bottom to connect to the annular snap fits on the body bottom, (2) brackets inside near the front to keep the TinyScreen in place, (3) holes on the left side to allow access to the TinyScreen power switch and reset button, and (4) insets on the inside left and right to connect to the cantilever snap fits on the body top.
+The main/center portion of the body and the housing for the various circuit boards. Notable features include (1) four insets along the bottom to connect to the annular snap fits on the body bottom, (2) brackets inside near the front to keep the TinyScreen in place, (3) holes on the left side to allow access to the TinyScreen power switch and reset button, and (4) insets on the inside left and right to connect to the cantilever snap fits on the body top.
 
 This part likely does not require printing with supports. The overhangs for the insets on the bottom are small enough that they should bridge perfectly fine during printing without supports.
 
