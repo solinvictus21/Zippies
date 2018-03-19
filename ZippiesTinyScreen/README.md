@@ -7,6 +7,6 @@ The following is a BOM to build a Zippy...
 3. 2x [Micro Metal Gearmotors](https://www.pololu.com/product/2363) from Pololu.com.
 4. 1x [Dual Motor Tinyshield](https://tinycircuits.com/products/dual-motor-tinyshield) to drive the motors.
 5. 1x [Proto-Board Tinysheild](https://tinycircuits.com/collections/proto-boards/products/proto-board-tinyshield?variant=14984618887) Be sure to purchase the version with no top connector. It will get in the way of attaching the HTC Vive Lighthouse sensor circuit.
-6. 1x [Bluetooh Low Energy Tinyshield](https://tinycircuits.com/collections/communication/products/bluetooth-low-energy-tinyshield) Optional. Provides communication with the iOS app, useful for debugging.
+6. 1x [Bluetooth Low Energy Tinyshield](https://tinycircuits.com/collections/communication/products/bluetooth-low-energy-tinyshield) Optional. Provides communication with the iOS app, useful for debugging.
 
 It's not a cheap project to start on. The above required components of the robot add up to ~$96, not including Bluetooth, and that's before the cost of a 3D printer and the tools required to solder together the circuit board for sensing the Lighthouse signal. This is not a project for the feint-hearted. But it IS a project for anyone excited about doing something new.
