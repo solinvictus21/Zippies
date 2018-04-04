@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include "LighthouseSensor.h"
-
 class MotorDriver
 {
 

@@ -2,8 +2,10 @@
 #include "ZippyModes.h"
 #include "Bluetooth.h"
 #include "ZippyFace.h"
-#include "LighthouseSensor.h"
+#include "Lighthouse.h"
 #include "MotorDriver.h"
+
+#define AUTODRIVE_ENABLED
 
 #define AUTODRIVE_MISSING_POSITION_TIMEOUT    1000
 #define AUTODRIVE_CORRECTION_INTERVAL_MS       200
@@ -58,7 +60,6 @@ AutoDriveMode::~AutoDriveMode()
 
 void AutoDriveMode::loop()
 {
-//  /*
   if (currentCommand >= ZIPPY_COMMAND_COUNT)
     return;
   
@@ -97,14 +98,14 @@ void AutoDriveMode::loop()
 
   lighthouse.recalculate();
 
-//  /*
+#ifdef AUTODRIVE_ENABLED
 //  SerialUSB.println(currentCommand);
   if (commands[currentCommand]->loop()) {
     //current command completed; start the next command
     currentCommand = (currentCommand+1) % ZIPPY_COMMAND_COUNT;
     commands[currentCommand]->start();
   }
-//  */
+#endif
 }
 
 void AutoDriveMode::stopMoving()

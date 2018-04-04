@@ -3,6 +3,7 @@
 
 #include <PID_v1.h>
 #include "KVector.h"
+#include "Lighthouse.h"
 
 class ZippyCommand
 {
@@ -31,7 +32,8 @@ class MoveTowardPoint : public ZippyCommand
 {
 
 private:
-  KVector2 currentTargetPosition;
+  KVector2 startingPosition;
+  KVector2 targetPosition;
 
   double leftSetPoint = 0.0d;
   double leftInput = 0.0d;
@@ -43,7 +45,8 @@ private:
   double rightOutput = 0.0d;
   PID rightPID;
   
-  void updateInputs();
+  double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
+  void updateInputs(KVector2* deltaCenterToTarget);
   
 public:
   MoveTowardPoint(double x, double y);
@@ -67,7 +70,7 @@ private:
   double rightInput = 0.0d;
   double rightOutput = 0.0d;
   PID rightPID;
-  
+
   void updateInputs();
   
 public:

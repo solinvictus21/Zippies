@@ -7,7 +7,7 @@
 #include "ZippyFace.h"
 #include "Bluetooth.h"
 #include "ZippyModes.h"
-#include "LighthouseSensor.h"
+#include "Lighthouse.h"
 #include "KVector.h"
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
@@ -198,12 +198,12 @@ void loop()
     //left sensor data
     LighthouseSensor* sensorLeft = lighthouse.getLeftSensor();
     extractSensorPacket(sensorLeft, debugPacket);
-    bluetooth.sendSensor1(debugPacket);
+    bluetooth.sendSensorLeft(debugPacket);
 
     //right sensor data
     LighthouseSensor* sensorRight = lighthouse.getRightSensor();
     extractSensorPacket(sensorRight, debugPacket);
-    bluetooth.sendSensor0(debugPacket);
+    bluetooth.sendSensorRight(debugPacket);
 
     //computed data
     static float previousOrientation = 0.0f;

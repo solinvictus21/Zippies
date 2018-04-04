@@ -85,8 +85,8 @@ extension DebugViewController: ZippyManagerDelegate
 extension DebugViewController: ZippyDelegate
 {
     
-    func sensor0DataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
-                            ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
+    func sensorLeftDataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
+                               ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
     {
         diodeLeftXSyncFlashLabel.text = String(xSyncTicks)
         diodeLeftXSweepTickLabel.text = String(xSweepTicks)
@@ -98,8 +98,8 @@ extension DebugViewController: ZippyDelegate
         sensor0Y = yPosition
     }
     
-    func sensor1DataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
-                            ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
+    func sensorRightDataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
+                                ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
     {
         diodeRightXSyncFlashLabel.text = String(xSyncTicks)
         diodeRightXSweepTickLabel.text = String(xSweepTicks)

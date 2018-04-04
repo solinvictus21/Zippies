@@ -10,10 +10,10 @@
 const uint8_t serviceUUID[16] =              { 0x13, 0x7A, 0x5F, 0xFD, 0xFC, 0x73, 0xAE, 0x81, 0xD2, 0x44, 0xC2, 0xEF, 0xC2, 0xCE, 0xF1, 0x5B };
 //C9589239-D751-47F7-9C5B-38355F0E9811
 const uint8_t transmitUUID[16] =             { 0x11, 0x98, 0x0E, 0x5F, 0x35, 0x38, 0x5B, 0x9C, 0xF7, 0x47, 0x51, 0xD7, 0x39, 0x92, 0x58, 0xC9 };
-//F452B269-4405-42D7-8CD8-0630E778E0D0
-const uint8_t sensorRightReceiveUUID[16] =       { 0xD0, 0xE0, 0x78, 0xE7, 0x30, 0x06, 0xD8, 0x8C, 0xD7, 0x42, 0x05, 0x44, 0x69, 0xB2, 0x52, 0xF6 };
 //53372C2D-2BD5-44C9-990F-A329E5E1F4B5
 const uint8_t sensorLeftReceiveUUID[16] =       { 0xB5, 0xF4, 0xE1, 0xE5, 0x29, 0xA3, 0x0F, 0x99, 0xC9, 0x44, 0xD5, 0x2B, 0x2D, 0x2C, 0x37, 0x53 };
+//F452B269-4405-42D7-8CD8-0630E778E0D0
+const uint8_t sensorRightReceiveUUID[16] =       { 0xD0, 0xE0, 0x78, 0xE7, 0x30, 0x06, 0xD8, 0x8C, 0xD7, 0x42, 0x05, 0x44, 0x69, 0xB2, 0x52, 0xF6 };
 //7965B674-B7AE-4E02-B334-872ABBE5999D
 const uint8_t computedDataReceiveUUID[16] =  { 0x9D, 0x99, 0xE5, 0xBB, 0x2A, 0x87, 0x34, 0xB3, 0x02, 0x4E, 0xAE, 0xB7, 0x74, 0xB6, 0x65, 0x79 };
 
@@ -29,8 +29,8 @@ Bluetooth::Bluetooth()
   : started(false),
     serviceHandle(0),
     characteristicTransmitHandle(0),
-    sensorRightReceiveHandle(0),
     sensorLeftReceiveHandle(0),
+    sensorRightReceiveHandle(0),
     computedDataReceiveHandle(0),
     discoveryEnabled(false),
     connectionHandle(0),
@@ -182,14 +182,14 @@ bool Bluetooth::enableDiscovery()
   return ret == BLE_STATUS_SUCCESS;
 }
 
-tBleStatus Bluetooth::sendSensor0(uint8_t* sendBuffer)
-{
-  return aci_gatt_update_char_value(serviceHandle, sensorRightReceiveHandle, 0, SENSOR_DATA_LENGTH, sendBuffer);
-}
-
-tBleStatus Bluetooth::sendSensor1(uint8_t* sendBuffer)
+tBleStatus Bluetooth::sendSensorLeft(uint8_t* sendBuffer)
 {
   return aci_gatt_update_char_value(serviceHandle, sensorLeftReceiveHandle, 0, SENSOR_DATA_LENGTH, sendBuffer);
+}
+
+tBleStatus Bluetooth::sendSensorRight(uint8_t* sendBuffer)
+{
+  return aci_gatt_update_char_value(serviceHandle, sensorRightReceiveHandle, 0, SENSOR_DATA_LENGTH, sendBuffer);
 }
 
 tBleStatus Bluetooth::sendComputedData(uint8_t* sendBuffer)

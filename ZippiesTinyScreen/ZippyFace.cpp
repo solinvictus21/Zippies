@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include <TinyScreen.h>
 #include "ZippyFace.h"
-#include "LighthouseSensor.h"
+#include "Lighthouse.h"
 #include "ZippyModes.h"
 #include "Bluetooth.h"
 

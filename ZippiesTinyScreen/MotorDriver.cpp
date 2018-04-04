@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include "T841Defs.h"
 #include "MotorDriver.h"
-#include "LighthouseSensor.h"
+#include "Lighthouse.h"
 
 #define MOTORS_ADDRESS 0
 #define MOTORS_MAX_PWM_PERIOD 0xFFFF

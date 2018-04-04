@@ -31,7 +31,6 @@ public:
   void set(KVector2* v);
   void set(double x, double y);
   void set(double x, double y, double ofLength);
-  void add(KVector2* v);
   void rotate(double angleRadians);
 
   double getD();
@@ -42,6 +41,9 @@ public:
   
   bool equalsVector(KVector2* v);
   double dotVector(KVector2* v);
+
+  void addVector(KVector2* v);
+  void subtractVector(KVector2* v);
   double angleToVector(KVector2* v);
 
   void printDebug();

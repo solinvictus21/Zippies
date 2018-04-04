@@ -57,6 +57,11 @@ bool KVector2::equalsVector(KVector2* v)
     return fabs(v->x-x) < EPSILON && fabs(v->y-y) < EPSILON;
 }
 
+/**
+ * Given two vectors, returns the cos(ϴ) * L1 * L2, where ϴ is the angle between
+ * the vectors and L1 and L2 are the lengths of each vector. For unit vectors, the
+ * result will be just cos(ϴ).
+ */
 double KVector2::dotVector(KVector2* v)
 {
     return (x*v->x) + (y*v->y);
@@ -153,10 +158,19 @@ void KVector2::setD(double newD)
   set(this->x, this->y, newD);
 }
 
-void KVector2::add(KVector2* v)
+void KVector2::addVector(KVector2* v)
 {
   this->x += v->x;
   this->y += v->y;
+  dValid = false;
+  d2Valid = false;
+  orientationValid = false;
+}
+
+void KVector2::subtractVector(KVector2* v)
+{
+  this->x -= v->x;
+  this->y -= v->y;
   dValid = false;
   d2Valid = false;
   orientationValid = false;

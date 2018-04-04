@@ -29,8 +29,8 @@ public:
   
   bool start();
   uint8_t loop();
-  tBleStatus sendSensor0(uint8_t* sendBuffer);
-  tBleStatus sendSensor1(uint8_t* sendBuffer);
+  tBleStatus sendSensorLeft(uint8_t* sendBuffer);
+  tBleStatus sendSensorRight(uint8_t* sendBuffer);
   tBleStatus sendComputedData(uint8_t* sendBuffer);
   uint8_t getReceivedDataLength() { return receivedDataLength; }
   uint8_t* getReceivedData() { return receivedData; }

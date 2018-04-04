@@ -1,13 +1,13 @@
 
-#include "LighthouseSensor.h"
+#include "Lighthouse.h"
 
 //height of the lighthouse from the floor
 //mounted on surface of entertainment center
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 940.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 970.0d
 //mounted on top of TV
 //#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1950.0d
 //height of the diode sensors from the floor
-#define ROBOT_DIODE_HEIGHT_MM 38.0d
+#define ROBOT_DIODE_HEIGHT_MM 40.0d
 
 //#define LIGHTHOUSE_DEBUG_SIGNAL 1
 //#define LIGHTHOUSE_DEBUG_ERRORS 1
@@ -665,9 +665,6 @@ void LighthouseSensor::processSyncSignal(unsigned int previousTickCount, unsigne
     SerialUSB.print(currentCycle ? " Y" : " X");
     SerialUSB.println(" axis expected sync signal missed.");
 #endif
-
-    //indicate that we lost the lighthouse signal for the previous axis, at least for the moment
-    cycleData[currentCycle].sweepHitTimeStamp = 0;
   }
 
   currentCycle = foundCycle;
@@ -862,18 +859,18 @@ void LighthouseSensor::recalculatePosition()
   
   //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode.
   //start by normalizing the angle on each axis from the lighthouse to be from 0.0 to 1.0
-  double angleFromLighthouseX = (((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICKS));
-  double angleFromLighthouseZ = (((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICKS));
+  double angleFromLighthouseX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICKS)) - 0.5d) * M_2PI_3;
+  double angleFromLighthouseZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICKS)) - 0.5d) * M_2PI_3;
   //  SerialUSB.println(angleFromLighthouseX, 2);
 
   //at y=1, we want the x and z coordinates of our direction vector; since the tangent is TAN = O / A, then O = TAN / A; given that
   //our adjacent is 1.0, then the opposite (the length of each leg of the vector from our lighthouse) is simple the TAN of the angle
   //along the x and z axes scaled to an angle from -60 degrees to +60 degrees, which is the field of view of the lighthouse
   //TODO: eventually account for lighthouse factory calibration data
-  //  double vectorFromLighthouseX = tan((angleFromLighthouseX - 0.5d) * M_2PI_3);
-  //  double vectorFromLighthouseZ = tan((angleFromLighthouseZ - 0.5d) * M_2PI_3);
-  double vectorFromLighthouseX = tan(((angleFromLighthouseX - 0.5d) * M_2PI_3) + xRotor.phase);
-  double vectorFromLighthouseZ = tan(((angleFromLighthouseZ - 0.5d) * M_2PI_3) + yRotor.phase);
+//    double vectorFromLighthouseX = tan((angleFromLighthouseX);
+//    double vectorFromLighthouseZ = tan((angleFromLighthouseZ - 0.5d) * M_2PI_3);
+  double vectorFromLighthouseX = tan(angleFromLighthouseX + xRotor.phase);
+  double vectorFromLighthouseZ = tan(angleFromLighthouseZ - yRotor.phase);
 
   //Step 2: Convert the vector from the lighthouse in its local coordinate system to our global coordinate system.
   //flip the x axis; it appears that our tick counts get greater from left-to-right when facing the lighthouse; this is contrary to
@@ -901,7 +898,7 @@ void LighthouseSensor::estimatePosition(KVector2* previousOrientation, KVector2*
   previousPositionVector.set(&positionVector);
   previousPositionTimeStamp = positionTimeStamp;
 
-  positionVector.add(&deltaPosition);
+  positionVector.addVector(&deltaPosition);
   positionTimeStamp = currentTime;
 }
 
