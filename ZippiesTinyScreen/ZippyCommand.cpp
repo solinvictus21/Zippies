@@ -6,7 +6,7 @@
 //the minimum PCM value below which the motors do not turn
 #define MOTOR_MIN_POWER                      4600.00d
 #define LINEAR_VELOCITY_POWER                6000.00d
-#define LOOK_AHEAD_DISTANCE                    60.00d
+#define LOOK_AHEAD_DISTANCE                   200.00d
 #define HALF_SENSOR_SEPARATION 11.0d
 
 //the radius squared (to prevent the need for an additional square root) when we are can consider the robot to be "at the target"
@@ -14,11 +14,11 @@
 //#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
 #define AUTODRIVE_POSITION_EPSILON_2        10000.0d
 
-#define AUTODRIVE_LINEAR_Kp                 120.0d
+#define AUTODRIVE_LINEAR_Kp                 200.0d
 //#define AUTODRIVE_LINEAR_Ki                100.0d
 //#define AUTODRIVE_LINEAR_Kd                200.0d
-#define AUTODRIVE_LINEAR_Ki                  0.0d
-#define AUTODRIVE_LINEAR_Kd                  8.0d
+#define AUTODRIVE_LINEAR_Ki                  5++_>>>>_+>≥><<<asdasdawdwssasddwdw0.0d
+#define AUTODRIVE_LINEAR_Kd                  4.0d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -61,25 +61,24 @@ MoveTowardPoint::MoveTowardPoint(double x, double y)
 
 double MoveTowardPoint::calculateInput(LighthouseSensor* sensor, KVector2* centerOfRobotToNextPosition)
 {
-  //vector from center of the robot to the sensor
+  //step 1; calculate the vector from center of the robot to the sensor
   KVector2* robotCenterPosition = lighthouse.getPosition();
   KVector2* sensorPosition = sensor->getPosition();
   KVector2 sensorPositionFromCenter(sensorPosition->getX() - robotCenterPosition->getX(),
                                     sensorPosition->getY() - robotCenterPosition->getY());
 
-  //vector from current sensor position to desired sensor position
-  
+  //step 2; calculate the vector from current sensor position to desired sensor position  
   //start with the relative sensor position
   KVector2 desiredSensorPosition(&sensorPositionFromCenter);
 
-  //rotate that by the angle from the robot to the next position
+  //rotate that by the current orientation of the robot
   KVector2* robotOrientationVector = lighthouse.getOrientation();
   desiredSensorPosition.rotate(robotOrientationVector->angleToVector(centerOfRobotToNextPosition));
 
-  //add the relative location of the next position
+  //add the relative location of the next position from the center of the robot
   desiredSensorPosition.addVector(centerOfRobotToNextPosition);
 
-  //subtract the relative sensor position
+  //subtract the relative sensor position from the center of the robot
   desiredSensorPosition.subtractVector(&sensorPositionFromCenter);
 
   double cos0 = cos(robotOrientationVector->angleToVector(&desiredSensorPosition));
@@ -141,6 +140,7 @@ void MoveTowardPoint::start()
 
   //capture our starting position
   startingPosition.set(lighthouse.getPosition());
+  distanceDrivenAlongPath = 0.0d;
 
   //update the inputs
   KVector2* currentPosition = lighthouse.getPosition();

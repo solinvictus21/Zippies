@@ -34,6 +34,7 @@ class MoveTowardPoint : public ZippyCommand
 private:
   KVector2 startingPosition;
   KVector2 targetPosition;
+  double distanceDrivenAlongPath = 0.0d;
 
   double leftSetPoint = 0.0d;
   double leftInput = 0.0d;

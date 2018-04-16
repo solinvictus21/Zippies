@@ -5,6 +5,11 @@
 #include "KVector.h"
 #include "KQuaternion.h"
 
+//#define LIGHTHOUSE_DEBUG_SCREEN_SIGNAL 1
+//#define LIGHTHOUSE_DEBUG_SCREEN_ERRORS 1
+//#define LIGHTHOUSE_DEBUG_SIGNAL 1
+//#define LIGHTHOUSE_DEBUG_ERRORS 1
+
 #define BUFFER_SIZE 32
 #define BASE_STATION_INFO_BLOCK_SIZE 33
 
@@ -25,22 +30,34 @@ typedef struct _LighthouseSensorInput
   unsigned int* volatile hitTickReadPtr = hitTickEndPtr;
 } LighthouseSensorInput;
 
-enum CycleEdge
+enum PulseEdge
 {
-    SyncRising, SyncFalling, SweepRising, SweepFalling
+    Unknown, SyncRising, SyncFalling, SweepRising, SweepFalling
 };
 
 typedef struct _SensorCycleData
 {
-  unsigned long pendingSyncTickCount = 0;
+  //pending sync tick count; to be used if we later see the sweep hit
+  unsigned long pendingSyncStart = 0;
+  unsigned long pendingSyncLength = 0;
+  
   //number of ticks in most recent cycle; set to zero when a cycle is missed
   unsigned long syncTickCount = 0;
-  //number of ticks from the start of the visible portion of the sweep (30 degrees) to the sweep hit
-  //set to zero when a cycle is missed
+  //number of ticks from the start of the visible portion of the cycle to the sweep hit
   unsigned long sweepTickCount = 0;
-
   //updated each time a sweep hit is detected; set to zero when lighthouse signal is unavailable
   unsigned long sweepHitTimeStamp = 0;
+
+#ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
+  unsigned long lastCycleTickCount = 0;
+#elif LIGHTHOUSE_DEBUG_SCREEN_ERRORS
+  //error counts
+  unsigned int syncFallingErrorCount = 0;
+  unsigned int sweepRisingErrorCount = 0;
+  unsigned int sweepFallingErrorCount = 0;
+  unsigned long sweepAccumulator = 0;
+  unsigned long sweepCounter = 0;
+#endif
 } SensorCycleData;
 
 class LighthouseSensor
@@ -74,16 +91,15 @@ private:
   RotorFactoryCalibrationData xRotor;
   RotorFactoryCalibrationData yRotor;
 
-  //current cycle is one of the following:
-  //  -1 : unknown/reacquiring sync signal
-  //   0 : x axis
-  //   1 : y axis
-  int currentCycle;
   //the current edge we're expecting within the current cycle
-  CycleEdge pendingCycleEdge;
-  unsigned int previousTickCount;
+  PulseEdge currentEdge;
+  //the current axis we're processing
+  int currentAxis;
   //captured data in each cycle for the x and y axes
+  //x = 0; y = 1
   SensorCycleData cycleData[2];
+  
+  unsigned int previousTickCount;
 
   //historical data for calculating velocity
   KVector2 previousPositionVector;
@@ -96,8 +112,9 @@ private:
   double velocity;
   unsigned long velocityTimeStamp = 0;
   
-  void processSyncSignal(unsigned int previousTicks, unsigned int currentTicks);
-  void processSweepHit(unsigned int previousTicks, unsigned int currentTicks);
+  void processUnknownPulse(unsigned int startTickCount, unsigned int endTickCount);
+  void processSyncPulse(unsigned int startTickCount, unsigned int endTickCount);
+  void processSweepHit(unsigned int deltaTickCount);
 
   bool hasLighthouseSignal() { return receivedLighthousePosition && cycleData[0].sweepHitTimeStamp && cycleData[1].sweepHitTimeStamp; }
   void recalculatePosition();
@@ -105,6 +122,8 @@ private:
   void recalculateVelocity(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long orientationTimeStamp);
 
   friend class Lighthouse;
+
+  unsigned int eventCount = 0;
   
 public:
   LighthouseSensor(LighthouseSensorInput* sensorInput, int debugNumber);
@@ -115,6 +134,73 @@ public:
   int8_t getAccelDirX();
   int8_t getAccelDirY();
   int8_t getAccelDirZ();
+
+  unsigned int getEventCount() {
+    unsigned int ec = eventCount;
+    eventCount = 0;
+    return ec;
+  }
+
+#ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
+  unsigned long getXCycleTickCount() {
+    return cycleData[0].lastCycleTickCount;
+  }
+
+  unsigned long getYCycleTickCount() {
+    return cycleData[1].lastCycleTickCount;
+  }
+
+#elif LIGHTHOUSE_DEBUG_SCREEN_ERRORS
+  unsigned int getSyncXFallingErrorCount() {
+    unsigned int ec = cycleData[0].syncFallingErrorCount;
+    cycleData[0].syncFallingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepXRisingErrorCount() {
+    unsigned int ec = cycleData[0].sweepRisingErrorCount;
+    cycleData[0].sweepRisingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepXFallingErrorCount() {
+    unsigned int ec = cycleData[0].sweepFallingErrorCount;
+    cycleData[0].sweepFallingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepXAverage() {
+    unsigned int avg = (unsigned int)(cycleData[0].sweepAccumulator / cycleData[0].sweepCounter);
+    cycleData[0].sweepAccumulator = 0;
+    cycleData[0].sweepCounter = 0;
+    return avg;
+  }
+
+  unsigned int getSyncYFallingErrorCount() {
+    unsigned int ec = cycleData[1].syncFallingErrorCount;
+    cycleData[1].syncFallingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepYRisingErrorCount() {
+    unsigned int ec = cycleData[1].sweepRisingErrorCount;
+    cycleData[1].sweepRisingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepYFallingErrorCount() {
+    unsigned int ec = cycleData[1].sweepFallingErrorCount;
+    cycleData[1].sweepFallingErrorCount = 0;
+    return ec;
+  }
+
+  unsigned int getSweepYAverage() {
+    unsigned int avg = (unsigned int)(cycleData[1].sweepAccumulator / cycleData[1].sweepCounter);
+    cycleData[1].sweepAccumulator = 0;
+    cycleData[1].sweepCounter = 0;
+    return avg;
+  }
+#endif
 
   unsigned long getXSyncTickCount() { return cycleData[0].syncTickCount; }
   unsigned long getXSweepTickCount() { return cycleData[0].sweepTickCount; }
