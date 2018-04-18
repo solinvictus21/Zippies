@@ -2,6 +2,9 @@
 #pragma once
 #include <Tinyscreen.h>
 #include "ZippyCommand.h"
+#include "KVector.h"
+
+#define PATH_POINT_COUNT 4
 
 class ZippyMode
 {
@@ -21,6 +24,7 @@ private:
 
   unsigned long lastCorrectionTime;
 
+  KVector2 pathPoints[PATH_POINT_COUNT];
   ZippyCommand** commands;
   int currentCommand;
   

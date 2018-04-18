@@ -1043,11 +1043,14 @@ void LighthouseSensor::estimatePosition(KVector2* previousOrientation, KVector2*
   KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(), positionVector.getY() - previousPositionVector.getY());
   deltaPosition.rotate(previousOrientation->angleToVector(currentOrientation));
   
+//  previousPositionVector.printDebug();
   previousPositionVector.set(&positionVector);
   previousPositionTimeStamp = positionTimeStamp;
 
+//  positionVector.printDebug();
   positionVector.addVector(&deltaPosition);
   positionTimeStamp = currentTime;
+//  positionVector.printDebug();
 }
 
 void LighthouseSensor::recalculateVelocity(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long orientationTimeStamp)

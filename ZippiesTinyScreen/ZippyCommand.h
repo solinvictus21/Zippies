@@ -28,12 +28,16 @@ public:
   
 };
 
-class MoveTowardPoint : public ZippyCommand
+class FollowPath : public ZippyCommand
 {
 
 private:
-  KVector2 startingPosition;
-  KVector2 targetPosition;
+  KVector2 firstPosition;
+  KVector2* previousPosition;
+  KVector2 deltaPosition;
+  KVector2* pathPoints;
+  int pathPointCount;
+  int currentPathPoint;
   double distanceDrivenAlongPath = 0.0d;
 
   double leftSetPoint = 0.0d;
@@ -47,38 +51,12 @@ private:
   PID rightPID;
   
   double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
-  void updateInputs(KVector2* deltaCenterToTarget);
-  
-public:
-  MoveTowardPoint(double x, double y);
-  void start();
-  bool loop();
-
-};
-
-class FollowPath : public ZippyCommand
-{
-
-private:
-  KVector2 currentTargetPosition;
-
-  double leftSetPoint = 0.0d;
-  double leftInput = 0.0d;
-  double leftOutput = 0.0d;
-  PID leftPID;
-
-  double rightSetPoint = 0.0d;
-  double rightInput = 0.0d;
-  double rightOutput = 0.0d;
-  PID rightPID;
-
   void updateInputs();
   
 public:
-  FollowPath(double x, double y);
+  FollowPath(KVector2* pathPoints, int pathPointCount);
   void start();
   bool loop();
 
 };
-
 

@@ -202,9 +202,11 @@ void KVector2::rotate(double angleRadians)
 
 void KVector2::printDebug()
 {
+  SerialUSB.print("(");
   SerialUSB.print(x, 10);
-  SerialUSB.print("  ");
+  SerialUSB.print(", ");
   SerialUSB.print(y, 10);
+  SerialUSB.println(")");
 }
 
 KVector3::KVector3()

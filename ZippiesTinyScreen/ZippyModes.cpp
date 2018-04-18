@@ -14,7 +14,7 @@
 #define AUTODRIVE_LEFT_POSITION               -600.0d
 #define AUTODRIVE_RIGHT_POSITION               600.0d
 
-#define ZIPPY_COMMAND_COUNT 20
+#define ZIPPY_COMMAND_COUNT 2
 
 extern ZippyFace face;
 extern Bluetooth bluetooth;
@@ -27,28 +27,14 @@ AutoDriveMode::AutoDriveMode()
     lastCorrectionTime(0),
     currentCommand(0)
 {
+  pathPoints[0].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
+  pathPoints[1].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
+  pathPoints[2].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
+  pathPoints[3].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
+  
   commands = new ZippyCommand*[ZIPPY_COMMAND_COUNT];
   commands[0] = new Pause(3.0d);
-  commands[1] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
-  commands[2] = new Pause(3.0d);
-  commands[3] = new MoveTowardPoint(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
-  commands[4] = new Pause(3.0d);
-  commands[5] = new MoveTowardPoint(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
-  commands[6] = new Pause(3.0d);
-  commands[7] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
-  commands[8] = new Pause(3.0d);
-  commands[9] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
-  commands[10] = new Pause(3.0d);
-
-  commands[11] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
-  commands[12] = new Pause(3.0d);
-  commands[13] = new MoveTowardPoint(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
-  commands[14] = new Pause(3.0d);
-  commands[15] = new MoveTowardPoint(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
-  commands[16] = new Pause(3.0d);
-  commands[17] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
-  commands[18] = new Pause(3.0d);
-  commands[19] = new MoveTowardPoint(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
+  commands[1] = new FollowPath(pathPoints, PATH_POINT_COUNT);
 }
 
 AutoDriveMode::~AutoDriveMode()
