@@ -54,7 +54,10 @@ void ZippyFace::loop()
   lastScreenRefreshTime = currentTime;
   display.startData();
 
-  display.writeBuffer(FACE_HAPPY, 6144);
+//  if (lighthouse.hasLighthouseSignal())
+    display.writeBuffer(FACE_HAPPY, 6144);
+//  else
+//    display.clearScreen();
 /*
   drawBattery();
 

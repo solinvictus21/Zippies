@@ -8,7 +8,7 @@
 #define AUTODRIVE_ENABLED
 
 #define AUTODRIVE_MISSING_POSITION_TIMEOUT    1000
-#define AUTODRIVE_CORRECTION_INTERVAL_MS       200
+#define AUTODRIVE_CORRECTION_INTERVAL_MS     50000
 #define AUTODRIVE_REAR_POSITION               -800.0d
 #define AUTODRIVE_FRONT_POSITION                 0.0d
 #define AUTODRIVE_LEFT_POSITION               -600.0d
@@ -27,29 +27,39 @@ AutoDriveMode::AutoDriveMode()
     lastCorrectionTime(0),
     currentCommand(0)
 {
-  pathPoints[0].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
-  pathPoints[1].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
-  pathPoints[2].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
-  pathPoints[3].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
+  //rectangle
+//  pathPoints[0].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
+//  pathPoints[1].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
+//  pathPoints[2].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
+//  pathPoints[3].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
+
+  //circle
+  pathPoints[0].set(    0.0d,  300.0d);
+  pathPoints[1].set( -150.0d,  220.0d);
+  pathPoints[2].set( -500.0d,   50.0d);
+  pathPoints[3].set( -600.0d, -250.0d);
+  pathPoints[4].set( -500.0d, -550.0d);
+  pathPoints[5].set( -150.0d, -720.0d);
+  pathPoints[6].set(    0.0d, -800.0d);
+  pathPoints[7].set(  150.0d, -720.0d);
+  pathPoints[8].set(  500.0d, -550.0d);
+  pathPoints[9].set(  600.0d, -250.0d);
+  pathPoints[10].set( 500.0d,   50.0d);
+  pathPoints[11].set( 150.0d,  220.0d);
+  pathPoints[12].set(    0.0d, 300.0d);
   
   commands = new ZippyCommand*[ZIPPY_COMMAND_COUNT];
   commands[0] = new Pause(3.0d);
-  commands[1] = new FollowPath(pathPoints, PATH_POINT_COUNT);
-}
-
-AutoDriveMode::~AutoDriveMode()
-{
-  for (int i = 0; i < ZIPPY_COMMAND_COUNT; i++)
-    delete commands[i];
-  delete[] commands;
+  commands[1] = new FollowPath(pathPoints, PATH_POINT_COUNT, AUTODRIVE_CORRECTION_INTERVAL_MS/1000);
 }
 
 void AutoDriveMode::loop()
 {
   if (currentCommand >= ZIPPY_COMMAND_COUNT)
     return;
-  
-  unsigned long currentTime = millis();
+
+//  static int skipCount = 0;
+  unsigned long currentTime = micros();
   if (!lighthouse.hasLighthouseSignal()) {
     if (!moving)
       return;
@@ -78,8 +88,12 @@ void AutoDriveMode::loop()
     return;
   }
 
-  if (currentTime - lastCorrectionTime < AUTODRIVE_CORRECTION_INTERVAL_MS)
+  if (currentTime - lastCorrectionTime < AUTODRIVE_CORRECTION_INTERVAL_MS) {
+//    skipCount++;
     return;
+  }
+//  SerialUSB.println(skipCount);
+//  skipCount = 0;
   lastCorrectionTime += AUTODRIVE_CORRECTION_INTERVAL_MS;
 
   lighthouse.recalculate();
@@ -98,5 +112,11 @@ void AutoDriveMode::stopMoving()
 {
 }
 
+AutoDriveMode::~AutoDriveMode()
+{
+  for (int i = 0; i < ZIPPY_COMMAND_COUNT; i++)
+    delete commands[i];
+  delete[] commands;
+}
 
 

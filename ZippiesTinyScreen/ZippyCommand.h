@@ -32,13 +32,23 @@ class FollowPath : public ZippyCommand
 {
 
 private:
-  KVector2 firstPosition;
-  KVector2* previousPosition;
-  KVector2 deltaPosition;
   KVector2* pathPoints;
   int pathPointCount;
-  int currentPathPoint;
-  double distanceDrivenAlongPath = 0.0d;
+
+  //the point where the robot started traveling on this path
+  KVector2 firstPosition;
+
+  //the vector representing the start of the current segment
+  KVector2* currentSegmentStart;
+  
+  //the index into the pathPoints of the point representing the end of the current segment
+  int currentSegmentEndIndex = 0;
+  
+  //the vector from the start to the end of the current segment
+  KVector2 currentSegment;
+
+  //the distance we've driven along the current segment
+  double currentDistanceAlongSegment = 0.0d;
 
   double leftSetPoint = 0.0d;
   double leftInput = 0.0d;
@@ -50,11 +60,13 @@ private:
   double rightOutput = 0.0d;
   PID rightPID;
   
-  double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
+//  double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
+  void calculateNextPotentialPosition(KVector2* nextPosition);
+  void calculateNextPosition(KVector2* nextPosition);
   void updateInputs();
   
 public:
-  FollowPath(KVector2* pathPoints, int pathPointCount);
+  FollowPath(KVector2* pathPoints, int pathPointCount, int sampleTime);
   void start();
   bool loop();
 
