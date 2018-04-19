@@ -21,7 +21,7 @@
 //#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
 //#define AUTODRIVE_POSITION_EPSILON_2        10000.0d
 
-#define AUTODRIVE_LINEAR_Kp                     7.0d
+#define AUTODRIVE_LINEAR_Kp                     7.4d
 #define AUTODRIVE_LINEAR_Ki                     0.5d
 #define AUTODRIVE_LINEAR_Kd                     0.2d
 
