@@ -4,12 +4,12 @@
 #include "MotorDriver.h"
 
 //the minimum PCM value below which the motors do not turn
-#define MOTOR_MIN_POWER                      4600.00d
+#define MOTOR_MIN_POWER                      4400.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define MAX_LINEAR_VELOCITY                  1200.00d
+#define MAX_LINEAR_VELOCITY                   600.00d
 #define MAX_ROTATIONAL_VELOCITY               270.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define LOOK_AHEAD_DISTANCE_MM                200.00d
+#define LOOK_AHEAD_DISTANCE_MM                300.00d
 #define HALF_TURNING_RADIUS                   M_PI_2
 //#define HALF_TURNING_RADIUS                   1.963495408493621d
 //#define HALF_TURNING_RADIUS                   1.178097245096172
@@ -21,9 +21,9 @@
 //#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
 //#define AUTODRIVE_POSITION_EPSILON_2        10000.0d
 
-#define AUTODRIVE_LINEAR_Kp                     7.4d
-#define AUTODRIVE_LINEAR_Ki                     0.5d
-#define AUTODRIVE_LINEAR_Kd                     0.2d
+#define AUTODRIVE_LINEAR_Kp                     8.80d
+#define AUTODRIVE_LINEAR_Ki                     2.60d
+#define AUTODRIVE_LINEAR_Kd                     0.05d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;

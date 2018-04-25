@@ -5,10 +5,13 @@
 #include "KVector.h"
 #include "KQuaternion.h"
 
-//#define LIGHTHOUSE_DEBUG_SCREEN_SIGNAL 1
-//#define LIGHTHOUSE_DEBUG_SCREEN_ERRORS 1
-//#define LIGHTHOUSE_DEBUG_SIGNAL 1
-//#define LIGHTHOUSE_DEBUG_ERRORS 1
+//#define DEBUG_SIGNAL_EDGES 1
+#define DEBUG_LIGHTHOUSE_EDGES 1
+
+//#define LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
+//#define LIGHTHOUSE_DEBUG_SCREEN_ERRORS
+//#define LIGHTHOUSE_DEBUG_SIGNAL
+//#define LIGHTHOUSE_DEBUG_ERRORS
 
 #define BUFFER_SIZE 32
 #define BASE_STATION_INFO_BLOCK_SIZE 33
@@ -24,6 +27,10 @@ typedef struct _RotorFactoryCalibrationData
 
 typedef struct _LighthouseSensorInput
 {
+#ifdef DEBUG_SIGNAL_EDGES
+  unsigned int volatile risingEdgeCount = 0;
+  unsigned int volatile fallingEdgeCount = 0;
+#endif
   unsigned int hitTickBuffer[BUFFER_SIZE];
   unsigned int* const hitTickEndPtr = hitTickBuffer + BUFFER_SIZE - 1;
   unsigned int* volatile hitTickWritePtr = hitTickBuffer;
@@ -48,13 +55,21 @@ typedef struct _SensorCycleData
   //updated each time a sweep hit is detected; set to zero when lighthouse signal is unavailable
   unsigned long sweepHitTimeStamp = 0;
 
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+  unsigned int syncRisingEdgeHits = 0;
+  unsigned int syncRisingEdgeMisses = 0;
+  unsigned int syncFallingEdgeHits = 0;
+  unsigned int syncFallingEdgeMisses = 0;
+  unsigned int sweepRisingEdgeHits = 0;
+  unsigned int sweepRisingEdgeMisses = 0;
+  unsigned int sweepFallingEdgeHits = 0;  
+  unsigned int sweepFallingEdgeMisses = 0;  
+#endif
+
 #ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
   unsigned long lastCycleTickCount = 0;
 #elif LIGHTHOUSE_DEBUG_SCREEN_ERRORS
   //error counts
-  unsigned int syncFallingErrorCount = 0;
-  unsigned int sweepRisingErrorCount = 0;
-  unsigned int sweepFallingErrorCount = 0;
   unsigned long sweepAccumulator = 0;
   unsigned long sweepCounter = 0;
 #endif
@@ -140,6 +155,70 @@ public:
     eventCount = 0;
     return ec;
   }
+
+#ifdef DEBUG_SIGNAL_EDGES
+  unsigned int getRisingEdgeCount() {
+    unsigned int v = sensorInput->risingEdgeCount;
+    sensorInput->risingEdgeCount = 0;
+    return v;
+  }
+
+  unsigned int getFallingEdgeCount() {
+    unsigned int v = sensorInput->fallingEdgeCount;
+    sensorInput->fallingEdgeCount = 0;
+    return v;
+  }
+#endif
+
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+  unsigned int getXSyncRisingEdgeHits() {
+    unsigned int v = cycleData[0].syncRisingEdgeHits;
+    cycleData[0].syncRisingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getXSyncRisingEdgeMisses() {
+    unsigned int v = cycleData[0].syncRisingEdgeMisses;
+    cycleData[0].syncRisingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getXSyncFallingEdgeHits() {
+    unsigned int v = cycleData[0].syncFallingEdgeHits;
+    cycleData[0].syncFallingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getXSyncFallingEdgeMisses() {
+    unsigned int v = cycleData[0].syncFallingEdgeMisses;
+    cycleData[0].syncFallingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getXSweepRisingEdgeHits() {
+    unsigned int v = cycleData[0].sweepRisingEdgeHits;
+    cycleData[0].sweepRisingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getXSweepRisingEdgeMisses() {
+    unsigned int v = cycleData[0].sweepRisingEdgeMisses;
+    cycleData[0].sweepRisingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getXSweepFallingEdgeHits() {
+    unsigned int v = cycleData[0].sweepFallingEdgeHits;
+    cycleData[0].sweepFallingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getXSweepFallingEdgeMisses() {
+    unsigned int v = cycleData[0].sweepFallingEdgeMisses;
+    cycleData[0].sweepFallingEdgeMisses = 0;
+    return v;
+  }
+#endif
 
 #ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
   unsigned long getXCycleTickCount() {
