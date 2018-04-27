@@ -812,6 +812,14 @@ void LighthouseSensor::processSweepHit(unsigned int currentTickCount)
     SerialUSB.println(" axis after seeing the proper sync pulse.");
 #endif
 */
+    //we missed the sweep pulse; clear this cycle's data since the sweep was missed
+    cycleData[currentAxis].syncTickCount = 0;
+    cycleData[currentAxis].sweepTickCount = 0;
+    cycleData[currentAxis].sweepHitTimeStamp = 0;
+
+    //move to watching for the end of the sync pulse on the other axis
+    currentAxis = (currentAxis+1) & 0x1;
+
 #ifdef DEBUG_LIGHTHOUSE_EDGES
     //this technically counts as two errors, since we'll also miss the falling edge of the sync pulse
     cycleData[currentAxis].sweepRisingEdgeMisses++;
@@ -820,15 +828,7 @@ void LighthouseSensor::processSweepHit(unsigned int currentTickCount)
     cycleData[currentAxis].syncRisingEdgeHits++;
 #endif
 
-    //we missed the sweep pulse; clear this cycle's data since the sweep was missed
-    cycleData[currentAxis].syncTickCount = 0;
-    cycleData[currentAxis].sweepTickCount = 0;
-    cycleData[currentAxis].sweepHitTimeStamp = 0;
-
-    //move to watching for the sync pulse on the other axis
-    currentAxis = (currentAxis+1) & 0x1;
     cycleData[currentAxis].pendingSyncStart = currentTickCount;
-
     currentEdge = SyncFalling;
 //    currentEdge = Unknown;
     return;

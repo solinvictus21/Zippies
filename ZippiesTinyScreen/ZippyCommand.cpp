@@ -4,12 +4,12 @@
 #include "MotorDriver.h"
 
 //the minimum PCM value below which the motors do not turn
-#define MOTOR_MIN_POWER                      4400.00d
+#define MOTOR_MIN_POWER                      3500.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define MAX_LINEAR_VELOCITY                   600.00d
-#define MAX_ROTATIONAL_VELOCITY               270.00d
+#define MAX_LINEAR_VELOCITY                   500.00d
+#define MAX_ROTATIONAL_VELOCITY               200.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define LOOK_AHEAD_DISTANCE_MM                300.00d
+#define LOOK_AHEAD_DISTANCE_MM                150.00d
 #define HALF_TURNING_RADIUS                   M_PI_2
 //#define HALF_TURNING_RADIUS                   1.963495408493621d
 //#define HALF_TURNING_RADIUS                   1.178097245096172
@@ -21,9 +21,9 @@
 //#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
 //#define AUTODRIVE_POSITION_EPSILON_2        10000.0d
 
-#define AUTODRIVE_LINEAR_Kp                     8.80d
-#define AUTODRIVE_LINEAR_Ki                     2.60d
-#define AUTODRIVE_LINEAR_Kd                     0.05d
+#define AUTODRIVE_LINEAR_Kp                    17.00d
+#define AUTODRIVE_LINEAR_Ki                     2.80d
+#define AUTODRIVE_LINEAR_Kd                     0.50d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -111,112 +111,6 @@ double FollowPath::calculateInput(LighthouseSensor* sensor,
 }
 */
 
-void FollowPath::calculateNextPotentialPosition(KVector2* nextPosition)
-{
-  //calculate our current target position along the path relative to the current position of the robot
-  double deltaAlongPath = currentDistanceAlongSegment / currentSegment.getD();
-  nextPosition->set(currentSegmentStart->getX() + (currentSegment.getX() * deltaAlongPath),
-      currentSegmentStart->getY() + (currentSegment.getY() * deltaAlongPath));
-  nextPosition->subtractVector(lighthouse.getPosition());
-}
-
-void FollowPath::calculateNextPosition(KVector2* nextPosition)
-{
-  calculateNextPotentialPosition(nextPosition);
-  
-  //now ensure that we're not already in range of the next position
-  double distanceToNextPosition = nextPosition->getD();
-  if (distanceToNextPosition >= LOOK_AHEAD_DISTANCE_MM) {
-    //still moving to next position; keep going
-    nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
-    return;
-  }
-  
-  //the robot is within range of the next position, so move the next position forward along the path by the difference
-  currentDistanceAlongSegment += (LOOK_AHEAD_DISTANCE_MM - distanceToNextPosition);
-  if (currentDistanceAlongSegment < currentSegment.getD()) {
-    //we still have not reached the end of the current segment; keep going
-    calculateNextPotentialPosition(nextPosition);
-    nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
-    return;
-  }
-  
-  //we've reached beyond the end of the current path segment
-  if (currentSegmentEndIndex+1 < pathPointCount) {
-    //there are more path segments, so move on to the next one, starting at the distance left over after completing the current segment
-    currentDistanceAlongSegment -= currentSegment.getD();
-
-    currentSegmentStart = &pathPoints[currentSegmentEndIndex];
-    currentSegmentEndIndex++;
-    currentSegment.set(pathPoints[currentSegmentEndIndex].getX() - currentSegmentStart->getX(),
-        pathPoints[currentSegmentEndIndex].getY() - currentSegmentStart->getY());
-
-    //now recalculate our current target position along the path
-    calculateNextPotentialPosition(nextPosition);
-    nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
-    return;
-  }
-
-  //no more path points; stop at the end of this path segment
-  currentDistanceAlongSegment = currentSegment.getD();
-  nextPosition->set(&pathPoints[currentSegmentEndIndex]);
-  nextPosition->subtractVector(lighthouse.getPosition());
-  nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
-}
-
-void FollowPath::updateInputs()
-{
-  KVector2 nextPosition;
-  calculateNextPosition(&nextPosition);
-
-  //now make the reference to the next position relative to the local coordinate system of the robot
-  KVector2* lighthouseOrientation = lighthouse.getOrientation();
-  nextPosition.rotate(-lighthouseOrientation->getOrientation());
-//  nextPosition.printDebug();
-
-  LighthouseSensor* leftSensor = lighthouse.getLeftSensor();
-  LighthouseSensor* rightSensor = lighthouse.getRightSensor();
-  double angleToPosition = nextPosition.getOrientation();
-//  SerialUSB.print("A: ");
-//  SerialUSB.println(angleToPosition, 2);
-  if (angleToPosition <= -HALF_TURNING_RADIUS) {
-    //fully left
-    leftSetPoint = -MAX_ROTATIONAL_VELOCITY;
-    rightSetPoint = MAX_ROTATIONAL_VELOCITY;
-  }
-  else if (angleToPosition >= HALF_TURNING_RADIUS) {
-    //fully right
-    leftSetPoint = MAX_ROTATIONAL_VELOCITY;
-    rightSetPoint = -MAX_ROTATIONAL_VELOCITY;
-  }
-  else {
-    angleToPosition /= HALF_TURNING_RADIUS;
-    double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - abs(angleToPosition));
-    double rotationalVelocity = MAX_ROTATIONAL_VELOCITY * angleToPosition;
-    leftSetPoint = linearVelocity + rotationalVelocity;
-    rightSetPoint = linearVelocity - rotationalVelocity;
-
-    /*
-    SerialUSB.print("LV: ");
-    SerialUSB.print(linearVelocity, 2);
-    SerialUSB.print("   RV: ");
-    SerialUSB.print(rotationalVelocity, 2);
-    SerialUSB.print("   LS: ");
-    SerialUSB.print(leftSetPoint, 2);
-    SerialUSB.print("   RS: ");
-    SerialUSB.println(rightSetPoint, 2);
-    */
-  }
-
-  leftInput = leftSensor->getVelocity();
-  rightInput = rightSensor->getVelocity();
-
-//  SerialUSB.print(leftInput, 2);
-//  SerialUSB.print(" ");
-//  SerialUSB.println(rightInput, 2);
-//  SerialUSB.println();
-}
-
 void FollowPath::start()
 {
   leftPID.SetMode(MANUAL);
@@ -271,5 +165,114 @@ bool FollowPath::loop()
                    padInner(-rightOutput, MOTOR_MIN_POWER));
 
   return false;
+}
+
+void FollowPath::updateInputs()
+{
+  KVector2 nextPosition;
+  calculateNextPosition(&nextPosition);
+
+  //now make the reference to the next position relative to the local coordinate system of the robot
+  KVector2* lighthouseOrientation = lighthouse.getOrientation();
+  nextPosition.rotate(-lighthouseOrientation->getOrientation());
+//  nextPosition.printDebug();
+
+  LighthouseSensor* leftSensor = lighthouse.getLeftSensor();
+  LighthouseSensor* rightSensor = lighthouse.getRightSensor();
+  double angleToPosition = nextPosition.getOrientation();
+//  SerialUSB.print("A: ");
+//  SerialUSB.println(angleToPosition, 2);
+  if (angleToPosition <= -HALF_TURNING_RADIUS) {
+    //target is behind us to the left; turn fully left
+    leftSetPoint = -MAX_ROTATIONAL_VELOCITY;
+    rightSetPoint = MAX_ROTATIONAL_VELOCITY;
+  }
+  else if (angleToPosition >= HALF_TURNING_RADIUS) {
+    //target is behind us to the right; turn fully right
+    leftSetPoint = MAX_ROTATIONAL_VELOCITY;
+    rightSetPoint = -MAX_ROTATIONAL_VELOCITY;
+  }
+  else {
+    //normalize the angle to be in the range of -1.0 to +1.0
+    angleToPosition /= HALF_TURNING_RADIUS;
+    
+    double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - abs(angleToPosition));
+    double rotationalVelocity = MAX_ROTATIONAL_VELOCITY * angleToPosition;
+    leftSetPoint = linearVelocity + rotationalVelocity;
+    rightSetPoint = linearVelocity - rotationalVelocity;
+
+    /*
+    SerialUSB.print("LV: ");
+    SerialUSB.print(linearVelocity, 2);
+    SerialUSB.print("   RV: ");
+    SerialUSB.print(rotationalVelocity, 2);
+    SerialUSB.print("   LS: ");
+    SerialUSB.print(leftSetPoint, 2);
+    SerialUSB.print("   RS: ");
+    SerialUSB.println(rightSetPoint, 2);
+    */
+  }
+
+  leftInput = leftSensor->getVelocity();
+  rightInput = rightSensor->getVelocity();
+
+//  SerialUSB.print(leftInput, 2);
+//  SerialUSB.print(" ");
+//  SerialUSB.println(rightInput, 2);
+//  SerialUSB.println();
+}
+
+void FollowPath::calculateNextPosition(KVector2* nextPosition)
+{
+  //determine the current target position relative to the robot
+  getCurrentTargetPosition(nextPosition);
+  
+  //check if we're within the look-ahead distance of the current target position
+  double distanceToNextPosition = nextPosition->getD();
+  if (distanceToNextPosition >= LOOK_AHEAD_DISTANCE_MM) {
+    //still moving to next position; just keep moving toward it
+    nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
+    return;
+  }
+  
+  //the robot is within the look-ahead distance of the current target position, so move the target position forward along the path by the difference
+  currentDistanceAlongSegment += (LOOK_AHEAD_DISTANCE_MM - distanceToNextPosition);
+
+  //if we've reached beyond the end of the current path segment and there are more segments, move to the next segment
+  while (currentDistanceAlongSegment >= currentSegment.getD()) {
+    //stop at the last segment
+    if (currentSegmentEndIndex+1 == pathPointCount) {
+      currentDistanceAlongSegment = currentSegment.getD();
+      break;
+    }
+    
+    //there are more path segments, so we're going to move on to the next path segment
+    //first determine the distance left over after completing the current segment
+    currentDistanceAlongSegment -= currentSegment.getD();
+
+    //move to the next path segment
+    currentSegmentStart = &pathPoints[currentSegmentEndIndex];
+    currentSegmentEndIndex++;
+    currentSegment.set(pathPoints[currentSegmentEndIndex].getX() - currentSegmentStart->getX(),
+        pathPoints[currentSegmentEndIndex].getY() - currentSegmentStart->getY());
+  }
+
+  //recalculate our current target position along the path
+  getCurrentTargetPosition(nextPosition);
+  nextPosition->setD(min(LOOK_AHEAD_DISTANCE_MM, nextPosition->getD()));
+}
+
+//calculate our current target position along the current path segment, relative to the current position of the robot
+void FollowPath::getCurrentTargetPosition(KVector2* nextPosition)
+{
+  //start by determining the current distance we've traveled along this segment, normalized from 0.0 to 1.0
+  double deltaAlongPath = currentDistanceAlongSegment / currentSegment.getD();
+  
+  //now LERP out the x/y position along the current path segment
+  nextPosition->set(currentSegmentStart->getX() + (currentSegment.getX() * deltaAlongPath),
+      currentSegmentStart->getY() + (currentSegment.getY() * deltaAlongPath));
+      
+  //subtract the current position of the robot to obtain a vector relative to the robot to the target position
+  nextPosition->subtractVector(lighthouse.getPosition());
 }
 

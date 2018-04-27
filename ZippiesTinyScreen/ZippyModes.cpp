@@ -33,8 +33,8 @@ AutoDriveMode::AutoDriveMode()
 //  pathPoints[2].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
 //  pathPoints[3].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
 
-  //circle; center
   /*
+  //circle; center
   pathPoints[0].set(    0.0d,  300.0d);
   pathPoints[1].set( -280.0d,  230.0d);
   pathPoints[2].set( -500.0d,   50.0d);
@@ -50,21 +50,46 @@ AutoDriveMode::AutoDriveMode()
   pathPoints[12].set(    0.0d, 300.0d);
   */
   
+  /*
   //circle; upper left
-  pathPoints[0].set(   0.0d,  300.0d);
-  pathPoints[1].set( -280.0d,  230.0d);
-  pathPoints[2].set( -500.0d,   50.0d);
-  pathPoints[3].set( -600.0d, -250.0d);
-  pathPoints[4].set( -500.0d, -550.0d);
-  pathPoints[5].set( -280.0d, -730.0d);
-  pathPoints[6].set(    0.0d, -800.0d);
-  pathPoints[7].set(  280.0d, -730.0d);
-  pathPoints[8].set(  500.0d, -550.0d);
-  pathPoints[9].set(  600.0d, -250.0d);
-  pathPoints[10].set(  500.0d,   50.0d);
-  pathPoints[11].set( 280.0d,  230.0d);
-  pathPoints[12].set(   0.0d,  300.0d);
-  
+  pathPoints[0].set(    0.0d, -850.0d);
+  pathPoints[1].set(  280.0d, -780.0d);
+  pathPoints[2].set(  500.0d, -600.0d);
+  pathPoints[3].set(  600.0d, -300.0d);
+  pathPoints[4].set(  500.0d,   0.0d);
+  pathPoints[5].set( 280.0d,  190.0d);
+  pathPoints[6].set(   0.0d,  250.0d);
+  pathPoints[7].set( -280.0d,  190.0d);
+  pathPoints[8].set( -500.0d,    0.0d);
+  pathPoints[9].set( -600.0d, -300.0d);
+  pathPoints[10].set( -500.0d, -600.0d);
+  pathPoints[11].set( -280.0d, -780.0d);
+  pathPoints[12].set(    0.0d, -850.0d);
+  */
+
+  //figure 8 from center
+  pathPoints[0].set(  0.000000,  0.000000);
+  pathPoints[1].set(  0.100000, -0.400000);
+  pathPoints[2].set(  0.200000, -0.500000);
+  pathPoints[3].set(  0.500000, -0.500000);
+  pathPoints[4].set(  0.600000, -0.400000);
+  pathPoints[5].set(  0.600000,  0.400000);
+  pathPoints[6].set(  0.500000,  0.500000);
+  pathPoints[7].set(  0.200000,  0.500000);
+  pathPoints[8].set(  0.100000,  0.400000);
+  pathPoints[9].set(  0.000000,  0.000000);
+  pathPoints[10].set( -0.100000, -0.400000);
+  pathPoints[11].set( -0.200000, -0.500000);
+  pathPoints[12].set( -0.500000, -0.500000);
+  pathPoints[13].set( -0.600000, -0.400000);
+  pathPoints[14].set( -0.600000,  0.400000);
+  pathPoints[15].set( -0.500000,  0.500000);
+  pathPoints[16].set( -0.200000,  0.500000);
+  pathPoints[17].set( -0.100000,  0.400000);
+  pathPoints[18].set(  0.000000,  0.000000);
+  for (int i = 0; i < PATH_POINT_COUNT; i++)
+    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 350.0d);
+
   commands = new ZippyCommand*[ZIPPY_COMMAND_COUNT];
   commands[0] = new Pause(2.0d);
   commands[1] = new FollowPath(pathPoints, PATH_POINT_COUNT, AUTODRIVE_CORRECTION_INTERVAL_MS);

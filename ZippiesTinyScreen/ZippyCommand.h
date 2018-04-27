@@ -61,9 +61,9 @@ private:
   PID rightPID;
   
 //  double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
-  void calculateNextPotentialPosition(KVector2* nextPosition);
-  void calculateNextPosition(KVector2* nextPosition);
   void updateInputs();
+  void calculateNextPosition(KVector2* nextPosition);
+  void getCurrentTargetPosition(KVector2* nextPosition);
   
 public:
   FollowPath(KVector2* pathPoints, int pathPointCount, int sampleTime);

@@ -218,6 +218,54 @@ public:
     cycleData[0].sweepFallingEdgeMisses = 0;
     return v;
   }
+
+  unsigned int getYSyncRisingEdgeHits() {
+    unsigned int v = cycleData[1].syncRisingEdgeHits;
+    cycleData[1].syncRisingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getYSyncRisingEdgeMisses() {
+    unsigned int v = cycleData[1].syncRisingEdgeMisses;
+    cycleData[1].syncRisingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getYSyncFallingEdgeHits() {
+    unsigned int v = cycleData[1].syncFallingEdgeHits;
+    cycleData[1].syncFallingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getYSyncFallingEdgeMisses() {
+    unsigned int v = cycleData[1].syncFallingEdgeMisses;
+    cycleData[1].syncFallingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getYSweepRisingEdgeHits() {
+    unsigned int v = cycleData[1].sweepRisingEdgeHits;
+    cycleData[1].sweepRisingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getYSweepRisingEdgeMisses() {
+    unsigned int v = cycleData[1].sweepRisingEdgeMisses;
+    cycleData[1].sweepRisingEdgeMisses = 0;
+    return v;
+  }
+
+  unsigned int getYSweepFallingEdgeHits() {
+    unsigned int v = cycleData[1].sweepFallingEdgeHits;
+    cycleData[1].sweepFallingEdgeHits = 0;
+    return v;
+  }
+
+  unsigned int getYSweepFallingEdgeMisses() {
+    unsigned int v = cycleData[1].sweepFallingEdgeMisses;
+    cycleData[1].sweepFallingEdgeMisses = 0;
+    return v;
+  }
 #endif
 
 #ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
