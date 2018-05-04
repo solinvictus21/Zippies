@@ -11,8 +11,9 @@ private:
   bool started;
   uint16_t serviceHandle;
   uint16_t characteristicTransmitHandle;
-  uint16_t sensorRightReceiveHandle;
+  uint16_t lighthouseReceiveHandle;
   uint16_t sensorLeftReceiveHandle;
+  uint16_t sensorRightReceiveHandle;
   uint16_t computedDataReceiveHandle;
   bool discoveryEnabled;
   uint16_t connectionHandle;
@@ -29,6 +30,7 @@ public:
   
   bool start();
   uint8_t loop();
+  tBleStatus sendLighthouseData(uint8_t* lighthouseDataBuffer);
   tBleStatus sendSensorLeft(uint8_t* sendBuffer);
   tBleStatus sendSensorRight(uint8_t* sendBuffer);
   tBleStatus sendComputedData(uint8_t* sendBuffer);

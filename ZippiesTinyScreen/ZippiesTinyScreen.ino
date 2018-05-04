@@ -14,7 +14,7 @@
 #define BLE_RECEIVE_MOTORS_SET       0x15
 #define BLE_RECEIVE_FORWARD_STRAIGHT 0x16
 #define BLE_SEND_DEBUG_INFO          0x00
-#define BLE_SEND_INTERVAL_MS        1000
+#define BLE_SEND_INTERVAL_MS          500
 
 ZippyFace face;
 Lighthouse lighthouse;
@@ -125,8 +125,6 @@ void loop()
   //first process the Lighthouse input
   lighthouse.loop();
 
-  static bool bluetoothWasConnected = false;
-
   //now process all the inbound Bluetooth commands
   uint8_t receivedDataLength = bluetooth.loop();
   while (receivedDataLength) {
@@ -178,10 +176,28 @@ void loop()
   motors.loop();
   face.loop();
 
+  processBluetooth();
+}
+
+void processBluetooth()
+{
+  
+  static bool bluetoothWasConnected = false;
+  static bool lighthouseDataSent = false;
+  static bool userDriveModeEnabled = false;
+
   bool bluetoothIsConnected = bluetooth.isConnected();
   if (bluetoothWasConnected && !bluetoothIsConnected) {
-    motors.setMotors(0, 0);
+    lighthouseDataSent = false;
+    if (userDriveModeEnabled) {
+      //user was directly controlling the Zippy when bluetooth disconnected, to stop the motors
+      userDriveModeEnabled = false;
+      motors.setMotors(0, 0);
+    }
   }
+//  else if (!bluetoothWasConnected && bluetoothIsConnected) {
+//    if (lighthouse.
+//  }
   bluetoothWasConnected = bluetoothIsConnected;
 
 //  /*
@@ -189,6 +205,7 @@ void loop()
   static uint8_t testValue = 0;
   unsigned long currentTime = millis();
   if (bluetooth.isConnected() && currentTime-bluetoothSendDebugInfoTmeStamp > BLE_SEND_INTERVAL_MS) {
+//    SerialUSB.println("Sending bluetooth data.");
 //    lighthouse.recalculate();
     
     float deltaTimeSeconds = ((float)(currentTime - bluetoothSendDebugInfoTmeStamp)) / 1000.0f;
@@ -228,5 +245,4 @@ void loop()
   }
 //  */
 }
-
 

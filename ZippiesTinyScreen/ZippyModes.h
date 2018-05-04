@@ -5,6 +5,7 @@
 #include "KVector.h"
 
 #define PATH_POINT_COUNT 19
+#define BEZIER_CONTROL_POINT_COUNT 2*(PATH_POINT_COUNT-1)
 
 class ZippyMode
 {
@@ -25,9 +26,11 @@ private:
   unsigned long lastCorrectionTime;
 
   KVector2 pathPoints[PATH_POINT_COUNT];
+  KVector2 bezierControlPoints[BEZIER_CONTROL_POINT_COUNT];
   ZippyCommand** commands;
   int currentCommand;
-  
+
+  void computeControlPoints();
   void stopMoving();
 
 public:

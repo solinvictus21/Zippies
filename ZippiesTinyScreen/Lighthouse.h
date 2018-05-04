@@ -6,10 +6,8 @@
 #include "KQuaternion.h"
 
 //#define DEBUG_SIGNAL_EDGES 1
-#define DEBUG_LIGHTHOUSE_EDGES 1
+//#define DEBUG_LIGHTHOUSE_EDGES 1
 
-//#define LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
-//#define LIGHTHOUSE_DEBUG_SCREEN_ERRORS
 //#define LIGHTHOUSE_DEBUG_SIGNAL
 //#define LIGHTHOUSE_DEBUG_ERRORS
 
@@ -45,7 +43,7 @@ enum PulseEdge
 typedef struct _SensorCycleData
 {
   //pending sync tick count; to be used if we later see the sweep hit
-  unsigned long pendingSyncStart = 0;
+  unsigned long pendingCycleStart = 0;
   unsigned long pendingSyncLength = 0;
   
   //number of ticks in most recent cycle; set to zero when a cycle is missed
@@ -56,22 +54,23 @@ typedef struct _SensorCycleData
   unsigned long sweepHitTimeStamp = 0;
 
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-  unsigned int syncRisingEdgeHits = 0;
-  unsigned int syncRisingEdgeMisses = 0;
-  unsigned int syncFallingEdgeHits = 0;
-  unsigned int syncFallingEdgeMisses = 0;
-  unsigned int sweepRisingEdgeHits = 0;
-  unsigned int sweepRisingEdgeMisses = 0;
-  unsigned int sweepFallingEdgeHits = 0;  
-  unsigned int sweepFallingEdgeMisses = 0;  
+  unsigned int syncHits = 0;
+  unsigned int syncMisses = 0;
+  unsigned int sweepHits = 0;
+  unsigned int sweepMisses = 0;
+  //stats
+  unsigned long sweepMinTicks = 0;
+  unsigned long sweepMaxTicks = 0;
+  unsigned long sweepAccumulator = 0;
+  unsigned long sweepCounter = 0;
+  //edges detected between the sweep hit and the next sync, which are "echoes" of other edges due to a likely circuit design flaw
+  unsigned int edgeEchoCount = 0;
 #endif
 
 #ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
   unsigned long lastCycleTickCount = 0;
 #elif LIGHTHOUSE_DEBUG_SCREEN_ERRORS
   //error counts
-  unsigned long sweepAccumulator = 0;
-  unsigned long sweepCounter = 0;
 #endif
 } SensorCycleData;
 
@@ -104,7 +103,7 @@ private:
   bool receivedLighthousePosition;
 
   RotorFactoryCalibrationData xRotor;
-  RotorFactoryCalibrationData yRotor;
+  RotorFactoryCalibrationData zRotor;
 
   //the current edge we're expecting within the current cycle
   PulseEdge currentEdge;
@@ -127,9 +126,11 @@ private:
   double velocity;
   unsigned long velocityTimeStamp = 0;
   
-  void processUnknownPulse(unsigned int startTickCount, unsigned int endTickCount);
-  void processSyncPulse(unsigned int startTickCount, unsigned int endTickCount);
-  void processSweepHit(unsigned int deltaTickCount);
+  void reacquireSyncPulses(unsigned int previousTickCount, unsigned int currentTickCount);
+  void processSyncRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
+  void processSyncFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
+  void processSweepRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
+  void processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
 
   bool hasLighthouseSignal() { return receivedLighthousePosition && cycleData[0].sweepHitTimeStamp && cycleData[1].sweepHitTimeStamp; }
   void recalculatePosition();
@@ -138,23 +139,28 @@ private:
 
   friend class Lighthouse;
 
-  unsigned int eventCount = 0;
-  
 public:
   LighthouseSensor(LighthouseSensorInput* sensorInput, int debugNumber);
 
   void loop();
-
+  
   //info about the lighthouse position received by this sensor
+  bool hasLighthousePosition() { return receivedLighthousePosition; }
   int8_t getAccelDirX();
   int8_t getAccelDirY();
   int8_t getAccelDirZ();
 
-  unsigned int getEventCount() {
-    unsigned int ec = eventCount;
-    eventCount = 0;
-    return ec;
-  }
+  unsigned long getXSyncTickCount() { return cycleData[0].syncTickCount; }
+  unsigned long getXSweepTickCount() { return cycleData[0].sweepTickCount; }
+  
+  unsigned long getYSyncTickCount() { return cycleData[1].syncTickCount; }
+  unsigned long getYSweepTickCount() { return cycleData[1].sweepTickCount; }
+
+  //info about the robot position; if any portion of each Lighthouse cycle is missed, hasPosition() returns false
+  KVector2* getPosition() { return &positionVector; }
+  
+  //data derived from change in position over time
+  double getVelocity() { return velocity; }
 
 #ifdef DEBUG_SIGNAL_EDGES
   unsigned int getRisingEdgeCount() {
@@ -171,99 +177,100 @@ public:
 #endif
 
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-  unsigned int getXSyncRisingEdgeHits() {
-    unsigned int v = cycleData[0].syncRisingEdgeHits;
-    cycleData[0].syncRisingEdgeHits = 0;
+  unsigned int getXSyncHits() {
+    unsigned int v = cycleData[0].syncHits;
+    cycleData[0].syncHits = 0;
     return v;
   }
 
-  unsigned int getXSyncRisingEdgeMisses() {
-    unsigned int v = cycleData[0].syncRisingEdgeMisses;
-    cycleData[0].syncRisingEdgeMisses = 0;
+  unsigned int getXSyncMisses() {
+    unsigned int v = cycleData[0].syncMisses;
+    cycleData[0].syncMisses = 0;
     return v;
   }
 
-  unsigned int getXSyncFallingEdgeHits() {
-    unsigned int v = cycleData[0].syncFallingEdgeHits;
-    cycleData[0].syncFallingEdgeHits = 0;
+  unsigned int getXSweepHits() {
+    unsigned int v = cycleData[0].sweepHits;
+    cycleData[0].sweepHits = 0;
     return v;
   }
 
-  unsigned int getXSyncFallingEdgeMisses() {
-    unsigned int v = cycleData[0].syncFallingEdgeMisses;
-    cycleData[0].syncFallingEdgeMisses = 0;
+  unsigned int getXSweepMisses() {
+    unsigned int v = cycleData[0].sweepMisses;
+    cycleData[0].sweepMisses = 0;
+    return v;
+  }
+  
+  unsigned int getXSweepMinTicks() {
+    unsigned int v = cycleData[0].sweepMinTicks;
+    cycleData[0].sweepMinTicks = 0;
+    return v;
+  }
+  
+  unsigned int getXSweepMaxTicks() {
+    unsigned int v = cycleData[0].sweepMaxTicks;
+    cycleData[0].sweepMaxTicks = 0;
+    return v;
+  }
+  
+  unsigned int getXSweepTicksAverage() {
+    unsigned int v = cycleData[0].sweepAccumulator / cycleData[0].sweepCounter;
+    cycleData[0].sweepAccumulator = 0;
+    cycleData[0].sweepCounter = 0;
+    return v;
+  }
+  
+  unsigned int getXEdgeEchoCount() {
+    unsigned int v = cycleData[0].edgeEchoCount;
+    cycleData[0].edgeEchoCount = 0;
+    return v;
+  }
+  
+  unsigned int getYSyncHits() {
+    unsigned int v = cycleData[1].syncHits;
+    cycleData[1].syncHits = 0;
     return v;
   }
 
-  unsigned int getXSweepRisingEdgeHits() {
-    unsigned int v = cycleData[0].sweepRisingEdgeHits;
-    cycleData[0].sweepRisingEdgeHits = 0;
+  unsigned int getYSyncMisses() {
+    unsigned int v = cycleData[1].syncMisses;
+    cycleData[1].syncMisses = 0;
+    return v;
+  }
+  unsigned int getYSweepHits() {
+    unsigned int v = cycleData[1].sweepHits;
+    cycleData[1].sweepHits = 0;
     return v;
   }
 
-  unsigned int getXSweepRisingEdgeMisses() {
-    unsigned int v = cycleData[0].sweepRisingEdgeMisses;
-    cycleData[0].sweepRisingEdgeMisses = 0;
+  unsigned int getYSweepMisses() {
+    unsigned int v = cycleData[1].sweepMisses;
+    cycleData[1].sweepMisses = 0;
     return v;
   }
 
-  unsigned int getXSweepFallingEdgeHits() {
-    unsigned int v = cycleData[0].sweepFallingEdgeHits;
-    cycleData[0].sweepFallingEdgeHits = 0;
+  unsigned int getYSweepMinTicks() {
+    unsigned int v = cycleData[1].sweepMinTicks;
+    cycleData[1].sweepMinTicks = 0;
     return v;
   }
-
-  unsigned int getXSweepFallingEdgeMisses() {
-    unsigned int v = cycleData[0].sweepFallingEdgeMisses;
-    cycleData[0].sweepFallingEdgeMisses = 0;
+  
+  unsigned int getYSweepMaxTicks() {
+    unsigned int v = cycleData[1].sweepMaxTicks;
+    cycleData[1].sweepMaxTicks = 0;
     return v;
   }
-
-  unsigned int getYSyncRisingEdgeHits() {
-    unsigned int v = cycleData[1].syncRisingEdgeHits;
-    cycleData[1].syncRisingEdgeHits = 0;
+  
+  unsigned int getYSweepTicksAverage() {
+    unsigned int v = cycleData[1].sweepAccumulator / cycleData[1].sweepCounter;
+    cycleData[1].sweepAccumulator = 0;
+    cycleData[1].sweepCounter = 0;
     return v;
   }
-
-  unsigned int getYSyncRisingEdgeMisses() {
-    unsigned int v = cycleData[1].syncRisingEdgeMisses;
-    cycleData[1].syncRisingEdgeMisses = 0;
-    return v;
-  }
-
-  unsigned int getYSyncFallingEdgeHits() {
-    unsigned int v = cycleData[1].syncFallingEdgeHits;
-    cycleData[1].syncFallingEdgeHits = 0;
-    return v;
-  }
-
-  unsigned int getYSyncFallingEdgeMisses() {
-    unsigned int v = cycleData[1].syncFallingEdgeMisses;
-    cycleData[1].syncFallingEdgeMisses = 0;
-    return v;
-  }
-
-  unsigned int getYSweepRisingEdgeHits() {
-    unsigned int v = cycleData[1].sweepRisingEdgeHits;
-    cycleData[1].sweepRisingEdgeHits = 0;
-    return v;
-  }
-
-  unsigned int getYSweepRisingEdgeMisses() {
-    unsigned int v = cycleData[1].sweepRisingEdgeMisses;
-    cycleData[1].sweepRisingEdgeMisses = 0;
-    return v;
-  }
-
-  unsigned int getYSweepFallingEdgeHits() {
-    unsigned int v = cycleData[1].sweepFallingEdgeHits;
-    cycleData[1].sweepFallingEdgeHits = 0;
-    return v;
-  }
-
-  unsigned int getYSweepFallingEdgeMisses() {
-    unsigned int v = cycleData[1].sweepFallingEdgeMisses;
-    cycleData[1].sweepFallingEdgeMisses = 0;
+  
+  unsigned int getYEdgeEchoCount() {
+    unsigned int v = cycleData[1].edgeEchoCount;
+    cycleData[1].edgeEchoCount = 0;
     return v;
   }
 #endif
@@ -328,18 +335,6 @@ public:
     return avg;
   }
 #endif
-
-  unsigned long getXSyncTickCount() { return cycleData[0].syncTickCount; }
-  unsigned long getXSweepTickCount() { return cycleData[0].sweepTickCount; }
-  
-  unsigned long getYSyncTickCount() { return cycleData[1].syncTickCount; }
-  unsigned long getYSweepTickCount() { return cycleData[1].sweepTickCount; }
-
-  //info about the robot position; if any portion of each Lighthouse cycle is missed, hasPosition() returns false
-  KVector2* getPosition() { return &positionVector; }
-  
-  //data derived from change in position over time
-  double getVelocity() { return velocity; }
 
 };
 

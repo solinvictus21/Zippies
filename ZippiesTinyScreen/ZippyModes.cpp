@@ -8,7 +8,7 @@
 #define AUTODRIVE_ENABLED
 
 #define AUTODRIVE_MISSING_POSITION_TIMEOUT    1000
-#define AUTODRIVE_CORRECTION_INTERVAL_MS       100
+#define AUTODRIVE_CORRECTION_INTERVAL_MS        50
 #define AUTODRIVE_REAR_POSITION               -800.0d
 #define AUTODRIVE_FRONT_POSITION                 0.0d
 #define AUTODRIVE_LEFT_POSITION               -600.0d
@@ -88,12 +88,151 @@ AutoDriveMode::AutoDriveMode()
   pathPoints[17].set( -0.100000,  0.400000);
   pathPoints[18].set(  0.000000,  0.000000);
   for (int i = 0; i < PATH_POINT_COUNT; i++)
-    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 350.0d);
+//    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 400.0d);
+    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 2600.0d);
+
+  //create bezier control points between each of the points
+  /*
+  for (int i=0; i < BEZIER_CONTROL_POINT_COUNT; i++) {
+    /use parseInt to convert string to int
+    bezierControlPoints[i].set(x[i]=parseInt(V[i].getAttributeNS(null,"cx"))
+    y[i]=parseInt(V[i].getAttributeNS(null,"cy"))
+  }
+  */
 
   commands = new ZippyCommand*[ZIPPY_COMMAND_COUNT];
   commands[0] = new Pause(2.0d);
   commands[1] = new FollowPath(pathPoints, PATH_POINT_COUNT, AUTODRIVE_CORRECTION_INTERVAL_MS);
 }
+
+/*
+double calculateBezierControlPoint(double aWeight, double bWeight, double cWeight)
+{
+  //m = a[i]/b[i-1];
+  double m = aWeight / previousB;
+  
+  //b[i] = b[i] - m * c[i - 1];
+  double b = bWeight - (m * previousC);
+
+  //p1[i] = (r[i] - c[i] * p1[i+1]) / b[i];
+  return (r - (cWeight * nextP)) / b;
+}
+*/
+
+void AutoDriveMode::computeControlPoints()
+{
+  /*
+  numberOfSegments = K.length-1;
+  
+  //calculate all the rhs vectors
+  //first segment
+  a[0] = 0;
+  b[0] = 2;
+  c[0] = 1;
+  r[0] = K[0]+2*K[1];
+  
+  //internal segments
+  for (int i = 1; i < numberOfSegments - 1; i++) {
+    a[i] = 1;
+    b[i] = 4;
+    c[i] = 1;
+    r[i] = 4 * K[i] + 2 * K[i+1];
+  }
+      
+  //last segment
+  a[n-1] = 2;
+  b[n-1] = 7;
+  c[n-1] = 0;
+  r[n-1] = 8*K[numberOfSegments-1]+K[numberOfSegments];
+  
+  //solves Ax=b with the Thomas algorithm
+  for (int i = 1; i < numberOfSegments; i++) {
+    m = a[i]/b[i-1];
+    b[i] = b[i] - m * c[i - 1];
+    r[i] = r[i] - m*r[i-1];
+  }
+ 
+  p1[n-1] = r[n-1]/b[n-1];
+  for (i = n - 2; i >= 0; --i)
+    p1[i] = (r[i] - c[i] * p1[i+1]) / b[i];
+    
+  //we have p1, now compute p2
+  for (i=0;i<n-1;i++)
+    p2[i]=2*K[i+1]-p1[i+1];
+  
+  p2[n-1]=0.5*(K[n]+p1[n-1]);
+  
+  return {p1:p1, p2:p2};
+  */
+
+  /*
+  int numberOfSegments = PATH_POINT_COUNT-1;
+
+  int currentCoordinateIndex = 0;
+  double currentCoordinate = pathPoints[currentCoordinate].get?();
+
+  bezierControlPoints[0] = calculateBezier(
+  double previousA = 0.0d;
+  double previousB = 2.0d;
+  double previousC = 1.0d;
+  double previousR = currentCoordinate + (2 * nextCoordinate);
+
+  do {
+    currentCoordinateIndex++;
+
+    double a = 1.0d;
+    double b = 4.0d;
+    double c = 1.0d;
+    double r = 4.0d * pathPoints[currentCoordinate].get?() + (2.0d * pathPoints[nextCoordinate].get?());
+
+    double m = a / previousB;
+    double b = 4.0d - (m * previousC);
+    double r = 
+  }
+
+  for (int i = 1; i < numberOfSegments-1; i++) {
+      double a = 1.0d;
+      double b = 4.0d;
+      double c = 1.0d;
+      double r = 4 * currentCoordinate + (2.0d * nextCoordinate);
+  }
+  */
+}
+
+/*
+void AutoDriveMode.bezier2D(double[] b, int cpts, double[] p)
+{
+    int npts = (b.Length) / 2;
+    int icount, jcount;
+    double step, t;
+
+    // Calculate points on curve
+
+    icount = 0;
+    t = 0;
+    step = (double)1.0 / (cpts - 1);
+
+    for (int i1 = 0; i1 != cpts; i1++)
+    { 
+        if ((1.0 - t) < 5e-6) 
+            t = 1.0;
+
+        jcount = 0;
+        p[icount] = 0.0;
+        p[icount + 1] = 0.0;
+        for (int i = 0; i != npts; i++)
+        {
+            double basis = Bernstein(npts - 1, i, t);
+            p[icount] += basis * b[jcount];
+            p[icount + 1] += basis * b[jcount + 1];
+            jcount = jcount +2;
+        }
+
+        icount += 2;
+        t += step;
+    }
+}
+*/
 
 void AutoDriveMode::loop()
 {

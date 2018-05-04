@@ -4,26 +4,27 @@
 #include "MotorDriver.h"
 
 //the minimum PCM value below which the motors do not turn
-#define MOTOR_MIN_POWER                      3500.00d
+#define MOTOR_MIN_POWER                      3000.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define MAX_LINEAR_VELOCITY                   500.00d
+#define MAX_LINEAR_VELOCITY                   600.00d
 #define MAX_ROTATIONAL_VELOCITY               200.00d
-#define LINEAR_VELOCITY_POWER               20000.00d
-#define LOOK_AHEAD_DISTANCE_MM                150.00d
+#define LOOK_AHEAD_DISTANCE_MM                250.00d
 #define HALF_TURNING_RADIUS                   M_PI_2
 //#define HALF_TURNING_RADIUS                   1.963495408493621d
 //#define HALF_TURNING_RADIUS                   1.178097245096172
 #define HALF_SENSOR_SEPARATION 11.0d
 
 //the radius squared (to prevent the need for an additional square root) when we are can consider the robot to be "at the target"
-//currently set to 5cm, since sqrt(2500mm)/(10mm per cm) = 5cm
+//currently set to 4cm, since sqrt(1600mm)/(10mm per cm) = 4cm; will continue to drive this down as the self-driving capability gets
+//more sophisticated and accurate
 #define AUTODRIVE_POSITION_EPSILON_2         1600.0d
-//#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
-//#define AUTODRIVE_POSITION_EPSILON_2        10000.0d
 
-#define AUTODRIVE_LINEAR_Kp                    17.00d
-#define AUTODRIVE_LINEAR_Ki                     2.80d
-#define AUTODRIVE_LINEAR_Kd                     0.50d
+//#define AUTODRIVE_LINEAR_Kp                    15.85d
+//#define AUTODRIVE_LINEAR_Ki                     6.48d
+//#define AUTODRIVE_LINEAR_Kd                     1.87d
+#define AUTODRIVE_LINEAR_Kp                    21.00d
+#define AUTODRIVE_LINEAR_Ki                     6.00d
+#define AUTODRIVE_LINEAR_Kd                     1.11d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -69,8 +70,8 @@ FollowPath::FollowPath(KVector2* pathPoints,
   rightPID.SetOutputLimits(-LINEAR_VELOCITY_POWER, LINEAR_VELOCITY_POWER);
 }
 
-//deltaToNextPosition is the next desired position, relative to the current center and orientation of the robot
 /* leaving this code in, but commented out for now, because I may switch back to this type of mechanism in the near future
+//deltaToNextPosition is the next desired position, relative to the current center and orientation of the robot
 double FollowPath::calculateInput(LighthouseSensor* sensor,
                                        KVector2* deltaToNextPosition)
 {
@@ -135,6 +136,9 @@ void FollowPath::start()
 
   leftPID.SetMode(AUTOMATIC);
   rightPID.SetMode(AUTOMATIC);
+
+  motors.setMotors(padInner(-leftOutput, MOTOR_MIN_POWER),
+                   padInner(-rightOutput, MOTOR_MIN_POWER));
 }
 
 bool FollowPath::loop()
@@ -180,46 +184,29 @@ void FollowPath::updateInputs()
   LighthouseSensor* leftSensor = lighthouse.getLeftSensor();
   LighthouseSensor* rightSensor = lighthouse.getRightSensor();
   double angleToPosition = nextPosition.getOrientation();
-//  SerialUSB.print("A: ");
-//  SerialUSB.println(angleToPosition, 2);
   if (angleToPosition <= -HALF_TURNING_RADIUS) {
-    //target is behind us to the left; turn fully left
+    //target is behind us to the left; max turn left
     leftSetPoint = -MAX_ROTATIONAL_VELOCITY;
     rightSetPoint = MAX_ROTATIONAL_VELOCITY;
   }
   else if (angleToPosition >= HALF_TURNING_RADIUS) {
-    //target is behind us to the right; turn fully right
+    //target is behind us to the right; max turn right
     leftSetPoint = MAX_ROTATIONAL_VELOCITY;
     rightSetPoint = -MAX_ROTATIONAL_VELOCITY;
   }
   else {
     //normalize the angle to be in the range of -1.0 to +1.0
     angleToPosition /= HALF_TURNING_RADIUS;
-    
+
+    //use the normalized angle as the ratio of moving forward versus turning
     double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - abs(angleToPosition));
     double rotationalVelocity = MAX_ROTATIONAL_VELOCITY * angleToPosition;
     leftSetPoint = linearVelocity + rotationalVelocity;
     rightSetPoint = linearVelocity - rotationalVelocity;
-
-    /*
-    SerialUSB.print("LV: ");
-    SerialUSB.print(linearVelocity, 2);
-    SerialUSB.print("   RV: ");
-    SerialUSB.print(rotationalVelocity, 2);
-    SerialUSB.print("   LS: ");
-    SerialUSB.print(leftSetPoint, 2);
-    SerialUSB.print("   RS: ");
-    SerialUSB.println(rightSetPoint, 2);
-    */
   }
 
   leftInput = leftSensor->getVelocity();
   rightInput = rightSensor->getVelocity();
-
-//  SerialUSB.print(leftInput, 2);
-//  SerialUSB.print(" ");
-//  SerialUSB.println(rightInput, 2);
-//  SerialUSB.println();
 }
 
 void FollowPath::calculateNextPosition(KVector2* nextPosition)

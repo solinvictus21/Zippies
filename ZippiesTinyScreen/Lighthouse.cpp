@@ -3,17 +3,18 @@
 
 //height of the lighthouse from the floor
 //mounted on surface of entertainment center
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 970.0d
+//#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 950.0d
 //mounted on top of TV
-//#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1950.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1950.0d
 //height of the diode sensors from the floor
-#define ROBOT_DIODE_HEIGHT_MM 40.0d
+#define ROBOT_DIODE_HEIGHT_MM 42.0d
 
 ///*
 //timings for 48 MHz
 //use the full 180 degrees to determine the actual range of ticks
-#define SWEEP_DURATION_LAMBDA 397000
 #define SWEEP_DURATION_TICK_COUNT 400000
+//this is the portion of the total sweep cycle duration during which we will reject echoes and reflections from the incoming signal
+#define SWEEP_DURATION_LAMBDA     397000
 //x axis, OOTX bit 0
 #define SYNC_PULSE_J0_MIN 2945
 //y axis, OOTX bit 0
@@ -46,28 +47,30 @@
  * Lighthouse factory calibration data for the lighthouse being used for beta testing and development.
  * 
  * X Rotor Factory Calibration:
- *   Phase (radians):         1.116435
- *   Tilt (radians):          0.312331
- *   Curve (radians):        -0.070105
- *   Gibbous Phase (?):       1.673828
- *   Gibbous Magnitude (?):   0.025238
+ *   Phase (radians):              1.116435
+ *   Tilt (radians):               0.312331
+ *   Curve (radians):             -0.070105
+ *   Gibbous Phase (radians):      1.673828
+ *   Gibbous Magnitude (0.0-1.0):  0.025238
  *
  * Y Rotor Factory Calibration:
- *   Phase (radians):         0.568272
- *   Tilt (radians):         -0.130265
- *   Curve (radians):         0.133325
- *   Gibbous Phase (?):       0.238892
- *   Gibbous Magnitude (?):  -0.007553
+ *   Phase (radians):              0.568272
+ *   Tilt (radians):              -0.130265
+ *   Curve (radians):              0.133325
+ *   Gibbous Phase (radians):      0.238892
+ *   Gibbous Magnitude (0.0-1.0): -0.007553
  */
 //we need the base station info block struct to be byte-aligned; otherwise it'll be aligned according to the MCU
 //we're running on (32 bits for SAMD21) and the data we want from it will be unintelligible; hence these pragmas
+//several of these values are actually 16-bit floating point numbers, but since our platform doesn't have those, we treat them
+//as unsigned integers for the purpose of allocating space and will have to manually convert them later
 #pragma pack(push)
 #pragma pack(1)
 typedef struct _BaseStationInfoBlock {
   uint16_t fw_version;
   uint32_t id;
-  //several of these values are actually 16-bit floating point numbers, but since our platform doesn't have those, we treat them
-  //as unsigned integers for the purpose of allocating space and will have to manually convert them later
+  //phase is an artifact caused by the linear offset of the laser from the ideal; at a phase of zero, the laser follows the ideal
+  //a negative phase indicates that the laser will trail slightly, and a positive phase indicates that the laser will lead slightly
   uint16_t fcal_0_phase;
   uint16_t fcal_1_phase;
   uint16_t fcal_0_tilt;
@@ -76,25 +79,22 @@ typedef struct _BaseStationInfoBlock {
   uint8_t hw_version;
   uint16_t fcal_0_curve;
   uint16_t fcal_1_curve;
-  //the following three values indicate the "up" vector of the lighthouse
+  //the following three values indicate the "up" vector of the lighthouse; so for example, a perfectly upright lighthouse would have
+  //an accel vector of 0, 127, 0; the front faces 0, 0, 127 from the lighthouse internal coordinate system
   //x axis is right (-) to left (+) from the perspective of the lighthouse
   int8_t accel_dir_x;
   //y axis is down (-) to up (+)
   int8_t accel_dir_y;
   //z axis is back (-) to front (+)
   int8_t accel_dir_z;
-  //so for example, a perfectly upright lighthouse would have an accel vector of 0, 127, 0
-  //the front faces 0, 0, 127 from the lighthouse internal coordinate system
 
-  //gibbous phase is an artifact caused by the linear offset of the lens from the ideal; at a phase of zero, the lens allows the laser
-  //to be point perfectly at the center of the lighthouse direction right at the middle of each sweep cycle; a negative phase indicates
-  //that the laser will trail slightly, and a positive phase indicates that the laser will lead slightly
   uint16_t fcal_0_gibphase;
   uint16_t fcal_1_gibphase;
 
   //gibbous magnitude is an artifact caused by distance of the laser from the lens compared to the ideal; at a magnitude of zero, the
   //laser is visible starting exactly 1/6th of a second after the start of the sync flash and then sweeps through the 120-degree field
-  //of view in exactly 2/3rds of a second
+  //of view in exactly 2/3rds of a second; positive values indicate that it starts later and ends sooner; negative values indicate
+  //that it starts sooner and ends later
   uint16_t fcal_0_gibmag;
   uint16_t fcal_1_gibmag;
   uint8_t mode_current;
@@ -271,12 +271,14 @@ void Lighthouse::setupEIC()
   EIC->CTRL.bit.ENABLE = 0;
   while (EIC->STATUS.bit.SYNCBUSY);
 
+  //right diode interrupt config
 //  EIC->CONFIG[1].bit.FILTEN1 = 1;
   //detect both rising and falling edges
   EIC->CONFIG[1].bit.SENSE1 = EIC_CONFIG_SENSE1_HIGH_Val;
   //generate interrupts on interrupt #9 when edges are detected
   EIC->EVCTRL.bit.EXTINTEO9 = 1;
 
+  //left diode interrupt config
 //  EIC->CONFIG[0].bit.FILTEN5 = 1;
   //detect both rising and falling edges
   EIC->CONFIG[0].bit.SENSE5 = EIC_CONFIG_SENSE1_HIGH_Val;
@@ -295,45 +297,45 @@ void Lighthouse::connectInterruptsToTimer()
   //enable the event subsystem
   PM->APBCMASK.bit.EVSYS_ = 1;
 
-  //input config for diode #0
+  //input config for right diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
 //                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
                       EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_9) |    //from external interrupt 9
                       EVSYS_CHANNEL_CHANNEL(0);                           //to EVSYS channel 0
 
-  //output config for diode #0
+  //output config for right diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(1) |                                //attach output from channel 0 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC0_MC_0);              //to user (recipient) TCC0, MC0
   while (!EVSYS->CHSTATUS.bit.USRRDY0);
 
-  //input config for diode #0
+  //input config for right diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(2) |                           //detect falling edge
 //                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
                       EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_9) |    //from external interrupt 9
                       EVSYS_CHANNEL_CHANNEL(1);                           //to EVSYS channel 1
 
-  //output config for diode #0
+  //output config for right diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(2) |                                //attach output from channel 1 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC0_MC_1);              //to user (recipient) TCC0, MC1
   while (!EVSYS->CHSTATUS.bit.USRRDY0);
 
-  //input config for diode #1
+  //input config for left diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
-                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
+//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
                       EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_5) |    //from external interrupt 5
                       EVSYS_CHANNEL_CHANNEL(2);                           //to EVSYS channel 2
 
-  //output config for diode #1
+  //output config for left diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(3) |                                //attach output from channel 2 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_0);              //to user (recipient) TCC1, MC0
 
-  //input config for diode #1
+  //input config for left diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(2) |                           //detect falling edge
-                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
+//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
                       EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_5) |    //from external interrupt 5
                       EVSYS_CHANNEL_CHANNEL(3);                           //to EVSYS channel 3
 
-  //output config for diode #1
+  //output config for left diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(4) |                                //attach output from channel 3 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_1);              //to user (recipient) TCC1, MC1
 
@@ -353,11 +355,11 @@ void Lighthouse::setupTimer()
     TCC_CTRLA_CPTEN0 |              //place MC0 into capture (not compare) mode
     TCC_CTRLA_CPTEN1 |              //place MC1 into capture (not compare) mode
 //    TCC_CTRLA_RESOLUTION_DITH4 |
+//    TCC_CTRLA_ALOCK |
+//    TCC_CTRLA_PRESCSYNC_GCLK |
     TCC_CTRLA_PRESCALER_DIV1;       //set timer prescaler to 1 (48MHz)
 //    TCC_CTRLA_CPTEN3 |              //place MC3 into capture (not compare) mode
 //    TCC_CTRLA_CPTEN2 |              //place MC2 into capture (not compare) mode
-//    TCC_CTRLA_ALOCK |
-//    TCC_CTRLA_PRESCSYNC_GCLK;
 
   //set the event control register
   REG_TCC0_EVCTRL =
@@ -504,7 +506,7 @@ void TCC1_Handler()
   }
 
   if (TCC1->INTFLAG.bit.MC1) {
-    //capture CC0; required regardless of whether we actually use the value in order to reset the interrupt flag
+    //capture CC1; required regardless of whether we actually use the value in order to reset the interrupt flag
     unsigned int cc0 = REG_TCC1_CC1;
   
 #ifdef DEBUG_SIGNAL_EDGES
@@ -661,77 +663,81 @@ void LighthouseSensor::loop()
 
     //then let the read pointer move forward; must be atomic, hence the temp pointer above until we confirmed we can move forward
     sensorInput->hitTickReadPtr = nextReadPtr;
-    eventCount++;
 
     //get our next tick count delta
     unsigned int currentTickCount = *nextReadPtr;
 
     switch (currentEdge) {
       case Unknown:
-        processUnknownPulse(previousTickCount, currentTickCount);
+        reacquireSyncPulses(previousTickCount, currentTickCount);
         break;
       
       case SyncRising:
-        //can't really generate errors on rising edge of sync pulses; just keep going
-#ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
-        cycleData[currentAxis].lastCycleTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingSyncStart, currentTickCount);
-#endif
-        currentAxis = (currentAxis+1) & 0x1;
-        cycleData[currentAxis].pendingSyncStart = currentTickCount;  
-
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-        cycleData[currentAxis].syncRisingEdgeHits++;
-#endif
-        
-        currentEdge = SyncFalling;
+        processSyncRisingEdge(previousTickCount, currentTickCount);
         break;
       
       case SyncFalling:
-        processSyncPulse(previousTickCount, currentTickCount);
+        processSyncFallingEdge(previousTickCount, currentTickCount);
         break;
       
       case SweepRising:
-        processSweepHit(currentTickCount);
+        processSweepRisingEdge(previousTickCount, currentTickCount);
         break;
       
       case SweepFalling:
-//        SerialUSB.println(currentTickCount-previousTickCount);
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-        cycleData[currentAxis].sweepFallingEdgeHits++;
-#endif
-
-        currentEdge = SyncRising;
+        processSweepFallingEdge(previousTickCount, currentTickCount);
         break;
     }
     previousTickCount = currentTickCount;
   }
 }
 
-void LighthouseSensor::processUnknownPulse(unsigned int startTickCount, unsigned int endTickCount)
+void LighthouseSensor::reacquireSyncPulses(unsigned int previousTickCount, unsigned int currentTickCount)
 {
-  unsigned int deltaTickCount = calculateDeltaTicks(startTickCount, endTickCount);
+  unsigned int deltaTickCount = calculateDeltaTicks(previousTickCount, currentTickCount);
   if (deltaTickCount < SYNC_PULSE_J0_MIN || deltaTickCount >= NONSYNC_PULSE_J2_MIN)
     return;
     
   currentAxis = ((deltaTickCount - SYNC_PULSE_J0_MIN) / 500) & 0x1;
 
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+    cycleData[currentAxis].syncHits++;
+#endif
+
   if (!receivedLighthousePosition)
     processOOTXBit(deltaTickCount);
     
-  cycleData[currentAxis].pendingSyncStart = startTickCount;
-  cycleData[currentAxis].pendingSyncLength = deltaTickCount;
-
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-    cycleData[currentAxis].syncRisingEdgeHits++;
-    cycleData[currentAxis].syncFallingEdgeHits++;
-#endif
+  cycleData[currentAxis].pendingCycleStart = previousTickCount;
+  cycleData[currentAxis].pendingSyncLength = currentTickCount;
 
   currentEdge = SweepRising;
 }
 
-void LighthouseSensor::processSyncPulse(unsigned int startTickCount, unsigned int endTickCount)
+void LighthouseSensor::processSyncRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
 {
-  unsigned int deltaTickCount = calculateDeltaTicks(startTickCount, endTickCount);
+  //calculate the total tick count since the rising edge of the previous cycle
+  unsigned long totalCycleTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, currentTickCount);
+  
+  if (totalCycleTickCount < SWEEP_DURATION_LAMBDA) {
+    //the next rising pulse edge was detected before it should have been due to what appear to be shortcomings in the
+    //current build of the lighthouse circuit; reject these pulses as "echoes"
+    //in this particular case, the 2.2pF capacitors during transimpedance amplification appear to be generating the pulse
+    //echoes; the next circuit build will use 5pF capacitors, which eliminates the pulse echoes between the falling edge
+    //of the last sweep hit and the rising edge of the next sync pulse without reducing overall circuit sensitivity
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+    cycleData[currentAxis].edgeEchoCount++;
+#endif
+    return;
+  }
+
+  //found rising edge of next sync pulse
+  currentAxis = (currentAxis+1) & 0x1;
+  currentEdge = SyncFalling;
+}
+
+void LighthouseSensor::processSyncFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
+{
+  unsigned int deltaTickCount = calculateDeltaTicks(previousTickCount, currentTickCount);
 //  SerialUSB.println(deltaTickCount);
   if (deltaTickCount < SYNC_PULSE_J0_MIN || deltaTickCount >= NONSYNC_PULSE_J2_MIN) {
     //we missed a sync signal
@@ -743,11 +749,9 @@ void LighthouseSensor::processSyncPulse(unsigned int startTickCount, unsigned in
     SerialUSB.println(deltaTickCount);
 #endif
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-    //this technically counts as three errors, since we'll also miss the falling edge of the sync pulse and both
-    //edges of the sweep pulse
-    cycleData[currentAxis].syncFallingEdgeMisses++;
-    cycleData[currentAxis].sweepRisingEdgeMisses++;
-    cycleData[currentAxis].sweepFallingEdgeMisses++;
+    //this technically counts as two errors, since we will now also miss the sweep pulse
+    cycleData[currentAxis].syncMisses++;
+    cycleData[currentAxis].sweepMisses++;
 #endif
 
     cycleData[currentAxis].syncTickCount = 0;
@@ -769,11 +773,9 @@ void LighthouseSensor::processSyncPulse(unsigned int startTickCount, unsigned in
     SerialUSB.println(deltaTickCount);
 #endif
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-    //this technically counts as three errors, since we'll also miss the falling edge of the sync pulse and both
-    //edges of the sweep pulse
-    cycleData[currentAxis].syncFallingEdgeMisses++;
-    cycleData[currentAxis].sweepRisingEdgeMisses++;
-    cycleData[currentAxis].sweepFallingEdgeMisses++;
+    //this technically counts as two errors, since we also mised the sweep pulse for this axes
+    cycleData[currentAxis].syncMisses++;
+    cycleData[currentAxis].sweepMisses++;
 #endif
 
     cycleData[currentAxis].syncTickCount = 0;
@@ -782,70 +784,84 @@ void LighthouseSensor::processSyncPulse(unsigned int startTickCount, unsigned in
 
     //now switch back to the appropriate axis
     currentAxis = newAxis;
-    cycleData[currentAxis].pendingSyncStart = startTickCount;
+
+//    currentEdge = Unknown;
+//    return;
   }
   
   //got the falling edge for the sync pulse on the current axis
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-    cycleData[currentAxis].syncFallingEdgeHits++;
+    cycleData[currentAxis].syncHits++;
 #endif
 
   if (!receivedLighthousePosition)
     processOOTXBit(deltaTickCount);
 
-  cycleData[currentAxis].pendingSyncStart = startTickCount;
+  cycleData[currentAxis].pendingCycleStart = previousTickCount;
   cycleData[currentAxis].pendingSyncLength = deltaTickCount;
 
   currentEdge = SweepRising;
 }
 
-void LighthouseSensor::processSweepHit(unsigned int currentTickCount)
+void LighthouseSensor::processSweepRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
 {
-  //this should be the falling edge of the sweep hit; switch to watching for the other position
-  unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingSyncStart, currentTickCount);
-  if (sweepTickCount >= SWEEP_DURATION_LAMBDA) {
-/* commented out for now as it can make debugging messages a bit verbose in some testing cases
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
-    SerialUSB.print(debugNumber);
-    SerialUSB.print(" WARNING: Missed a sweep on ");
-    SerialUSB.print(currentAxis ? "Y" : "X");
-    SerialUSB.println(" axis after seeing the proper sync pulse.");
-#endif
-*/
-    //we missed the sweep pulse; clear this cycle's data since the sweep was missed
-    cycleData[currentAxis].syncTickCount = 0;
-    cycleData[currentAxis].sweepTickCount = 0;
-    cycleData[currentAxis].sweepHitTimeStamp = 0;
-
-    //move to watching for the end of the sync pulse on the other axis
-    currentAxis = (currentAxis+1) & 0x1;
-
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-    //this technically counts as two errors, since we'll also miss the falling edge of the sync pulse
-    cycleData[currentAxis].sweepRisingEdgeMisses++;
-    cycleData[currentAxis].sweepFallingEdgeMisses++;
-    //and it's a hit for the sync rising edge, since that's what we're currently processing, thinking it was a sweep
-    cycleData[currentAxis].syncRisingEdgeHits++;
-#endif
-
-    cycleData[currentAxis].pendingSyncStart = currentTickCount;
-    currentEdge = SyncFalling;
-//    currentEdge = Unknown;
+  //this should be the rising edge of the sweep hit
+  unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, currentTickCount);
+  if (sweepTickCount < SWEEP_DURATION_LAMBDA) {
+    //this sweep hit is hitting within the expected sweep window; wait for the falling edge
+    currentEdge = SweepFalling;
     return;
   }
+    
+/* commented out for now as it can make debugging messages a bit verbose in some testing cases
+#ifdef LIGHTHOUSE_DEBUG_ERRORS
+  SerialUSB.print(debugNumber);
+  SerialUSB.print(" WARNING: Missed a sweep on ");
+  SerialUSB.print(currentAxis ? "Y" : "X");
+  SerialUSB.println(" axis after seeing the proper sync pulse.");
+#endif
+*/
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+  //we missed the sweep hit on this axis
+  cycleData[currentAxis].sweepMisses++;
+#endif
+
+  //we missed the sweep pulse; clear this cycle's data since the sweep was missed
+  cycleData[currentAxis].syncTickCount = 0;
+  cycleData[currentAxis].sweepTickCount = 0;
+  cycleData[currentAxis].sweepHitTimeStamp = 0;
+
+  //move to watching for the end of the sync pulse on the other axis
+  currentAxis = (currentAxis+1) & 0x1;
+  currentEdge = SyncFalling;
+
+//  currentEdge = Unknown;
+}
+
+void LighthouseSensor::processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
+{
+  unsigned long sweepTickLength = calculateDeltaTicks(previousTickCount, currentTickCount);
+  unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, previousTickCount) + (sweepTickLength/2);
   
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-//to be added when we get to collecting statistics for debugging
-//  cycleData[currentAxis].sweepAccumulator += cycleData[currentAxis].sweepTickCount;
-//  cycleData[currentAxis].sweepCounter++;
-  cycleData[currentAxis].sweepRisingEdgeHits++;
+  cycleData[currentAxis].sweepHits++;
+  //collect additional statistics for debugging
+  unsigned long statValue = (cycleData[currentAxis].pendingSyncLength - SYNC_PULSE_J0_MIN) % 500;
+//  unsigned long statValue = sweepTickLength;
+//  unsigned long statValue = sweepTickCount;
+  cycleData[currentAxis].sweepMinTicks = cycleData[currentAxis].sweepMinTicks == 0
+    ? statValue
+    : min(statValue, cycleData[currentAxis].sweepMinTicks);
+  cycleData[currentAxis].sweepMaxTicks = max(statValue, cycleData[currentAxis].sweepMaxTicks);
+  cycleData[currentAxis].sweepAccumulator += sweepTickCount;
+  cycleData[currentAxis].sweepCounter++;
 #endif
 
   cycleData[currentAxis].syncTickCount = cycleData->pendingSyncLength;
   cycleData[currentAxis].sweepTickCount = sweepTickCount;
   cycleData[currentAxis].sweepHitTimeStamp = millis();
 
-  currentEdge = SweepFalling;
+  currentEdge = SyncRising;
 }
 
 /**
@@ -983,11 +999,11 @@ void LighthouseSensor::calculateLighthousePosition()
   xRotor.gibbousMagnitude = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_0_gibmag);
 
   //capture the factory calibration data for the y rotor
-  yRotor.phase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_phase);
-  yRotor.tilt = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_tilt);
-  yRotor.curve = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_curve);
-  yRotor.gibbousPhase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibphase);
-  yRotor.gibbousMagnitude = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibmag);
+  zRotor.phase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_phase);
+  zRotor.tilt = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_tilt);
+  zRotor.curve = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_curve);
+  zRotor.gibbousPhase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibphase);
+  zRotor.gibbousMagnitude = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibmag);
 
 #ifdef LIGHTHOUSE_DEBUG_SIGNAL
   SerialUSB.println("X Rotor Factory Calibration:");
@@ -999,11 +1015,11 @@ void LighthouseSensor::calculateLighthousePosition()
   SerialUSB.println();
 
   SerialUSB.println("Y Rotor Factory Calibration:");
-  SerialUSB.println((yRotor.phase / M_PI) * 180.0d, 6);
-  SerialUSB.println((yRotor.tilt / M_PI) * 180.0d, 6);
-  SerialUSB.println((yRotor.curve / M_PI) * 180.0d, 6);
-  SerialUSB.println(yRotor.gibbousPhase, 6);
-  SerialUSB.println(yRotor.gibbousMagnitude, 6);
+  SerialUSB.println((zRotor.phase / M_PI) * 180.0d, 6);
+  SerialUSB.println((zRotor.tilt / M_PI) * 180.0d, 6);
+  SerialUSB.println((zRotor.curve / M_PI) * 180.0d, 6);
+  SerialUSB.println(zRotor.gibbousPhase, 6);
+  SerialUSB.println(zRotor.gibbousMagnitude, 6);
   SerialUSB.println();
 #endif
 
@@ -1075,17 +1091,44 @@ void LighthouseSensor::recalculatePosition()
   double angleFromLighthouseZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
   //  SerialUSB.println(angleFromLighthouseX, 2);
 
+  //correct for the factory calibration "phase" data
+  //positive phase indicates that the beam is ahead of the ideal, which means that it will strike the sensors before we think it
+  //should, leading us to believe that the angle is smaller than it is; thus we must add the phase for each rotor to the angle to
+  //get the phase-corrected angle
+//  angleFromLighthouseX += xRotor.phase;
+//  angleFromLighthouseZ += zRotor.phase;
+  
+  //correct for the factory calibration "gibbous" data
+  //gibbous magnitude indicates how much faster or slower the beam moves through the cycle than we expect; gibbous phase indicates
+  //the center point in radians around which the magnitude scales the speed of the beam; so when gibbous phase is zero, the gibbous
+  //magnitude scales the speed of the beam around the ideal center point and enters and leaves the field of view at offsets equal
+  //at both the start and end of the cycle; positive gibbous phase indicates that the laser matches the ideal after the center
+  double gibbousCorrectionX = (xRotor.gibbousPhase - angleFromLighthouseX) * xRotor.gibbousMagnitude;
+  double gibbousCorrectionZ = (zRotor.gibbousPhase - angleFromLighthouseZ) * zRotor.gibbousMagnitude;
+
+  //TODO: correct for "curve"
+  
+  //apply all the corrections
+  angleFromLighthouseX += xRotor.phase + gibbousCorrectionX;
+  angleFromLighthouseZ += zRotor.phase + gibbousCorrectionZ;
+
   //at y=1, we want the x and z coordinates of our direction vector; since TAN = O / A, then O = TAN / A and given that our adjacent
-  //is 1.0, then the opposite is simply the TAN of the angle along the x and z axes
-  //TODO: eventually account for lighthouse factory calibration data
-//  double vectorFromLighthouseX = tan(angleFromLighthouseX + xRotor.phase);
-//  double vectorFromLighthouseZ = tan(angleFromLighthouseZ - yRotor.phase);
+  //is 1.0, then the opposite is simply the TAN of the angle along each axis
   double vectorFromLighthouseX = tan(angleFromLighthouseX);
   double vectorFromLighthouseZ = tan(angleFromLighthouseZ);
 
+  //the factory calibration "tilt" data represents how tilted the line is from ideal; positive tilt indicates that the sweep line drawn
+  //by each rotor is tilted from the ideal in a counter-clockwise direction; for the x rotor, this means that the beam strikes earlier
+  //for positive values of y and later for negative values of y
+  double tiltCorrectionX = vectorFromLighthouseZ * sin(xRotor.tilt);
+  double tiltCorrectionZ = vectorFromLighthouseX * sin(zRotor.tilt);
+  vectorFromLighthouseX += tiltCorrectionX;
+  vectorFromLighthouseZ += tiltCorrectionZ;
+
   //Step 2: Convert the vector from the lighthouse in its local coordinate system to our global coordinate system.
-  //flip the x axis; it appears that our tick counts get greater from left-to-right when facing the lighthouse; this is contrary to
-  //some animations online which illustrate the horizontal beam sweeping from right-to-left
+  //flip the x axis; it appears that our tick counts get greater from right-to-left from the perspective of the lighthouse; this is
+  //contrary to some animations online which illustrate the horizontal beam sweeping from left-to-right from the perspective of the
+  //lighthouse
   KVector3 directionFromLighthouse(-vectorFromLighthouseX, 1.0d, vectorFromLighthouseZ, 1.0d);
 //  directionFromLighthouse.printDebug();
   directionFromLighthouse.unrotate(&lighthouseOrientation);
