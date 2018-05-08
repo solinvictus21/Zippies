@@ -2,6 +2,7 @@
 import Foundation
 import CoreBluetooth
 
+let ZippyServiceUUID = CBUUID(string: "5BF1CEC2-EFC2-44D2-81AE-73FCFD5F7A13")
 let ZippyTxUUID = CBUUID(string: "C9589239-D751-47F7-9C5B-38355F0E9811")
 let ZippySensorRightRxUUID = CBUUID(string: "F652B269-4405-42D7-8CD8-0630E778E0D0")
 let ZippySensorLeftRxUUID = CBUUID(string: "53372C2D-2BD5-44C9-990F-A329E5E1F4B5")
@@ -32,16 +33,15 @@ struct SensorData {
     var yPosition: Float32 = 0.0
 }
 
-class Zippy: NSObject
+class Zippy: BluetoothPeripheral
 {
     
     var delegate: ZippyDelegate?
 
-    let peripheral: CBPeripheral
-    var sendCharacteristic: CBCharacteristic?
-    var sensorLeftReceiveCharacteristic: CBCharacteristic?
-    var sensorRightReceiveCharacteristic: CBCharacteristic?
-    var computedDataReceiveCharacteristic: CBCharacteristic?
+    var sendCharacteristic: CBCharacteristic
+    var sensorLeftReceiveCharacteristic: CBCharacteristic
+    var sensorRightReceiveCharacteristic: CBCharacteristic
+    var computedDataReceiveCharacteristic: CBCharacteristic
     
     var sensorLeftData = SensorData()
     var sensorRightData = SensorData()
@@ -51,14 +51,23 @@ class Zippy: NSObject
     var orientation: Float32 = 0.0
     var rotationalVelocity: Float32 = 0.0
 
-    init(peripheral: CBPeripheral) {
-        self.peripheral = peripheral
+    override init(_ peripheral: CBPeripheral,
+                  primaryService: CBService,
+                  characteristics: [CBUUID: CBCharacteristic])
+    {
+        self.sendCharacteristic = characteristics[ZippyTxUUID]!
+        self.sensorLeftReceiveCharacteristic = characteristics[ZippySensorLeftRxUUID]!
+        self.sensorRightReceiveCharacteristic = characteristics[ZippySensorRightRxUUID]!
+        self.computedDataReceiveCharacteristic = characteristics[ZippyComputedDataRxUUID]!
+        
+        super.init(peripheral,
+                   primaryService: primaryService,
+                   characteristics: characteristics)
 
-        super.init()
-
-        //discover services on this peripheral
         self.peripheral.delegate = self
-        self.peripheral.discoverServices([ZippyServiceUUID])
+        self.peripheral.setNotifyValue(true, for: sensorLeftReceiveCharacteristic)
+        self.peripheral.setNotifyValue(true, for: sensorRightReceiveCharacteristic)
+        self.peripheral.setNotifyValue(true, for: computedDataReceiveCharacteristic)
     }
     
     func setMotors(left: Float32, right: Float32) {
@@ -78,88 +87,10 @@ class Zippy: NSObject
     }
     
     fileprivate func writeValue(_ data: Data) {
-        if self.sendCharacteristic != nil {
-            self.peripheral.writeValue(data, for: self.sendCharacteristic!, type: CBCharacteristicWriteType.withoutResponse)
-        }
-//        self.peripheral.setNotifyValue(true, for: self.sendCharacteristic)
+        self.peripheral.writeValue(data, for: self.sendCharacteristic, type: CBCharacteristicWriteType.withoutResponse)
     }
     
-    deinit {
-        self.peripheral.delegate = nil
-    }
-    
-}
-
-extension Zippy: CBPeripheralDelegate
-{
-    
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if (error != nil) {
-            print("Received unexpected bluetooth error during service discovery.")
-            return
-        }
-        
-        if peripheral.services == nil || peripheral.services!.count == 0 {
-            //no services
-            return
-        }
-        
-        let uuidsForBTService: [CBUUID] = [ZippyTxUUID, ZippySensorLeftRxUUID, ZippySensorRightRxUUID, ZippyComputedDataRxUUID]
-        for service in peripheral.services! {
-            if service.uuid == ZippyServiceUUID {
-                //step #4; discover characteristics
-                peripheral.discoverCharacteristics(uuidsForBTService, for: service)
-            }
-        }
-    }
-    
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        guard error == nil else {
-            print("Received unexpected bluetooth error during characteristic discovery.")
-            return
-        }
-        
-        guard service.characteristics != nil else {
-            return
-        }
-        
-        for characteristic in service.characteristics! {
-            if characteristic.uuid == ZippyTxUUID {
-                sendCharacteristic = characteristic
-            }
-            else if characteristic.uuid == ZippySensorLeftRxUUID {
-                sensorLeftReceiveCharacteristic = characteristic
-            }
-            else if characteristic.uuid == ZippySensorRightRxUUID {
-                sensorRightReceiveCharacteristic = characteristic
-            }
-            else if characteristic.uuid == ZippyComputedDataRxUUID {
-                computedDataReceiveCharacteristic = characteristic
-            }
-        }
-        
-        //step #5; connection is complete; notify our delegate
-        if sendCharacteristic != nil &&
-            sensorLeftReceiveCharacteristic != nil && sensorRightReceiveCharacteristic != nil &&
-            computedDataReceiveCharacteristic != nil
-        {
-//            print("Connected to Zippy.")
-            self.peripheral.setNotifyValue(true, for: sensorLeftReceiveCharacteristic!)
-            self.peripheral.setNotifyValue(true, for: sensorRightReceiveCharacteristic!)
-            self.peripheral.setNotifyValue(true, for: computedDataReceiveCharacteristic!)
-        }
-        else {
-            print("Failed to find all desired characteristics.")
-        }
-    }
-    
-    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        if error != nil {
-            print("Received error for peripheral '", peripheral.name!, "' on characteristic '", characteristic, "': ", error!)
-        }
-    }
-    
-    func extractSensorData(values: [UInt8], sensorData: inout SensorData) {
+    fileprivate func extractSensorData(values: [UInt8], sensorData: inout SensorData) {
         sensorData.xSyncTicks = UInt16(bitPattern: Int16(values[1]) << 8 | Int16(values[0]))
         var bitPattern32 = Int32(values[5]) << 24
         bitPattern32 |= Int32(values[4]) << 16
@@ -184,33 +115,42 @@ extension Zippy: CBPeripheralDelegate
         sensorData.yPosition = Float32(bitPattern: bitPatternU32)
     }
     
+    deinit {
+        self.peripheral.delegate = nil
+    }
+    
+}
+
+extension Zippy: CBPeripheralDelegate
+{
+
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         switch (characteristic) {
-        case sensorLeftReceiveCharacteristic!:
+        case sensorLeftReceiveCharacteristic:
             let values = [UInt8](characteristic.value!)
             extractSensorData(values: values, sensorData: &sensorLeftData)
             DispatchQueue.main.async(execute: {
                 self.delegate?.sensorLeftDataUpdated(xSyncTicks: self.sensorLeftData.xSyncTicks,
-                                                  xSweepTicks: self.sensorLeftData.xSweepTicks,
-                                                  xPosition: self.sensorLeftData.xPosition,
-                                                  ySyncTicks: self.sensorLeftData.ySyncTicks,
-                                                  ySweepTicks: self.sensorLeftData.ySweepTicks,
-                                                  yPosition: self.sensorLeftData.yPosition)
+                                                     xSweepTicks: self.sensorLeftData.xSweepTicks,
+                                                     xPosition: self.sensorLeftData.xPosition,
+                                                     ySyncTicks: self.sensorLeftData.ySyncTicks,
+                                                     ySweepTicks: self.sensorLeftData.ySweepTicks,
+                                                     yPosition: self.sensorLeftData.yPosition)
             })
             break
-        case sensorRightReceiveCharacteristic!:
+        case sensorRightReceiveCharacteristic:
             let values = [UInt8](characteristic.value!)
             extractSensorData(values: values, sensorData: &sensorRightData)
             DispatchQueue.main.async(execute: {
                 self.delegate?.sensorRightDataUpdated(xSyncTicks: self.sensorRightData.xSyncTicks,
-                                                  xSweepTicks: self.sensorRightData.xSweepTicks,
-                                                  xPosition: self.sensorRightData.xPosition,
-                                                  ySyncTicks: self.sensorRightData.ySyncTicks,
-                                                  ySweepTicks: self.sensorRightData.ySweepTicks,
-                                                  yPosition: self.sensorRightData.yPosition)
+                                                      xSweepTicks: self.sensorRightData.xSweepTicks,
+                                                      xPosition: self.sensorRightData.xPosition,
+                                                      ySyncTicks: self.sensorRightData.ySyncTicks,
+                                                      ySweepTicks: self.sensorRightData.ySweepTicks,
+                                                      yPosition: self.sensorRightData.yPosition)
             })
             break
-        case computedDataReceiveCharacteristic!:
+        case computedDataReceiveCharacteristic:
             let values = [UInt8](characteristic.value!)
             var bitPatternU32 = UInt32(values[3]) << 24
             bitPatternU32 |= UInt32(values[2]) << 16
@@ -249,6 +189,12 @@ extension Zippy: CBPeripheralDelegate
             break
         }
     }
-    
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        if error != nil {
+            print("Received error for peripheral '", peripheral.name!, "' on characteristic '", characteristic, "': ", error!)
+        }
+    }
+
 }
 

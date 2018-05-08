@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C309BC05209CB89300963FDF /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC04209CB89300963FDF /* Lighthouse.swift */; };
+		C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */; };
+		C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC08209CD3C900963FDF /* PeripheralFinder.swift */; };
 		C31026312048F608004C817B /* Zippy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262D2048F608004C817B /* Zippy.swift */; };
 		C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262E2048F608004C817B /* ZippyNavigationController.swift */; };
 		C31026332048F608004C817B /* ZippyControls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C310262F2048F608004C817B /* ZippyControls.storyboard */; };
@@ -20,6 +23,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C309BC04209CB89300963FDF /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = SOURCE_ROOT; };
+		C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothPeripheral.swift; sourceTree = SOURCE_ROOT; };
+		C309BC08209CD3C900963FDF /* PeripheralFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralFinder.swift; sourceTree = "<group>"; };
 		C310262D2048F608004C817B /* Zippy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Zippy.swift; sourceTree = SOURCE_ROOT; };
 		C310262E2048F608004C817B /* ZippyNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZippyNavigationController.swift; sourceTree = SOURCE_ROOT; };
 		C310262F2048F608004C817B /* ZippyControls.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ZippyControls.storyboard; sourceTree = SOURCE_ROOT; };
@@ -50,13 +56,16 @@
 			isa = PBXGroup;
 			children = (
 				C31026362048F616004C817B /* AppDelegate.swift */,
-				C31026352048F616004C817B /* DebugViewController.swift */,
 				C31026372048F616004C817B /* Info.plist */,
-				C31026382048F616004C817B /* UserDriveViewController.swift */,
-				C310262D2048F608004C817B /* Zippy.swift */,
 				C310262F2048F608004C817B /* ZippyControls.storyboard */,
-				C31026302048F608004C817B /* ZippyManager.swift */,
+				C31026352048F616004C817B /* DebugViewController.swift */,
+				C31026382048F616004C817B /* UserDriveViewController.swift */,
 				C310262E2048F608004C817B /* ZippyNavigationController.swift */,
+				C309BC08209CD3C900963FDF /* PeripheralFinder.swift */,
+				C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */,
+				C309BC04209CB89300963FDF /* Lighthouse.swift */,
+				C31026302048F608004C817B /* ZippyManager.swift */,
+				C310262D2048F608004C817B /* Zippy.swift */,
 				C3E36D242049B85F005759AC /* SnappingSlider.swift */,
 				C3E36D262049B875005759AC /* Default-568h@2x.png */,
 			);
@@ -115,7 +124,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Davis, Kyle";
 				TargetAttributes = {
 					C33485A91F0FE6FF000E02E0 = {
@@ -162,12 +171,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */,
+				C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */,
 				C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */,
 				C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */,
 				C31026342048F608004C817B /* ZippyManager.swift in Sources */,
+				C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */,
 				C31026392048F616004C817B /* DebugViewController.swift in Sources */,
 				C310263A2048F616004C817B /* AppDelegate.swift in Sources */,
 				C31026312048F608004C817B /* Zippy.swift in Sources */,
+				C309BC05209CB89300963FDF /* Lighthouse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +199,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -194,6 +207,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -244,6 +258,7 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -251,6 +266,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

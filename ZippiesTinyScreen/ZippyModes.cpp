@@ -89,7 +89,7 @@ AutoDriveMode::AutoDriveMode()
   pathPoints[18].set(  0.000000,  0.000000);
   for (int i = 0; i < PATH_POINT_COUNT; i++)
 //    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 400.0d);
-    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 2600.0d);
+    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 2700.0d);
 
   //create bezier control points between each of the points
   /*

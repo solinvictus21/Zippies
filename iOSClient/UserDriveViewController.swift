@@ -125,7 +125,6 @@ extension UserDriveViewController: ZippyManagerDelegate
         if self.zippy == zippy {
             self.zippy = nil
             self.statusLabel.textColor = UIColor.red
-            zippyManager?.startDiscovery()
         }
     }
     

@@ -937,8 +937,10 @@ void LighthouseSensor::processOOTXBit(unsigned int syncDelta)
         SerialUSB.print(debugNumber);
         SerialUSB.println(" Got the base station info block.");
 #endif
+//        SerialUSB.println(((BaseStationInfoBlock*)baseStationInfoBlock)->id, HEX);
+//        SerialUSB.println(((BaseStationInfoBlock*)baseStationInfoBlock)->fw_version, HEX);
 
-        //now calculation the position and orientation of the lighthouse
+        //now calculate the position and orientation of the lighthouse
         calculateLighthousePosition();
       }
       return;

@@ -10,3 +10,6 @@ Autosave_*.skp
 *.job
 *.pro
 *.?#?
+CMakeLists.txt
+cmake
+xcshareddata

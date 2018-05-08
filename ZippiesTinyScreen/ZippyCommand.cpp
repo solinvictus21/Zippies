@@ -6,9 +6,6 @@
 //the minimum PCM value below which the motors do not turn
 #define MOTOR_MIN_POWER                      3000.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
-#define MAX_LINEAR_VELOCITY                   600.00d
-#define MAX_ROTATIONAL_VELOCITY               200.00d
-#define LOOK_AHEAD_DISTANCE_MM                250.00d
 #define HALF_TURNING_RADIUS                   M_PI_2
 //#define HALF_TURNING_RADIUS                   1.963495408493621d
 //#define HALF_TURNING_RADIUS                   1.178097245096172
@@ -19,12 +16,28 @@
 //more sophisticated and accurate
 #define AUTODRIVE_POSITION_EPSILON_2         1600.0d
 
-//#define AUTODRIVE_LINEAR_Kp                    15.85d
-//#define AUTODRIVE_LINEAR_Ki                     6.48d
-//#define AUTODRIVE_LINEAR_Kd                     1.87d
-#define AUTODRIVE_LINEAR_Kp                    21.00d
-#define AUTODRIVE_LINEAR_Ki                     6.00d
-#define AUTODRIVE_LINEAR_Kd                     1.11d
+//checkpoint
+//#define MAX_LINEAR_VELOCITY                   600.00d
+//#define MAX_ROTATIONAL_VELOCITY               180.00d
+//#define LOOK_AHEAD_DISTANCE_MM                250.00d
+//#define AUTODRIVE_LINEAR_Kp                    20.20d
+//#define AUTODRIVE_LINEAR_Ki                     5.80d
+//#define AUTODRIVE_LINEAR_Kd                     1.30d
+//checkpoint #2
+//#define MAX_LINEAR_VELOCITY                   600.00d
+//#define MAX_ROTATIONAL_VELOCITY               250.00d
+//#define LOOK_AHEAD_DISTANCE_MM                250.00d
+//#define AUTODRIVE_LINEAR_Kp                    19.00d
+//#define AUTODRIVE_LINEAR_Ki                     6.20d
+//#define AUTODRIVE_LINEAR_Kd                     1.40d
+//experimenting
+#define MAX_LINEAR_VELOCITY                   800.00d
+#define MAX_ROTATIONAL_VELOCITY               260.00d
+#define LOOK_AHEAD_DISTANCE_MM                250.00d
+#define AUTODRIVE_LINEAR_Kp                    19.15d
+#define AUTODRIVE_LINEAR_Ki                     6.55d
+#define AUTODRIVE_LINEAR_Kd                     1.46d
+#define MAX_SETPOINT_CHANGE                   180.00d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -186,13 +199,13 @@ void FollowPath::updateInputs()
   double angleToPosition = nextPosition.getOrientation();
   if (angleToPosition <= -HALF_TURNING_RADIUS) {
     //target is behind us to the left; max turn left
-    leftSetPoint = -MAX_ROTATIONAL_VELOCITY;
-    rightSetPoint = MAX_ROTATIONAL_VELOCITY;
+    leftTargetSetPoint = -MAX_ROTATIONAL_VELOCITY;
+    rightTargetSetPoint = MAX_ROTATIONAL_VELOCITY;
   }
   else if (angleToPosition >= HALF_TURNING_RADIUS) {
     //target is behind us to the right; max turn right
-    leftSetPoint = MAX_ROTATIONAL_VELOCITY;
-    rightSetPoint = -MAX_ROTATIONAL_VELOCITY;
+    leftTargetSetPoint = MAX_ROTATIONAL_VELOCITY;
+    rightTargetSetPoint = -MAX_ROTATIONAL_VELOCITY;
   }
   else {
     //normalize the angle to be in the range of -1.0 to +1.0
@@ -201,9 +214,27 @@ void FollowPath::updateInputs()
     //use the normalized angle as the ratio of moving forward versus turning
     double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - abs(angleToPosition));
     double rotationalVelocity = MAX_ROTATIONAL_VELOCITY * angleToPosition;
-    leftSetPoint = linearVelocity + rotationalVelocity;
-    rightSetPoint = linearVelocity - rotationalVelocity;
+    leftTargetSetPoint = linearVelocity + rotationalVelocity;
+    rightTargetSetPoint = linearVelocity - rotationalVelocity;
   }
+
+//  /*
+  double leftSetPointDelta = leftTargetSetPoint - leftSetPoint;
+  if (leftSetPointDelta >= 0.0)
+    leftSetPointDelta = min(leftSetPointDelta, MAX_SETPOINT_CHANGE);
+  else
+    leftSetPointDelta = max(leftSetPointDelta, -MAX_SETPOINT_CHANGE);
+  leftSetPoint += leftSetPointDelta;
+
+  double rightSetPointDelta = rightTargetSetPoint - rightSetPoint;
+  if (rightSetPointDelta >= 0.0)
+    rightSetPointDelta = min(rightSetPointDelta, MAX_SETPOINT_CHANGE);
+  else
+    rightSetPointDelta = max(rightSetPointDelta, -MAX_SETPOINT_CHANGE);
+  rightSetPoint += rightSetPointDelta;
+//  */
+//  leftSetPoint = leftTargetSetPoint;
+//  rightSetPoint = rightTargetSetPoint;
 
   leftInput = leftSensor->getVelocity();
   rightInput = rightSensor->getVelocity();
