@@ -50,13 +50,11 @@ private:
   //the distance we've driven along the current segment
   double currentDistanceAlongSegment = 0.0d;
 
-  double leftTargetSetPoint = 0.0d;
   double leftSetPoint = 0.0d;
   double leftInput = 0.0d;
   double leftOutput = 0.0d;
   PID leftPID;
 
-  double rightTargetSetPoint = 0.0d;
   double rightSetPoint = 0.0d;
   double rightInput = 0.0d;
   double rightOutput = 0.0d;

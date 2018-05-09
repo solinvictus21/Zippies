@@ -18,26 +18,20 @@
 
 //checkpoint
 //#define MAX_LINEAR_VELOCITY                   600.00d
-//#define MAX_ROTATIONAL_VELOCITY               180.00d
-//#define LOOK_AHEAD_DISTANCE_MM                250.00d
-//#define AUTODRIVE_LINEAR_Kp                    20.20d
-//#define AUTODRIVE_LINEAR_Ki                     5.80d
-//#define AUTODRIVE_LINEAR_Kd                     1.30d
-//checkpoint #2
-//#define MAX_LINEAR_VELOCITY                   600.00d
 //#define MAX_ROTATIONAL_VELOCITY               250.00d
 //#define LOOK_AHEAD_DISTANCE_MM                250.00d
 //#define AUTODRIVE_LINEAR_Kp                    19.00d
 //#define AUTODRIVE_LINEAR_Ki                     6.20d
 //#define AUTODRIVE_LINEAR_Kd                     1.40d
-//experimenting
+
+//experimental
 #define MAX_LINEAR_VELOCITY                   800.00d
 #define MAX_ROTATIONAL_VELOCITY               260.00d
-#define LOOK_AHEAD_DISTANCE_MM                250.00d
-#define AUTODRIVE_LINEAR_Kp                    19.15d
-#define AUTODRIVE_LINEAR_Ki                     6.55d
-#define AUTODRIVE_LINEAR_Kd                     1.46d
-#define MAX_SETPOINT_CHANGE                   180.00d
+#define LOOK_AHEAD_DISTANCE_MM                300.00d
+#define AUTODRIVE_LINEAR_Kp                    16.00d
+#define AUTODRIVE_LINEAR_Ki                     6.20d
+#define AUTODRIVE_LINEAR_Kd                     1.35d
+#define MAX_SETPOINT_CHANGE                   130.00d
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -197,6 +191,7 @@ void FollowPath::updateInputs()
   LighthouseSensor* leftSensor = lighthouse.getLeftSensor();
   LighthouseSensor* rightSensor = lighthouse.getRightSensor();
   double angleToPosition = nextPosition.getOrientation();
+  double leftTargetSetPoint, rightTargetSetPoint;
   if (angleToPosition <= -HALF_TURNING_RADIUS) {
     //target is behind us to the left; max turn left
     leftTargetSetPoint = -MAX_ROTATIONAL_VELOCITY;
@@ -218,7 +213,7 @@ void FollowPath::updateInputs()
     rightTargetSetPoint = linearVelocity - rotationalVelocity;
   }
 
-//  /*
+///*
   double leftSetPointDelta = leftTargetSetPoint - leftSetPoint;
   if (leftSetPointDelta >= 0.0)
     leftSetPointDelta = min(leftSetPointDelta, MAX_SETPOINT_CHANGE);
@@ -232,7 +227,8 @@ void FollowPath::updateInputs()
   else
     rightSetPointDelta = max(rightSetPointDelta, -MAX_SETPOINT_CHANGE);
   rightSetPoint += rightSetPointDelta;
-//  */
+//*/
+
 //  leftSetPoint = leftTargetSetPoint;
 //  rightSetPoint = rightTargetSetPoint;
 

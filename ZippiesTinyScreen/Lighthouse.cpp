@@ -5,11 +5,10 @@
 //mounted on surface of entertainment center
 //#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 950.0d
 //mounted on top of TV
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1950.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1940.0d
 //height of the diode sensors from the floor
 #define ROBOT_DIODE_HEIGHT_MM 42.0d
 
-///*
 //timings for 48 MHz
 //use the full 180 degrees to determine the actual range of ticks
 #define SWEEP_DURATION_TICK_COUNT 400000
@@ -24,24 +23,6 @@
 //y axis, OOTX bit 1
 #define SYNC_PULSE_K1_MIN 4445
 #define NONSYNC_PULSE_J2_MIN 4950
-//*/
-/*
-//timings for 32.768 MHz
-//each laser rotates 180 degrees every 230,067 ticks but is only visible for 120 degrees of that sweep
-//so the visible portion of the laser sweep starts at 30/180 * 400,000 = 45,511 ticks
-#define SWEEP_START_TICKS 45511
-//and the duration of the visible portion of the laser sweep is 120/180 * 400,000 = 182,044 ticks
-#define SWEEP_DURATION_TICKS 182044
-//x axis, OOTX bit 0
-#define SYNC_PULSE_J0_MIN 2014
-//y axis, OOTX bit 0
-#define SYNC_PULSE_K0_MIN 2355
-//x axis, OOTX bit 1
-#define SYNC_PULSE_J1_MIN 2697
-//y axis, OOTX bit 1
-#define SYNC_PULSE_K1_MIN 3038
-#define NONSYNC_PULSE_J2_MIN 3379
-*/
 
 /*
  * Lighthouse factory calibration data for the lighthouse being used for beta testing and development.
@@ -1089,58 +1070,40 @@ void LighthouseSensor::recalculatePosition()
   
   //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode.
   //start by normalizing the angle on each axis from the lighthouse to be from -90 degrees to +90 degrees in radians
-  double angleFromLighthouseX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
-  double angleFromLighthouseZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
+  double idealAngleX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
+  double idealAngleZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
   //  SerialUSB.println(angleFromLighthouseX, 2);
-
-  //correct for the factory calibration "phase" data
-  //positive phase indicates that the beam is ahead of the ideal, which means that it will strike the sensors before we think it
-  //should, leading us to believe that the angle is smaller than it is; thus we must add the phase for each rotor to the angle to
-  //get the phase-corrected angle
-//  angleFromLighthouseX += xRotor.phase;
-//  angleFromLighthouseZ += zRotor.phase;
-  
-  //correct for the factory calibration "gibbous" data
-  //gibbous magnitude indicates how much faster or slower the beam moves through the cycle than we expect; gibbous phase indicates
-  //the center point in radians around which the magnitude scales the speed of the beam; so when gibbous phase is zero, the gibbous
-  //magnitude scales the speed of the beam around the ideal center point and enters and leaves the field of view at offsets equal
-  //at both the start and end of the cycle; positive gibbous phase indicates that the laser matches the ideal after the center
-  double gibbousCorrectionX = (xRotor.gibbousPhase - angleFromLighthouseX) * xRotor.gibbousMagnitude;
-  double gibbousCorrectionZ = (zRotor.gibbousPhase - angleFromLighthouseZ) * zRotor.gibbousMagnitude;
-
-  //TODO: correct for "curve"
-  
-  //apply all the corrections
-  angleFromLighthouseX += xRotor.phase + gibbousCorrectionX;
-  angleFromLighthouseZ += zRotor.phase + gibbousCorrectionZ;
 
   //at y=1, we want the x and z coordinates of our direction vector; since TAN = O / A, then O = TAN / A and given that our adjacent
   //is 1.0, then the opposite is simply the TAN of the angle along each axis
-  double vectorFromLighthouseX = tan(angleFromLighthouseX);
-  double vectorFromLighthouseZ = tan(angleFromLighthouseZ);
+  double vectorFromLighthouseX = tan(idealAngleX);
+  double vectorFromLighthouseZ = tan(idealAngleZ);
 
-  //the factory calibration "tilt" data represents how tilted the line is from ideal; positive tilt indicates that the sweep line drawn
-  //by each rotor is tilted from the ideal in a counter-clockwise direction; for the x rotor, this means that the beam strikes earlier
-  //for positive values of y and later for negative values of y
-  double tiltCorrectionX = vectorFromLighthouseZ * sin(xRotor.tilt);
-  double tiltCorrectionZ = vectorFromLighthouseX * sin(zRotor.tilt);
-  vectorFromLighthouseX += tiltCorrectionX;
-  vectorFromLighthouseZ += tiltCorrectionZ;
+  //correct for the factory calibration data
+//  observed_angle[0] = ideal_angle[0] - phase[0] - tan(tilt[0]) * y - curve[0] * y * y - sin(gibPhase[0] + ideal_angle[0]) * gibMag[0]
+//  observed_angle[1] = ideal_angle[1] - phase[1] - tan(tilt[1]) * x - curve[0] * x * x - sin(gibPhase[1] + ideal_angle[1]) * gibMag[1]
+  double correctedX = idealAngleX +
+      xRotor.phase +
+      (tan(xRotor.tilt) * vectorFromLighthouseZ) +
+      (xRotor.curve * pow(vectorFromLighthouseZ, 2.0d)) +
+      (sin(xRotor.gibbousPhase + idealAngleX) * xRotor.gibbousMagnitude);
+  double correctedZ = idealAngleZ +
+      zRotor.phase +
+      (tan(zRotor.tilt) * vectorFromLighthouseX) +
+      (zRotor.curve * pow(vectorFromLighthouseX, 2.0d)) +
+      (sin(zRotor.gibbousPhase + idealAngleZ) * zRotor.gibbousMagnitude);
 
   //Step 2: Convert the vector from the lighthouse in its local coordinate system to our global coordinate system.
   //flip the x axis; it appears that our tick counts get greater from right-to-left from the perspective of the lighthouse; this is
   //contrary to some animations online which illustrate the horizontal beam sweeping from left-to-right from the perspective of the
   //lighthouse
-  KVector3 directionFromLighthouse(-vectorFromLighthouseX, 1.0d, vectorFromLighthouseZ, 1.0d);
-//  directionFromLighthouse.printDebug();
+  KVector3 directionFromLighthouse(-tan(correctedX), 1.0d, tan(correctedZ), 1.0d);
   directionFromLighthouse.unrotate(&lighthouseOrientation);
-//  directionFromLighthouse.printDebug();
 
   //now intersect with the plane of the diodes on the robot; since our diode plane is defined by the normal 0,0,1, and we have a
   //vector which identifies the position of the lighthouse from 0,0,0, the entire formula for our ground-plane intersection reduces
   //to the following
   double t = -lighthousePosition.getZ() / directionFromLighthouse.getZ();
-
   positionVector.set(lighthousePosition.getX() + (directionFromLighthouse.getX() * t),
       lighthousePosition.getY() + (directionFromLighthouse.getY() * t));
   positionTimeStamp = newPositionTimeStamp;

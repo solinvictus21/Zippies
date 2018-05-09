@@ -7,7 +7,7 @@
 
 #define AUTODRIVE_ENABLED
 
-#define AUTODRIVE_MISSING_POSITION_TIMEOUT    1000
+#define AUTODRIVE_MISSING_POSITION_TIMEOUT     200
 #define AUTODRIVE_CORRECTION_INTERVAL_MS        50
 #define AUTODRIVE_REAR_POSITION               -800.0d
 #define AUTODRIVE_FRONT_POSITION                 0.0d
@@ -88,8 +88,8 @@ AutoDriveMode::AutoDriveMode()
   pathPoints[17].set( -0.100000,  0.400000);
   pathPoints[18].set(  0.000000,  0.000000);
   for (int i = 0; i < PATH_POINT_COUNT; i++)
-//    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 400.0d);
-    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 1000.0d) - 2700.0d);
+//    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 900.0d) - 400.0d);
+    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 900.0d) - 2800.0d);
 
   //create bezier control points between each of the points
   /*
