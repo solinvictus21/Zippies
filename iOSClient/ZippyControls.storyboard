@@ -529,6 +529,9 @@
                                     <segment title="Auto"/>
                                 </segments>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <action selector="modeChanged:" destination="gNq-TK-qNb" eventType="valueChanged" id="Ewr-P3-MpA"/>
+                                </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pje-rb-YOS" userLabel="User-Drive Mode Button">
                                 <rect key="frame" x="343" y="375" width="50" height="30"/>
@@ -618,6 +621,7 @@
                         <outlet property="lighthouseYLabel" destination="UGL-M8-8tk" id="nXx-gt-8Bs"/>
                         <outlet property="lighthouseZLabel" destination="zx7-OT-CYc" id="loY-BI-Yd4"/>
                         <outlet property="linearVelocityLabel" destination="Mj0-9s-8so" id="TmT-2X-3g9"/>
+                        <outlet property="modeSwitch" destination="0Ka-8y-CM5" id="jS7-4C-7Vo"/>
                         <outlet property="orientationLabel" destination="i1k-xN-Xuw" id="xwM-HB-8Fb"/>
                         <outlet property="rotationalVelocityLabel" destination="CiT-nd-tSg" id="KMq-ej-3Bz"/>
                         <outlet property="statusLabel" destination="hSP-3P-Ca0" id="Ufy-nl-sYX"/>

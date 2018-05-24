@@ -14,6 +14,8 @@
 #define BLE_RECEIVE_MOTORS_SET       0x15
 #define BLE_RECEIVE_FORWARD_STRAIGHT 0x16
 #define BLE_SEND_DEBUG_INFO          0x00
+#define BLE_AUTODRIVE_MODE           0x20
+#define BLE_MANUAL_MODE              0x21
 #define BLE_SEND_INTERVAL_MS          500
 
 ZippyFace face;
@@ -23,50 +25,12 @@ unsigned long bluetoothSendDebugInfoTmeStamp = 0;
 MotorDriver motors;
 ZippyMode* currentMode = NULL;
 
-/*
-#define HMC5883_I2CADDR     0x1E
-int16_t CompassX;
-int16_t CompassY;
-int16_t CompassZ;
-
-void initCompass()
-{
-  //Put the HMC5883 into operating mode
-  Wire.beginTransmission(HMC5883_I2CADDR);
-  Wire.write(0x02);     // Mode register
-  Wire.write(0x00);     // Continuous measurement mode
-  Wire.endTransmission();
-}
-
-void readCompass()
-{
-  uint8_t ReadBuff[6];
+bool userDriveModeEnabled = false;
   
-  // Read the 6 data bytes from the HMC5883
-  Wire.beginTransmission(HMC5883_I2CADDR);
-  Wire.write(0x03);
-  Wire.endTransmission();
-  Wire.requestFrom(HMC5883_I2CADDR,6);
-  
-  for(int i = 0; i < 6;i++) {
-    ReadBuff[i] = Wire.read();
-  }
-  
-  CompassX = ReadBuff[0] << 8;
-  CompassX |= ReadBuff[1];
-  
-  CompassY = ReadBuff[4] << 8;
-  CompassY |= ReadBuff[5];
-  
-  CompassZ = ReadBuff[2] << 8;
-  CompassZ |= ReadBuff[3];
-}
-*/
-
 void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
 {
     //X sync ticks (2 bytes)
-    unsigned short nextShortValue = sensor->getXSyncTickCount();
+    unsigned short nextShortValue = 0;//sensor->getXSyncTickCount();
     memcpy(debugPacket, &nextShortValue, sizeof(unsigned short));
     int packetPosition = sizeof(unsigned short);
 
@@ -82,7 +46,7 @@ void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
     packetPosition += sizeof(float);
 
     //Y sync ticks (2 bytes)
-    nextShortValue = sensor->getYSyncTickCount();
+    nextShortValue = 0;//sensor->getYSyncTickCount();
     memcpy(debugPacket+packetPosition, &nextShortValue, sizeof(unsigned short));
     packetPosition += sizeof(unsigned short);
 
@@ -100,22 +64,14 @@ void setup()
 {
   Wire.begin();
   SerialUSB.begin(115200);
-//  while (!SerialUSB);
-//  SerialUSB.println( "Serial port enabled");
 
+  //start all of our peripherals
   bluetooth.start();
-//  SerialUSB.println("Bluetooth enabled");
-
   lighthouse.start();
-//  SerialUSB.println("Lighthouse enabled");
-
   motors.start();
-//  SerialUSB.println("Motors enabled");
-
   face.start();
-//  SerialUSB.println("Face enabled");
 
-//  initCompass();
+  //just in case the motors were left running during the last reset
   motors.setMotors(0.0d, 0.0d);
 }
 
@@ -125,19 +81,57 @@ void loop()
   //first process the Lighthouse input
   lighthouse.loop();
 
+  processBluetoothInput();
+  
+  static bool lighthouseWasConnected = false;
+  //now process our current drive mode; watch for "do nothing" mode
+  if (currentMode != NULL)  
+    currentMode->loop();
+  else if (!lighthouseWasConnected && lighthouse.hasLighthouseSignal()) {
+//    SerialUSB.println("Lighthouse connected. Starting auto-drive mode.");
+    currentMode = new AutoDriveMode();
+  }
+
+  //now process the motors and the face
+  motors.loop();
+  face.loop();
+
+  processBluetoothOutput();
+}
+
+void processBluetoothInput()
+{
   //now process all the inbound Bluetooth commands
   uint8_t receivedDataLength = bluetooth.loop();
   while (receivedDataLength) {
-//  SerialUSB.print("Got packet of length: ");
-//  SerialUSB.println(bluetoothReceiveLength);
     uint8_t* receivedData = bluetooth.getReceivedData();
     for (int i = 0; i < receivedDataLength; i++) {
       switch (receivedData[i]) {
+        case BLE_AUTODRIVE_MODE:
+          if (userDriveModeEnabled) {
+            if (currentMode != NULL)
+              delete currentMode;
+            motors.setMotors(0, 0);
+            currentMode = new AutoDriveMode();
+            userDriveModeEnabled = false;
+          }
+          break;
+          
+        case BLE_MANUAL_MODE:
+          if (!userDriveModeEnabled) {
+            if (currentMode != NULL) {
+              delete currentMode;
+              currentMode = NULL;
+            }
+            motors.setMotors(0, 0);
+            userDriveModeEnabled = true;
+          }
+          break;
+          
         case BLE_RECEIVE_FORWARD_STRAIGHT:
           break;
           
         case BLE_RECEIVE_MOTORS_SET:
-//          SerialUSB.println("Motors set.");
           //this command has a payload that should be 8 bytes (two signed floats)
           if (receivedDataLength-i >= 8) {
             i++;
@@ -153,7 +147,6 @@ void loop()
           break;
           
         case BLE_RECEIVE_MOTORS_ALL_STOP:
-//          SerialUSB.println("Motors all stop.");
           motors.setMotors(0, 0);
           break;
       }
@@ -163,28 +156,13 @@ void loop()
     receivedDataLength = bluetooth.loop();
   }
   
-  static bool lighthouseWasConnected = false;
-  //now process our current drive mode; watch for "do nothing" mode
-  if (currentMode != NULL)  
-    currentMode->loop();
-  else if (!lighthouseWasConnected && lighthouse.hasLighthouseSignal()) {
-//    SerialUSB.println("Lighthouse connected. Starting auto-drive mode.");
-    currentMode = new AutoDriveMode();
-  }
-
-  //now process the motors and the face
-  motors.loop();
-  face.loop();
-
-  processBluetooth();
 }
 
-void processBluetooth()
+void processBluetoothOutput()
 {
   
   static bool bluetoothWasConnected = false;
   static bool lighthouseDataSent = false;
-  static bool userDriveModeEnabled = false;
 
   bool bluetoothIsConnected = bluetooth.isConnected();
   if (bluetoothWasConnected && !bluetoothIsConnected) {

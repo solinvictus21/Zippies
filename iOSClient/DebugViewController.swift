@@ -4,6 +4,8 @@ import UIKit
 
 class DebugViewController: UIViewController
 {
+    
+    @IBOutlet weak var modeSwitch: UISegmentedControl!
 
     @IBOutlet weak var statusLabel: UILabel!
 
@@ -58,6 +60,12 @@ class DebugViewController: UIViewController
         statusLabel.textColor = zippy != nil ? UIColor.green : UIColor.red
     }
     
+    @IBAction func modeChanged(_ sender: Any) {
+        if self.zippy != nil {
+          zippy!.setManualModeEnabled(modeSwitch.selectedSegmentIndex == 0)
+        }
+    }
+
 }
 
 extension DebugViewController: ZippyManagerDelegate

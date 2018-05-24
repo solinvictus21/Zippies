@@ -37,28 +37,22 @@ void ZippyFace::start()
   display.setBrightness(4);
   display.setFlip(true);
   display.setFont(thinPixel7_10ptFontInfo);
-  display.clearScreen();
+
+  //displaying the face is a bit processor-intensive, so we just do it once at the start, since it doesn't currently change
+  display.startData();
+
+  display.writeBuffer(FACE_HAPPY, 6144);
+
+  display.endTransfer();
 }
 
 void ZippyFace::loop()
 {
-
+/*
   uint8_t modeColor = bluetooth.isConnected() ? TS_8b_Green : TS_8b_Red;
   
-  //displaying the face is a bit processor-intensive, so we don't do it every loop
-  static unsigned long lastScreenRefreshTime = 0;
-  unsigned long currentTime = millis();
-  if (currentTime - lastScreenRefreshTime < SCREEN_REFRESH_INTERVAL_MS)
-    return;
-  
-  lastScreenRefreshTime = currentTime;
   display.startData();
 
-//  if (lighthouse.hasLighthouseSignal())
-    display.writeBuffer(FACE_HAPPY, 6144);
-//  else
-//    display.clearScreen();
-/*
   drawBattery();
 
   //debugging; show position info
@@ -95,11 +89,12 @@ void ZippyFace::loop()
 
   //draw the mode we're currently in; red == manhandled, blue == auto-drive, green == user control
   drawModeIndicator(modeColor);
-  */
-  
+
   display.endTransfer();
+  */
 }
 
+/*
 void ZippyFace::drawBattery() {
   //determine the current battery level
   int batteryLevel = getBatteryLevel();
@@ -207,6 +202,7 @@ void ZippyFace::drawModeIndicator(uint8_t modeColor)
                    MODE_INDICATOR_WIDTH, MODE_INDICATOR_WIDTH,
                    true, modeColor);
 }
+*/
 
 uint8_t FACE_HAPPY[] PROGMEM = {
   0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,0x1b,

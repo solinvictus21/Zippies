@@ -122,12 +122,6 @@ void MotorDriver::setFailsafe(uint16_t ms)
 
 void MotorDriver::setMotors(int32_t motorLeft, int32_t motorRight)
 {
-  /*
-  SerialUSB.print("Setting Motors: ");
-  SerialUSB.print(motorLeft);
-  SerialUSB.print(" ");
-  SerialUSB.println(motorRight);
-  */
   this->writeCommand(COMMAND_ALL_PWM,
       motorLeft < 0 ? -motorLeft: 0,
       motorLeft > 0 ? motorLeft: 0,

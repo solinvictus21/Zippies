@@ -2,6 +2,7 @@
 import Foundation
 import CoreBluetooth
 
+//services & characteristics UUIDs
 let ZippyServiceUUID = CBUUID(string: "5BF1CEC2-EFC2-44D2-81AE-73FCFD5F7A13")
 let ZippyTxUUID = CBUUID(string: "C9589239-D751-47F7-9C5B-38355F0E9811")
 let ZippySensorRightRxUUID = CBUUID(string: "F652B269-4405-42D7-8CD8-0630E778E0D0")
@@ -11,6 +12,8 @@ let ZippyComputedDataRxUUID = CBUUID(string: "7965B674-B7AE-4E02-B334-872ABBE599
 let MESSAGE_SEND_MOTORS_STOP: UInt8     = 0x00
 let MESSAGE_SEND_MOTORS_SET: UInt8      = 0x15
 let MESSAGE_RECEIVE_DEBUG: UInt8        = 0x16
+let MESSAGE_AUTODRIVE_MODE: UInt8       = 0x20
+let MESSAGE_MANUAL_MODE: UInt8          = 0x21
 
 protocol ZippyDelegate: class
 {
@@ -68,6 +71,13 @@ class Zippy: BluetoothPeripheral
         self.peripheral.setNotifyValue(true, for: sensorLeftReceiveCharacteristic)
         self.peripheral.setNotifyValue(true, for: sensorRightReceiveCharacteristic)
         self.peripheral.setNotifyValue(true, for: computedDataReceiveCharacteristic)
+    }
+    
+    func setManualModeEnabled(_ e: Bool) {
+        let data = NSMutableData(capacity: 1)
+        var header: UInt8 = e ? MESSAGE_MANUAL_MODE : MESSAGE_AUTODRIVE_MODE
+        data!.append(&header, length: 1);
+        writeValue(data! as Data)
     }
     
     func setMotors(left: Float32, right: Float32) {

@@ -241,11 +241,11 @@ uint8_t Bluetooth::loop()
   
   HCI_Process();
 
-//  /*
+  /*
   if (HCI_Queue_Empty()) {
-//    Enter_LP_Sleep_Mode();
+    Enter_LP_Sleep_Mode();
   }
-//  */
+  */
 
   return receivedDataLength;
 }
@@ -299,7 +299,7 @@ void HCI_Event_CB(void *blePacket)
           //read request; a little unclear what exactly what this means
           case EVT_BLUE_GATT_READ_PERMIT_REQ:
             {
-              SerialUSB.println("Bluetooth read requested.");
+//              SerialUSB.println("Bluetooth read requested.");
               evt_gatt_read_permit_req *pr = (evt_gatt_read_permit_req *)blue_evt->data;
               aci_gatt_allow_read(pr->attr_handle);
             }

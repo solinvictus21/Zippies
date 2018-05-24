@@ -1508,18 +1508,14 @@ Gain=100</text>
 <junction x="119.38" y="43.18"/>
 </segment>
 <segment>
-<wire x1="157.48" y1="91.44" x2="161.29" y2="91.44" width="0.1524" layer="91"/>
 <label x="151.638" y="88.392" size="1.778" layer="95" rot="R90"/>
 <pinref part="D1" gate="G$1" pin="ANODE"/>
 <wire x1="161.29" y1="91.44" x2="152.4" y2="91.44" width="0.1524" layer="91"/>
-<junction x="161.29" y="91.44"/>
 </segment>
 <segment>
-<wire x1="157.48" y1="10.16" x2="161.29" y2="10.16" width="0.1524" layer="91"/>
-<label x="152.4" y="13.208" size="1.778" layer="95" rot="R270"/>
+<label x="149.86" y="13.208" size="1.778" layer="95" rot="R270"/>
 <pinref part="D2" gate="G$1" pin="ANODE"/>
-<wire x1="161.29" y1="10.16" x2="154.94" y2="10.16" width="0.1524" layer="91"/>
-<junction x="161.29" y="10.16"/>
+<wire x1="161.29" y1="10.16" x2="152.4" y2="10.16" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="R2B" gate="G$1" pin="2"/>
@@ -1643,7 +1639,6 @@ Gain=100</text>
 <segment>
 <wire x1="187.96" y1="91.44" x2="179.07" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="R1A" gate="G$1" pin="1"/>
-<wire x1="179.07" y1="91.44" x2="180.34" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="195.58" y1="106.68" x2="190.5" y2="111.76" width="0.1524" layer="91"/>
 <junction x="190.5" y="111.76"/>
 <pinref part="C1A" gate="G$1" pin="1"/>
@@ -1654,12 +1649,10 @@ Gain=100</text>
 <junction x="187.96" y="91.44"/>
 <pinref part="OA" gate="G3" pin="IN-"/>
 <pinref part="D1" gate="G$1" pin="CATHODE"/>
-<junction x="179.07" y="91.44"/>
 </segment>
 </net>
 <net name="D1IN" class="0">
 <segment>
-<wire x1="180.34" y1="10.16" x2="179.07" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="179.07" y1="10.16" x2="187.96" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="190.5" y1="10.16" x2="187.96" y2="10.16" width="0.1524" layer="91"/>
 <wire x1="187.96" y1="10.16" x2="187.96" y2="33.02" width="0.1524" layer="91"/>
@@ -1672,7 +1665,6 @@ Gain=100</text>
 <wire x1="195.58" y1="27.94" x2="190.5" y2="33.02" width="0.1524" layer="91"/>
 <junction x="190.5" y="33.02"/>
 <pinref part="D2" gate="G$1" pin="CATHODE"/>
-<junction x="179.07" y="10.16"/>
 </segment>
 </net>
 <net name="N$11" class="0">

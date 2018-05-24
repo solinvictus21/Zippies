@@ -7,31 +7,43 @@
 #define MOTOR_MIN_POWER                      3000.00d
 #define LINEAR_VELOCITY_POWER               20000.00d
 #define HALF_TURNING_RADIUS                   M_PI_2
-//#define HALF_TURNING_RADIUS                   1.963495408493621d
-//#define HALF_TURNING_RADIUS                   1.178097245096172
 #define HALF_SENSOR_SEPARATION 11.0d
 
 //the radius squared (to prevent the need for an additional square root) when we are can consider the robot to be "at the target"
 //currently set to 4cm, since sqrt(1600mm)/(10mm per cm) = 4cm; will continue to drive this down as the self-driving capability gets
 //more sophisticated and accurate
-#define AUTODRIVE_POSITION_EPSILON_2         1600.0d
+#define AUTODRIVE_POSITION_EPSILON_2         2500.0d
+//#define AUTODRIVE_POSITION_EPSILON_2         1600.0d
 
 //checkpoint
-//#define MAX_LINEAR_VELOCITY                   600.00d
-//#define MAX_ROTATIONAL_VELOCITY               250.00d
-//#define LOOK_AHEAD_DISTANCE_MM                250.00d
-//#define AUTODRIVE_LINEAR_Kp                    19.00d
-//#define AUTODRIVE_LINEAR_Ki                     6.20d
-//#define AUTODRIVE_LINEAR_Kd                     1.40d
-
-//experimental
-#define MAX_LINEAR_VELOCITY                   800.00d
-#define MAX_ROTATIONAL_VELOCITY               260.00d
-#define LOOK_AHEAD_DISTANCE_MM                300.00d
-#define AUTODRIVE_LINEAR_Kp                    16.00d
+/*
+#define MAX_LINEAR_VELOCITY                   600.00d
+#define MAX_ROTATIONAL_VELOCITY               250.00d
+#define LOOK_AHEAD_DISTANCE_MM                250.00d
+#define LOOK_AHEAD_INCREMENTS_MM               20.00d
+#define AUTODRIVE_LINEAR_Kp                    19.00d
 #define AUTODRIVE_LINEAR_Ki                     6.20d
-#define AUTODRIVE_LINEAR_Kd                     1.35d
+#define AUTODRIVE_LINEAR_Kd                     1.40d
 #define MAX_SETPOINT_CHANGE                   130.00d
+*/
+///*
+//experimental
+#define MAX_LINEAR_VELOCITY                   900.00d
+#define MAX_ROTATIONAL_VELOCITY               250.00d
+#define LOOK_AHEAD_DISTANCE_MM                250.00d
+//#define LOOK_AHEAD_DISTANCE_MM                300.00d
+//when the robot reaches within the LOOK_AHEAD_DISTANCE, the next point to look toward along the path is incremented by this distance
+#define LOOK_AHEAD_INCREMENTS_MM               20.00d
+#define AUTODRIVE_LINEAR_Kp                    18.00d
+//#define AUTODRIVE_LINEAR_Kp                    20.00d
+//#define AUTODRIVE_LINEAR_Ki                     1.80d
+#define AUTODRIVE_LINEAR_Ki                     1.60d
+//#define AUTODRIVE_LINEAR_Kd                     2.51d
+//for a MAX_LINEAR_VELOCITY of 1200.00d, this Kd seems to be ideal, but there could be a LOT of skidding
+#define AUTODRIVE_LINEAR_Kd                     1.40d
+//#define AUTODRIVE_LINEAR_Kd                     3.66d
+#define MAX_SETPOINT_CHANGE                   150.00d
+//*/
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
@@ -137,15 +149,12 @@ void FollowPath::start()
   //reset the set points
   updateInputs();
 
-  //we need to reset the outputs before going back to automatic PID mode; see Arduino PID library source for details
+  //we need to reset the outputs before going back to automatic PID mode; see Arduino PID library source code for details
   leftOutput = 0.0d;
   rightOutput = 0.0d;
 
   leftPID.SetMode(AUTOMATIC);
   rightPID.SetMode(AUTOMATIC);
-
-  motors.setMotors(padInner(-leftOutput, MOTOR_MIN_POWER),
-                   padInner(-rightOutput, MOTOR_MIN_POWER));
 }
 
 bool FollowPath::loop()
@@ -166,11 +175,6 @@ bool FollowPath::loop()
 
   leftPID.Compute();
   rightPID.Compute();
-
-//  SerialUSB.print("L: ");
-//  SerialUSB.print(leftOutput, 2);
-//  SerialUSB.print("   R: ");
-//  SerialUSB.println(rightOutput, 2);
 
   motors.setMotors(padInner(-leftOutput, MOTOR_MIN_POWER),
                    padInner(-rightOutput, MOTOR_MIN_POWER));
@@ -243,36 +247,40 @@ void FollowPath::calculateNextPosition(KVector2* nextPosition)
   
   //check if we're within the look-ahead distance of the current target position
   double distanceToNextPosition = nextPosition->getD();
-  if (distanceToNextPosition >= LOOK_AHEAD_DISTANCE_MM) {
-    //still moving to next position; just keep moving toward it
-    nextPosition->setD(LOOK_AHEAD_DISTANCE_MM);
-    return;
-  }
+  while (distanceToNextPosition < LOOK_AHEAD_DISTANCE_MM &&
+      //stop at the end of the path
+      (currentDistanceAlongSegment < currentSegment.getD() || currentSegmentEndIndex+1 < pathPointCount))
+  {
+    //the robot is within the look-ahead distance of the current target position, so move the target position forward along the path
+    currentDistanceAlongSegment += (LOOK_AHEAD_DISTANCE_MM - distanceToNextPosition) + LOOK_AHEAD_INCREMENTS_MM;
   
-  //the robot is within the look-ahead distance of the current target position, so move the target position forward along the path by the difference
-  currentDistanceAlongSegment += (LOOK_AHEAD_DISTANCE_MM - distanceToNextPosition);
+    while (currentDistanceAlongSegment > currentSegment.getD()) {
+      //the look-ahead distance is beyond the end of the current path segment
+      if (currentSegmentEndIndex+1 == pathPointCount) {
+        //but this is the last segment, so stop at the end
+        currentDistanceAlongSegment = currentSegment.getD();
+        break;
+      }
+  
 
-  //if we've reached beyond the end of the current path segment and there are more segments, move to the next segment
-  while (currentDistanceAlongSegment >= currentSegment.getD()) {
-    //stop at the last segment
-    if (currentSegmentEndIndex+1 == pathPointCount) {
-      currentDistanceAlongSegment = currentSegment.getD();
-      break;
+      //there are more path segments, so move to the next path segment
+      //first determine the distance left over after completing the current segment
+      currentDistanceAlongSegment -= currentSegment.getD();
+  
+      //move to the next path segment
+      currentSegmentStart = &pathPoints[currentSegmentEndIndex];
+      currentSegmentEndIndex++;
+      currentSegment.set(pathPoints[currentSegmentEndIndex].getX() - currentSegmentStart->getX(),
+          pathPoints[currentSegmentEndIndex].getY() - currentSegmentStart->getY());
     }
-    
-    //there are more path segments, so we're going to move on to the next path segment
-    //first determine the distance left over after completing the current segment
-    currentDistanceAlongSegment -= currentSegment.getD();
+  
+    //recalculate our current target position along the path
+    getCurrentTargetPosition(nextPosition);
 
-    //move to the next path segment
-    currentSegmentStart = &pathPoints[currentSegmentEndIndex];
-    currentSegmentEndIndex++;
-    currentSegment.set(pathPoints[currentSegmentEndIndex].getX() - currentSegmentStart->getX(),
-        pathPoints[currentSegmentEndIndex].getY() - currentSegmentStart->getY());
+    //check our distance to the next position
+    distanceToNextPosition = nextPosition->getD();
   }
 
-  //recalculate our current target position along the path
-  getCurrentTargetPosition(nextPosition);
   nextPosition->setD(min(LOOK_AHEAD_DISTANCE_MM, nextPosition->getD()));
 }
 

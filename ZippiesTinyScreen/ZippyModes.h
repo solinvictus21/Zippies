@@ -4,7 +4,7 @@
 #include "ZippyCommand.h"
 #include "KVector.h"
 
-#define PATH_POINT_COUNT 19
+#define PATH_POINT_COUNT 37
 #define BEZIER_CONTROL_POINT_COUNT 2*(PATH_POINT_COUNT-1)
 
 class ZippyMode

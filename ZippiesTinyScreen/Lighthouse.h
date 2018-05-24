@@ -7,9 +7,8 @@
 
 //#define DEBUG_SIGNAL_EDGES 1
 //#define DEBUG_LIGHTHOUSE_EDGES 1
-
-//#define LIGHTHOUSE_DEBUG_SIGNAL
-//#define LIGHTHOUSE_DEBUG_ERRORS
+//#define DEBUG_OOTX 1
+//#define DEBUG_OOTX_ERRPRS 1
 
 #define BUFFER_SIZE 32
 #define BASE_STATION_INFO_BLOCK_SIZE 33
@@ -46,39 +45,32 @@ enum PulseEdge
     Unknown, SyncRising, SyncFalling, SweepRising, SweepFalling
 };
 
-typedef struct _SensorCycleData
+typedef struct _LighthouseSensorAxis
 {
   //pending sync tick count; to be used if we later see the sweep hit
   unsigned long pendingCycleStart = 0;
-  unsigned long pendingSyncLength = 0;
   
-  //number of ticks in most recent cycle; set to zero when a cycle is missed
-  unsigned long syncTickCount = 0;
   //number of ticks from the start of the visible portion of the cycle to the sweep hit
   unsigned long sweepTickCount = 0;
-  //updated each time a sweep hit is detected; set to zero when lighthouse signal is unavailable
+  //updated each time a sweep hit is detected; set to zero when we fail to detect the lighthouse sweep
   unsigned long sweepHitTimeStamp = 0;
 
 #ifdef DEBUG_LIGHTHOUSE_EDGES
+  //useful debugging statistics
   unsigned int syncHits = 0;
   unsigned int syncMisses = 0;
+  unsigned long syncAccumulator = 0;
+  unsigned long syncCounter = 0;
   unsigned int sweepHits = 0;
   unsigned int sweepMisses = 0;
-  //stats
   unsigned long sweepMinTicks = 0;
   unsigned long sweepMaxTicks = 0;
   unsigned long sweepAccumulator = 0;
   unsigned long sweepCounter = 0;
-  //edges detected between the sweep hit and the next sync, which are "echoes" of other edges due to a likely circuit design flaw
+  //edges detected between the sweep hit and the next sync, which are "echoes" of other edges due to a likely circuit design shortcoming
   unsigned int edgeEchoCount = 0;
 #endif
-
-#ifdef LIGHTHOUSE_DEBUG_SCREEN_SIGNAL
-  unsigned long lastCycleTickCount = 0;
-#elif LIGHTHOUSE_DEBUG_SCREEN_ERRORS
-  //error counts
-#endif
-} SensorCycleData;
+} LighthouseSensorAxis;
 
 class LighthouseSensor
 {
@@ -90,6 +82,14 @@ private:
   //raw input shared with the interrupt handler; interrupt handler writes and LighthouseSensor reads and processes
   LighthouseSensorInput* sensorInput;
 
+  //the current edge we're expecting within the current cycle
+  PulseEdge currentEdge;
+  //the current axis we're processing
+  int currentAxis;
+  //captured data in each cycle for the x and y axes
+  //x = 0; y = 1
+  LighthouseSensorAxis cycleData[2];
+  
   //data and code required to process the OOTX frame, for the purpose of extracting the lighthouse orientation
   int zeroCount;
   int syncBitCounter;
@@ -111,14 +111,6 @@ private:
   RotorFactoryCalibrationData xRotor;
   RotorFactoryCalibrationData zRotor;
 
-  //the current edge we're expecting within the current cycle
-  PulseEdge currentEdge;
-  //the current axis we're processing
-  int currentAxis;
-  //captured data in each cycle for the x and y axes
-  //x = 0; y = 1
-  SensorCycleData cycleData[2];
-  
   unsigned int previousTickCount;
 
   //historical data for calculating velocity
@@ -135,6 +127,7 @@ private:
   void reacquireSyncPulses(unsigned int previousTickCount, unsigned int currentTickCount);
   void processSyncRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
   void processSyncFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
+  void captureSyncFallingEdge(unsigned int previousTickCount, unsigned int deltaTickCount);
   void processSweepRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
   void processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
 
@@ -156,10 +149,8 @@ public:
   int8_t getAccelDirY();
   int8_t getAccelDirZ();
 
-  unsigned long getXSyncTickCount() { return cycleData[0].syncTickCount; }
   unsigned long getXSweepTickCount() { return cycleData[0].sweepTickCount; }
   
-  unsigned long getYSyncTickCount() { return cycleData[1].syncTickCount; }
   unsigned long getYSweepTickCount() { return cycleData[1].sweepTickCount; }
 
   //info about the robot position; if any portion of each Lighthouse cycle is missed, hasPosition() returns false
@@ -195,6 +186,13 @@ public:
     return v;
   }
 
+  unsigned int getXSyncTicksAverage() {
+    unsigned int v = cycleData[0].syncAccumulator / cycleData[0].syncCounter;
+    cycleData[0].syncAccumulator = 0;
+    cycleData[0].syncCounter = 0;
+    return v;
+  }
+  
   unsigned int getXSweepHits() {
     unsigned int v = cycleData[0].sweepHits;
     cycleData[0].sweepHits = 0;
@@ -243,6 +241,14 @@ public:
     cycleData[1].syncMisses = 0;
     return v;
   }
+
+  unsigned int getYSyncTicksAverage() {
+    unsigned int v = cycleData[1].syncAccumulator / cycleData[1].syncCounter;
+    cycleData[1].syncAccumulator = 0;
+    cycleData[1].syncCounter = 0;
+    return v;
+  }
+  
   unsigned int getYSweepHits() {
     unsigned int v = cycleData[1].sweepHits;
     cycleData[1].sweepHits = 0;

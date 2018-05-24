@@ -3,7 +3,7 @@
 
 //height of the lighthouse from the floor
 //mounted on surface of entertainment center
-//#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 950.0d
+//#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 930.0d
 //mounted on top of TV
 #define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1940.0d
 //height of the diode sensors from the floor
@@ -533,9 +533,6 @@ void Lighthouse::recalculate()
   //update the combined (average) position to get the overall position of the robot
   unsigned long combinedPositionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
   if (positionTimeStamp != combinedPositionTimeStamp) {
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
-    SerialUSB.println("Position is up-to-date.");
-#endif
     previousPositionVector.set(&positionVector);
     previousPositionTimeStamp = positionTimeStamp;
     
@@ -554,10 +551,6 @@ void Lighthouse::recalculate()
     //with the vector between the sensors; this calculation simplifies to the following
     orientationVector.set(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
         -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()), 1.0d);
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
-    SerialUSB.print("Recalculated orientation: ");
-    SerialUSB.println(orientationVector.getOrientation(), 3);
-#endif
     orientationTimeStamp = combinedPositionTimeStamp;
   }
 
@@ -678,28 +671,18 @@ void LighthouseSensor::reacquireSyncPulses(unsigned int previousTickCount, unsig
   unsigned int deltaTickCount = calculateDeltaTicks(previousTickCount, currentTickCount);
   if (deltaTickCount < SYNC_PULSE_J0_MIN || deltaTickCount >= NONSYNC_PULSE_J2_MIN)
     return;
-    
+
+  //found a sync signal; capture the sync data and go back to lock-step tracking
   currentAxis = ((deltaTickCount - SYNC_PULSE_J0_MIN) / 500) & 0x1;
-
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-    cycleData[currentAxis].syncHits++;
-#endif
-
-  if (!receivedLighthousePosition)
-    processOOTXBit(deltaTickCount);
-    
-  cycleData[currentAxis].pendingCycleStart = previousTickCount;
-  cycleData[currentAxis].pendingSyncLength = currentTickCount;
-
-  currentEdge = SweepRising;
+  captureSyncFallingEdge(previousTickCount, deltaTickCount);
 }
 
 void LighthouseSensor::processSyncRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
 {
   //calculate the total tick count since the rising edge of the previous cycle
-  unsigned long totalCycleTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, currentTickCount);
+  unsigned long deltaTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, currentTickCount);
   
-  if (totalCycleTickCount < SWEEP_DURATION_LAMBDA) {
+  if (deltaTickCount < SWEEP_DURATION_LAMBDA) {
     //the next rising pulse edge was detected before it should have been due to what appear to be shortcomings in the
     //current build of the lighthouse circuit; reject these pulses as "echoes"
     //in this particular case, the 2.2pF capacitors during transimpedance amplification appear to be generating the pulse
@@ -711,7 +694,7 @@ void LighthouseSensor::processSyncRisingEdge(unsigned int previousTickCount, uns
     return;
   }
 
-  //found rising edge of next sync pulse
+  //found rising edge of the sync pulse
   currentAxis = (currentAxis+1) & 0x1;
   currentEdge = SyncFalling;
 }
@@ -719,24 +702,15 @@ void LighthouseSensor::processSyncRisingEdge(unsigned int previousTickCount, uns
 void LighthouseSensor::processSyncFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
 {
   unsigned int deltaTickCount = calculateDeltaTicks(previousTickCount, currentTickCount);
-//  SerialUSB.println(deltaTickCount);
   if (deltaTickCount < SYNC_PULSE_J0_MIN || deltaTickCount >= NONSYNC_PULSE_J2_MIN) {
-    //we missed a sync signal
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
-    SerialUSB.print(debugNumber ? "R" : "L");
-    SerialUSB.print(" sensor lost ");
-    SerialUSB.print(currentAxis ? "Y" : "X");
-    SerialUSB.print(" signal: ");
-    SerialUSB.println(deltaTickCount);
-#endif
+    //we missed an expected sync signal
 #ifdef DEBUG_LIGHTHOUSE_EDGES
     //this technically counts as two errors, since we will now also miss the sweep pulse
     cycleData[currentAxis].syncMisses++;
     cycleData[currentAxis].sweepMisses++;
 #endif
 
-    cycleData[currentAxis].syncTickCount = 0;
-    cycleData[currentAxis].sweepTickCount = 0;
+    //indicate that we missed the sweep on this axis
     cycleData[currentAxis].sweepHitTimeStamp = 0;
 
     currentEdge = Unknown;
@@ -746,40 +720,35 @@ void LighthouseSensor::processSyncFallingEdge(unsigned int previousTickCount, un
   int newAxis = ((deltaTickCount - SYNC_PULSE_J0_MIN) / 500) & 0x1;
   if (newAxis != currentAxis) {
     //wrong sync pulse; this is for the other axis
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
-    SerialUSB.print(debugNumber);
-    SerialUSB.print(" WARNING: Received opposite sync signal. Expected ");
-    SerialUSB.print(currentAxis ? "Y" : "X");
-    SerialUSB.print(". Received: ");
-    SerialUSB.println(deltaTickCount);
-#endif
 #ifdef DEBUG_LIGHTHOUSE_EDGES
     //this technically counts as two errors, since we also mised the sweep pulse for this axes
     cycleData[currentAxis].syncMisses++;
     cycleData[currentAxis].sweepMisses++;
 #endif
 
-    cycleData[currentAxis].syncTickCount = 0;
-    cycleData[currentAxis].sweepTickCount = 0;
+    //indicate that we missed the sweep on this axis
     cycleData[currentAxis].sweepHitTimeStamp = 0;
 
-    //now switch back to the appropriate axis
+    //now switch to the correct axis
     currentAxis = newAxis;
-
-//    currentEdge = Unknown;
-//    return;
   }
-  
-  //got the falling edge for the sync pulse on the current axis
+
+  captureSyncFallingEdge(previousTickCount, deltaTickCount);
+}
+
+void LighthouseSensor::captureSyncFallingEdge(unsigned int previousTickCount, unsigned int deltaTickCount)
+{
+  //this is the falling edge for the sync pulse along the current axis
 #ifdef DEBUG_LIGHTHOUSE_EDGES
-    cycleData[currentAxis].syncHits++;
+  cycleData[currentAxis].syncHits++;
+  cycleData[currentAxis].syncAccumulator += (deltaTickCount - SYNC_PULSE_J0_MIN) % 500;
+  cycleData[currentAxis].syncCounter++;
 #endif
 
   if (!receivedLighthousePosition)
     processOOTXBit(deltaTickCount);
 
   cycleData[currentAxis].pendingCycleStart = previousTickCount;
-  cycleData[currentAxis].pendingSyncLength = deltaTickCount;
 
   currentEdge = SweepRising;
 }
@@ -788,57 +757,43 @@ void LighthouseSensor::processSweepRisingEdge(unsigned int previousTickCount, un
 {
   //this should be the rising edge of the sweep hit
   unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, currentTickCount);
-  if (sweepTickCount < SWEEP_DURATION_LAMBDA) {
-    //this sweep hit is hitting within the expected sweep window; wait for the falling edge
-    currentEdge = SweepFalling;
+  if (sweepTickCount >= SWEEP_DURATION_LAMBDA) {
+    //we must have missed the sweep hit for this axis
+#ifdef DEBUG_LIGHTHOUSE_EDGES
+    cycleData[currentAxis].sweepMisses++;
+#endif
+
+    //indicate that we missed the sweep on this axis
+    cycleData[currentAxis].sweepHitTimeStamp = 0;
+
+    //move to watching for the end of the sync pulse on the other axis
+    currentAxis = (currentAxis+1) & 0x1;
+    currentEdge = SyncFalling;
     return;
   }
-    
-/* commented out for now as it can make debugging messages a bit verbose in some testing cases
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
-  SerialUSB.print(debugNumber);
-  SerialUSB.print(" WARNING: Missed a sweep on ");
-  SerialUSB.print(currentAxis ? "Y" : "X");
-  SerialUSB.println(" axis after seeing the proper sync pulse.");
-#endif
-*/
-#ifdef DEBUG_LIGHTHOUSE_EDGES
-  //we missed the sweep hit on this axis
-  cycleData[currentAxis].sweepMisses++;
-#endif
 
-  //we missed the sweep pulse; clear this cycle's data since the sweep was missed
-  cycleData[currentAxis].syncTickCount = 0;
-  cycleData[currentAxis].sweepTickCount = 0;
-  cycleData[currentAxis].sweepHitTimeStamp = 0;
-
-  //move to watching for the end of the sync pulse on the other axis
-  currentAxis = (currentAxis+1) & 0x1;
-  currentEdge = SyncFalling;
-
-//  currentEdge = Unknown;
+  //this sweep hit is hitting within the expected sweep window; wait for the falling edge
+  currentEdge = SweepFalling;
 }
 
 void LighthouseSensor::processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount)
 {
-  unsigned long sweepTickLength = calculateDeltaTicks(previousTickCount, currentTickCount);
-  unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, previousTickCount) + (sweepTickLength/2);
+  //process the falling edge of the sweep hit; the sweep tick count is the number of ticks from the beginning of the sync
+  //signal to the center of the sweep hit pulse
+  unsigned long sweepTickCount = calculateDeltaTicks(cycleData[currentAxis].pendingCycleStart, previousTickCount) +
+      (calculateDeltaTicks(previousTickCount, currentTickCount) / 2);
   
 #ifdef DEBUG_LIGHTHOUSE_EDGES
+  //collect additional sweep statistics for debugging
   cycleData[currentAxis].sweepHits++;
-  //collect additional statistics for debugging
-  unsigned long statValue = (cycleData[currentAxis].pendingSyncLength - SYNC_PULSE_J0_MIN) % 500;
-//  unsigned long statValue = sweepTickLength;
-//  unsigned long statValue = sweepTickCount;
   cycleData[currentAxis].sweepMinTicks = cycleData[currentAxis].sweepMinTicks == 0
-    ? statValue
-    : min(statValue, cycleData[currentAxis].sweepMinTicks);
-  cycleData[currentAxis].sweepMaxTicks = max(statValue, cycleData[currentAxis].sweepMaxTicks);
+      ? sweepTickCount
+      : min(sweepTickCount, cycleData[currentAxis].sweepMinTicks);
+  cycleData[currentAxis].sweepMaxTicks = max(sweepTickCount, cycleData[currentAxis].sweepMaxTicks);
   cycleData[currentAxis].sweepAccumulator += sweepTickCount;
   cycleData[currentAxis].sweepCounter++;
 #endif
 
-  cycleData[currentAxis].syncTickCount = cycleData->pendingSyncLength;
   cycleData[currentAxis].sweepTickCount = sweepTickCount;
   cycleData[currentAxis].sweepHitTimeStamp = millis();
 
@@ -855,27 +810,27 @@ void LighthouseSensor::processOOTXBit(unsigned int syncDelta)
 {
   bool value = syncDelta >= SYNC_PULSE_J1_MIN;
   /*
-    #ifdef LIGHTHOUSE_DEBUG_SIGNAL
-      SerialUSB.print(debugNumber);
-      SerialUSB.print(" Received an OOTX bit. Ticks: ");
-      SerialUSB.print(syncDelta);
-      SerialUSB.print("   Bit: ");
-      SerialUSB.println(value ? 1 : 0);
-    #endif
+  #ifdef DEBUG_OOTX
+    SerialUSB.print(debugNumber);
+    SerialUSB.print(" Received an OOTX bit. Ticks: ");
+    SerialUSB.print(syncDelta);
+    SerialUSB.print("   Bit: ");
+    SerialUSB.println(value ? 1 : 0);
+  #endif
   */
+  
   syncBitCounter++;
   if (!value) {
     zeroCount++;
 
     if (zeroCount == 17) {
       //found start of OOTX frame
-
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
+#ifdef DEBUG_OOTX
       SerialUSB.print(debugNumber);
       SerialUSB.println(" Found the start of the OOTX frame.");
 #endif
 
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
+#ifdef DEBUG_OOTX_ERRPRS
       if (payloadReadMask || readInfoBlockMask) {
         SerialUSB.print(debugNumber);
         SerialUSB.println(" WARNING: OOTX frame restarted");
@@ -892,7 +847,7 @@ void LighthouseSensor::processOOTXBit(unsigned int syncDelta)
     }
     else if (syncBitCounter == 17 && (payloadReadMask || readInfoBlockMask)) {
       //expecting a sync bit and didn't get it; start over
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
+#ifdef DEBUG_OOTX_ERRPRS
       SerialUSB.print(debugNumber);
       SerialUSB.print(" WARNING: Missed a sync bit: ");
       SerialUSB.println(syncDelta);
@@ -914,12 +869,10 @@ void LighthouseSensor::processOOTXBit(unsigned int syncDelta)
       if (readInfoBlockIndex == BASE_STATION_INFO_BLOCK_SIZE) {
         readInfoBlockIndex = 0;
 
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
+#ifdef DEBUG_OOTX
         SerialUSB.print(debugNumber);
         SerialUSB.println(" Got the base station info block.");
 #endif
-//        SerialUSB.println(((BaseStationInfoBlock*)baseStationInfoBlock)->id, HEX);
-//        SerialUSB.println(((BaseStationInfoBlock*)baseStationInfoBlock)->fw_version, HEX);
 
         //now calculate the position and orientation of the lighthouse
         calculateLighthousePosition();
@@ -941,14 +894,14 @@ void LighthouseSensor::processOOTXBit(unsigned int syncDelta)
     else if (payloadReadMask == 0x0080) {
       payloadReadMask = 0;
       if (payloadLength == BASE_STATION_INFO_BLOCK_SIZE) {
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
+#ifdef DEBUG_OOTX
         SerialUSB.print(debugNumber);
         SerialUSB.println(" Starting to read base station info block.");
 #endif
         readInfoBlockIndex = 0;
         readInfoBlockMask = 0x80;
       }
-#ifdef LIGHTHOUSE_DEBUG_ERRORS
+#ifdef DEBUG_OOTX_ERRPRS
       else {
         SerialUSB.print(debugNumber);
         SerialUSB.print(" WARNING: Receiving an OOTX frame that is NOT the base station info block of size: ");
@@ -981,14 +934,14 @@ void LighthouseSensor::calculateLighthousePosition()
   xRotor.gibbousPhase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_0_gibphase);
   xRotor.gibbousMagnitude = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_0_gibmag);
 
-  //capture the factory calibration data for the y rotor
+  //capture the factory calibration data for the z rotor
   zRotor.phase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_phase);
   zRotor.tilt = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_tilt);
   zRotor.curve = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_curve);
   zRotor.gibbousPhase = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibphase);
   zRotor.gibbousMagnitude = float16ToFloat32(((BaseStationInfoBlock*)baseStationInfoBlock)->fcal_1_gibmag);
 
-#ifdef LIGHTHOUSE_DEBUG_SIGNAL
+#ifdef DEBUG_OOTX
   SerialUSB.println("X Rotor Factory Calibration:");
   SerialUSB.println((xRotor.phase / M_PI) * 180.0d, 6);
   SerialUSB.println((xRotor.tilt / M_PI) * 180.0d, 6);
@@ -997,7 +950,7 @@ void LighthouseSensor::calculateLighthousePosition()
   SerialUSB.println(xRotor.gibbousMagnitude, 6);
   SerialUSB.println();
 
-  SerialUSB.println("Y Rotor Factory Calibration:");
+  SerialUSB.println("Z Rotor Factory Calibration:");
   SerialUSB.println((zRotor.phase / M_PI) * 180.0d, 6);
   SerialUSB.println((zRotor.tilt / M_PI) * 180.0d, 6);
   SerialUSB.println((zRotor.curve / M_PI) * 180.0d, 6);
@@ -1010,7 +963,6 @@ void LighthouseSensor::calculateLighthousePosition()
   //where the x and z axes are parallel to the ground, positive x is to the lighthouse "left", positive z is "forward, and positive y is
   //"up". This means swapping the y and z axes of the accelerometer and flipping the x axis to put them into our global coordinate system.
   KVector3 rotationUnitVector(-getAccelDirX(), getAccelDirZ(), getAccelDirY(), 1.0d);
-//  rotationUnitVector.printDebug();
 
   //now calculate the angle of rotation from the "up" normal in our global coordinate system (0,0,1) to the rotation unit vector
   //this calculation ultimately reduces to the inverse cosine of the z axis of the rotation unit vector
@@ -1020,7 +972,6 @@ void LighthouseSensor::calculateLighthousePosition()
   //our quaternion; this calculation ultimately reduces to the y axis from the rotation unit vector becoming the x axis and the x axis
   //becoming the negative y axis; then obtain the unit vector of the result
   rotationUnitVector.set(rotationUnitVector.getY(), -rotationUnitVector.getX(), 0.0d, 1.0d);
-//  rotationUnitVector.printDebug();
 
   //now that we have both the axis and angle of rotation, we can calculate our quaternion
   lighthouseOrientation.set(rotationUnitVector.getX(), rotationUnitVector.getY(), rotationUnitVector.getZ(), angleOfRotation);
@@ -1028,11 +979,6 @@ void LighthouseSensor::calculateLighthousePosition()
   //take the forward unit vector in the lighthouse's coordinate system (0,1,0), and un-rotate it to get it into the global coordinate system
   KVector3 lighthouseForwardVector(0.0d, 1.0d, 0.0d);
   lighthouseForwardVector.unrotate(&lighthouseOrientation);
-  //KVector3 lighthouseForwardVector(getAccelDirX(), getAccelDirY(), -getAccelDirZ(), 1.0d);
-//  lighthouseForwardVector.printDebug();
-
-//  KVector3 forward(0.0d, 1.0d, 0.0d);
-//  SerialUSB.println(lighthouseForwardVector.angleToVector(&forward), 5);
 
   //determine the height of the lighthouse from the diode plane
   double lighthouseDistanceFromDiodePlane = LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM - ROBOT_DIODE_HEIGHT_MM;
@@ -1043,7 +989,6 @@ void LighthouseSensor::calculateLighthousePosition()
   lighthousePosition.set(-lighthouseForwardVector.getX() * t,
                          -lighthouseForwardVector.getY() * t,
                          lighthouseDistanceFromDiodePlane);
-//  lighthousePosition.printDebug();
 
   receivedLighthousePosition = true;
 }
@@ -1061,7 +1006,6 @@ void LighthouseSensor::recalculatePosition()
   unsigned long newPositionTimeStamp = max(cycleData[0].sweepHitTimeStamp, cycleData[1].sweepHitTimeStamp);
   if (positionTimeStamp == newPositionTimeStamp) {
     //nothing to do; position is up-to-date
-//    SerialUSB.println("Position is up-to-date.");
     return;
   }
 
@@ -1072,16 +1016,13 @@ void LighthouseSensor::recalculatePosition()
   //start by normalizing the angle on each axis from the lighthouse to be from -90 degrees to +90 degrees in radians
   double idealAngleX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
   double idealAngleZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
-  //  SerialUSB.println(angleFromLighthouseX, 2);
 
   //at y=1, we want the x and z coordinates of our direction vector; since TAN = O / A, then O = TAN / A and given that our adjacent
   //is 1.0, then the opposite is simply the TAN of the angle along each axis
   double vectorFromLighthouseX = tan(idealAngleX);
   double vectorFromLighthouseZ = tan(idealAngleZ);
 
-  //correct for the factory calibration data
-//  observed_angle[0] = ideal_angle[0] - phase[0] - tan(tilt[0]) * y - curve[0] * y * y - sin(gibPhase[0] + ideal_angle[0]) * gibMag[0]
-//  observed_angle[1] = ideal_angle[1] - phase[1] - tan(tilt[1]) * x - curve[0] * x * x - sin(gibPhase[1] + ideal_angle[1]) * gibMag[1]
+  //correct for the factory calibration data; formula pulled from notes on the open source libsurvive project
   double correctedX = idealAngleX +
       xRotor.phase +
       (tan(xRotor.tilt) * vectorFromLighthouseZ) +
@@ -1114,14 +1055,11 @@ void LighthouseSensor::estimatePosition(KVector2* previousOrientation, KVector2*
   KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(), positionVector.getY() - previousPositionVector.getY());
   deltaPosition.rotate(previousOrientation->angleToVector(currentOrientation));
   
-//  previousPositionVector.printDebug();
   previousPositionVector.set(&positionVector);
   previousPositionTimeStamp = positionTimeStamp;
 
-//  positionVector.printDebug();
   positionVector.addVector(&deltaPosition);
   positionTimeStamp = currentTime;
-//  positionVector.printDebug();
 }
 
 void LighthouseSensor::recalculateVelocity(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long orientationTimeStamp)
@@ -1131,14 +1069,12 @@ void LighthouseSensor::recalculateVelocity(KVector2* previousOrientation, KVecto
     return;
   }
 
-//  SerialUSB.println("Updating velocity.");
   KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(), positionVector.getY() - previousPositionVector.getY());
   
   //poor calculation by estimating velocity as the direct distance
   //to properly calculate velocity, we need to calculate the length of the elliptical curve from the previous point to the current point
   double deltaSeconds = ((double)(positionTimeStamp - previousPositionTimeStamp)) / 1000.0d;
   velocity = deltaPosition.getD() / deltaSeconds;
-//  SerialUSB.println(positionTimeStamp - previousPositionTimeStamp);
   
   //now determine if it is negative
   if (deltaPosition.dotVector(currentOrientation) < 0.0d)

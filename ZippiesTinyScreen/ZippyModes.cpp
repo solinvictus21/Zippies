@@ -87,9 +87,27 @@ AutoDriveMode::AutoDriveMode()
   pathPoints[16].set( -0.200000,  0.500000);
   pathPoints[17].set( -0.100000,  0.400000);
   pathPoints[18].set(  0.000000,  0.000000);
+  pathPoints[19].set(  0.100000, -0.400000);
+  pathPoints[20].set(  0.200000, -0.500000);
+  pathPoints[21].set(  0.500000, -0.500000);
+  pathPoints[22].set(  0.600000, -0.400000);
+  pathPoints[23].set(  0.600000,  0.400000);
+  pathPoints[24].set(  0.500000,  0.500000);
+  pathPoints[25].set(  0.200000,  0.500000);
+  pathPoints[26].set(  0.100000,  0.400000);
+  pathPoints[27].set(  0.000000,  0.000000);
+  pathPoints[28].set( -0.100000, -0.400000);
+  pathPoints[29].set( -0.200000, -0.500000);
+  pathPoints[30].set( -0.500000, -0.500000);
+  pathPoints[31].set( -0.600000, -0.400000);
+  pathPoints[32].set( -0.600000,  0.400000);
+  pathPoints[33].set( -0.500000,  0.500000);
+  pathPoints[34].set( -0.200000,  0.500000);
+  pathPoints[35].set( -0.100000,  0.400000);
+  pathPoints[36].set(  0.000000,  0.000000);
   for (int i = 0; i < PATH_POINT_COUNT; i++)
-//    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 900.0d) - 400.0d);
-    pathPoints[i].set(pathPoints[i].getX() * 1000.0d, (pathPoints[i].getY() * 900.0d) - 2800.0d);
+//    pathPoints[i].set(pathPoints[i].getX() * 1100.0d, (pathPoints[i].getY() * 900.0d) - 650.0d);
+    pathPoints[i].set(pathPoints[i].getX() * 1100.0d, (pathPoints[i].getY() * 900.0d) - 2750.0d);
 
   //create bezier control points between each of the points
   /*
