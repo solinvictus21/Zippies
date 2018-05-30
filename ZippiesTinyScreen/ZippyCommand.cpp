@@ -4,9 +4,11 @@
 #include "MotorDriver.h"
 
 //the minimum PCM value below which the motors do not turn
-#define MOTOR_MIN_POWER                      3000.00d
-#define LINEAR_VELOCITY_POWER               20000.00d
-#define HALF_TURNING_RADIUS                   M_PI_2
+//#define MOTOR_MIN_POWER                      20000.00d
+#define LINEAR_VELOCITY_POWER               50000.00d
+//#define HALF_TURNING_RADIUS                   M_PI_2
+// 3/8 * M_PI
+#define HALF_TURNING_RADIUS                   1.178097245096172d
 #define HALF_SENSOR_SEPARATION 11.0d
 
 //the radius squared (to prevent the need for an additional square root) when we are can consider the robot to be "at the target"
@@ -15,38 +17,47 @@
 #define AUTODRIVE_POSITION_EPSILON_2         2500.0d
 //#define AUTODRIVE_POSITION_EPSILON_2         1600.0d
 
-//checkpoint
 /*
-#define MAX_LINEAR_VELOCITY                   600.00d
+//fast
+#define MOTOR_MIN_POWER                      3000.00d
+#define MAX_LINEAR_VELOCITY                  1000.00d
 #define MAX_ROTATIONAL_VELOCITY               250.00d
-#define LOOK_AHEAD_DISTANCE_MM                250.00d
-#define LOOK_AHEAD_INCREMENTS_MM               20.00d
-#define AUTODRIVE_LINEAR_Kp                    19.00d
-#define AUTODRIVE_LINEAR_Ki                     6.20d
-#define AUTODRIVE_LINEAR_Kd                     1.40d
-#define MAX_SETPOINT_CHANGE                   130.00d
-*/
-///*
-//experimental
-#define MAX_LINEAR_VELOCITY                   900.00d
-#define MAX_ROTATIONAL_VELOCITY               250.00d
-#define LOOK_AHEAD_DISTANCE_MM                250.00d
-//#define LOOK_AHEAD_DISTANCE_MM                300.00d
+#define LOOK_AHEAD_DISTANCE_MM                280.00d
 //when the robot reaches within the LOOK_AHEAD_DISTANCE, the next point to look toward along the path is incremented by this distance
 #define LOOK_AHEAD_INCREMENTS_MM               20.00d
-#define AUTODRIVE_LINEAR_Kp                    18.00d
-//#define AUTODRIVE_LINEAR_Kp                    20.00d
-//#define AUTODRIVE_LINEAR_Ki                     1.80d
-#define AUTODRIVE_LINEAR_Ki                     1.60d
-//#define AUTODRIVE_LINEAR_Kd                     2.51d
-//for a MAX_LINEAR_VELOCITY of 1200.00d, this Kd seems to be ideal, but there could be a LOT of skidding
-#define AUTODRIVE_LINEAR_Kd                     1.40d
-//#define AUTODRIVE_LINEAR_Kd                     3.66d
+//the right can be more aggressive than the left because acceleration on the left offset wheel can cause the right wheel to pull up off the ground
+#define LEFT_Kp                                19.00d
+#define LEFT_Ki                                 1.20d
+#define LEFT_Kd                                 3.70d
+#define RIGHT_Kp                               21.00d
+#define RIGHT_Ki                                1.20d
+#define RIGHT_Kd                                2.90d
 #define MAX_SETPOINT_CHANGE                   150.00d
+*/
+
+///*
+//slow
+#define MOTOR_MIN_POWER                      3000.00d
+#define MAX_LINEAR_VELOCITY                  1000.00d
+#define MAX_ROTATIONAL_VELOCITY               250.00d
+#define LOOK_AHEAD_DISTANCE_MM                280.00d
+//when the robot reaches within the LOOK_AHEAD_DISTANCE, the next point to look toward along the path is incremented by this distance
+#define LOOK_AHEAD_INCREMENTS_MM               20.00d
+//the right can be more aggressive than the left because acceleration on the left offset wheel can cause the right wheel to pull up off the ground
+#define LEFT_Kp                                13.50d
+#define LEFT_Ki                                 0.00d
+#define LEFT_Kd                                 2.30d
+#define RIGHT_Kp                               16.00d
+#define RIGHT_Ki                                0.00d
+#define RIGHT_Kd                                0.40d
+#define MAX_SETPOINT_CHANGE                   180.00d
 //*/
 
 extern Lighthouse lighthouse;
 extern MotorDriver motors;
+
+KVector2 leftWheelOffset( -6.9d, -1.7d);
+KVector2 rightWheelOffset(+6.9d, +10.1d);
 
 Pause::Pause(double seconds)
   : deltaTimeMS(seconds * 1000.0d),
@@ -80,8 +91,8 @@ FollowPath::FollowPath(KVector2* pathPoints,
                        int sampleTime)
   : pathPoints(pathPoints),
     pathPointCount(pathPointCount),
-    leftPID(&leftInput, &leftOutput, &leftSetPoint, AUTODRIVE_LINEAR_Kp, AUTODRIVE_LINEAR_Ki, AUTODRIVE_LINEAR_Kd, P_ON_E, DIRECT),
-    rightPID(&rightInput, &rightOutput, &rightSetPoint, AUTODRIVE_LINEAR_Kp, AUTODRIVE_LINEAR_Ki, AUTODRIVE_LINEAR_Kd, P_ON_E, DIRECT)
+    leftPID(&leftInput, &leftOutput, &leftSetPoint, LEFT_Kp, LEFT_Ki, LEFT_Kd, P_ON_E, DIRECT),
+    rightPID(&rightInput, &rightOutput, &rightSetPoint, RIGHT_Kp, RIGHT_Ki, RIGHT_Kd, P_ON_E, DIRECT)
 {
   leftPID.SetSampleTime(sampleTime);
   leftPID.SetOutputLimits(-LINEAR_VELOCITY_POWER, LINEAR_VELOCITY_POWER);
@@ -146,15 +157,25 @@ void FollowPath::start()
       pathPoints[currentSegmentEndIndex].getY() - currentSegmentStart->getY());
   currentDistanceAlongSegment = 0.0d;
   
-  //reset the set points
-  updateInputs();
-
   //we need to reset the outputs before going back to automatic PID mode; see Arduino PID library source code for details
+  leftSetPoint = 0.0d;
+  rightSetPoint = 0.0d;
+  leftInput = 0.0d;
+  rightInput = 0.0d;
   leftOutput = 0.0d;
   rightOutput = 0.0d;
 
   leftPID.SetMode(AUTOMATIC);
   rightPID.SetMode(AUTOMATIC);
+
+  //reset the set points
+//  updateInputs();
+
+//  leftPID.Compute();
+//  rightPID.Compute();
+
+//  motors.setMotors(padInner(-leftOutput, MOTOR_MIN_POWER),
+//                   padInner(-rightOutput, MOTOR_MIN_POWER));
 }
 
 bool FollowPath::loop()
@@ -179,8 +200,12 @@ bool FollowPath::loop()
   motors.setMotors(padInner(-leftOutput, MOTOR_MIN_POWER),
                    padInner(-rightOutput, MOTOR_MIN_POWER));
 
+//  motors.setMotors(-leftOutput, -rightOutput);
+
   return false;
 }
+
+//#define TRUNCATE_LINEAR_ANGLE 0.3d
 
 void FollowPath::updateInputs()
 {
@@ -193,7 +218,9 @@ void FollowPath::updateInputs()
 //  nextPosition.printDebug();
 
   LighthouseSensor* leftSensor = lighthouse.getLeftSensor();
+//  leftSensor->addVector(&leftWheelOffset);
   LighthouseSensor* rightSensor = lighthouse.getRightSensor();
+//  rightSensor->addVector(&rightWheelOffset);
   double angleToPosition = nextPosition.getOrientation();
   double leftTargetSetPoint, rightTargetSetPoint;
   if (angleToPosition <= -HALF_TURNING_RADIUS) {
@@ -211,7 +238,9 @@ void FollowPath::updateInputs()
     angleToPosition /= HALF_TURNING_RADIUS;
 
     //use the normalized angle as the ratio of moving forward versus turning
-    double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - abs(angleToPosition));
+//    double upperLimit = 1.0d - TRUNCATE_LINEAR_ANGLE;
+//    double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - (max(0.0d, min(upperLimit, abs(angleToPosition)) - TRUNCATE_LINEAR_ANGLE) / (upperLimit - TRUNCATE_LINEAR_ANGLE)));
+    double linearVelocity = MAX_LINEAR_VELOCITY * (1.0d - max(0.0d, abs(angleToPosition)-0.3d));
     double rotationalVelocity = MAX_ROTATIONAL_VELOCITY * angleToPosition;
     leftTargetSetPoint = linearVelocity + rotationalVelocity;
     rightTargetSetPoint = linearVelocity - rotationalVelocity;
@@ -261,7 +290,6 @@ void FollowPath::calculateNextPosition(KVector2* nextPosition)
         currentDistanceAlongSegment = currentSegment.getD();
         break;
       }
-  
 
       //there are more path segments, so move to the next path segment
       //first determine the distance left over after completing the current segment

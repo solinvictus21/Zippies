@@ -514,6 +514,11 @@ void Lighthouse::loop()
   leftSensor.loop();
 }
 
+/**
+ * Recalculates the position of each sensor based on the most recently received sync and sweep pulses for each combined
+ * with the information about the orientation of the Lighthouse (received from the base station info block) and the
+ * known distance of the Lighthouse from the plane of the sensors.
+ */
 void Lighthouse::recalculate()
 {
   unsigned long currentTime = millis();
@@ -530,25 +535,27 @@ void Lighthouse::recalculate()
   else
     rightSensor.estimatePosition(&previousOrientationVector, &orientationVector, currentTime);
 
-  //update the combined (average) position to get the overall position of the robot
+  //update the overall center position of the robot
   unsigned long combinedPositionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
   if (positionTimeStamp != combinedPositionTimeStamp) {
+    //position does need to be updated
     previousPositionVector.set(&positionVector);
     previousPositionTimeStamp = positionTimeStamp;
     
+    //the center position of the robot is the average position between the sensors
     positionVector.set((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d,
         (leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d);
     positionTimeStamp = combinedPositionTimeStamp;
   }
   
-  //use the updated positions to calculate the new orientation
+  //update the orientation vector of the robot
   if (orientationTimeStamp != combinedPositionTimeStamp) {
-    //orientation is already up-to-date
+    //orientation does need to be updated
     previousOrientationVector.set(&orientationVector);
     previousOrientationTimeStamp = orientationTimeStamp;
   
-    //calculate the current orientation; the orientation vector is just the down direction (0,0,-1) crossed
-    //with the vector between the sensors; this calculation simplifies to the following
+    //calculate the new orientation unit vector, which is just the down direction (0,0,-1) crossed with the vector
+    //between the sensors; this calculation simplifies to the following
     orientationVector.set(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
         -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()), 1.0d);
     orientationTimeStamp = combinedPositionTimeStamp;
@@ -1050,9 +1057,17 @@ void LighthouseSensor::recalculatePosition()
   positionTimeStamp = newPositionTimeStamp;
 }
 
+/**
+ * Estimate the current position. This is useful to cover small gaps in the detection of the lighthouse signal, but the error rate
+ * will obviously grow as the time since the last detected signel increases.
+ */
 void LighthouseSensor::estimatePosition(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long currentTime)
 {
-  KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(), positionVector.getY() - previousPositionVector.getY());
+  //calculate the change from the last known position to the position prior to that; this change occurred over the time delta between
+  //those two positions, but we need to scale that over the time delta between our last known position time stamp to the new time stamp
+  KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(),
+      positionVector.getY() - previousPositionVector.getY(),
+      ((double)(currentTime / positionTimeStamp)) / ((double)(positionTimeStamp - previousPositionTimeStamp)));
   deltaPosition.rotate(previousOrientation->angleToVector(currentOrientation));
   
   previousPositionVector.set(&positionVector);
