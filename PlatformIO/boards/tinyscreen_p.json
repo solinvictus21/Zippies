@@ -1,0 +1,51 @@
+{
+  "vendor": "TinyCircuits",
+  "name": "TinyScreen+",
+  "url": "https://tinycircuits.com/collections/processors/products/tinyscreenplus",
+  "frameworks": [
+    "arduino"
+  ],
+  "build": {
+    "cpu": "cortex-m0plus",
+    "f_cpu": "48000000L",
+    "board": "SAMD_ZERO",
+    "core": "samd",
+    "usb_product": "TinyScreen+",
+    "usb_manufacturer": "TinyCircuits",
+    "variant": "tinyscreen_p",
+    "extra_flags": "-DARDUINO_ARCH_SAMD -D__SAMD21G18A__",
+    "hwids": [
+      [
+        "0x03EB",
+        "0x8008"
+      ],
+      [
+        "0x03EB",
+        "0x8009"
+      ]
+    ],
+    "ldscript": "linker_scripts/gcc/flash_with_bootloader.ld",
+    "openocdscript": "openocd_scripts/arduino_zero.cfg",
+    
+    "mcu": "samd21g18a"
+  },
+  "debug": {
+    "openocd_chipname": "at91samd21g18",
+    "svd_path": "ATSAMD21G18A.svd"
+  },
+  "upload": {
+    "tool": "bossac",
+    "protocol": "sam-ba",
+    "maximum_size": 262144,
+    "use_1200bps_touch": true,
+    "wait_for_upload_port": true,
+    "native_usb": true,
+
+    "require_upload_port": true,
+    "disable_flushing": true,
+    "maximum_ram_size": 32768,
+    "protocols": [
+      "sam-ba"
+    ]
+  }
+}

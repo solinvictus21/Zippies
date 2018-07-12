@@ -1,7 +1,6 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <STBLE.h>
 #include <TinyScreen.h>
 #include "MotorDriver.h"
 #include "ZippyFace.h"

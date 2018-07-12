@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
+<grid distance="50" unitdist="mil" unit="mm" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="yes" active="yes"/>
@@ -24,7 +24,7 @@
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -1222,14 +1222,14 @@
 <smd name="1" x="-1.55" y="1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="2" x="-1.55" y="0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="3" x="-1.55" y="0" dx="0.85" dy="0.3" layer="1"/>
-<smd name="4" x="-1.55" y="-0.5" dx="0.8128" dy="0.3048" layer="1"/>
-<smd name="5" x="-1.55" y="-1" dx="0.8128" dy="0.3048" layer="1"/>
+<smd name="4" x="-1.55" y="-0.5" dx="0.85" dy="0.3" layer="1"/>
+<smd name="5" x="-1.55" y="-1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="6" x="1.55" y="-1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="7" x="1.55" y="-0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="8" x="1.55" y="0" dx="0.85" dy="0.3" layer="1"/>
 <smd name="9" x="1.55" y="0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="10" x="1.55" y="1" dx="0.85" dy="0.3" layer="1"/>
-<smd name="11" x="0" y="0" dx="1.65" dy="2.38" layer="1" cream="no"/>
+<smd name="11" x="0" y="0" dx="1.65" dy="2.38" layer="1"/>
 <polygon width="0.0254" layer="31">
 <vertex x="-0.8763" y="1.1684"/>
 <vertex x="-0.8763" y="-1.1684"/>
@@ -1377,6 +1377,10 @@
 <wire x1="4.0512" y1="1.3192" x2="4.0512" y2="-1.3192" width="0.0508" layer="39"/>
 <wire x1="4.0512" y1="-1.3192" x2="2.1288" y2="-1.3192" width="0.0508" layer="39"/>
 <wire x1="2.1288" y1="-1.3192" x2="2.1288" y2="1.3192" width="0.0508" layer="39"/>
+<wire x1="-2.25" y1="1.9" x2="2.25" y2="1.9" width="0.127" layer="51"/>
+<wire x1="2.25" y1="1.9" x2="2.25" y2="-1.9" width="0.127" layer="51"/>
+<wire x1="2.25" y1="-1.9" x2="-2.25" y2="-1.9" width="0.127" layer="51"/>
+<wire x1="-2.25" y1="-1.9" x2="-2.25" y2="1.9" width="0.127" layer="51"/>
 </package>
 <package name="MCP73831">
 </package>
@@ -1401,6 +1405,30 @@
 <pad name="1" x="0" y="0" drill="1.016" diameter="1.8796" rot="R90" stop="no"/>
 <text x="0" y="1.27" size="0.4318" layer="25" font="vector" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-1.27" size="0.4318" layer="27" font="vector" align="top-center">&gt;VALUE</text>
+</package>
+<package name="PW14">
+<smd name="1" x="-2.8" y="1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="2" x="-2.8" y="1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="3" x="-2.8" y="0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="4" x="-2.8" y="0" dx="1.6" dy="0.35" layer="1"/>
+<smd name="5" x="-2.8" y="-0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="6" x="-2.8" y="-1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="7" x="-2.8" y="-1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="8" x="2.8" y="-1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="9" x="2.8" y="-1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="10" x="2.8" y="-0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="11" x="2.8" y="0" dx="1.6" dy="0.35" layer="1"/>
+<smd name="12" x="2.8" y="0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="13" x="2.8" y="1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="14" x="2.8" y="1.95" dx="1.6" dy="0.35" layer="1"/>
+<wire x1="2.15" y1="2.45" x2="2.15" y2="-2.45" width="0.1524" layer="51"/>
+<wire x1="-2.15" y1="2.45" x2="-2.15" y2="-2.45" width="0.1524" layer="51"/>
+<wire x1="0.3048" y1="2.55" x2="-0.3048" y2="2.55" width="0.1524" layer="21" curve="-180"/>
+<wire x1="-2.25" y1="-2.55" x2="2.25" y2="-2.55" width="0.1524" layer="21"/>
+<wire x1="2.25" y1="2.55" x2="0.3048" y2="2.55" width="0.1524" layer="21"/>
+<text x="-2.1336" y="2.794" size="1" layer="25" font="vector" ratio="6" rot="SR0">&gt;Name</text>
+<wire x1="0.3048" y1="2.55" x2="-0.3048" y2="2.55" width="0.1524" layer="21"/>
+<wire x1="-0.3048" y1="2.55" x2="-2.25" y2="2.55" width="0.1524" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -1814,86 +1842,7 @@
 </device>
 </devices>
 </deviceset>
-<deviceset name="TLV2464ID_AS_IC" prefix="U">
-<gates>
-<gate name="A" symbol="TLV2464_D_14" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="D14">
-<connects>
-<connect gate="A" pin="1IN+" pad="3"/>
-<connect gate="A" pin="1IN-" pad="2"/>
-<connect gate="A" pin="1OUT" pad="1"/>
-<connect gate="A" pin="2IN+" pad="5"/>
-<connect gate="A" pin="2IN-" pad="6"/>
-<connect gate="A" pin="2OUT" pad="7"/>
-<connect gate="A" pin="3IN+" pad="10"/>
-<connect gate="A" pin="3IN-" pad="9"/>
-<connect gate="A" pin="3OUT" pad="8"/>
-<connect gate="A" pin="4IN+" pad="12"/>
-<connect gate="A" pin="4IN-" pad="13"/>
-<connect gate="A" pin="4OUT" pad="14"/>
-<connect gate="A" pin="GND" pad="11"/>
-<connect gate="A" pin="VDD+" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MANUFACTURER_PART_NUMBER" value="TLV2464ID" constant="no"/>
-<attribute name="VENDOR" value="Texas Instruments" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="D14-M" package="D14-M">
-<connects>
-<connect gate="A" pin="1IN+" pad="3"/>
-<connect gate="A" pin="1IN-" pad="2"/>
-<connect gate="A" pin="1OUT" pad="1"/>
-<connect gate="A" pin="2IN+" pad="5"/>
-<connect gate="A" pin="2IN-" pad="6"/>
-<connect gate="A" pin="2OUT" pad="7"/>
-<connect gate="A" pin="3IN+" pad="10"/>
-<connect gate="A" pin="3IN-" pad="9"/>
-<connect gate="A" pin="3OUT" pad="8"/>
-<connect gate="A" pin="4IN+" pad="12"/>
-<connect gate="A" pin="4IN-" pad="13"/>
-<connect gate="A" pin="4OUT" pad="14"/>
-<connect gate="A" pin="GND" pad="11"/>
-<connect gate="A" pin="VDD+" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MANUFACTURER_PART_NUMBER" value="TLV2464ID" constant="no"/>
-<attribute name="VENDOR" value="Texas Instruments" constant="no"/>
-</technology>
-</technologies>
-</device>
-<device name="D14-L" package="D14-L">
-<connects>
-<connect gate="A" pin="1IN+" pad="3"/>
-<connect gate="A" pin="1IN-" pad="2"/>
-<connect gate="A" pin="1OUT" pad="1"/>
-<connect gate="A" pin="2IN+" pad="5"/>
-<connect gate="A" pin="2IN-" pad="6"/>
-<connect gate="A" pin="2OUT" pad="7"/>
-<connect gate="A" pin="3IN+" pad="10"/>
-<connect gate="A" pin="3IN-" pad="9"/>
-<connect gate="A" pin="3OUT" pad="8"/>
-<connect gate="A" pin="4IN+" pad="12"/>
-<connect gate="A" pin="4IN-" pad="13"/>
-<connect gate="A" pin="4OUT" pad="14"/>
-<connect gate="A" pin="GND" pad="11"/>
-<connect gate="A" pin="VDD+" pad="4"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MANUFACTURER_PART_NUMBER" value="TLV2464ID" constant="no"/>
-<attribute name="VENDOR" value="Texas Instruments" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="TLV2464ID">
+<deviceset name="TLV2464">
 <gates>
 <gate name="G1" symbol="OPAMP_GATE" x="-17.78" y="12.7" swaplevel="1"/>
 <gate name="G2" symbol="OPAMP_GATE" x="-17.78" y="-15.24" swaplevel="1"/>
@@ -1902,7 +1851,7 @@
 <gate name="PWR" symbol="POWER_SUPPLY" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="D14">
+<device name="ID" package="D14">
 <connects>
 <connect gate="G1" pin="IN+" pad="3"/>
 <connect gate="G1" pin="IN-" pad="2"/>
@@ -1945,6 +1894,27 @@
 </technologies>
 </device>
 <device name="M" package="D14-M">
+<connects>
+<connect gate="G1" pin="IN+" pad="3"/>
+<connect gate="G1" pin="IN-" pad="2"/>
+<connect gate="G1" pin="OUT" pad="1"/>
+<connect gate="G2" pin="IN+" pad="5"/>
+<connect gate="G2" pin="IN-" pad="6"/>
+<connect gate="G2" pin="OUT" pad="7"/>
+<connect gate="G3" pin="IN+" pad="10"/>
+<connect gate="G3" pin="IN-" pad="9"/>
+<connect gate="G3" pin="OUT" pad="8"/>
+<connect gate="G4" pin="IN+" pad="12"/>
+<connect gate="G4" pin="IN-" pad="13"/>
+<connect gate="G4" pin="OUT" pad="14"/>
+<connect gate="PWR" pin="GND" pad="11"/>
+<connect gate="PWR" pin="VCC" pad="4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="IPW" package="PW14">
 <connects>
 <connect gate="G1" pin="IN+" pad="3"/>
 <connect gate="G1" pin="IN-" pad="2"/>

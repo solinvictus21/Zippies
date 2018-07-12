@@ -157,7 +157,7 @@
 <wire x1="0" y1="12.065" x2="0" y2="3.175" width="0" layer="20"/>
 <wire x1="0" y1="3.175" x2="5.08" y2="3.175" width="0" layer="20"/>
 <wire x1="5.08" y1="3.175" x2="5.08" y2="0" width="0" layer="20"/>
-<text x="12.065" y="0.635" size="0.6096" layer="22" font="vector" ratio="7" rot="MR90">Designed, Manufactured, and
+<text x="8.255" y="0.635" size="0.6096" layer="22" font="vector" ratio="7" rot="MR90">Designed, Manufactured, and
 Assembled by Kyle Davis</text>
 </plain>
 <libraries>
@@ -561,7 +561,7 @@ Please make sure your boards conform to these design rules.</description>
 </autorouter>
 <elements>
 <element name="VCC" library="SparkFun-Connectors" package="1X01_NO_SILK" value="" x="6.35" y="11.43" smashed="yes">
-<attribute name="NAME" x="6.35" y="12.827" size="0.4318" layer="25" font="vector" align="top-center"/>
+<attribute name="NAME" x="6.35" y="12.954" size="0.4318" layer="25" font="vector" align="top-center"/>
 <attribute name="VALUE" x="5.08" y="9.906" size="0.6096" layer="27" font="vector" ratio="20" align="top-left"/>
 </element>
 <element name="RI" library="SparkFun-Resistors" package="0603" value="27k" x="8.89" y="13.081" smashed="yes" rot="R90">
@@ -596,7 +596,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="2.159" y="9.271" size="0.4318" layer="25" font="vector" align="bottom-center"/>
 </element>
 <element name="C2A" library="ZippyComponentLibrary" package="PASSIVE-0603" value="4.7nF" x="2.159" y="6.731" smashed="yes">
-<attribute name="NAME" x="2.159" y="6.096" size="0.4318" layer="25" font="vector" rot="R180" align="bottom-center"/>
+<attribute name="NAME" x="2.159" y="7.366" size="0.4318" layer="25" font="vector" align="bottom-center"/>
 </element>
 <element name="R1B" library="ZippyComponentLibrary" package="PASSIVE-0603" value="100k" x="23.241" y="10.414" smashed="yes" rot="R180">
 <attribute name="NAME" x="23.241" y="11.049" size="0.4318" layer="25" font="vector" align="bottom-center"/>
@@ -605,7 +605,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="23.241" y="9.271" size="0.4318" layer="25" font="vector" align="bottom-center"/>
 </element>
 <element name="C2B" library="ZippyComponentLibrary" package="PASSIVE-0603" value="4.7nF" x="23.241" y="6.731" smashed="yes" rot="R180">
-<attribute name="NAME" x="23.241" y="6.096" size="0.4318" layer="25" font="vector" rot="R180" align="bottom-center"/>
+<attribute name="NAME" x="23.241" y="7.366" size="0.4318" layer="25" font="vector" align="bottom-center"/>
 </element>
 <element name="R2B" library="ZippyComponentLibrary" package="PASSIVE-0603" value="18k" x="19.431" y="8.636" smashed="yes" rot="R180">
 <attribute name="NAME" x="19.431" y="9.271" size="0.4318" layer="25" font="vector" align="bottom-center"/>
@@ -630,7 +630,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="D2" library="ZippyComponentLibrary" package="BPW34_BP104_SMD" value="PHOTODIODEBPW" x="23.495" y="7.62" rot="MR90"/>
 <element name="D1" library="ZippyComponentLibrary" package="BPW34_BP104_SMD" value="PHOTODIODEBPW" x="1.905" y="7.62" rot="MR90"/>
 <element name="GND" library="ZippyComponentLibrary" package="SINGLE-THROUGH-HOLE" value="SINGLE-THROUGH-HOLE" x="19.05" y="13.97" smashed="yes">
-<attribute name="NAME" x="19.05" y="14.986" size="0.4318" layer="25" font="vector" align="bottom-center"/>
+<attribute name="NAME" x="19.05" y="12.446" size="0.4318" layer="25" font="vector" align="bottom-center"/>
 </element>
 </elements>
 <signals>

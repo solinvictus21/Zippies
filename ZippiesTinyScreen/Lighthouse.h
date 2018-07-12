@@ -391,8 +391,8 @@ public:
   LighthouseSensor* getRightSensor() { return &rightSensor; }
 
   KVector2* getPosition() { return &positionVector; }
+  double getLinearVelocity() { return (leftSensor.getVelocity() + rightSensor.getVelocity()) / 2.0d; }
   KVector2* getOrientation() { return &orientationVector; }
-  double getRotationalVelocity();
   
   void stop();
   

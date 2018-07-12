@@ -600,14 +600,14 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <smd name="1" x="-1.55" y="1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="2" x="-1.55" y="0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="3" x="-1.55" y="0" dx="0.85" dy="0.3" layer="1"/>
-<smd name="4" x="-1.55" y="-0.5" dx="0.8128" dy="0.3048" layer="1"/>
-<smd name="5" x="-1.55" y="-1" dx="0.8128" dy="0.3048" layer="1"/>
+<smd name="4" x="-1.55" y="-0.5" dx="0.85" dy="0.3" layer="1"/>
+<smd name="5" x="-1.55" y="-1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="6" x="1.55" y="-1" dx="0.85" dy="0.3" layer="1"/>
 <smd name="7" x="1.55" y="-0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="8" x="1.55" y="0" dx="0.85" dy="0.3" layer="1"/>
 <smd name="9" x="1.55" y="0.5" dx="0.85" dy="0.3" layer="1"/>
 <smd name="10" x="1.55" y="1" dx="0.85" dy="0.3" layer="1"/>
-<smd name="11" x="0" y="0" dx="1.65" dy="2.38" layer="1" cream="no"/>
+<smd name="11" x="0" y="0" dx="1.65" dy="2.38" layer="1"/>
 <polygon width="0.0254" layer="31">
 <vertex x="-0.8763" y="1.1684"/>
 <vertex x="-0.8763" y="-1.1684"/>
