@@ -7,6 +7,7 @@
   ],
   "build": {
     "cpu": "cortex-m0plus",
+    "mcu": "samd21g18a",
     "f_cpu": "48000000L",
     "board": "SAMD_ZERO",
     "core": "samd",
@@ -24,10 +25,8 @@
         "0x8009"
       ]
     ],
-    "ldscript": "linker_scripts/gcc/flash_with_bootloader.ld",
-    "openocdscript": "openocd_scripts/arduino_zero.cfg",
-    
-    "mcu": "samd21g18a"
+    "ldscript": "flash_with_bootloader.ld",
+    "openocdscript": "openocd_scripts/arduino_zero.cfg"
   },
   "debug": {
     "openocd_chipname": "at91samd21g18",

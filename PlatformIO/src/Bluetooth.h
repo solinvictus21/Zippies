@@ -3,7 +3,6 @@
 #define _BLUETOOTH_H_
 
 #include <STBLE.h>
-#include <arduino_bluenrg_ble.h>
 
 #define SENSOR_DATA_LENGTH 20
 
@@ -24,6 +23,15 @@ private:
   uint8_t* receivedData;
   uint8_t receivedDataLength;
 
+  uint8_t broadcastData[31] = {
+    3, AD_TYPE_16_BIT_SERV_UUID, 0x0B, 0xB0,
+    26, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  };
+
+  bool startAsPeripheral();
+  bool startAsBroadcaster();
+  bool startAsObserver();
   bool enableDiscovery();
   friend void HCI_Event_CB(void *pckt);
   void packetReceived(uint8_t dataLength, uint8_t *data);
@@ -37,6 +45,7 @@ public:
   tBleStatus sendSensorLeft(uint8_t* sendBuffer);
   tBleStatus sendSensorRight(uint8_t* sendBuffer);
   tBleStatus sendComputedData(uint8_t* sendBuffer);
+  void sendBroadcastData(float x, float y, float orientation, float linearVelocity);
   uint8_t getReceivedDataLength() { return receivedDataLength; }
   uint8_t* getReceivedData() { return receivedData; }
   void stop();

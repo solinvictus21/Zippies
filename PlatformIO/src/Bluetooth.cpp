@@ -69,8 +69,64 @@ bool Bluetooth::start()
     return false;
   }
 
+  // if (!startAsPeripheral())
+  if (!startAsBroadcaster())
+  // if (!startAsObserver())
+    return false;
+
+  //+8 dBm output power
+  // ret = aci_hal_set_tx_power_level(1, 7);
+  //+4 dBm output power
+  ret = aci_hal_set_tx_power_level(1, 7);
+  if (ret != BLE_STATUS_SUCCESS) {
+    SerialUSB.println("Bluetooth failed to set power level.");
+    return false;
+  }
+
+  started = true;
+  return true;
+}
+
+bool Bluetooth::startAsBroadcaster()
+{
   //init GATT; the protocol used to communicate with connected devices
-  ret = aci_gatt_init();
+  tBleStatus ret = aci_gatt_init();
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to init GATT
+    // SerialUSB.println("Bluetooth failed to init GATT.");
+    return false;
+  }
+
+  //init GAP; the protocol used to advertise the existence of our device
+  const char* deviceName = "Zippy";
+  const int deviceNameLength = strlen(deviceName);
+  uint16_t serviceNameHandle, apperanceNameHandle;
+
+  ret = aci_gap_init_IDB05A1(GAP_BROADCASTER_ROLE_IDB05A1, 0, deviceNameLength,
+      &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to init GAP
+    SerialUSB.println("Bluetooth failed to init GAP.");
+    return false;
+  }
+
+  //start broadcaster mode and broadcast every 1000ms to 5000ms (1000/0.625 = 1600)
+  ret = aci_gap_set_broadcast_mode_IDB05A1(0x00A0, 0x00A0, ADV_SCAN_IND, STATIC_RANDOM_ADDR,
+      sizeof(broadcastData), broadcastData, 0, NULL);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to setup broadcast mode
+    // SerialUSB.println("Failed to start broadcast mode.");
+    return false;
+  }
+
+  // SerialUSB.println("Started broadcast mode.");
+  return true;
+}
+
+bool Bluetooth::startAsObserver()
+{
+  //init GATT; the protocol used to communicate with connected devices
+  tBleStatus ret = aci_gatt_init();
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GATT
 //    SerialUSB.println("Bluetooth failed to init GATT.");
@@ -82,7 +138,42 @@ bool Bluetooth::start()
   const int deviceNameLength = strlen(deviceName);
   uint16_t serviceNameHandle, apperanceNameHandle;
 
-  ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, deviceNameLength, &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
+  ret = aci_gap_init_IDB05A1(GAP_CENTRAL_ROLE_IDB05A1 | GAP_OBSERVER_ROLE_IDB05A1, 0, deviceNameLength,
+      &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to init GAP
+    SerialUSB.println("Bluetooth failed to init GAP.");
+    return false;
+  }
+
+  ret = aci_gap_start_observation_procedure_IDB05A1(100, 100, ACTIVE_SCAN, STATIC_RANDOM_ADDR, false);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to setup observation mode
+    SerialUSB.println("Failed to start observer mode.");
+    return false;
+  }
+
+  SerialUSB.println("Started observer mode.");
+  return true;
+}
+
+bool Bluetooth::startAsPeripheral()
+{
+  //init GATT; the protocol used to communicate with connected devices
+  tBleStatus ret = aci_gatt_init();
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to init GATT
+//    SerialUSB.println("Bluetooth failed to init GATT.");
+    return false;
+  }
+
+  //init GAP; the protocol used to advertise the existence of our device
+  const char* deviceName = "Zippy";
+  const int deviceNameLength = strlen(deviceName);
+  uint16_t serviceNameHandle, apperanceNameHandle;
+
+  ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, deviceNameLength,
+      &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GAP
 //    SerialUSB.println("Bluetooth failed to init GAP.");
@@ -159,30 +250,18 @@ bool Bluetooth::start()
     return false;
   }
 
-  //+8 dBm output power
-//  ret = aci_hal_set_tx_power_level(1, 7);
-  //+4 dBm output power
-  ret = aci_hal_set_tx_power_level(1, 3);
-  if (ret != BLE_STATUS_SUCCESS) {
-//    SerialUSB.println("Bluetooth failed to set power level.");
-    return false;
-  }
-
 //  SerialUSB.println("Successfully initialized Bluetooth.");
-  started = true;
   return true;
 }
 
 bool Bluetooth::enableDiscovery()
 {
-//  SerialUSB.println("Bluetooth enabling discovery.");
   const char local_name[] = {
     AD_TYPE_COMPLETE_LOCAL_NAME,
     'Z', 'i', 'p', 'p', 'y' };
   hci_le_set_scan_resp_data(0, NULL);
   uint8_t serviceUUIDList[17];
   serviceUUIDList[0] = AD_TYPE_128_BIT_SERV_UUID;
-//  SerialUSB.println(sizeof(serviceUUIDList));
   memcpy(serviceUUIDList+1, serviceUUID, sizeof(serviceUUID));
   tBleStatus ret = aci_gap_set_discoverable(ADV_IND,
                                  (ADV_INTERVAL_MIN_MS * 1000) / 625, (ADV_INTERVAL_MAX_MS * 1000) / 625,
@@ -213,6 +292,15 @@ tBleStatus Bluetooth::sendComputedData(uint8_t* sendBuffer)
   return aci_gatt_update_char_value(serviceHandle, computedDataReceiveHandle, 0, SENSOR_DATA_LENGTH, sendBuffer);
 }
 
+void Bluetooth::sendBroadcastData(float x, float y, float orientation, float linearVelocity)
+{
+  memcpy(broadcastData+6, &x, sizeof(float));
+  memcpy(broadcastData+10, &x, sizeof(float));
+  memcpy(broadcastData+14, &x, sizeof(float));
+  memcpy(broadcastData+20, &x, sizeof(float));
+  aci_gap_update_adv_data(sizeof(broadcastData), broadcastData);
+}
+
 void Bluetooth::packetReceived(uint8_t dataLength, uint8_t *data)
 {
   //received a bluetooth packet; create a buffer to hold it
@@ -238,6 +326,7 @@ uint8_t Bluetooth::loop()
     receivedDataLength = 0;
   }
 
+  // SerialUSB.println("Processing bluetooth");
   HCI_Process();
 
   /*
@@ -264,10 +353,14 @@ void Bluetooth::stop()
 void HCI_Event_CB(void *blePacket)
 {
   hci_uart_pckt *hciPacket = (hci_uart_pckt *)blePacket;
+  // SerialUSB.print("Got event of type: ");
+  // SerialUSB.println(hciPacket->type, HEX);
   if (hciPacket->type != HCI_EVENT_PKT)
     return;
 
   hci_event_pckt *eventPacket = (hci_event_pckt*)hciPacket->data;
+  // SerialUSB.print("Got event of type: ");
+  // SerialUSB.println(eventPacket->evt, HEX);
   switch (eventPacket->evt)
   {
     case EVT_LE_META_EVENT:
@@ -275,6 +368,8 @@ void HCI_Event_CB(void *blePacket)
         //a host bluetooth device connected or is in the process of connecting to us
         evt_le_meta_event *evt = (evt_le_meta_event *)eventPacket->data;
 
+        // SerialUSB.print("Got subevent of type: ");
+        // SerialUSB.println(evt->subevent, HEX);
         switch (evt->subevent) {
           case EVT_LE_CONN_COMPLETE:
             {
@@ -286,6 +381,19 @@ void HCI_Event_CB(void *blePacket)
               currentBluetooth->connectionHandle = cc->handle;
             }
             break;
+          case EVT_LE_ADVERTISING_REPORT:
+            {
+              // /*
+              le_advertising_info* advEvent = (le_advertising_info*)evt->data;
+              // SerialUSB.print("Got advertisement of type: ");
+              // SerialUSB.println(advEvent->evt_type, HEX);
+              SerialUSB.print("Got advertisement for address: ");
+              SerialUSB.println(advEvent->bdaddr[0], HEX);
+              switch (advEvent->evt_type) {
+
+              }
+              // */
+            }
         }
       }
       break;
@@ -293,6 +401,8 @@ void HCI_Event_CB(void *blePacket)
     case EVT_VENDOR:
       {
         evt_blue_aci *blue_evt = (evt_blue_aci *)eventPacket->data;
+        // SerialUSB.print("Got vendor event of type: ");
+        // SerialUSB.println(blue_evt->ecode, HEX);
         switch (blue_evt->ecode)
         {
           //read request; a little unclear what exactly what this means

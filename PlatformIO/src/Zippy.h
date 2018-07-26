@@ -25,7 +25,7 @@ public:
   bool hasLighthouseSignal() { return lighthouse.hasLighthouseSignal(); }
   void recalculate() { lighthouse.recalculate(); }
   KVector2* getPosition() { return lighthouse.getPosition(); }
-  double getVelocity() { return lighthouse.getLinearVelocity(); }
+  KVector2* getVelocity() { return lighthouse.getVelocity(); }
   KVector2* getOrientation() { return lighthouse.getOrientation(); }
   void setMotors(int32_t motorLeft, int32_t motorRight);
   void stop() { setMotors(0.0d, 0.0d); }

@@ -32,18 +32,6 @@ private:
   //the distance we've driven along the current segment
   double currentDistanceAlongSegment = 0.0d;
 
-  /* previous model; PID per wheel
-  double leftSetPoint = 0.0d;
-  double leftInput = 0.0d;
-  double leftOutput = 0.0d;
-  PID leftPID;
-
-  double rightSetPoint = 0.0d;
-  double rightInput = 0.0d;
-  double rightOutput = 0.0d;
-  PID rightPID;
-  */
-
   double linearSetPoint = 0.0d;
   double linearInput = 0.0d;
   double linearOutput = 0.0d;
@@ -54,7 +42,6 @@ private:
   double rotationalOutput = 0.0d;
   PID rotationalPID;
 
-//  double calculateInput(LighthouseSensor* sensor, KVector2* nextPosition);
   void updateInputs();
   void calculateNextPosition(KVector2* nextPosition);
   void getCurrentTargetPosition(KVector2* nextPosition);

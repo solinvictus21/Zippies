@@ -51,11 +51,11 @@ void Lighthouse::setupClock()
   */
 
   SYSCTRL->DFLLCTRL.reg =
-//    SYSCTRL_DFLLCTRL_WAITLOCK |                     //output clock when DFLL is locked
-//    SYSCTRL_DFLLCTRL_BPLCKC |                       //bypass coarse lock
-//    SYSCTRL_DFLLCTRL_QLDIS |                        //disable quick lock
-//    SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
-//    SYSCTRL_DFLLCTRL_STABLE |                       //stable frequency mode
+   // SYSCTRL_DFLLCTRL_WAITLOCK |                     //output clock when DFLL is locked
+   // SYSCTRL_DFLLCTRL_BPLCKC |                       //bypass coarse lock
+   // SYSCTRL_DFLLCTRL_QLDIS |                        //disable quick lock
+   // SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
+   // SYSCTRL_DFLLCTRL_STABLE |                       //stable frequency mode
     SYSCTRL_DFLLCTRL_MODE |                         //closed-loop mode
     SYSCTRL_DFLLCTRL_ENABLE;
   while (!SYSCTRL->PCLKSR.bit.DFLLRDY);
@@ -511,22 +511,14 @@ void Lighthouse::recalculate()
 {
   unsigned long currentTime = millis();
 
-  //update the position of the left sensor
-  if (leftSensor.hasLighthouseSignal())
-    leftSensor.recalculatePosition();
-  else
-    leftSensor.estimatePosition(&previousOrientationVector, &orientationVector, currentTime);
+  //update the position of the sensors
+  leftSensor.recalculate(currentTime);
+  rightSensor.recalculate(currentTime);
 
-  //update the position of the right sensor
-  if (rightSensor.hasLighthouseSignal())
-    rightSensor.recalculatePosition();
-  else
-    rightSensor.estimatePosition(&previousOrientationVector, &orientationVector, currentTime);
-
-  //update the overall center position of the robot
+  //calculate the center position and orientation of the robot
   unsigned long combinedPositionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
   if (positionTimeStamp != combinedPositionTimeStamp) {
-    //position does need to be updated
+    //calculate the center position
     previousPositionVector.set(&positionVector);
     previousPositionTimeStamp = positionTimeStamp;
 
@@ -534,11 +526,8 @@ void Lighthouse::recalculate()
     positionVector.set((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d,
         (leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d);
     positionTimeStamp = combinedPositionTimeStamp;
-  }
 
-  //update the orientation vector of the robot
-  if (orientationTimeStamp != combinedPositionTimeStamp) {
-    //orientation does need to be updated
+    //calculate the orientation
     previousOrientationVector.set(&orientationVector);
     previousOrientationTimeStamp = orientationTimeStamp;
 
@@ -550,8 +539,12 @@ void Lighthouse::recalculate()
   }
 
   //now we can use the change in orientation to accurately calculate the velocities of each sensor
-  leftSensor.recalculateVelocity(&previousOrientationVector, &orientationVector, combinedPositionTimeStamp);
-  rightSensor.recalculateVelocity(&previousOrientationVector, &orientationVector, combinedPositionTimeStamp);
+  unsigned long combinedVelocityTimeStamp = max(leftSensor.velocityTimeStamp, rightSensor.velocityTimeStamp);
+  if (combinedVelocityTimeStamp != velocityTimeStamp) {
+    velocityVector.set((leftSensor.getVelocity()->getX() + rightSensor.getVelocity()->getX()) / 2.0d,
+        (leftSensor.getVelocity()->getY() + rightSensor.getVelocity()->getY()) / 2.0d);
+    velocityTimeStamp = combinedVelocityTimeStamp;
+  }
 }
 
 void Lighthouse::stop()

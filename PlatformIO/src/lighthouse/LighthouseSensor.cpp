@@ -5,7 +5,7 @@
 //mounted on surface of entertainment center
 //#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 930.0d
 //mounted on top of TV
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1940.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1920.0d
 //height of the diode sensors from the floor
 #define ROBOT_DIODE_HEIGHT_MM 42.0d
 
@@ -442,6 +442,10 @@ void LighthouseSensor::calculateLighthousePosition()
   SerialUSB.println(zRotor.gibbousPhase, 6);
   SerialUSB.println(zRotor.gibbousMagnitude, 6);
   SerialUSB.println();
+
+  // SerialUSB.println(getAccelDirX(), 6);
+  // SerialUSB.println(getAccelDirY(), 6);
+  // SerialUSB.println(getAccelDirZ(), 6);
 #endif
 
   //The accelerometer reading from the lighthouse gives us a vector that represents the lighthouse "up" direction in a coordinate system
@@ -461,6 +465,7 @@ void LighthouseSensor::calculateLighthousePosition()
   //now that we have both the axis and angle of rotation, we can calculate our quaternion
   lighthouseOrientation.set(rotationUnitVector.getX(), rotationUnitVector.getY(), rotationUnitVector.getZ(), angleOfRotation);
 
+  /*
   //take the forward unit vector in the lighthouse's coordinate system (0,1,0), and un-rotate it to get it into the global coordinate system
   KVector3 lighthouseForwardVector(0.0d, 1.0d, 0.0d);
   lighthouseForwardVector.unrotate(&lighthouseOrientation);
@@ -474,6 +479,7 @@ void LighthouseSensor::calculateLighthousePosition()
   lighthousePosition.set(-lighthouseForwardVector.getX() * t,
                          -lighthouseForwardVector.getY() * t,
                          lighthouseDistanceFromDiodePlane);
+  */
 
   receivedLighthousePosition = true;
 }
@@ -481,97 +487,109 @@ void LighthouseSensor::calculateLighthousePosition()
 /*
  * Translates combined x and y tick counts into a vector from the lighthouse to the zippy in the global coordinate system.
  */
-void LighthouseSensor::recalculatePosition()
+void LighthouseSensor::recalculate(unsigned long currentTime)
 {
-  if (!cycleData[0].sweepHitTimeStamp || !cycleData[1].sweepHitTimeStamp) {
-    //we have no lighthouse signal
-    return;
+  if (!cycleData[0].sweepHitTimeStamp || !cycleData[1].sweepHitTimeStamp ||
+      !calculatePosition())
+  {
+    estimatePosition(currentTime);
   }
 
+  calculateVelocity();
+}
+
+bool LighthouseSensor::calculatePosition()
+{
   unsigned long newPositionTimeStamp = max(cycleData[0].sweepHitTimeStamp, cycleData[1].sweepHitTimeStamp);
-  if (positionTimeStamp == newPositionTimeStamp) {
-    //nothing to do; position is up-to-date
-    return;
+  if (newPositionTimeStamp <= positionTimeStamp) {
+    //position is already up-to-date
+    return false;
   }
 
+  //we have a lighthouse signal; calculate our last known position from it
   previousPositionVector.set(&positionVector);
   previousPositionTimeStamp = positionTimeStamp;
 
-  //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode.
-  //start by normalizing the angle on each axis from the lighthouse to be from -90 degrees to +90 degrees in radians
-  double idealAngleX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
-  double idealAngleZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
-
-  //at y=1, we want the x and z coordinates of our direction vector; since TAN = O / A, then O = TAN / A and given that our adjacent
-  //is 1.0, then the opposite is simply the TAN of the angle along each axis
-  double vectorFromLighthouseX = tan(idealAngleX);
-  double vectorFromLighthouseZ = tan(idealAngleZ);
+  //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode by normalizing the angle on each axis
+  //from the lighthouse to +/- M_PI_2
+  double observedAngleX = ((((double)cycleData[0].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
+  double observedAngleZ = ((((double)cycleData[1].sweepTickCount) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
 
   //correct for the factory calibration data; formula pulled from notes on the open source libsurvive project
-  double correctedX = idealAngleX +
-      xRotor.phase +
-      (tan(xRotor.tilt) * vectorFromLighthouseZ) +
-      (xRotor.curve * pow(vectorFromLighthouseZ, 2.0d)) +
+  //    https://github.com/cnlohr/libsurvive/wiki/BSD-Calibration-Values
+  //at y=1, we want the x and z coordinates of our direction vector; since TAN = O / A, then O = TAN / A and given that our adjacent
+  //is 1.0, then the opposite is simply the TAN of the angle along each axis
+  double idealAngleX = observedAngleX + xRotor.phase;
+  double idealAngleZ = observedAngleZ + zRotor.phase;
+  // /*
+  double x = tan(idealAngleX);
+  double z = tan(idealAngleZ);
+  idealAngleX +=
+      (tan(xRotor.tilt) * z) +
+      (xRotor.curve * pow(z, 2.0d)) +
       (sin(xRotor.gibbousPhase + idealAngleX) * xRotor.gibbousMagnitude);
-  double correctedZ = idealAngleZ +
-      zRotor.phase +
-      (tan(zRotor.tilt) * vectorFromLighthouseX) +
-      (zRotor.curve * pow(vectorFromLighthouseX, 2.0d)) +
+  idealAngleZ +=
+      (tan(zRotor.tilt) * x) +
+      (zRotor.curve * pow(x, 2.0d)) +
       (sin(zRotor.gibbousPhase + idealAngleZ) * zRotor.gibbousMagnitude);
+  // */
 
   //Step 2: Convert the vector from the lighthouse in its local coordinate system to our global coordinate system.
   //flip the x axis; it appears that our tick counts get greater from right-to-left from the perspective of the lighthouse; this is
   //contrary to some animations online which illustrate the horizontal beam sweeping from left-to-right from the perspective of the
   //lighthouse
-  KVector3 directionFromLighthouse(-tan(correctedX), 1.0d, tan(correctedZ), 1.0d);
+  KVector3 directionFromLighthouse(-tan(idealAngleX), 1.0d, tan(idealAngleZ), 1.0d);
   directionFromLighthouse.unrotate(&lighthouseOrientation);
 
   //now intersect with the plane of the diodes on the robot; since our diode plane is defined by the normal 0,0,1, and we have a
   //vector which identifies the position of the lighthouse from 0,0,0, the entire formula for our ground-plane intersection reduces
   //to the following
-  double t = -lighthousePosition.getZ() / directionFromLighthouse.getZ();
-  positionVector.set(lighthousePosition.getX() + (directionFromLighthouse.getX() * t),
-      lighthousePosition.getY() + (directionFromLighthouse.getY() * t));
+  double lighthouseDistanceFromDiodePlane = LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM - ROBOT_DIODE_HEIGHT_MM;
+  double t = -lighthouseDistanceFromDiodePlane / directionFromLighthouse.getZ();
+  positionVector.set(directionFromLighthouse.getX() * t,
+      directionFromLighthouse.getY() * t);
   positionTimeStamp = newPositionTimeStamp;
+
+  return true;
 }
 
 /**
  * Estimate the current position. This is useful to cover small gaps in the detection of the lighthouse signal, but the error rate
  * will obviously grow as the time since the last detected signel increases.
  */
-void LighthouseSensor::estimatePosition(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long currentTime)
+void LighthouseSensor::estimatePosition(unsigned long currentTime)
 {
   //calculate the change from the last known position to the position prior to that; this change occurred over the time delta between
   //those two positions, but we need to scale that over the time delta between our last known position time stamp to the new time stamp
-  KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(),
-      positionVector.getY() - previousPositionVector.getY(),
-      ((double)(currentTime / positionTimeStamp)) / ((double)(positionTimeStamp - previousPositionTimeStamp)));
-  deltaPosition.rotate(previousOrientation->angleToVector(currentOrientation));
+  double scaleFactor = ((double)(currentTime - positionTimeStamp)) / ((double)(positionTimeStamp - previousPositionTimeStamp));
 
+  //calculate the previous change in position
+  KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(),
+      positionVector.getY() - previousPositionVector.getY());
+
+  //rotate it by the angle of the previous change in velocity
+  deltaPosition.rotate(scaleFactor * previousVelocityVector.angleToVector(&velocityVector));
+  //adjust the length appropriately
+  deltaPosition.setD(scaleFactor * deltaPosition.getD());
+
+  //capture the previous position
   previousPositionVector.set(&positionVector);
   previousPositionTimeStamp = positionTimeStamp;
 
+  //calculate the new position
   positionVector.addVector(&deltaPosition);
   positionTimeStamp = currentTime;
 }
 
-void LighthouseSensor::recalculateVelocity(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long orientationTimeStamp)
+void LighthouseSensor::calculateVelocity()
 {
-  if (!previousPositionTimeStamp || !positionTimeStamp || velocityTimeStamp == positionTimeStamp) {
-    //either we don't yet have enough position history to determine velocity or our velocity is up-to-date
-    return;
-  }
+  //capture the previous velocity
+  previousVelocityVector.set(&velocityVector);
+  previousVelocityTimeStamp = velocityTimeStamp;
 
-  KVector2 deltaPosition(positionVector.getX() - previousPositionVector.getX(), positionVector.getY() - previousPositionVector.getY());
-
-  //poor calculation by estimating velocity as the direct distance
-  //to properly calculate velocity, we need to calculate the length of the elliptical curve from the previous point to the current point
-  double deltaSeconds = ((double)(positionTimeStamp - previousPositionTimeStamp)) / 1000.0d;
-  velocity = deltaPosition.getD() / deltaSeconds;
-
-  //now determine if it is negative
-  if (deltaPosition.dotVector(currentOrientation) < 0.0d)
-    velocity = -velocity;
-
+  //capture the current velocity, scaled to indicate mm/s
+  velocityVector.set(positionVector.getX() - previousPositionVector.getX(),
+      positionVector.getY() - previousPositionVector.getY());
+  velocityVector.setD((velocityVector.getD() * 1000.0d) / ((double)(positionTimeStamp - previousVelocityTimeStamp)));
   velocityTimeStamp = positionTimeStamp;
 }

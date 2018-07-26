@@ -29,6 +29,10 @@ private:
   KVector2 positionVector;
   unsigned long positionTimeStamp = 0;
 
+  //overall velocity
+  KVector2 velocityVector;
+  unsigned long velocityTimeStamp;
+
   void setupClock();
   void setupEIC();
   void connectPortPinsToInterrupts();
@@ -49,7 +53,7 @@ public:
   LighthouseSensor* getRightSensor() { return &rightSensor; }
 
   KVector2* getPosition() { return &positionVector; }
-  double getLinearVelocity() { return (leftSensor.getVelocity() + rightSensor.getVelocity()) / 2.0d; }
+  KVector2* getVelocity() { return &velocityVector; }
   KVector2* getOrientation() { return &orientationVector; }
 
   void stop();

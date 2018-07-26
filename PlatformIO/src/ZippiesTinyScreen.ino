@@ -4,6 +4,7 @@
 #include "Zippy.h"
 #include "AutoDriveMode.h"
 #include "Bluetooth.h"
+#include "ZippyConfig.h"
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
 #define BLE_RECEIVE_MOTORS_SET       0x15
@@ -17,8 +18,10 @@
 
 Zippy zippy;
 
-// Bluetooth bluetooth;
+#ifdef ENABLE_BLUETOOTH
+Bluetooth bluetooth;
 unsigned long bluetoothSendDebugInfoTmeStamp = 0;
+#endif
 
 AutoDriveMode* autoDriver = NULL;
 
@@ -30,14 +33,16 @@ void setup()
   Wire.begin();
   SerialUSB.begin(115200);
   // while (!SerialUSB);
-  // SerialUSB.println("Started.");
-
   // Serial.println("Started serial port.");
-  // bluetooth.start();
+
+#ifdef ENABLE_BLUETOOTH
+  bluetooth.start();
+#endif
+
   zippy.start();
   // SerialUSB.println("Started Zippy.");
+
   autoDriver = new AutoDriveMode(&zippy);
-  // autoDriver->start();
   // SerialUSB.println("Started Auto-Drive mode.");
 
   pinMode(8, OUTPUT); //Onboard Blue LED
@@ -47,24 +52,22 @@ void setup()
 void loop()
 {
   static uint64_t loopTimer = millis();
-  /*
-  uint64_t currentTIme = millis();
-  if (currentTIme - loopTimer >= LOOP_INDICATOR_INTERVAL) {
-    SerialUSB.println("Looping");
-    loopTimer += LOOP_INDICATOR_INTERVAL;
-  }
-  */
-  // processBluetoothInput();
+
+#ifdef ENABLE_BLUETOOTH
+  processBluetoothInput();
+#endif
 
   zippy.loop();
 
   if (autoDriver != NULL)
     autoDriver->loop();
 
-  // processBluetoothOutput();
+#ifdef ENABLE_BLUETOOTH
+  processBluetoothOutput();
+#endif
 }
 
-/*
+#ifdef ENABLE_BLUETOOTH
 void processBluetoothInput()
 {
   //now process all the inbound Bluetooth commands
@@ -115,8 +118,8 @@ void processBluetoothInput()
     //until we've emptied out the bluetooth queue
     receivedDataLength = bluetooth.loop();
   }
-
 }
+// */
 
 void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
 {
@@ -155,43 +158,52 @@ void processBluetoothOutput()
 {
   //check to see if we need to send debug info over Bluetooth
   unsigned long currentTime = millis();
-  if (bluetooth.isConnected() && currentTime-bluetoothSendDebugInfoTmeStamp > BLE_SEND_INTERVAL_MS) {
-    float deltaTimeSeconds = ((float)(currentTime - bluetoothSendDebugInfoTmeStamp)) / 1000.0f;
-    /*
-    //send the sync tick count, sweep tick count, X and Y of each diode sensor
-    uint8_t debugPacket[SENSOR_DATA_LENGTH];
+  if (/*!bluetooth.isConnected() || */currentTime-bluetoothSendDebugInfoTmeStamp < BLE_SEND_INTERVAL_MS)
+    return;
 
-    //left sensor data
-    LighthouseSensor* sensorLeft = lighthouse.getLeftSensor();
-    extractSensorPacket(sensorLeft, debugPacket);
-    bluetooth.sendSensorLeft(debugPacket);
+  // SerialUSB.println("Sent updated data.");
+  Lighthouse* lighthouse = zippy.getLighthouse();
+  KVector2* positionVector = lighthouse->getPosition();
+  KVector2* orientationVector = lighthouse->getOrientation();
+  KVector2* velocityVector = lighthouse->getVelocity();
+  bluetooth.sendBroadcastData(positionVector->getX(), positionVector->getY(),
+      orientationVector->getOrientation(), velocityVector->getD());
+  /*
+  float deltaTimeSeconds = ((float)(currentTime - bluetoothSendDebugInfoTmeStamp)) / 1000.0f;
 
-    //right sensor data
-    LighthouseSensor* sensorRight = lighthouse.getRightSensor();
-    extractSensorPacket(sensorRight, debugPacket);
-    bluetooth.sendSensorRight(debugPacket);
+  //send the sync tick count, sweep tick count, X and Y of each diode sensor
+  uint8_t debugPacket[SENSOR_DATA_LENGTH];
 
-    //computed data
-    static float previousOrientation = 0.0f;
+  //left sensor data
+  LighthouseSensor* sensorLeft = lighthouse->getLeftSensor();
+  extractSensorPacket(sensorLeft, debugPacket);
+  bluetooth.sendSensorLeft(debugPacket);
 
-    KVector2* currentPosition = lighthouse.getPosition();
+  //right sensor data
+  LighthouseSensor* sensorRight = lighthouse->getRightSensor();
+  extractSensorPacket(sensorRight, debugPacket);
+  bluetooth.sendSensorRight(debugPacket);
 
-    float floatValue = currentPosition->getX();
-    memcpy(debugPacket, &floatValue, sizeof(float));
-    floatValue = currentPosition->getY();
-    memcpy(debugPacket+4, &floatValue, sizeof(float));
-    floatValue = (sensorLeft->getVelocity() + sensorRight->getVelocity()) / 2.0f;
-    memcpy(debugPacket+8, &floatValue, sizeof(float));
+  //computed data
+  static float previousOrientation = 0.0f;
 
-    float orientation = lighthouse.getOrientation()->getOrientation();
-    memcpy(debugPacket+12, &orientation, sizeof(float));
-    float rotationalVelocityRadians = (orientation - previousOrientation) / deltaTimeSeconds;
-    memcpy(debugPacket+16, &rotationalVelocityRadians, sizeof(float));
-    previousOrientation = orientation;
-    bluetooth.sendComputedData(debugPacket);
-    *
+  KVector2* currentPosition = lighthouse->getPosition();
 
-    bluetoothSendDebugInfoTmeStamp = currentTime;
-  }
+  float floatValue = currentPosition->getX();
+  memcpy(debugPacket, &floatValue, sizeof(float));
+  floatValue = currentPosition->getY();
+  memcpy(debugPacket+4, &floatValue, sizeof(float));
+  floatValue = (sensorLeft->getVelocity()->getD() + sensorRight->getVelocity()->getD()) / 2.0f;
+  memcpy(debugPacket+8, &floatValue, sizeof(float));
+
+  float orientation = lighthouse->getOrientation()->getOrientation();
+  memcpy(debugPacket+12, &orientation, sizeof(float));
+  float rotationalVelocityRadians = (orientation - previousOrientation) / deltaTimeSeconds;
+  memcpy(debugPacket+16, &rotationalVelocityRadians, sizeof(float));
+  previousOrientation = orientation;
+  bluetooth.sendComputedData(debugPacket);
+  */
+
+  bluetoothSendDebugInfoTmeStamp = currentTime;
 }
-*/
+#endif

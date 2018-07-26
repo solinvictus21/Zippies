@@ -105,7 +105,7 @@ private:
   void calculateLighthousePosition();
 
   //once the OOTX frame has been found and processed, the lighthouse position and orientation are calculated
-  KVector3 lighthousePosition;
+  // KVector3 lighthousePosition;
   KQuaternion lighthouseOrientation;
   //...and then this flag is set to true
   bool receivedLighthousePosition;
@@ -123,7 +123,12 @@ private:
   KVector2 positionVector;
   unsigned long positionTimeStamp = 0;
 
-  double velocity;
+  //previous velocity, required to estimate the current position
+  KVector2 previousVelocityVector;
+  unsigned long previousVelocityTimeStamp = 0;
+
+  // double velocity;
+  KVector2 velocityVector;
   unsigned long velocityTimeStamp = 0;
 
   void reacquireSyncPulses(unsigned int previousTickCount, unsigned int currentTickCount);
@@ -134,9 +139,10 @@ private:
   void processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
 
   bool hasLighthouseSignal() { return receivedLighthousePosition && cycleData[0].sweepHitTimeStamp && cycleData[1].sweepHitTimeStamp; }
-  void recalculatePosition();
-  void estimatePosition(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long currentTime);
-  void recalculateVelocity(KVector2* previousOrientation, KVector2* currentOrientation, unsigned long orientationTimeStamp);
+  void recalculate(unsigned long currentTime);
+  bool calculatePosition();
+  void estimatePosition(unsigned long currentTime);
+  void calculateVelocity();
 
   void clearPreambleFlag() { preambleFound = false; }
   bool foundPreamble() { return preambleFound; }
@@ -162,7 +168,7 @@ public:
   KVector2* getPosition() { return &positionVector; }
 
   //data derived from change in position over time
-  double getVelocity() { return velocity; }
+  KVector2* getVelocity() { return &velocityVector; }
 
 #ifdef DEBUG_SIGNAL_EDGES
   unsigned int getRisingEdgeCount() {

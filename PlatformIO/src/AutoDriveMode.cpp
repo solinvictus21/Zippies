@@ -1,21 +1,19 @@
 
 #include "AutoDriveMode.h"
+#include "AutoDriveData.h"
 #include "commands/Commands.h"
-// #include "Bluetooth.h"
-// #include "ZippyFace.h"
-// #include "lighthouse/Lighthouse.h"
-// #include "MotorDriver.h"
+#include "ZippyConfig.h"
 
 #define AUTODRIVE_ENABLED 1
-#define PATH_POINT_COUNT 37
-// #define PUT_YA_THING_DOWN_FLIP_IT_AND_REVERSE_IT 1
+#if ZIPPY_ID != 0
+#define PUT_YA_THING_DOWN_FLIP_IT_AND_REVERSE_IT 1
+#endif
 #define ZIPPY_SPACING_MM  60.0d
 
 #define AUTODRIVE_MISSING_POSITION_TIMEOUT     200
-#define AUTODRIVE_REAR_POSITION               -800.0d
-#define AUTODRIVE_FRONT_POSITION                 0.0d
-#define AUTODRIVE_LEFT_POSITION               -600.0d
-#define AUTODRIVE_RIGHT_POSITION               600.0d
+#define AUTODRIVE_LIMITS_OFFSETY              1200.0d
+
+#define PATH_POINT_SCALE_FACTOR               1000.0d
 
 #define ZIPPY_COMMAND_COUNT 2
 
@@ -30,93 +28,17 @@ AutoDriveMode::AutoDriveMode(Zippy* z)
     moving(false),
     currentCommand(0)
 {
-  //rectangle
-//  pathPoints[0].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_REAR_POSITION);
-//  pathPoints[1].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_REAR_POSITION);
-//  pathPoints[2].set(AUTODRIVE_LEFT_POSITION, AUTODRIVE_FRONT_POSITION);
-//  pathPoints[3].set(AUTODRIVE_RIGHT_POSITION, AUTODRIVE_FRONT_POSITION);
-
-  /*
-  //circle; center
-  pathPoints[0].set(    0.0d,  300.0d);
-  pathPoints[1].set( -280.0d,  230.0d);
-  pathPoints[2].set( -500.0d,   50.0d);
-  pathPoints[3].set( -600.0d, -250.0d);
-  pathPoints[4].set( -500.0d, -550.0d);
-  pathPoints[5].set( -280.0d, -730.0d);
-  pathPoints[6].set(    0.0d, -800.0d);
-  pathPoints[7].set(  280.0d, -730.0d);
-  pathPoints[8].set(  500.0d, -550.0d);
-  pathPoints[9].set(  600.0d, -250.0d);
-  pathPoints[10].set( 500.0d,   50.0d);
-  pathPoints[11].set( 280.0d,  230.0d);
-  pathPoints[12].set(    0.0d, 300.0d);
-  */
-
-  /*
-  //circle; upper left
-  pathPoints[0].set(    0.0d, -850.0d);
-  pathPoints[1].set(  280.0d, -780.0d);
-  pathPoints[2].set(  500.0d, -600.0d);
-  pathPoints[3].set(  600.0d, -300.0d);
-  pathPoints[4].set(  500.0d,   0.0d);
-  pathPoints[5].set( 280.0d,  190.0d);
-  pathPoints[6].set(   0.0d,  250.0d);
-  pathPoints[7].set( -280.0d,  190.0d);
-  pathPoints[8].set( -500.0d,    0.0d);
-  pathPoints[9].set( -600.0d, -300.0d);
-  pathPoints[10].set( -500.0d, -600.0d);
-  pathPoints[11].set( -280.0d, -780.0d);
-  pathPoints[12].set(    0.0d, -850.0d);
-  */
-
   //figure 8 from center
   pathPoints = new KVector2*[PATH_POINT_COUNT];
-  pathPoints[0] = new KVector2(  0.000000,  0.000000);
-  pathPoints[1] = new KVector2(  0.100000, -0.400000);
-  pathPoints[2] = new KVector2(  0.200000, -0.500000);
-  pathPoints[3] = new KVector2(  0.500000, -0.500000);
-  pathPoints[4] = new KVector2(  0.600000, -0.400000);
-  pathPoints[5] = new KVector2(  0.600000,  0.400000);
-  pathPoints[6] = new KVector2(  0.500000,  0.500000);
-  pathPoints[7] = new KVector2(  0.200000,  0.500000);
-  pathPoints[8] = new KVector2(  0.100000,  0.400000);
-  pathPoints[9] = new KVector2(  0.000000,  0.000000);
-  pathPoints[10] = new KVector2( -0.100000, -0.400000);
-  pathPoints[11] = new KVector2( -0.200000, -0.500000);
-  pathPoints[12] = new KVector2( -0.500000, -0.500000);
-  pathPoints[13] = new KVector2( -0.600000, -0.400000);
-  pathPoints[14] = new KVector2( -0.600000,  0.400000);
-  pathPoints[15] = new KVector2( -0.500000,  0.500000);
-  pathPoints[16] = new KVector2( -0.200000,  0.500000);
-  pathPoints[17] = new KVector2( -0.100000,  0.400000);
-  pathPoints[18] = new KVector2(  0.000000,  0.000000);
-  pathPoints[19] = new KVector2(  0.100000, -0.400000);
-  pathPoints[20] = new KVector2(  0.200000, -0.500000);
-  pathPoints[21] = new KVector2(  0.500000, -0.500000);
-  pathPoints[22] = new KVector2(  0.600000, -0.400000);
-  pathPoints[23] = new KVector2(  0.600000,  0.400000);
-  pathPoints[24] = new KVector2(  0.500000,  0.500000);
-  pathPoints[25] = new KVector2(  0.200000,  0.500000);
-  pathPoints[26] = new KVector2(  0.100000,  0.400000);
-  pathPoints[27] = new KVector2(  0.000000,  0.000000);
-  pathPoints[28] = new KVector2( -0.100000, -0.400000);
-  pathPoints[29] = new KVector2( -0.200000, -0.500000);
-  pathPoints[30] = new KVector2( -0.500000, -0.500000);
-  pathPoints[31] = new KVector2( -0.600000, -0.400000);
-  pathPoints[32] = new KVector2( -0.600000,  0.400000);
-  pathPoints[33] = new KVector2( -0.500000,  0.500000);
-  pathPoints[34] = new KVector2( -0.200000,  0.500000);
-  pathPoints[35] = new KVector2( -0.100000,  0.400000);
-  pathPoints[36] = new KVector2(  0.000000,  0.000000);
   for (int i = 0; i < PATH_POINT_COUNT; i++) {
-//    pathPoints[i].set(pathPoints[i].getX() * 1100.0d, (pathPoints[i].getY() * 900.0d) - 650.0d);
-    pathPoints[i]->set(pathPoints[i]->getX() * 1100.0d, (pathPoints[i]->getY() * 900.0d) - 2750.0d);
+    double x = PATH_POINT_SCALE_FACTOR * PATH_POINTS[i][0];
+    double y = PATH_POINT_SCALE_FACTOR * PATH_POINTS[i][1];
 #ifdef PUT_YA_THING_DOWN_FLIP_IT_AND_REVERSE_IT
-    pathPoints[i]->set(pathPoints[i]->getX() + ZIPPY_SPACING_MM, pathPoints[i]->getY() + ZIPPY_SPACING_MM);
-#else
-    pathPoints[i]->set(pathPoints[i]->getX() - ZIPPY_SPACING_MM, pathPoints[i]->getY() - ZIPPY_SPACING_MM);
+    //flip along the x and y axes
+    x = -x;
+    y = -y;
 #endif
+    pathPoints[i] = new KVector2(x, y + AUTODRIVE_LIMITS_OFFSETY);
   }
 
 #ifdef PUT_YA_THING_DOWN_FLIP_IT_AND_REVERSE_IT
