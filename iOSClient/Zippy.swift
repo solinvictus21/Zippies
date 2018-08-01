@@ -3,6 +3,7 @@ import Foundation
 import CoreBluetooth
 
 //services & characteristics UUIDs
+let ZippyBroadcastUUID = CBUUID(string: "B00B")
 let ZippyServiceUUID = CBUUID(string: "5BF1CEC2-EFC2-44D2-81AE-73FCFD5F7A13")
 let ZippyTxUUID = CBUUID(string: "C9589239-D751-47F7-9C5B-38355F0E9811")
 let ZippySensorRightRxUUID = CBUUID(string: "F652B269-4405-42D7-8CD8-0630E778E0D0")

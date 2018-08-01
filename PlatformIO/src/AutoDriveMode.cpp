@@ -41,6 +41,7 @@ AutoDriveMode::AutoDriveMode(Zippy* z)
     pathPoints[i] = new KVector2(x, y + AUTODRIVE_LIMITS_OFFSETY);
   }
 
+/*
 #ifdef PUT_YA_THING_DOWN_FLIP_IT_AND_REVERSE_IT
   for (int i = 0; i < PATH_POINT_COUNT/2; i++) {
     KVector2* tmp = pathPoints[i];
@@ -48,6 +49,8 @@ AutoDriveMode::AutoDriveMode(Zippy* z)
     pathPoints[PATH_POINT_COUNT - i - 1] = tmp;
   }
 #endif
+*/
+
   //create bezier control points between each of the points
   /*
   for (int i=0; i < BEZIER_CONTROL_POINT_COUNT; i++) {

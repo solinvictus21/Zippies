@@ -29,6 +29,28 @@ class PeripheralFinder: NSObject
         super.init()
     }
     
+    func startObserving(_ primaryServiceUUID: CBUUID)
+    {
+        stopDiscovery();
+        
+        self.advertisedServiceUUID = primaryServiceUUID
+        self.primaryServiceUUID = primaryServiceUUID
+        self.characteristicUUIDs = nil
+
+        if centralManager == nil {
+            self.centralManager = CBCentralManager(delegate: self, queue: nil)
+        }
+        
+        if self.centralManager!.state == CBManagerState.poweredOn {
+            if self.centralManager!.isScanning {
+                self.centralManager?.stopScan()
+            }
+            
+            //start scanning
+            self.centralManager!.scanForPeripherals(withServices: [self.advertisedServiceUUID!], options: nil)
+        }
+    }
+    
     func startDiscovery(_ primaryServiceUUID: CBUUID,
                         characteristicUUIDs: [CBUUID])
     {
@@ -90,11 +112,9 @@ extension PeripheralFinder: CBCentralManagerDelegate
         case .poweredOn:
             //step #1; Bluetooth is now on; scan for Zippies
             print("Bluetooth powered on.")
-            if self.primaryServiceUUID != nil &&
-                self.characteristicUUIDs != nil
-            {
-                self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!], options: nil)
-            }
+//            self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!], options: nil)
+            self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!],
+                                                    options: [CBCentralManagerScanOptionAllowDuplicatesKey:true])
             break
         case .resetting:
             print("Bluetooth resetting.")
@@ -121,12 +141,28 @@ extension PeripheralFinder: CBCentralManagerDelegate
                         advertisementData: [String : Any],
                         rssi RSSI: NSNumber)
     {
+        /*
+        if let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]
+        {
+            print(serviceUUIDs.first!.uuidString)
+        }
+        */
+        
+//        print(peripheral.identifier.uuidString);
+        print(advertisementData.count)
+        let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
+        var bitPatternU32 = UInt32(values[3]) << 24
+        bitPatternU32 |= UInt32(values[2]) << 16
+        bitPatternU32 |= UInt32(values[1]) << 8
+        bitPatternU32 |= UInt32(values[0])
+        let xPosition = Float32(bitPattern: bitPatternU32)
+//        print("X: ", xPosition)
+
         //retain the peripheral first
-//            let uuids = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]
-        discoveredPeripherals.insert(peripheral)
+//        discoveredPeripherals.insert(peripheral)
         
         //step #2; connect to this peripheral
-        central.connect(peripheral, options: nil)
+//        central.connect(peripheral, options: nil)
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {

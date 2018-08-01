@@ -23,6 +23,10 @@ class ZippyManager: NSObject
         self.peripheralFinder.delegate = self
     }
     
+    func startObserving() {
+        self.peripheralFinder.startObserving(ZippyBroadcastUUID)
+    }
+    
     func startDiscovery() {
         discoverZippies()
     }

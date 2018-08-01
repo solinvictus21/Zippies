@@ -16,6 +16,8 @@ private:
   Zippy* zippy;
   KVector2** pathPoints;
   int pathPointCount;
+  unsigned long targetDeltaTime;
+  double totalPathLength;
 
   //the point where the robot started traveling on this path
   KVector2 firstPosition;
@@ -30,7 +32,9 @@ private:
   KVector2 currentSegment;
 
   //the distance we've driven along the current segment
+  unsigned long pathStartTime = 0;
   double currentDistanceAlongSegment = 0.0d;
+  double currentDistanceAlongPath = 0.0d;
 
   double linearSetPoint = 0.0d;
   double linearInput = 0.0d;
@@ -42,7 +46,7 @@ private:
   double rotationalOutput = 0.0d;
   PID rotationalPID;
 
-  void updateInputs();
+  void updateInputs(unsigned long currentTime);
   void calculateNextPosition(KVector2* nextPosition);
   void getCurrentTargetPosition(KVector2* nextPosition);
 

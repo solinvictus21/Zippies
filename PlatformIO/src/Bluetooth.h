@@ -5,6 +5,7 @@
 #include <STBLE.h>
 
 #define SENSOR_DATA_LENGTH 20
+#define ADVERTISEMENT_PACKET_LENGTH 31
 
 class Bluetooth
 {
@@ -23,7 +24,7 @@ private:
   uint8_t* receivedData;
   uint8_t receivedDataLength;
 
-  uint8_t broadcastData[31] = {
+  uint8_t broadcastData[ADVERTISEMENT_PACKET_LENGTH] = {
     3, AD_TYPE_16_BIT_SERV_UUID, 0x0B, 0xB0,
     26, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0

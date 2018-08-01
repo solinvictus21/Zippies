@@ -60,7 +60,7 @@ bool Bluetooth::start()
   BlueNRG_RST();
 
   //set our bluetooth address
-  uint8_t deviceAddress[] = { 0x4B, 0xFB, 0x50, 0xFB, 0xBF, 0xB7 };
+  uint8_t deviceAddress[] = { 0x4B, 0xFB, 0x50, 0xFB, 0xBF, 0xB8 };
 //  uint8_t bdaddr[] = { 0x12, 0x34, 0x00, 0xE1, 0x80, 0x02 };
   tBleStatus ret = aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET, CONFIG_DATA_PUBADDR_LEN, deviceAddress);
   if (ret != BLE_STATUS_SUCCESS) {
@@ -70,8 +70,8 @@ bool Bluetooth::start()
   }
 
   // if (!startAsPeripheral())
-  if (!startAsBroadcaster())
-  // if (!startAsObserver())
+  // if (!startAsBroadcaster())
+  if (!startAsObserver())
     return false;
 
   //+8 dBm output power
@@ -102,7 +102,7 @@ bool Bluetooth::startAsBroadcaster()
   const int deviceNameLength = strlen(deviceName);
   uint16_t serviceNameHandle, apperanceNameHandle;
 
-  ret = aci_gap_init_IDB05A1(GAP_BROADCASTER_ROLE_IDB05A1, 0, deviceNameLength,
+  ret = aci_gap_init_IDB05A1(GAP_BROADCASTER_ROLE_IDB05A1, false, deviceNameLength,
       &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GAP
@@ -111,8 +111,8 @@ bool Bluetooth::startAsBroadcaster()
   }
 
   //start broadcaster mode and broadcast every 1000ms to 5000ms (1000/0.625 = 1600)
-  ret = aci_gap_set_broadcast_mode_IDB05A1(0x00A0, 0x00A0, ADV_SCAN_IND, STATIC_RANDOM_ADDR,
-      sizeof(broadcastData), broadcastData, 0, NULL);
+  ret = aci_gap_set_broadcast_mode_IDB05A1(0x00A0, 0x00A0, ADV_NONCONN_IND, STATIC_RANDOM_ADDR,
+      ADVERTISEMENT_PACKET_LENGTH, broadcastData, 0, NULL);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to setup broadcast mode
     // SerialUSB.println("Failed to start broadcast mode.");
@@ -138,7 +138,8 @@ bool Bluetooth::startAsObserver()
   const int deviceNameLength = strlen(deviceName);
   uint16_t serviceNameHandle, apperanceNameHandle;
 
-  ret = aci_gap_init_IDB05A1(GAP_CENTRAL_ROLE_IDB05A1 | GAP_OBSERVER_ROLE_IDB05A1, 0, deviceNameLength,
+  // ret = aci_gap_init_IDB05A1(GAP_BROADCASTER_ROLE_IDB05A1 | GAP_OBSERVER_ROLE_IDB05A1, 0, deviceNameLength,
+  ret = aci_gap_init_IDB05A1(GAP_BROADCASTER_ROLE_IDB05A1 | GAP_OBSERVER_ROLE_IDB05A1, false, deviceNameLength,
       &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GAP
@@ -146,12 +147,36 @@ bool Bluetooth::startAsObserver()
     return false;
   }
 
-  ret = aci_gap_start_observation_procedure_IDB05A1(100, 100, ACTIVE_SCAN, STATIC_RANDOM_ADDR, false);
+  // /*
+  ret = aci_gap_start_observation_procedure_IDB05A1(3200, 1600, PASSIVE_SCAN, PUBLIC_ADDR, true);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to setup observation mode
     SerialUSB.println("Failed to start observer mode.");
     return false;
   }
+  // */
+
+  /*
+  //start broadcaster mode and broadcast every 1000ms to 5000ms (1000/0.625 = 1600)
+  ret = aci_gap_update_adv_data(ADVERTISEMENT_PACKET_LENGTH, broadcastData);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to setup broadcast mode
+    SerialUSB.println("Failed to set initial advertisement data.");
+    SerialUSB.println(ret, HEX);
+    return false;
+  }
+  */
+
+  // ret = aci_gap_set_non_connectable_IDB05A1(ADV_NONCONN_IND, PUBLIC_ADDR);
+  ret = aci_gap_set_broadcast_mode_IDB05A1(0x00A0, 2400, ADV_NONCONN_IND, PUBLIC_ADDR,
+      ADVERTISEMENT_PACKET_LENGTH, broadcastData, 0, NULL);
+  if (ret != BLE_STATUS_SUCCESS) {
+    //failed to setup broadcast mode
+    SerialUSB.println("Failed to start broadcast mode.");
+    SerialUSB.println(ret, HEX);
+    return false;
+  }
+  // */
 
   SerialUSB.println("Started observer mode.");
   return true;
@@ -295,10 +320,10 @@ tBleStatus Bluetooth::sendComputedData(uint8_t* sendBuffer)
 void Bluetooth::sendBroadcastData(float x, float y, float orientation, float linearVelocity)
 {
   memcpy(broadcastData+6, &x, sizeof(float));
-  memcpy(broadcastData+10, &x, sizeof(float));
-  memcpy(broadcastData+14, &x, sizeof(float));
-  memcpy(broadcastData+20, &x, sizeof(float));
-  aci_gap_update_adv_data(sizeof(broadcastData), broadcastData);
+  memcpy(broadcastData+10, &y, sizeof(float));
+  memcpy(broadcastData+14, &orientation, sizeof(float));
+  memcpy(broadcastData+20, &linearVelocity, sizeof(float));
+  // aci_gap_update_adv_data(ADVERTISEMENT_PACKET_LENGTH, broadcastData);
 }
 
 void Bluetooth::packetReceived(uint8_t dataLength, uint8_t *data)
@@ -366,33 +391,63 @@ void HCI_Event_CB(void *blePacket)
     case EVT_LE_META_EVENT:
       {
         //a host bluetooth device connected or is in the process of connecting to us
-        evt_le_meta_event *evt = (evt_le_meta_event *)eventPacket->data;
+        evt_le_meta_event* metaEvent = (evt_le_meta_event*)eventPacket->data;
 
         // SerialUSB.print("Got subevent of type: ");
         // SerialUSB.println(evt->subevent, HEX);
-        switch (evt->subevent) {
+        switch (metaEvent->subevent) {
           case EVT_LE_CONN_COMPLETE:
             {
 //              SerialUSB.println("Bluetooth device connected.");
               //disable discovery
               aci_gap_set_non_discoverable();
               //capture the connection handle
-              evt_le_connection_complete *cc = (evt_le_connection_complete *)evt->data;
+              evt_le_connection_complete* cc = (evt_le_connection_complete*)metaEvent->data;
               currentBluetooth->connectionHandle = cc->handle;
             }
             break;
           case EVT_LE_ADVERTISING_REPORT:
             {
               // /*
-              le_advertising_info* advEvent = (le_advertising_info*)evt->data;
-              // SerialUSB.print("Got advertisement of type: ");
-              // SerialUSB.println(advEvent->evt_type, HEX);
-              SerialUSB.print("Got advertisement for address: ");
-              SerialUSB.println(advEvent->bdaddr[0], HEX);
-              switch (advEvent->evt_type) {
-
+              le_advertising_info* advEvent = (le_advertising_info*)metaEvent->data;
+              /*
+              if (advEvent->evt_type != 1) {
+                SerialUSB.print("Got advertisement of type: ");
+                SerialUSB.println(advEvent->evt_type, HEX);
               }
-              // */
+              SerialUSB.print("Got advertisement for address: ");
+              for (int i = 0; i < 6; i++) {
+                SerialUSB.print(advEvent->bdaddr[i], HEX);
+                SerialUSB.print(" ");
+              }
+              SerialUSB.println();
+              */
+              /*
+              if (advEvent->data_RSSI[1] == 3) {
+              SerialUSB.print("Got advertisement of length: ");
+              SerialUSB.println(advEvent->data_length);
+              static bool displayedOnce = false;
+              // if (!displayedOnce && advEvent->data_length == 33) {
+                for (int i = 0; i < advEvent->data_length; i++) {
+                  SerialUSB.print(advEvent->data_RSSI[i], HEX);
+                  SerialUSB.print(" ");
+                }
+                SerialUSB.println();
+                // displayedOnce = true;
+              // }
+              }
+              */
+              /*
+              switch (advEvent->evt_type) {
+                case ADV_IND:
+                  break;
+                case ADV_DIRECT_IND:
+                  break;
+                case SCAN_RSP:
+                  break;
+              }
+              break;
+              */
             }
         }
       }

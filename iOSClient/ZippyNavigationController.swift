@@ -13,7 +13,8 @@ class ZippyNavigationController: UINavigationController
         super.viewDidLoad()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.zippyManager.startDiscovery()
+//        appDelegate.zippyManager.startDiscovery()
+        appDelegate.zippyManager.startObserving()
     }
     
 }
