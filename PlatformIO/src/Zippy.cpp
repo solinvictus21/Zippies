@@ -1,5 +1,7 @@
 
+#include <SPI.h>
 #include "Zippy.h"
+#include "ZippyConfig.h"
 
 Zippy::Zippy()
 {
@@ -32,6 +34,7 @@ void Zippy::setMotors(int32_t motorLeft, int32_t motorRight)
 
 void Zippy::loop()
 {
+  // SerialUSB.println("Looping Zippy");
   //first process the Lighthouse input
   lighthouse.loop();
 }

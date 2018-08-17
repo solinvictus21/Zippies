@@ -2,7 +2,6 @@
 #ifndef _ZIPPY_H_
 #define _ZIPPY_H_
 
-#include "Platform.h"
 #include "ZippyFace.h"
 #include "lighthouse/Lighthouse.h"
 #include "MotorDriver.h"

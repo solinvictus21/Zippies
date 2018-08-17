@@ -1,5 +1,6 @@
 
 #include <math.h>
+#include <SPI.h>
 #include "KVector2.h"
 
 #define EPSILON 0.0001d
@@ -203,11 +204,17 @@ void KVector2::rotate(double angleRadians)
 
 void KVector2::printDebug()
 {
-  /*
+  // /*
   SerialUSB.print("(");
   SerialUSB.print(x, 10);
   SerialUSB.print(", ");
   SerialUSB.print(y, 10);
   SerialUSB.println(")");
-  */
+  // */
+}
+
+void KVector2::lerpPoint(double atDistance, KVector2* lerpedPoint)
+{
+  double interpolatedDistance = (atDistance / getD());
+  lerpedPoint->set(this->x * interpolatedDistance, this->y * interpolatedDistance);
 }

@@ -1,5 +1,6 @@
 
-#include "Platform.h"
+#include <SPI.h>
+#include "../ZippyConfig.h"
 #include "Lighthouse.h"
 
 Lighthouse* currentLighthouse = NULL;

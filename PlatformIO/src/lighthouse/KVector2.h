@@ -1,7 +1,10 @@
 
-#pragma once
+#ifndef _KVECTOR2_H_
+#define _KVECTOR2_H_
 
-class KVector2
+#include "KPathSegment.h"
+
+class KVector2 : public KPathSegment
 {
 protected:
   double x;
@@ -47,4 +50,11 @@ public:
 
   void printDebug();
 
+  double getEndpointX() { return x; }
+  double getEndpointY() { return x; }
+  double getLength() { return getD(); }
+  void lerpPoint(double atDistance, KVector2* lerpedPoint);
+
 };
+
+#endif

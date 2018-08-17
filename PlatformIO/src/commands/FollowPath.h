@@ -4,6 +4,7 @@
 
 #include <PID_v1.h>
 #include "ZippyCommand.h"
+#include "../lighthouse/KBezier2.h"
 #include "../Zippy.h"
 #include "../lighthouse/KVector2.h"
 
@@ -14,27 +15,21 @@ private:
   unsigned long lastUpdateTime = 0;
 
   Zippy* zippy;
-  KVector2** pathPoints;
+  KVector2* pathPoints;
   int pathPointCount;
-  unsigned long targetDeltaTime;
-  double totalPathLength;
-
-  //the point where the robot started traveling on this path
-  KVector2 firstPosition;
-
-  //the vector representing the start of the current segment
-  KVector2* currentSegmentStart;
 
   //the index into the pathPoints of the point representing the end of the current segment
-  int currentSegmentEndIndex = 0;
+  int currentControlPoint = 0;
 
-  //the vector from the start to the end of the current segment
-  KVector2 currentSegment;
+  //the vector representing the start of the current segment
+  KVector2 currentSegmentStart;
+
+  //the relative path from the start to the end of the current segment
+  KBezier2 currentSegment;
 
   //the distance we've driven along the current segment
   unsigned long pathStartTime = 0;
   double currentDistanceAlongSegment = 0.0d;
-  double currentDistanceAlongPath = 0.0d;
 
   double linearSetPoint = 0.0d;
   double linearInput = 0.0d;
@@ -51,7 +46,7 @@ private:
   void getCurrentTargetPosition(KVector2* nextPosition);
 
 public:
-  FollowPath(Zippy* zippy, KVector2** pathPoints, int pathPointCount);
+  FollowPath(Zippy* zippy, KVector2* pathPoints, int pathPointCount);
   void start(unsigned long currentTime);
   bool loop(unsigned long currentTime);
 

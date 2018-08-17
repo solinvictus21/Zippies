@@ -1,6 +1,5 @@
 
 #include <Wire.h>
-#include "Platform.h"
 #include "Zippy.h"
 #include "AutoDriveMode.h"
 #include "Bluetooth.h"
@@ -33,7 +32,7 @@ void setup()
   Wire.begin();
   SerialUSB.begin(115200);
   // while (!SerialUSB);
-  // Serial.println("Started serial port.");
+  // SerialUSB.println("Started serial port.");
 
 #ifdef ENABLE_BLUETOOTH
   bluetooth.start();
@@ -51,6 +50,7 @@ void setup()
 
 void loop()
 {
+  // SerialUSB.println("Looping");
   static uint64_t loopTimer = millis();
 
 #ifdef ENABLE_BLUETOOTH

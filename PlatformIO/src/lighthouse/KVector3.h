@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef _KVECTOR3_H_
+#define _KVECTOR3_H_
 
 #include "KQuaternion.h"
 
@@ -57,3 +58,5 @@ void intersectPlane(KVector3* planeNormal,
                     KVector3* fromVector,
                     KVector3* throughVector,
                     KVector3* result);
+
+#endif

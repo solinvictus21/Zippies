@@ -3,7 +3,7 @@
 #define _SYNCWITHPREAMBLE_H_
 
 #include "ZippyCommand.h"
-#include "Zippy.h"
+#include "../Zippy.h"
 
 class SyncWithPreamble : public ZippyCommand
 {

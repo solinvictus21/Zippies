@@ -7,4 +7,7 @@
 
 // #define ENABLE_BLUETOOTH 1
 
+#define PLATFORM_TINYSCREEN 1
+// #define PLATFORM_EXEN_MINI 1
+
 #endif

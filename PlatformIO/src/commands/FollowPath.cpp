@@ -9,12 +9,25 @@
 #define LOOP_INTERVAL_MS                         40
 
 //TUNING - PID CONFIGURATION
-#define LINEAR_Kp                                19.00d
+/*
+//at V = 500
+#define LINEAR_Kp                                13.00d
 #define LINEAR_Ki                                 0.00d
 #define LINEAR_Kd                                 0.20d
-#define ROTATIONAL_Kp                             8.40d
+#define ROTATIONAL_Kp                             7.40d
 #define ROTATIONAL_Ki                             0.00d
-#define ROTATIONAL_Kd                             0.42d
+#define ROTATIONAL_Kd                             0.40d
+*/
+
+// /*
+//at V = 700
+#define LINEAR_Kp                                11.00d
+#define LINEAR_Ki                                 0.00d
+#define LINEAR_Kd                                 0.50d
+#define ROTATIONAL_Kp                            13.20d
+#define ROTATIONAL_Ki                             0.00d
+#define ROTATIONAL_Kd                             0.80d
+// */
 
 //TUNING - PID INPUT
 //70 degrees (70/180 * M_PI)
@@ -29,20 +42,24 @@
 #define LINEAR_RAMPUP_END                         0.872664625997165d
 #define LINEAR_MAX_VELOCITY                    1000.00d
 #define LINEAR_AVG_VELOCITY                     600.00d
-#define LINEAR_MIN_INPUT_CHANGE                  30.00d
-#define LINEAR_MAX_INPUT_CHANGE_FACTOR            0.10d
+#define LINEAR_MIN_INPUT_CHANGE                  40.00d
+#define LINEAR_MAX_INPUT_CHANGE_FACTOR            0.20d
+// #define LINEAR_LOOK_AHEAD_FACTOR                  0.15d
+// #define LINEAR_LOOK_AHEAD_TIME                  100
 
 //40 degrees
 // #define ROTATIONAL_RAMPDOWN_START                 0.698131700797732d
 //45
-#define ROTATIONAL_RAMPDOWN_START                 0.785398163397448d
+// #define ROTATIONAL_RAMPDOWN_START                 0.785398163397448d
 //50
 // #define ROTATIONAL_RAMPDOWN_START                 0.872664625997165d
 //60
-// #define ROTATIONAL_RAMPDOWN_START               1.047197551196598d
+#define ROTATIONAL_RAMPDOWN_START               1.047197551196598d
+//80
+// #define ROTATIONAL_RAMPDOWN_START                 1.396263401595464d
 // 90
 // #define ROTATIONAL_RAMPDOWN_START               M_PI_2
-#define ROTATIONAL_MIN_VELOCITY                 500.0d
+#define ROTATIONAL_MIN_VELOCITY                 350.0d
 
 //TUNING - PCM OUTPUT
 //the minimum PCM value below which the motors do not turn
@@ -67,7 +84,7 @@ double padInner(double motorPower, double magnitude)
 }
 
 FollowPath::FollowPath(Zippy* z,
-                       KVector2** pathPoints,
+                       KVector2* pathPoints,
                        int pathPointCount)
   : zippy(z),
     pathPoints(pathPoints),
@@ -79,34 +96,27 @@ FollowPath::FollowPath(Zippy* z,
   linearPID.SetOutputLimits(-MOTOR_MAX_POWER, MOTOR_MAX_POWER);
   rotationalPID.SetSampleTime(LOOP_INTERVAL_MS);
   rotationalPID.SetOutputLimits(-MOTOR_MAX_POWER, MOTOR_MAX_POWER);
-  totalPathLength = 0;
-  for (int i = 0; i < pathPointCount-1; i++) {
-    totalPathLength += sqrt(pow(pathPoints[i+1]->getX() - pathPoints[i]->getX(), 2.0d) +
-        pow(pathPoints[i+1]->getY() - pathPoints[i]->getY(), 2.0d));
-  }
-  targetDeltaTime = (totalPathLength / LINEAR_AVG_VELOCITY) * 1000.0d;
-  // SerialUSB.println(targetDeltaTime);
 }
 
 void FollowPath::start(unsigned long currentTime)
 {
+  // SerialUSB.println("Starting to drive.");
   zippy->recalculate();
 
   linearPID.SetMode(MANUAL);
   rotationalPID.SetMode(MANUAL);
 
-  //capture our starting position
-  firstPosition.set(zippy->getPosition());
-
   //setup the current segment
-  // currentSegmentStart = &firstPosition;
-  // currentSegmentEndIndex = 0;
-  currentSegmentStart = pathPoints[0];
-  currentSegmentEndIndex = 1;
-  currentSegment.set(pathPoints[currentSegmentEndIndex]->getX() - currentSegmentStart->getX(),
-      pathPoints[currentSegmentEndIndex]->getY() - currentSegmentStart->getY());
+  currentControlPoint = 0;
+  currentSegmentStart.set(&pathPoints[currentControlPoint]);
+
+  //for the first bezier curve, the relative curve is from the first vertex to the midpoint between the first and second
+  //vertices, and the control point is midway between the first and midpoint
+  double xl = pathPoints[currentControlPoint+1].getX() - currentSegmentStart.getX();
+  double yl = pathPoints[currentControlPoint+1].getY() - currentSegmentStart.getY();
+  currentSegment.set(xl / 4.0d, yl / 4.0d, xl / 2.0d, yl / 2.0d);
+
   currentDistanceAlongSegment = 0.0d;
-  currentDistanceAlongPath = 0.0d;
   pathStartTime = currentTime;
 
   //we need to reset the outputs before going back to automatic PID mode; see Arduino PID library source code for details
@@ -125,8 +135,12 @@ void FollowPath::start(unsigned long currentTime)
 
 bool FollowPath::loop(unsigned long currentTime)
 {
-  if (currentTime - pathStartTime >= targetDeltaTime) {
+  if (currentControlPoint+1 == pathPointCount &&
+      currentDistanceAlongSegment >= currentSegment.getLength())
+  {
     //our time has run out
+    zippy->setMotors(0.0d, 0.0d);
+    // SerialUSB.println("Ended Path Following");
     return true;
   }
 
@@ -146,34 +160,28 @@ bool FollowPath::loop(unsigned long currentTime)
   // zippy->setMotors(padInner(-rotationalOutput, MOTOR_MIN_POWER),
                    // padInner(+rotationalOutput, MOTOR_MIN_POWER));
 
- lastUpdateTime += LOOP_INTERVAL_MS;
+  lastUpdateTime += LOOP_INTERVAL_MS;
 
   return false;
 }
 
 void FollowPath::updateInputs(unsigned long currentTime)
 {
-  if (currentDistanceAlongPath < totalPathLength) {
-    //based on the time we've been on this path, calculate the distance that we should currently be through the entire path
-    double newDistanceAlongPath = (((double)(currentTime - pathStartTime + LOOP_INTERVAL_MS)) / ((double)targetDeltaTime)) * totalPathLength;
-    double deltaDistance = newDistanceAlongPath - currentDistanceAlongPath;
-    currentDistanceAlongSegment += deltaDistance;
-    currentDistanceAlongPath = newDistanceAlongPath;
-    // SerialUSB.println(((double)(currentTime - lastUpdateTime)), 2);
-  }
+  currentDistanceAlongSegment += (LINEAR_AVG_VELOCITY * ((double)(currentTime - lastUpdateTime))) / 1000.0d;
 
   //determine our next target position
   KVector2 nextPosition;
   getCurrentTargetPosition(&nextPosition);
 
-  //subtract the current position and orientation of the robot to obtain a vector relative to the robot to the target position
+  //subtract the current position and orientation of the robot to obtain a vector relative from the robot to the target position
   nextPosition.subtractVector(zippy->getPosition());
   nextPosition.rotate(-zippy->getOrientation()->getOrientation());
 
   //TODO: slow down as we approach the last point on the path
   // double targetLinearVelocity = LINEAR_MAX_VELOCITY * (1.0d - constrain((abs(angleToPosition) - LINEAR_RAMPUP_END) / (LINEAR_RAMPUP_START - LINEAR_RAMPUP_END), 0.0d, 1.0d));
   double angleToPosition = nextPosition.getOrientation();
-  double targetLinearVelocity = min((nextPosition.getD() * 1000.0d) / ((double)LOOP_INTERVAL_MS), LINEAR_MAX_VELOCITY) *
+  double targetLinearVelocity = min((nextPosition.getD() * LINEAR_AVG_VELOCITY) / ((double)LOOP_INTERVAL_MS), LINEAR_MAX_VELOCITY) *
+  // double targetLinearVelocity = min(nextPosition.getD() / lookAheadFactor, LINEAR_MAX_VELOCITY) *
       (1.0d - constrain((abs(angleToPosition) - LINEAR_RAMPUP_END) / (LINEAR_RAMPUP_START - LINEAR_RAMPUP_END), 0.0d, 1.0d));
   double maxInputChange = max(abs(linearInput) * LINEAR_MAX_INPUT_CHANGE_FACTOR, LINEAR_MIN_INPUT_CHANGE);
   KVector2* currentVelocityVector = zippy->getVelocity();
@@ -186,87 +194,58 @@ void FollowPath::updateInputs(unsigned long currentTime)
   // rotationalInput = (abs(angleToPosition) < ROTATIONAL_RAMPDOWN_START ? tan(angleToPosition) : (angleToPosition < 0.0d ? 1.0d : -1.0d)) *
   rotationalInput = constrain(-angleToPosition / ROTATIONAL_RAMPDOWN_START, -1.0d, 1.0d) *
       ROTATIONAL_MIN_VELOCITY;
-      // max(ROTATIONAL_MIN_VELOCITY, abs(currentVelocity));
+      // max(ROTATIONAL_MIN_VELOCITY, abs(linearInput)-200.0d);
 }
-
-/*
-void FollowPath::updateInputs(unsigned long currentTime)
-{
-  //determine our next target position
-  KVector2 nextPosition;
-  calculateNextPosition(&nextPosition);
-
-  double angleToPosition = nextPosition.getOrientation();
-  KVector2* currentVelocityVector = zippy->getVelocity();
-
-  //TODO: slow down as we approach the last point on the path
-  double targetLinearVelocity = LINEAR_MAX_VELOCITY * (1.0d - constrain((abs(angleToPosition) - LINEAR_RAMPUP_END) / (LINEAR_RAMPUP_START - LINEAR_RAMPUP_END), 0.0d, 1.0d));
-  double maxInputChange = max(abs(linearInput) * LINEAR_MAX_INPUT_CHANGE_FACTOR, LINEAR_MIN_INPUT_CHANGE);
-  double currentVelocity = currentVelocityVector->getD();
-  if (currentVelocityVector->dotVector(zippy->getOrientation()) < 0.0d)
-    currentVelocity = -currentVelocity;
-  linearInput += constrain(currentVelocity - targetLinearVelocity - linearInput, -maxInputChange, maxInputChange);
-
-  rotationalInput = constrain(-angleToPosition / ROTATIONAL_RAMPDOWN_START, -1.0d, 1.0d) * max(400.0d, abs(currentVelocity));//1000.0d;
-  // rotationalInput = constrain(-angleToPosition / ROTATIONAL_RAMPDOWN_START, -1.0d, 1.0d) * max(500.0d, targetLinearVelocity);//1000.0d;
-}
-
-void FollowPath::calculateNextPosition(KVector2* nextPosition)
-{
-  //determine the current target position relative to the robot
-  getCurrentTargetPosition(nextPosition);
-
-  //check if we're within the look-ahead distance of the current target position
-  double distanceToNextPosition = nextPosition->getD();
-  while (distanceToNextPosition < LOOK_AHEAD_DISTANCE_MM &&
-      //stop at the end of the path
-      (currentDistanceAlongSegment < currentSegment.getD() || currentSegmentEndIndex+1 < pathPointCount))
-  {
-    //the robot is within the look-ahead distance of the current target position, so move the target position forward along the path
-    currentDistanceAlongSegment += (LOOK_AHEAD_DISTANCE_MM - distanceToNextPosition) + LOOK_AHEAD_INCREMENTS_MM;
-
-    //recalculate our current target position along the path
-    getCurrentTargetPosition(nextPosition);
-
-    //subtract the current position of the robot to obtain a vector relative to the robot to the target position
-    nextPosition->subtractVector(zippy->getPosition());
-
-    //check our distance to the next position
-    distanceToNextPosition = nextPosition->getD();
-  }
-
-  //now make the reference to the next position relative to the local coordinate system of the robot
-  nextPosition->rotate(-zippy->getOrientation()->getOrientation());
-  nextPosition->setD(min(LOOK_AHEAD_DISTANCE_MM, nextPosition->getD()));
-}
-*/
 
 void FollowPath::getCurrentTargetPosition(KVector2* nextPosition)
 {
-  while (currentDistanceAlongSegment > currentSegment.getD()) {
+  while (currentDistanceAlongSegment > currentSegment.getLength()) {
     //the look-ahead distance is beyond the end of the current path segment
-    if (currentSegmentEndIndex+1 == pathPointCount) {
+    if (currentControlPoint+1 == pathPointCount) {
       //but this is the last segment, so stop at the end
-      currentDistanceAlongSegment = currentSegment.getD();
-      currentDistanceAlongPath = totalPathLength;
+      currentDistanceAlongSegment = currentSegment.getLength();
       break;
     }
 
     //there are more path segments, so move to the next path segment
     //first determine the distance left over after completing the current segment
-    currentDistanceAlongSegment -= currentSegment.getD();
+    currentDistanceAlongSegment -= currentSegment.getLength();
 
     //move to the next path segment
-    currentSegmentStart = pathPoints[currentSegmentEndIndex];
-    currentSegmentEndIndex++;
-    currentSegment.set(pathPoints[currentSegmentEndIndex]->getX() - currentSegmentStart->getX(),
-        pathPoints[currentSegmentEndIndex]->getY() - currentSegmentStart->getY());
+    currentControlPoint++;
+    double cx = pathPoints[currentControlPoint].getX();
+    double cy = pathPoints[currentControlPoint].getY();
+    //the starting point is halfway between the previous control point and the new control point
+    double sx = (cx + pathPoints[currentControlPoint-1].getX()) / 2.0d;
+    double sy = (cy + pathPoints[currentControlPoint-1].getY()) / 2.0d;
+    currentSegmentStart.set(sx, sy);
+    double ex = cx;
+    double ey = cy;
+    if (currentControlPoint+1 == pathPointCount) {
+      //at the end of the path, the endpoint is the last control point
+      ex = cx;
+      ey = cy;
+      //and the control point is halfway to the endpoint
+      cx = (cx + sx) / 2.0d;
+      cy = (cy + sy) / 2.0d;
+    }
+    else {
+      //prior to the end of the path, the endpoint is halway between the current control point and the next control point
+      ex = (ex + pathPoints[currentControlPoint+1].getX()) / 2.0d;
+      ey = (ey + pathPoints[currentControlPoint+1].getY()) / 2.0d;
+    }
+
+    //our current segment is the relative path (starting at 0.0) we'll be following now
+    currentSegment.set(cx - sx, cy - sy, ex - sx, ey - sy);
   }
 
   //start by determining the current distance we've traveled along this segment, normalized from 0.0 to 1.0
-  double deltaAlongPath = currentDistanceAlongSegment / currentSegment.getD();
+  double deltaAlongPath = currentDistanceAlongSegment / currentSegment.getLength();
 
   //now LERP out the x/y position along the current path segment
-  nextPosition->set(currentSegmentStart->getX() + (currentSegment.getX() * deltaAlongPath),
-      currentSegmentStart->getY() + (currentSegment.getY() * deltaAlongPath));
+  currentSegment.lerpPoint(currentDistanceAlongSegment, nextPosition);
+  nextPosition->addVector(&currentSegmentStart);
+  // nextPosition->printDebug();
+  // nextPosition->set(currentSegmentStart->getX() + (currentSegment.getX() * deltaAlongPath),
+      // currentSegmentStart->getY() + (currentSegment.getY() * deltaAlongPath));
 }

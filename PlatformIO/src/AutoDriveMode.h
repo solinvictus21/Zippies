@@ -16,7 +16,7 @@ private:
   unsigned long lostPositionTimestamp;
   bool moving;
 
-  KVector2** pathPoints;
+  // KVector2** pathPoints;
   // KVector2 bezierControlPoints[BEZIER_CONTROL_POINT_COUNT];
   ZippyCommand** commands;
   int currentCommand;
