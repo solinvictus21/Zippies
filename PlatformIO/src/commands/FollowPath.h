@@ -12,43 +12,24 @@ class FollowPath : public ZippyCommand
 {
 
 private:
-  unsigned long lastUpdateTime = 0;
+  KVector2* controlPoints;
+  int controlPointCount;
 
-  Zippy* zippy;
-  KVector2* pathPoints;
-  int pathPointCount;
+  //calculated and dynamically allocated based on the set of control points
+  KVector2** anchorPoints;
+  KPath** pathSegments;
+  double totalLength;
 
-  //the index into the pathPoints of the point representing the end of the current segment
-  int currentControlPoint = 0;
-
-  //the vector representing the start of the current segment
-  KVector2 currentSegmentStart;
-
-  //the relative path from the start to the end of the current segment
-  KBezier2 currentSegment;
-
-  //the distance we've driven along the current segment
-  unsigned long pathStartTime = 0;
+  unsigned long previousTime = 0;
+  int currentPathSegment = 0;
   double currentDistanceAlongSegment = 0.0d;
 
-  double linearSetPoint = 0.0d;
-  double linearInput = 0.0d;
-  double linearOutput = 0.0d;
-  PID linearPID;
-
-  double rotationalSetPoint = 0.0d;
-  double rotationalInput = 0.0d;
-  double rotationalOutput = 0.0d;
-  PID rotationalPID;
-
-  void updateInputs(unsigned long currentTime);
-  void calculateNextPosition(KVector2* nextPosition);
-  void getCurrentTargetPosition(KVector2* nextPosition);
-
 public:
-  FollowPath(Zippy* zippy, KVector2* pathPoints, int pathPointCount);
-  void start(unsigned long currentTime);
-  bool loop(unsigned long currentTime);
+  FollowPath(KVector2* cp, int cpc, unsigned long executionTime);
+
+  bool getPosition(unsigned long atDeltaTime, KVector2* targetPosition);
+
+  ~FollowPath();
 
 };
 

@@ -1,7 +1,6 @@
 
 #include <Wire.h>
 #include "Zippy.h"
-#include "AutoDriveMode.h"
 #include "Bluetooth.h"
 #include "ZippyConfig.h"
 
@@ -22,8 +21,6 @@ Bluetooth bluetooth;
 unsigned long bluetoothSendDebugInfoTmeStamp = 0;
 #endif
 
-AutoDriveMode* autoDriver = NULL;
-
 // void processBluetoothInput();
 // void processBluetoothOutput();
 
@@ -38,10 +35,11 @@ void setup()
   bluetooth.start();
 #endif
 
-  zippy.start();
+  uint64_t currentTime = millis();
+  zippy.start(currentTime);
   // SerialUSB.println("Started Zippy.");
 
-  autoDriver = new AutoDriveMode(&zippy);
+  // autoDriver = new AutoDriveMode(&zippy);
   // SerialUSB.println("Started Auto-Drive mode.");
 
   pinMode(8, OUTPUT); //Onboard Blue LED
@@ -51,16 +49,16 @@ void setup()
 void loop()
 {
   // SerialUSB.println("Looping");
-  static uint64_t loopTimer = millis();
+  uint64_t currentTime = millis();
 
 #ifdef ENABLE_BLUETOOTH
   processBluetoothInput();
 #endif
 
-  zippy.loop();
+  zippy.loop(currentTime);
 
-  if (autoDriver != NULL)
-    autoDriver->loop();
+  // if (autoDriver != NULL)
+    // autoDriver->loop();
 
 #ifdef ENABLE_BLUETOOTH
   processBluetoothOutput();

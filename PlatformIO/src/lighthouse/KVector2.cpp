@@ -1,9 +1,27 @@
 
-#include <math.h>
 #include <SPI.h>
 #include "KVector2.h"
 
 #define EPSILON 0.0001d
+
+double snapAngle(double angle)
+{
+  if (angle < -M_PI)
+    angle += 2 * M_PI;
+  else if (angle > M_PI)
+    angle -= 2 * M_PI;
+  return angle;
+}
+
+double subtractAngles(double a1, double a2)
+{
+  return snapAngle(a1 - a2);
+}
+
+double addAngles(double a1, double a2)
+{
+  return snapAngle(a1 + a2);
+}
 
 KVector2::KVector2()
 {
@@ -32,7 +50,7 @@ KVector2::KVector2(double x,
   set(x, y, ofLength);
 }
 
-double KVector2::getD()
+double KVector2::getD() const
 {
     if (!dValid) {
         d = sqrt(this->getD2());
@@ -41,7 +59,7 @@ double KVector2::getD()
     return d;
 }
 
-double KVector2::getD2()
+double KVector2::getD2() const
 {
     if (!d2Valid) {
         if (dValid)
@@ -54,7 +72,7 @@ double KVector2::getD2()
     return d2;
 }
 
-bool KVector2::equalsVector(KVector2* v)
+bool KVector2::equalsVector(KVector2* v) const
 {
     return fabs(v->x-x) < EPSILON && fabs(v->y-y) < EPSILON;
 }
@@ -64,19 +82,9 @@ bool KVector2::equalsVector(KVector2* v)
  * the vectors and L1 and L2 are the lengths of each vector. For unit vectors, the
  * result will be just cos(ϴ).
  */
-double KVector2::dotVector(KVector2* v)
+double KVector2::dotVector(KVector2* v) const
 {
     return (x*v->x) + (y*v->y);
-}
-
-double KVector2::angleToVector(KVector2* v)
-{
-  double angle = v->getOrientation() - getOrientation();
-  if (angle < -M_PI)
-    angle += 2 * M_PI;
-  else if (angle > M_PI)
-    angle -= 2 * M_PI;
-  return angle;
 }
 
 void KVector2::reset()
@@ -178,7 +186,7 @@ void KVector2::subtractVector(KVector2* v)
   orientationValid = false;
 }
 
-double KVector2::getOrientation()
+double KVector2::getOrientation() const
 {
   if (!orientationValid) {
     orientation = atan2(this->x, this->y);
@@ -202,7 +210,7 @@ void KVector2::rotate(double angleRadians)
   orientationValid = true;
 }
 
-void KVector2::printDebug()
+void KVector2::printDebug() const
 {
   // /*
   SerialUSB.print("(");
@@ -213,8 +221,7 @@ void KVector2::printDebug()
   // */
 }
 
-void KVector2::lerpPoint(double atDistance, KVector2* lerpedPoint)
+void KVector2::lerp(double atNormalizedTime, KVector2* lerpedPoint) const
 {
-  double interpolatedDistance = (atDistance / getD());
-  lerpedPoint->set(this->x * interpolatedDistance, this->y * interpolatedDistance);
+  lerpedPoint->set(this->x * atNormalizedTime, this->y * atNormalizedTime);
 }

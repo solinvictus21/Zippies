@@ -79,7 +79,7 @@ bool Bluetooth::start()
   //+4 dBm output power
   ret = aci_hal_set_tx_power_level(1, 7);
   if (ret != BLE_STATUS_SUCCESS) {
-    SerialUSB.println("Bluetooth failed to set power level.");
+    // SerialUSB.println("Bluetooth failed to set power level.");
     return false;
   }
 
@@ -106,7 +106,7 @@ bool Bluetooth::startAsBroadcaster()
       &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GAP
-    SerialUSB.println("Bluetooth failed to init GAP.");
+    // SerialUSB.println("Bluetooth failed to init GAP.");
     return false;
   }
 
@@ -143,7 +143,7 @@ bool Bluetooth::startAsObserver()
       &serviceHandle, &serviceNameHandle, &apperanceNameHandle);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to init GAP
-    SerialUSB.println("Bluetooth failed to init GAP.");
+    // SerialUSB.println("Bluetooth failed to init GAP.");
     return false;
   }
 
@@ -151,7 +151,7 @@ bool Bluetooth::startAsObserver()
   ret = aci_gap_start_observation_procedure_IDB05A1(3200, 1600, PASSIVE_SCAN, PUBLIC_ADDR, true);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to setup observation mode
-    SerialUSB.println("Failed to start observer mode.");
+    // SerialUSB.println("Failed to start observer mode.");
     return false;
   }
   // */
@@ -172,13 +172,13 @@ bool Bluetooth::startAsObserver()
       ADVERTISEMENT_PACKET_LENGTH, broadcastData, 0, NULL);
   if (ret != BLE_STATUS_SUCCESS) {
     //failed to setup broadcast mode
-    SerialUSB.println("Failed to start broadcast mode.");
+    // SerialUSB.println("Failed to start broadcast mode.");
     SerialUSB.println(ret, HEX);
     return false;
   }
   // */
 
-  SerialUSB.println("Started observer mode.");
+  // SerialUSB.println("Started observer mode.");
   return true;
 }
 

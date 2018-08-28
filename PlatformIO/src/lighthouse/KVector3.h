@@ -2,7 +2,7 @@
 #ifndef _KVECTOR3_H_
 #define _KVECTOR3_H_
 
-#include "KQuaternion.h"
+#include "KQuaternion3.h"
 
 class KVector3
 {
@@ -46,8 +46,8 @@ public:
   void crossVector(KVector3* v);
   double angleToVector(KVector3* v);
 
-  void rotate(KQuaternion* q);
-  void unrotate(KQuaternion* q);
+  void rotate(KQuaternion3* q);
+  void unrotate(KQuaternion3* q);
   void rotate(double x2, double y2, double z2, double w2);
 
   void printDebug();

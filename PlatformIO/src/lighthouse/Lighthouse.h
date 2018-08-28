@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include "LighthouseSensor.h"
-#include "KVector.h"
-#include "KQuaternion.h"
+#include "KVector2.h"
+#include "KQuaternion3.h"
 
 class Lighthouse
 {

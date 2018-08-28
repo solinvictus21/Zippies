@@ -1,21 +1,21 @@
 
 #include <math.h>
-#include "KQuaternion.h"
+#include "KQuaternion3.h"
 
-#define EPSILON 0.0001d
+#define QUATERNION3_EPSILON 0.0001d
 
-KQuaternion::KQuaternion()
+KQuaternion3::KQuaternion3()
 {
   x = y = z = 0.0d;
   w = 1.0d;
 }
 
-KQuaternion::KQuaternion(double x, double y, double z, double angle)
+KQuaternion3::KQuaternion3(double x, double y, double z, double angle)
 {
   set(x, y, z, angle);
 }
 
-void KQuaternion::set(double x, double y, double z, double angle)
+void KQuaternion3::set(double x, double y, double z, double angle)
 {
   double sina2 = sin(angle / 2.0d);
   this->x = x * sina2;
@@ -25,22 +25,22 @@ void KQuaternion::set(double x, double y, double z, double angle)
   normalize();
 }
 
-void KQuaternion::rotateX(double angle)
+void KQuaternion3::rotateX(double angle)
 {
   rotate(1.0d, 0.0d, 0.0d, angle);
 }
 
-void KQuaternion::rotateY(double angle)
+void KQuaternion3::rotateY(double angle)
 {
   rotate(0.0d, 1.0d, 0.0d, angle);
 }
 
-void KQuaternion::rotateZ(double angle)
+void KQuaternion3::rotateZ(double angle)
 {
   rotate(0.0d, 0.0d, 1.0d, angle);
 }
 
-void KQuaternion::rotate(double ax,
+void KQuaternion3::rotate(double ax,
                          double ay,
                          double az,
                          double angle)
@@ -49,36 +49,22 @@ void KQuaternion::rotate(double ax,
   multiplyByW(ax * sinfa2, ay * sinfa2, az * sinfa2, cos(angle/2.0d));
 }
 
-void KQuaternion::multiplyByW(double x2,
+void KQuaternion3::multiplyByW(double x2,
                               double y2,
                               double z2,
                               double w2)
 {
-//  SerialUSB.print(x2, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.print(y2, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.print(z2, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.println(w2, 10);
   setWithW((w*x2) + (x*w2) + (y*z2) - (z*y2),
            (w*y2) - (x*z2) + (y*w2) + (z*x2),
            (w*z2) + (x*y2) - (y*x2) + (z*w2),
            (w*w2) - (x*x2) - (y*y2) - (z*z2));
 }
 
-void KQuaternion::setWithW(double x,
+void KQuaternion3::setWithW(double x,
                            double y,
                            double z,
                            double w)
 {
-//  SerialUSB.print(x, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.print(y, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.print(z, 10);
-//  SerialUSB.print(" ");
-//  SerialUSB.println(w, 10);
   this->x = x;
   this->y = y;
   this->z = z;
@@ -87,10 +73,10 @@ void KQuaternion::setWithW(double x,
   normalize();
 }
 
-void KQuaternion::normalize()
+void KQuaternion3::normalize()
 {
     double magnitude2 = (w*w) + (x*x) + (y*y) + (z*z);
-    if (fabs(magnitude2-1.0d) < EPSILON)
+    if (fabs(magnitude2-1.0d) < QUATERNION3_EPSILON)
         return;
 
     double magnitude = sqrt(magnitude2);

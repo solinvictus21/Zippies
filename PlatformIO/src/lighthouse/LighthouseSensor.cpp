@@ -1,5 +1,7 @@
 
 #include "LighthouseSensor.h"
+#include "KVector3.h"
+#include "../ZippyConfig.h"
 
 //height of the lighthouse from the floor
 //mounted on surface of entertainment center

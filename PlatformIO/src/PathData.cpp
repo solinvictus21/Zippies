@@ -1,9 +1,29 @@
 
-#include "AutoDriveData.h"
+#include "PathData.h"
 
 //array obtained by exporting bezier control points from V-Rep to .csv format and then processing via the command line
 //    cat path.csv | cut -d, -f1,2 | sed "s/\(.*\),\(.*\)/  KVector2(\1d, \2d),/g"
 KVector2 PATH_POINTS[PATH_POINT_COUNT] = {
+  KVector2(0.000000d, 0.000000d),
+  KVector2(0.160000d, -0.396800d),
+  KVector2(0.320000d, -0.496000d),
+  KVector2(0.800000d, -0.496000d),
+  KVector2(0.960000d, -0.297600d),
+  KVector2(0.960000d, 0.297600d),
+  KVector2(0.800000d, 0.496000d),
+  KVector2(0.320000d, 0.496000d),
+  KVector2(0.160000d, 0.396800d),
+  KVector2(0.000000d, 0.000000d),
+  KVector2(-0.160000d, -0.396800d),
+  KVector2(-0.320000d, -0.496000d),
+  KVector2(-0.800000d, -0.496000d),
+  KVector2(-0.960000d, -0.297600d),
+  KVector2(-0.960000d, 0.297600d),
+  KVector2(-0.800000d, 0.496000d),
+  KVector2(-0.320000d, 0.496000d),
+  KVector2(-0.160000d, 0.396800d),
+  KVector2(0.000000d, 0.000000d),
+  /*
   KVector2(0.060000d, 0.000000d),
   KVector2(0.210000d, -0.339264d),
   KVector2(0.349250d, -0.424080d),

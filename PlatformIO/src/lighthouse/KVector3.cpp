@@ -48,12 +48,12 @@ void KVector3::rotate(double w2, double x2, double y2, double z2)
     vectorChanged();
 }
 
-void KVector3::rotate(KQuaternion* q)
+void KVector3::rotate(KQuaternion3* q)
 {
   rotate(q->getW(), q->getX(), q->getY(), q->getZ());
 }
 
-void KVector3::unrotate(KQuaternion* q)
+void KVector3::unrotate(KQuaternion3* q)
 {
   rotate(q->getW(), -q->getX(), -q->getY(), -q->getZ());
 }

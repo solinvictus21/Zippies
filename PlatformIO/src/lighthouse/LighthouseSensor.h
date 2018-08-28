@@ -3,7 +3,8 @@
 #define _LIGHTHOUSESENSOR_H_
 
 #include <Arduino.h>
-#include "KVector.h"
+#include "KVector2.h"
+#include "KQuaternion3.h"
 #include "LighthouseOOTX.h"
 
 //#define DEBUG_SIGNAL_EDGES 1
@@ -106,7 +107,7 @@ private:
 
   //once the OOTX frame has been found and processed, the lighthouse position and orientation are calculated
   // KVector3 lighthousePosition;
-  KQuaternion lighthouseOrientation;
+  KQuaternion3 lighthouseOrientation;
   //...and then this flag is set to true
   bool receivedLighthousePosition;
 
@@ -170,6 +171,7 @@ public:
   //data derived from change in position over time
   KVector2* getVelocity() { return &velocityVector; }
 
+  /*
 #ifdef DEBUG_SIGNAL_EDGES
   unsigned int getRisingEdgeCount() {
     unsigned int v = sensorInput->risingEdgeCount;
@@ -358,6 +360,7 @@ public:
     return avg;
   }
 #endif
+  */
 
 };
 

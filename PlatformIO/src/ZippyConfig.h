@@ -10,4 +10,6 @@
 #define PLATFORM_TINYSCREEN 1
 // #define PLATFORM_EXEN_MINI 1
 
+#define CENTER_OFFSET_Y                        1200.0d
+
 #endif

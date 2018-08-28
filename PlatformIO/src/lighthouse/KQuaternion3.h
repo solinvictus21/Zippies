@@ -1,7 +1,8 @@
 
-#pragma once
+#ifndef _KQUATERNION3_H_
+#define _KQUATERNION3_H_
 
-class KQuaternion
+class KQuaternion3
 {
 
 private:
@@ -15,8 +16,8 @@ private:
   void normalize();
 
 public:
-  KQuaternion();
-  KQuaternion(double x, double y, double z, double angle);
+  KQuaternion3();
+  KQuaternion3(double x, double y, double z, double angle);
 
   double getX() { return x; }
   double getY() { return y; }
@@ -30,3 +31,5 @@ public:
   void rotate(double x, double y, double z, double angle);
 
 };
+
+#endif
