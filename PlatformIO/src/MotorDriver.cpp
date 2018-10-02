@@ -58,8 +58,6 @@
 
 #define _BV(bit) (1 << (bit))
 
-extern Lighthouse lighthouse;
-
 MotorDriver::MotorDriver()
   : started(false)
 {

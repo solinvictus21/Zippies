@@ -1,37 +1,30 @@
 
-#pragma once
+#ifndef _LIGHTHOUSE_H_
+#define _LIGHTHOUSE_H_
 
 #include <Arduino.h>
 #include "LighthouseSensor.h"
 #include "KVector2.h"
 #include "KQuaternion3.h"
+#include "KPosition.h"
 
 class Lighthouse
 {
 
 private:
-  //sensor above the left wheel
+  //sensors
   LighthouseSensor leftSensor;
-  //sensor above the right wheel
   LighthouseSensor rightSensor;
 
-  KVector2 previousOrientationVector;
-  unsigned long previousOrientationTimeStamp = 0;
-
-  KVector2 orientationVector;
-  unsigned long orientationTimeStamp = 0;
-
-  //overall position, which is an average of both sensor positions
-  KVector2 previousPositionVector;
+  KPosition previousPosition;
+  KPosition previousPositionDelta;
   unsigned long previousPositionTimeStamp = 0;
 
-  //overall position, which is an average of both sensor positions
-  KVector2 positionVector;
+  KPosition position;
+  KPosition positionDelta;
   unsigned long positionTimeStamp = 0;
 
-  //overall velocity
-  KVector2 velocityVector;
-  unsigned long velocityTimeStamp;
+  unsigned long lostPositionTimeStamp = 0;
 
   void setupClock();
   void setupEIC();
@@ -39,23 +32,26 @@ private:
   void connectInterruptsToTimer();
   void setupTimer();
 
+  void calculatePosition();
+  void estimatePosition(unsigned long currentTime);
+  void calculateVelocity();
+
 public:
   Lighthouse();
 
   void start();
-  void loop();
+  void loop(unsigned long currentTime);
+
+  bool recalculate(unsigned long currentTime);
 
   void clearPreambleFlag() { leftSensor.clearPreambleFlag(); rightSensor.clearPreambleFlag(); }
   bool foundPreamble() { return leftSensor.foundPreamble() && rightSensor.foundPreamble(); }
-  bool hasLighthouseSignal() { return leftSensor.hasLighthouseSignal() && rightSensor.hasLighthouseSignal(); }
-  void recalculate();
-  LighthouseSensor* getLeftSensor() { return &leftSensor; }
-  LighthouseSensor* getRightSensor() { return &rightSensor; }
 
-  KVector2* getPosition() { return &positionVector; }
-  KVector2* getVelocity() { return &velocityVector; }
-  KVector2* getOrientation() { return &orientationVector; }
+  const KPosition* getPosition() const { return &position; }
+  const KPosition* getPositionDelta() const { return &positionDelta; }
 
   void stop();
 
 };
+
+#endif

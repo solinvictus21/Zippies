@@ -1,8 +1,16 @@
 
 #include <Wire.h>
+#include "commands/Executor.h"
+#include "commands/LinearMove.h"
+#include "commands/LinearTurn.h"
+#include "commands/PauseMove.h"
+#include "commands/CubicBezierMove.h"
 #include "Zippy.h"
 #include "Bluetooth.h"
 #include "ZippyConfig.h"
+
+//the number of milliseconds for each "beat" of the song we are building our movement routine against
+#define TEMPO_MS_PER_BEAT                       600.0d
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
 #define BLE_RECEIVE_MOTORS_SET       0x15
@@ -14,15 +22,15 @@
 
 #define LOOP_INDICATOR_INTERVAL 5000
 
-Zippy zippy;
+ZippyMove** moves = NULL;
+Executor* executor = NULL;
 
 #ifdef ENABLE_BLUETOOTH
 Bluetooth bluetooth;
 unsigned long bluetoothSendDebugInfoTmeStamp = 0;
 #endif
 
-// void processBluetoothInput();
-// void processBluetoothOutput();
+void createExecutor();
 
 void setup()
 {
@@ -35,15 +43,8 @@ void setup()
   bluetooth.start();
 #endif
 
-  uint64_t currentTime = millis();
-  zippy.start(currentTime);
-  // SerialUSB.println("Started Zippy.");
-
-  // autoDriver = new AutoDriveMode(&zippy);
-  // SerialUSB.println("Started Auto-Drive mode.");
-
-  pinMode(8, OUTPUT); //Onboard Blue LED
-  digitalWrite(8, HIGH);
+  createExecutor();
+  executor->start(millis());
 }
 
 void loop()
@@ -55,14 +56,130 @@ void loop()
   processBluetoothInput();
 #endif
 
-  zippy.loop(currentTime);
-
-  // if (autoDriver != NULL)
-    // autoDriver->loop();
+  executor->loop(currentTime);
 
 #ifdef ENABLE_BLUETOOTH
-  processBluetoothOutput();
+  processBluetoothOutput(currentTime);
 #endif
+}
+
+void createExecutor()
+{
+  double beatHalf = 0.5d * TEMPO_MS_PER_BEAT;
+  double beats2 = 2.0d * TEMPO_MS_PER_BEAT;
+  double beats3 = 3.0d * TEMPO_MS_PER_BEAT;
+  double beats4 = 4.0d * TEMPO_MS_PER_BEAT;
+
+  int nextMove = 0;
+  /* move calibration
+  unsigned long deltaTimeBeatCount =  4.0d * TEMPO_MS_PER_BEAT;
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
+
+  deltaTimeBeatCount =  2.0d * TEMPO_MS_PER_BEAT;
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
+
+  deltaTimeBeatCount =  TEMPO_MS_PER_BEAT;
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
+  // */
+
+  /* turn calibration
+  int moveCount = 20;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new LinearTurn(-M_PI_2, beats2);
+  moves[nextMove++] = new LinearTurn(M_PI, beats2);
+  moves[nextMove++] = new LinearTurn(M_PI_2, beats2);
+  moves[nextMove++] = new LinearTurn(0.0d, beats2);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new LinearTurn(-M_PI_2, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearTurn(M_PI, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearTurn(M_PI_2, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearTurn(0.0d, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new LinearTurn(-M_PI_2, beatHalf);
+  moves[nextMove++] = new LinearTurn(M_PI, beatHalf);
+  moves[nextMove++] = new LinearTurn(M_PI_2, beatHalf);
+  moves[nextMove++] = new LinearTurn(0.0d, beatHalf);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new LinearTurn(-M_PI_2, beatHalf, false);
+  moves[nextMove++] = new LinearTurn(M_PI, beatHalf, false);
+  moves[nextMove++] = new LinearTurn(M_PI_2, beatHalf, false);
+  moves[nextMove++] = new LinearTurn(0.0d, beatHalf, false);
+  moves[nextMove++] = new PauseMove(beats4);
+  executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
+  // */
+
+  // /*
+  int moveCount = 20;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new CubicBezierMove( 400.0d,  400.0d, M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove( 800.0d,    0.0d, M_PI, beats2);
+  moves[nextMove++] = new CubicBezierMove( 400.0d, -400.0d, -M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new CubicBezierMove(-400.0d,  400.0d, -M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove(-800.0d,    0.0d, M_PI, beats2);
+  moves[nextMove++] = new CubicBezierMove(-400.0d, -400.0d, M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new CubicBezierMove(-200.0d,  200.0d, -M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove(-400.0d,    0.0d, M_PI, beats2);
+  moves[nextMove++] = new CubicBezierMove(-200.0d, -200.0d, M_PI_2, beats2);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new CubicBezierMove( 200.0d,  200.0d, M_PI_2, beats4);
+  moves[nextMove++] = new CubicBezierMove( 400.0d,    0.0d, M_PI, beats4);
+  moves[nextMove++] = new CubicBezierMove( 200.0d, -200.0d, -M_PI_2, beats4);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats4);
+  moves[nextMove++] = new PauseMove(beats4);
+  executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
+  // */
+
+  // /*
+  //start of dance routine, to be completed when we have movement perfected
+  /*
+  int moveCount = 22;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new PauseMove(beats2);
+  moves[nextMove++] = new LinearMove(300.0d, 0.0d, beats4);
+  moves[nextMove++] = new LinearTurn(-M_PI_2, beats3);
+  moves[nextMove++] = new PauseMove(beats4 + beats2);
+  moves[nextMove++] = new LinearTurn(0.0d, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new CubicBezierMove(350.0d,  75.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(350.0d, 225.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 300.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(250.0d, 225.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(250.0d,  75.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats2);
+  executor = new Executor(200.0d, 500.0d, M_PI, moves, moveCount);
+  // */
+
+  /*
+  int moveCount = 8;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new CubicBezierMove(350.0d,  75.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(350.0d, 225.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 300.0d, 0.0d, beats2);
+  moves[nextMove++] = new CubicBezierMove(250.0d, 225.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(250.0d,  75.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats2);
+  executor = new Executor(300.0d, 0.0d, 0.0d, moves, moveCount);
+  // */
 }
 
 #ifdef ENABLE_BLUETOOTH
@@ -152,10 +269,9 @@ void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
     memcpy(debugPacket+packetPosition, &nextFloatValue, sizeof(float));
 }
 
-void processBluetoothOutput()
+void processBluetoothOutput(unsigned long currentTime)
 {
   //check to see if we need to send debug info over Bluetooth
-  unsigned long currentTime = millis();
   if (/*!bluetooth.isConnected() || */currentTime-bluetoothSendDebugInfoTmeStamp < BLE_SEND_INTERVAL_MS)
     return;
 
@@ -204,4 +320,5 @@ void processBluetoothOutput()
 
   bluetoothSendDebugInfoTmeStamp = currentTime;
 }
+
 #endif

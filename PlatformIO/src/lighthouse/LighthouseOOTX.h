@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef _LIGHTHOUSEOOTX_H_
+#define _LIGHTHOUSEOOTX_H_
 
 /*
  * Lighthouse factory calibration data for the lighthouse being used for beta testing and development.
@@ -59,3 +60,5 @@ typedef struct _BaseStationInfoBlock {
   uint8_t sys_faults;
 } BaseStationInfoBlock;
 #pragma pack(pop)
+
+#endif

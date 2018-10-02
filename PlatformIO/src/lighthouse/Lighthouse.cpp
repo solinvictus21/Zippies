@@ -1,7 +1,10 @@
 
 #include <SPI.h>
-#include "../ZippyConfig.h"
 #include "Lighthouse.h"
+
+#define LIGHTHOUSE_LOST_SIGNAL_TIMEOUT 200
+#define SENSOR_OFFSET_X  10.8d
+#define SENSOR_OFFSET_Y   4.2d
 
 Lighthouse* currentLighthouse = NULL;
 LighthouseSensorInput rightSensorInput;
@@ -497,10 +500,10 @@ void TCC1_Handler()
   }
 }
 
-void Lighthouse::loop()
+void Lighthouse::loop(unsigned long currentTime)
 {
-  rightSensor.loop();
-  leftSensor.loop();
+  rightSensor.loop(currentTime);
+  leftSensor.loop(currentTime);
 }
 
 /**
@@ -508,44 +511,91 @@ void Lighthouse::loop()
  * with the information about the orientation of the Lighthouse (received from the base station info block) and the
  * known distance of the Lighthouse from the plane of the sensors.
  */
-void Lighthouse::recalculate()
+bool Lighthouse::recalculate(unsigned long currentTime)
 {
-  unsigned long currentTime = millis();
+  if (!leftSensor.receivedLighthousePosition || !rightSensor.receivedLighthousePosition) {
+    //we have not yet finished receiving the base station info block and so are not ready to being calculating positions
+    return false;
+  }
 
   //update the position of the sensors
-  leftSensor.recalculate(currentTime);
-  rightSensor.recalculate(currentTime);
+  if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
+    //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
+    //both sensors; we will continue to estimate the position and velocity until a designated timeout interval
+    if (!lostPositionTimeStamp) {
+      //keep track the time the signal was lost
+      lostPositionTimeStamp = positionTimeStamp;
+    }
+    else if (currentTime - lostPositionTimeStamp >= LIGHTHOUSE_LOST_SIGNAL_TIMEOUT)
+      return false;
 
-  //calculate the center position and orientation of the robot
-  unsigned long combinedPositionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
-  if (positionTimeStamp != combinedPositionTimeStamp) {
-    //calculate the center position
-    previousPositionVector.set(&positionVector);
-    previousPositionTimeStamp = positionTimeStamp;
-
-    //the center position of the robot is the average position between the sensors
-    positionVector.set((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d,
-        (leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d);
-    positionTimeStamp = combinedPositionTimeStamp;
-
-    //calculate the orientation
-    previousOrientationVector.set(&orientationVector);
-    previousOrientationTimeStamp = orientationTimeStamp;
-
-    //calculate the new orientation unit vector, which is just the down direction (0,0,-1) crossed with the vector
-    //between the sensors; this calculation simplifies to the following
-    orientationVector.set(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
-        -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()), 1.0d);
-    orientationTimeStamp = combinedPositionTimeStamp;
+    //estimate the new position and velocity based on the previous position and velocity
+    estimatePosition(currentTime);
+    return true;
   }
+  else
+    lostPositionTimeStamp = 0;
 
-  //now we can use the change in orientation to accurately calculate the velocities of each sensor
-  unsigned long combinedVelocityTimeStamp = max(leftSensor.velocityTimeStamp, rightSensor.velocityTimeStamp);
-  if (combinedVelocityTimeStamp != velocityTimeStamp) {
-    velocityVector.set((leftSensor.getVelocity()->getX() + rightSensor.getVelocity()->getX()) / 2.0d,
-        (leftSensor.getVelocity()->getY() + rightSensor.getVelocity()->getY()) / 2.0d);
-    velocityTimeStamp = combinedVelocityTimeStamp;
-  }
+  calculatePosition();
+
+  return true;
+}
+
+void Lighthouse::calculatePosition()
+{
+  //capture the previous position to allow us to later calculate the velocity
+  previousPosition.vector.set(&position.vector);
+  previousPosition.orientation = position.orientation;
+  previousPositionDelta.vector.set(&positionDelta.vector);
+  previousPositionDelta.orientation = positionDelta.orientation;
+  previousPositionTimeStamp = positionTimeStamp;
+
+  position.orientation = atan2(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
+          -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()));
+  // SerialUSB.println(position.orientation, 4);
+  //the center position of the robot is the average position between the sensors
+  position.vector.set((SENSOR_OFFSET_Y * cos(position.orientation)) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
+      (SENSOR_OFFSET_Y * sin(position.orientation)) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
+  positionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
+
+  //now calculate the change in position and orientation
+  positionDelta.vector.set(&position.vector);
+  positionDelta.vector.subtractVector(&previousPosition.vector);
+  positionDelta.orientation = subtractAngles(position.orientation, previousPosition.orientation);
+}
+
+void Lighthouse::estimatePosition(unsigned long currentTime)
+{
+  //calculate the change f-rom the last known position to the position prior to that; this change occurred over the time delta between
+  //those two positions, but we need to scale that over the time delta between our last known position time stamp to the new time stamp
+  double scale = currentTime - positionTimeStamp;
+  double divide = positionTimeStamp - previousPositionTimeStamp;
+
+  //calculate the change in orientation based on the previous change in orientation scaled to the new change in time
+  double deltaOrientation = (subtractAngles(position.orientation, previousPosition.orientation) * scale) / divide;
+
+  //calculate the previous change in position
+  KVector2 deltaPosition(position.vector.getX() - previousPosition.vector.getX(),
+      position.vector.getY() - previousPosition.vector.getY());
+  //rotate it by the change in orientation
+  deltaPosition.rotate(deltaOrientation);
+  //scale it to the new change in time
+  deltaPosition.setD((deltaPosition.getD() * scale) / divide);
+
+  //capture the previous position and velocity
+  previousPosition.vector.set(&position.vector);
+  previousPosition.orientation = position.orientation;
+  previousPositionDelta.vector.set(&positionDelta.vector);
+  previousPositionDelta.orientation = positionDelta.orientation;
+  previousPositionTimeStamp = positionTimeStamp;
+
+  //calculate the new position
+  position.vector.addVector(&deltaPosition);
+  position.orientation = addAngles(position.orientation, deltaOrientation);
+  //when estimating position updates, it is assumed that velocity does not change in magnitude, only in direction
+  positionDelta.vector.rotate(deltaOrientation);
+  positionDelta.vector.setD((positionDelta.vector.getD() * scale) / divide);
+  positionTimeStamp = currentTime;
 }
 
 void Lighthouse::stop()

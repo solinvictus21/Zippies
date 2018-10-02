@@ -3,60 +3,71 @@
 #define _ZIPPY_H_
 
 #include <PID_v1.h>
-#include "commands/ZippyCommand.h"
 #include "ZippyFace.h"
-#include "lighthouse/Lighthouse.h"
+#include "ZippyWheel.h"
 #include "MotorDriver.h"
+#include "lighthouse/KPosition.h"
 
-#define ZIPPY_COMMAND_COUNT 5
+// #define MOTOR_MODEL_COMBINED 1
 
 class Zippy
 {
 
 private:
   ZippyFace face;
-  Lighthouse lighthouse;
   MotorDriver motors;
-  ZippyCommand* commands[ZIPPY_COMMAND_COUNT];
 
-  int currentCommand;
-  unsigned long currentCommandStartTime = 0;
-  KVector2 targetPosition;
-  double targetOrientation;
+  unsigned long pidUpdateInterval;
+  bool inReverse = false;
 
-  bool moving;
+  KPosition currentTargetPosition;
+  bool positionUpdated = false;
+  bool orientationUpdated = false;
+  bool prioritizeOrientation = false;
+  bool stopped = false;
 
+#ifdef MOTOR_MODEL_COMBINED
   double linearSetPoint = 0.0d;
   double linearInput = 0.0d;
   double linearOutput = 0.0d;
   PID linearPID;
 
-  double rotationalSetPoint = 0.0d;
-  double rotationalInput = 0.0d;
-  double rotationalOutput = 0.0d;
-  PID rotationalPID;
+  double angularSetPoint = 0.0d;
+  double angularInput = 0.0d;
+  double angularOutput = 0.0d;
+  PID angularPID;
 
-  unsigned long lostPositionTimestamp = 0;
-  unsigned long lastUpdateTime = 0;
+  bool calculateLinearInput(const KVector2* deltaPosition,
+                            const KPosition* currentPosition,
+                            const KPosition* currentVelocity);
+  bool calculateAngularInput(const KVector2* deltaPosition,
+                             const KPosition* currentPosition,
+                             const KPosition* currentVelocity);
+#else
+  ZippyWheel leftWheel;
+  ZippyWheel rightWheel;
+#endif
 
-  void calculateVelocityInput(KVector2* deltaPosition);
   void setMotors(int32_t motorLeft, int32_t motorRight);
 
 public:
-  Zippy();
+  Zippy(unsigned long pidUpdateInterval);
 
-  void start(unsigned long currentTime);
-  void loop(unsigned long currentTime);
+  ZippyFace* getFace() { return &face; }
 
-  Lighthouse* getLighthouse() { return &lighthouse; }
-  void stop() { setMotors(0, 0); }
-  // bool hasLighthouseSignal() { return lighthouse.hasLighthouseSignal(); }
-  // void recalculate() { lighthouse.recalculate(); }
-  // KVector2* getPosition() { return lighthouse.getPosition(); }
-  // KVector2* getVelocity() { return lighthouse.getVelocity(); }
-  // KVector2* getOrientation() { return lighthouse.getOrientation(); }
+  void start();
 
-  ~Zippy();
+  void setReverse(bool r) { inReverse = r; }
+  void move(double x, double y, double orientation);
+  void turn(double orientation);
+  void turnAndMove(double x, double y, double orientation);
+  const KPosition* getTargetPosition() { return &currentTargetPosition; }
+
+  bool loop(const KPosition* currentPosition,
+            const KPosition* currentVelocity);
+
+  void stop();
+  bool isStopped() { return stopped; }
 
 };
 

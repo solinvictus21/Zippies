@@ -19,7 +19,8 @@ private:
 public:
   ZippyFace();
 
-  void start();
+  void displayFace();
+  void clearScreen();
 
 };
 

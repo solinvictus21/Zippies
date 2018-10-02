@@ -3,12 +3,11 @@
 #define _KVECTOR2_H_
 
 #include <Arduino.h>
-#include "KPath.h"
 
 extern double subtractAngles(double a1, double a2);
 extern double addAngles(double a1, double a2);
 
-class KVector2 : public KPath
+class KVector2
 {
 
 protected:
@@ -23,7 +22,7 @@ protected:
 
 public:
   KVector2();
-  KVector2(KVector2* v);
+  KVector2(const KVector2* v);
   KVector2(double x,
            double y);
   KVector2(double x,
@@ -35,7 +34,7 @@ public:
   double getX() const { return x; }
   void setY(double y);
   double getY() const { return y; }
-  void set(KVector2* v);
+  void set(const KVector2* v);
   void set(double x, double y);
   void set(double x, double y, double ofLength);
   void rotate(double angleRadians);
@@ -46,24 +45,19 @@ public:
   double getOrientation() const;
   void normalize() { this->setD(1.0f); }
 
-  bool equalsVector(KVector2* v) const;
-  double dotVector(KVector2* v) const;
+  bool equalsVector(const KVector2* v) const;
+  double dotVector(const KVector2* v) const;
 
-  void addVector(KVector2* v);
-  void subtractVector(KVector2* v);
-  double angleToVector(KVector2* v) const { return angleToOrientation(v->getOrientation()); }
+  void addVector(const KVector2* v);
+  void subtractVector(const KVector2* v);
+  double angleToVector(const KVector2* v) const { return angleToOrientation(v->getOrientation()); }
   double angleToOrientation(double a) const { return subtractAngles(a, getOrientation()); }
 
   void printDebug() const;
 
-  /*
-  double getEndpointX() { return x; }
-  double getEndpointY() { return x; }
-  double getLength() { return getD(); }
-  */
-  void lerp(double atNormalizedTime, KVector2* lerpedPoint) const;
-  double getLength() const { return getD(); }
-
 };
+
+double distanceBetween(double x1, double y1, double x2, double y2);
+double distanceBetween(const KVector2* v1, const KVector2* v2);
 
 #endif

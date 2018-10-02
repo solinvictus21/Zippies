@@ -4,31 +4,12 @@
 
 #define EPSILON 0.0001d
 
-double snapAngle(double angle)
-{
-  if (angle < -M_PI)
-    angle += 2 * M_PI;
-  else if (angle > M_PI)
-    angle -= 2 * M_PI;
-  return angle;
-}
-
-double subtractAngles(double a1, double a2)
-{
-  return snapAngle(a1 - a2);
-}
-
-double addAngles(double a1, double a2)
-{
-  return snapAngle(a1 + a2);
-}
-
 KVector2::KVector2()
 {
   reset();
 }
 
-KVector2::KVector2(KVector2* v)
+KVector2::KVector2(const KVector2* v)
   : KVector2::KVector2(v->x, v->y)
 {
 }
@@ -72,7 +53,7 @@ double KVector2::getD2() const
     return d2;
 }
 
-bool KVector2::equalsVector(KVector2* v) const
+bool KVector2::equalsVector(const KVector2* v) const
 {
     return fabs(v->x-x) < EPSILON && fabs(v->y-y) < EPSILON;
 }
@@ -82,7 +63,7 @@ bool KVector2::equalsVector(KVector2* v) const
  * the vectors and L1 and L2 are the lengths of each vector. For unit vectors, the
  * result will be just cos(ϴ).
  */
-double KVector2::dotVector(KVector2* v) const
+double KVector2::dotVector(const KVector2* v) const
 {
     return (x*v->x) + (y*v->y);
 }
@@ -121,7 +102,7 @@ void KVector2::setY(double newY)
     orientationValid = false;
 }
 
-void KVector2::set(KVector2* v)
+void KVector2::set(const KVector2* v)
 {
   this->set(v->x, v->y);
 }
@@ -168,7 +149,7 @@ void KVector2::setD(double newD)
   set(this->x, this->y, newD);
 }
 
-void KVector2::addVector(KVector2* v)
+void KVector2::addVector(const KVector2* v)
 {
   this->x += v->x;
   this->y += v->y;
@@ -177,7 +158,7 @@ void KVector2::addVector(KVector2* v)
   orientationValid = false;
 }
 
-void KVector2::subtractVector(KVector2* v)
+void KVector2::subtractVector(const KVector2* v)
 {
   this->x -= v->x;
   this->y -= v->y;
@@ -189,7 +170,17 @@ void KVector2::subtractVector(KVector2* v)
 double KVector2::getOrientation() const
 {
   if (!orientationValid) {
+    /*
+    SerialUSB.print("getOrientation 1a: (");
+    SerialUSB.print(this->x, 6);
+    SerialUSB.print(", ");
+    SerialUSB.print(this->y, 6);
+    SerialUSB.println(")");
+    */
     orientation = atan2(this->x, this->y);
+    /*
+    SerialUSB.println("getOrientation 1b");
+    */
     orientationValid = true;
   }
 
@@ -221,7 +212,31 @@ void KVector2::printDebug() const
   // */
 }
 
-void KVector2::lerp(double atNormalizedTime, KVector2* lerpedPoint) const
+double snapAngle(double angle)
 {
-  lerpedPoint->set(this->x * atNormalizedTime, this->y * atNormalizedTime);
+  if (angle < -M_PI)
+    angle += 2 * M_PI;
+  else if (angle > M_PI)
+    angle -= 2 * M_PI;
+  return angle;
+}
+
+double subtractAngles(double a1, double a2)
+{
+  return snapAngle(a1 - a2);
+}
+
+double addAngles(double a1, double a2)
+{
+  return snapAngle(a1 + a2);
+}
+
+double distanceBetween(double x1, double y1, double x2, double y2)
+{
+  return sqrt(pow(x2 - x1, 2.0d) + pow(y2 - y1, 2.0d));
+}
+
+double distanceBetween(const KVector2* v1, const KVector2* v2)
+{
+  return distanceBetween(v1->getX(), v1->getY(), v2->getX(), v2->getY());
 }

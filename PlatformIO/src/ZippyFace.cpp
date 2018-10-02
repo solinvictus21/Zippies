@@ -26,7 +26,7 @@ ZippyFace::ZippyFace()
 {
 }
 
-void ZippyFace::start()
+void ZippyFace::displayFace()
 {
   // /*
   display.begin();
@@ -41,6 +41,13 @@ void ZippyFace::start()
 
   display.endTransfer();
   // */
+}
+
+void ZippyFace::clearScreen()
+{
+  display.begin();
+  display.clearScreen();
+  display.endTransfer();
 }
 
 /*

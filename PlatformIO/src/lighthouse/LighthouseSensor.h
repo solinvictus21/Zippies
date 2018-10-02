@@ -30,9 +30,9 @@ typedef struct _RotorFactoryCalibrationData
   double gibbousMagnitude = 0.0d;
 } RotorFactoryCalibrationData;
 
-enum PulseEdge
+enum PulseCaptureState
 {
-    Unknown, SyncRising, SyncFalling, SweepRising, SweepFalling
+    Unknown, SyncPulse, SweepStart, SweepHitPulse, SweepEnd
 };
 
 typedef struct _LighthouseSensorInput
@@ -49,11 +49,14 @@ typedef struct _LighthouseSensorInput
 
 typedef struct _LighthouseSensorAxis
 {
-  //pending sync tick count; to be used if we later see the sweep hit
-  unsigned long pendingCycleStart = 0;
+  //number of ticks from the end of the sync signal to the start of the sweep hit
+  unsigned long pendingSyncTicks = 0;
+  unsigned long pendingSweepStartTicks = 0;
+  unsigned long pendingSweepHitTicks = 0;
+  unsigned long pendingSweepEndTicks = 0;
 
-  //number of ticks from the start of the visible portion of the cycle to the sweep hit
-  unsigned long sweepTickCount = 0;
+  //total number of ticks from the end of the sync signal to the center of the sweep hit
+  unsigned long sweepHitTicks = 0;
   //updated each time a sweep hit is detected; set to zero when we fail to detect the lighthouse sweep
   unsigned long sweepHitTimeStamp = 0;
 
@@ -80,14 +83,15 @@ class LighthouseSensor
 private:
   //for debugging
   int debugNumber;
+//int cycleCounter = 0;
 
   //raw input shared with the interrupt handler; interrupt handler writes and LighthouseSensor reads and processes
   LighthouseSensorInput* sensorInput;
 
   //the current edge we're expecting within the current cycle
-  PulseEdge currentEdge;
+  PulseCaptureState currentCaptureState = Unknown;
   //the current axis we're processing
-  int currentAxis;
+  int currentAxis = 0;
   //captured data in each cycle for the x and y axes
   //x = 0; y = 1
   LighthouseSensorAxis cycleData[2];
@@ -109,69 +113,52 @@ private:
   // KVector3 lighthousePosition;
   KQuaternion3 lighthouseOrientation;
   //...and then this flag is set to true
-  bool receivedLighthousePosition;
+  bool receivedLighthousePosition = false;
 
   RotorFactoryCalibrationData xRotor;
   RotorFactoryCalibrationData zRotor;
 
-  unsigned int previousTickCount;
-
-  //historical data for calculating velocity
-  KVector2 previousPositionVector;
-  unsigned long previousPositionTimeStamp = 0;
+  unsigned int previousTickCount = 0;
 
   //position
   KVector2 positionVector;
   unsigned long positionTimeStamp = 0;
 
-  //previous velocity, required to estimate the current position
-  KVector2 previousVelocityVector;
-  unsigned long previousVelocityTimeStamp = 0;
+  void reacquireSyncPulse(unsigned int deltaTickCount);
+  void processSyncPulse(unsigned int deltaTickCount);
+  void captureSyncPulse(unsigned int deltaTickCount);
+  void processSweepStart(unsigned long currentTime, unsigned int deltaTickCount);
+  void processSweepHitPulse(unsigned int deltaTickCount);
+  void processSweepEnd(unsigned int deltaTickCount);
 
-  // double velocity;
-  KVector2 velocityVector;
-  unsigned long velocityTimeStamp = 0;
-
-  void reacquireSyncPulses(unsigned int previousTickCount, unsigned int currentTickCount);
-  void processSyncRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
-  void processSyncFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
-  void captureSyncFallingEdge(unsigned int previousTickCount, unsigned int deltaTickCount);
-  void processSweepRisingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
-  void processSweepFallingEdge(unsigned int previousTickCount, unsigned int currentTickCount);
-
-  bool hasLighthouseSignal() { return receivedLighthousePosition && cycleData[0].sweepHitTimeStamp && cycleData[1].sweepHitTimeStamp; }
-  void recalculate(unsigned long currentTime);
-  bool calculatePosition();
-  void estimatePosition(unsigned long currentTime);
-  void calculateVelocity();
+  bool recalculate();
 
   void clearPreambleFlag() { preambleFound = false; }
   bool foundPreamble() { return preambleFound; }
+
+  int8_t getAccelDirX();
+  int8_t getAccelDirY();
+  int8_t getAccelDirZ();
 
   friend class Lighthouse;
 
 public:
   LighthouseSensor(LighthouseSensorInput* sensorInput, int debugNumber);
 
-  void loop();
+  void loop(unsigned long currentTime);
 
-  //info about the lighthouse position received by this sensor
-  bool hasLighthousePosition() { return receivedLighthousePosition; }
-  int8_t getAccelDirX();
-  int8_t getAccelDirY();
-  int8_t getAccelDirZ();
-
-  unsigned long getXSweepTickCount() { return cycleData[0].sweepTickCount; }
-
-  unsigned long getYSweepTickCount() { return cycleData[1].sweepTickCount; }
-
-  //info about the robot position; if any portion of each Lighthouse cycle is missed, hasPosition() returns false
-  KVector2* getPosition() { return &positionVector; }
-
-  //data derived from change in position over time
-  KVector2* getVelocity() { return &velocityVector; }
+  const KVector2* getPosition() const { return &positionVector; }
 
   /*
+  //data derived from change in position over time
+  const KVector2* getVelocity() { return &velocityVector; }
+  */
+
+  /*
+  unsigned long getXSweepTickCount() { return cycleData[0].sweepHitTicks; }
+
+  unsigned long getYSweepTickCount() { return cycleData[1].sweepHitTicks; }
+
 #ifdef DEBUG_SIGNAL_EDGES
   unsigned int getRisingEdgeCount() {
     unsigned int v = sensorInput->risingEdgeCount;
@@ -363,5 +350,8 @@ public:
   */
 
 };
+
+unsigned int calculateDeltaTicks(unsigned int startTicks, unsigned int endTicks);
+float float16ToFloat32(uint16_t half);
 
 #endif
