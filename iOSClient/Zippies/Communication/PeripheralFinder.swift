@@ -4,6 +4,8 @@ import CoreBluetooth
 
 protocol PeripheralFinderDelegate: class
 {
+    func peripheral(_ peripheral: CBPeripheral,
+                    didDiscover advertisementData: [String : Any])
     
     func peripheral(_ peripheral: CBPeripheral,
                     didConnect service: CBService,
@@ -141,22 +143,7 @@ extension PeripheralFinder: CBCentralManagerDelegate
                         advertisementData: [String : Any],
                         rssi RSSI: NSNumber)
     {
-        /*
-        if let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]
-        {
-            print(serviceUUIDs.first!.uuidString)
-        }
-        */
-        
-//        print(peripheral.identifier.uuidString);
-        print(advertisementData.count)
-        let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
-        var bitPatternU32 = UInt32(values[3]) << 24
-        bitPatternU32 |= UInt32(values[2]) << 16
-        bitPatternU32 |= UInt32(values[1]) << 8
-        bitPatternU32 |= UInt32(values[0])
-        let xPosition = Float32(bitPattern: bitPatternU32)
-//        print("X: ", xPosition)
+        self.delegate?.peripheral(peripheral, didDiscover: advertisementData)
 
         //retain the peripheral first
 //        discoveredPeripherals.insert(peripheral)

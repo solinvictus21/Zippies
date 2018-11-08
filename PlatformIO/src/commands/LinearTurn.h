@@ -12,19 +12,26 @@ private:
   double targetOrientation;
   unsigned long executionTime;
   bool interpolated;
+  bool inReverse;
 
 public:
   LinearTurn(double o, unsigned long t)
-    : LinearTurn(o, t, true)
+    : LinearTurn(o, t, true, false)
   {}
 
   LinearTurn(double o, unsigned long t, bool i)
+    : LinearTurn(o, t, i, false)
+  {}
+
+  LinearTurn(double o, unsigned long t, bool i, bool r)
     : targetOrientation(o),
       executionTime(t),
-      interpolated(i)
+      interpolated(i),
+      inReverse(r)
   {}
 
   unsigned long start(Zippy* zippy, const KPosition* sp) {
+    zippy->setReverse(inReverse);
     startingPosition = sp;
     if (!interpolated)
       zippy->turn(targetOrientation);

@@ -1,8 +1,24 @@
 
 #include "ZippyWheel.h"
 
-#define POSITION_EPSILON                           20.0d
-#define POSITIONDELTA_EPSILON                      10.0d
+// #define WHEEL_Kp                                22.00d
+#define WHEEL_Kp                                50.00d
+#define WHEEL_Ki                                 0.00d
+// #define WHEEL_Kd                                 0.15d
+#define WHEEL_Kd                                 2.00d
+// #define WHEEL_Kd                                 0.40d
+#define WHEEL_MAX_POWER                      60000.00d
+
+ZippyWheel::ZippyWheel(
+    double wheelOffsetX,
+    double wheelOffsetY,
+    unsigned long pidUpdateInterval)
+  : wheelOffset(wheelOffsetX, wheelOffsetY),
+    wheelPID(&wheelInput, &wheelOutput, &wheelSetPoint, WHEEL_Kp, WHEEL_Ki, WHEEL_Kd, P_ON_E, DIRECT)
+{
+  wheelPID.SetSampleTime(pidUpdateInterval);
+  wheelPID.SetOutputLimits(-WHEEL_MAX_POWER, WHEEL_MAX_POWER);
+}
 
 void ZippyWheel::start()
 {
@@ -14,37 +30,24 @@ void ZippyWheel::start()
   wheelPID.SetMode(AUTOMATIC);
 }
 
-bool ZippyWheel::loop(
-  const KPosition* currentPosition,
-  const KPosition* currentPositionDelta,
-  const KPosition* targetPosition)
+void ZippyWheel::setInput(
+  double velocityTurnRadius,
+  double velocityOrientation)
 {
-  KVector2 relativePositionDelta(&currentPositionDelta->vector);
-  relativePositionDelta.rotate(-currentPosition->orientation);
+  //calculate the velocity for this wheel
+  wheelInput = turnRadius(velocityTurnRadius, velocityOrientation);
+}
 
-  KVector2 wheelPositionDelta(&wheelOffset);
-  wheelPositionDelta.rotate(currentPositionDelta->orientation);
-  wheelPositionDelta.addVector(&relativePositionDelta);
-  wheelPositionDelta.subtractVector(&wheelOffset);
-  wheelInput = wheelPositionDelta.getY() > 0.0d ? wheelPositionDelta.getD() : -wheelPositionDelta.getD();
-  // wheelInput = wheelPositionDelta.getY() +
-      // (wheelOffset.getX() < 0.0d ? wheelPositionDelta.getX() : -wheelPositionDelta.getX());
-
-  KVector2 currentWheelPosition(&wheelOffset);
-  currentWheelPosition.rotate(currentPosition->orientation);
-  currentWheelPosition.addVector(&currentPosition->vector);
-
-  KVector2 deltaWheelPosition(&wheelOffset);
-  deltaWheelPosition.rotate(targetPosition->orientation);
-  deltaWheelPosition.addVector(&targetPosition->vector);
-  deltaWheelPosition.subtractVector(&currentWheelPosition);
-  deltaWheelPosition.rotate(-currentPosition->orientation);
-
-  // wheelSetPoint = deltaWheelPosition.getY() > 0.0d ? deltaWheelPosition.getD() : -deltaWheelPosition.getD();
-  wheelSetPoint = deltaWheelPosition.getY() +
-      (wheelOffset.getX() < 0.0d ? deltaWheelPosition.getX() : -deltaWheelPosition.getX());
-
+void ZippyWheel::move(
+  double targetPositionTurnRadius,
+  double targetPositionOrientation)
+{
+  //calculate the new target velocity
+  wheelSetPoint = turnRadius(targetPositionTurnRadius, targetPositionOrientation);
   wheelPID.Compute();
+}
 
-  return deltaWheelPosition.getD() < POSITION_EPSILON && wheelPositionDelta.getD() < POSITIONDELTA_EPSILON;
+double ZippyWheel::turnRadius(double centerTurnRadius, double deltaOrientation)
+{
+  return (centerTurnRadius + wheelOffset.getX()) * 2.0d * -deltaOrientation;
 }

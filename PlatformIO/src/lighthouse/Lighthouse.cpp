@@ -556,6 +556,8 @@ void Lighthouse::calculatePosition()
   //the center position of the robot is the average position between the sensors
   position.vector.set((SENSOR_OFFSET_Y * cos(position.orientation)) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
       (SENSOR_OFFSET_Y * sin(position.orientation)) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
+  // position.vector.set(((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
+      // ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
   positionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
 
   //now calculate the change in position and orientation

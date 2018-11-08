@@ -3,64 +3,71 @@
 #include "Zippy.h"
 #include "ZippyConfig.h"
 #include "PathData.h"
+#include "commands/QuadraticBezier1.h"
+#include "commands/CubicBezier1.h"
 
-#define WHEEL_OFFSET_X   16.5d
+#define WHEEL_OFFSET_X   16.7d
+// #define WHEEL_OFFSET_X   30.0d
 #define WHEEL_OFFSET_Y    5.9d
+// const double wheelOffset = sqrt(pow(WHEEL_OFFSET_X, 2.0d) + pow(WHEEL_OFFSET_Y, 2.0d));
+// const double axleOrientationOffset = atan2(-WHEEL_OFFSET_Y, WHEEL_OFFSET_X);
 
 //TUNING - COMMAND EXECUTION COMPLETION
 //the distince in mm within which is to be considered "at the target" for the purpose of terminating the current driving command
-#define LINEAR_EPSILON                           20.0d
+#define LINEAR_EPSILON                           30.0d
 //the delta angle within which is to be considered "pointing at the desired orientation" (5 degrees)
 #define ANGULAR_EPSILON                           0.087266462599716d
-
-//TUNING - PID CONFIGURATION
-//the maximum percentage we allow the linear velocity input to change from the previous input during acceleration forward or backward
-#define LINEAR_MAX_INPUT_CHANGE_FACTOR            0.20d
-//the minimum amount of absolute change in linear velocity input to allow when the percentage of the previous value is below this threshold
-//the application of both of these values caps acceleration changes to prevent PID overshoot
-#define LINEAR_MIN_INPUT_CHANGE                  40.00d
-
-#define LINEAR_Kp                                 5.00d
-#define LINEAR_Ki                                 0.00d
-#define LINEAR_Kd                                 0.00d
-// #define LINEAR_Kp                                 0.90d
-// #define LINEAR_Ki                                 0.00d
-// #define LINEAR_Kd                                 0.05d
-#define LINEAR_MAX_POWER                      50000.00d
-
-#define ANGULAR_Kp                             2000.00d
-#define ANGULAR_Ki                                0.00d
-#define ANGULAR_Kd                                0.00d
-#define ANGULAR_MAX_POWER                     10000.00d
-#define ANGULAR_SPEED_COMPENSATION                0.40d
+//3 degrees
+// #define ANGULAR_EPSILON                           0.05235987755983d
 
 //TUNING - PCM OUTPUT
 //the threshold below which the wheels are set to stop entirely
-#define MOTOR_MIN_THRESHOLD                       0.00d
+#define LINEAR_MIN_THRESHOLD                     50.00d
 //the minimum PCM value below which the motors do not turn at all; i.e. the "dead zone"
-#define LINEAR_MIN_POWER                       4400.00d
-#define ANGULAR_MIN_POWER                      5200.00d
+#define LINEAR_MIN_POWER                       3200.00d
+// #define LINEAR_MIN_POWER                       2000.00d
 
-double snap(double motorPower, double zeroThreshold, double minimumMagnitude);
-double pad(double motorPower, double minimumMagnitude);
+#define LINEAR_MAX_VELOCITY_CHANGE_FACTOR         0.20d
+//the minimum amount of absolute change in linear velocity input to allow when the percentage of the previous value is below this threshold
+//the application of both of these values caps acceleration changes to prevent PID overshoot
+#define LINEAR_MIN_VELOCITY_CHANGE               50.00d
 
+double snap(double motorPower);
+double pad(double motorPower);
+double lerp(double motorPower);
+double relativeDistance(const KVector2* v);
+double centerTurnRadius(double distanceDelta, double orientationDelta);
+double curveLength(const KVector2* v);
+double curveLength(double relativeDistance, double relativeOrientation);
+
+#ifdef INDEPENDENT_WHEEL_PIDS
 Zippy::Zippy(unsigned long pui)
   : pidUpdateInterval(pui),
-#ifdef MOTOR_MODEL_COMBINED
-    linearPID(&linearInput, &linearOutput, &linearSetPoint, LINEAR_Kp, LINEAR_Ki, LINEAR_Kd, P_ON_E, DIRECT),
-    angularPID(&angularInput, &angularOutput, &angularSetPoint, ANGULAR_Kp, ANGULAR_Ki, ANGULAR_Kd, P_ON_E, DIRECT)
-{
-  linearPID.SetSampleTime(pidUpdateInterval);
-  linearPID.SetOutputLimits(-LINEAR_MAX_POWER, LINEAR_MAX_POWER);
-  angularPID.SetSampleTime(pidUpdateInterval);
-  angularPID.SetOutputLimits(-ANGULAR_MAX_POWER, ANGULAR_MAX_POWER);
-#else
     leftWheel(-WHEEL_OFFSET_X, -WHEEL_OFFSET_Y, pidUpdateInterval),
-    rightWheel(WHEEL_OFFSET_X,  WHEEL_OFFSET_Y, pidUpdateInterval)
+    rightWheel(WHEEL_OFFSET_X, WHEEL_OFFSET_Y, pidUpdateInterval)
 {
-#endif
   face.displayFace();
 }
+#else
+#define ANGULAR_Kp                             5000.0d
+#define ANGULAR_Ki                                0.0d
+#define ANGULAR_Kd                                0.0d
+#define ANGULAR_MAX_OUTPUT                    15000.0d
+#define LINEAR_Kp                                20.0d
+#define LINEAR_Ki                                 0.0d
+#define LINEAR_Kd                                 0.0d
+#define LINEAR_MAX_OUTPUT                     45000.0d
+Zippy::Zippy(unsigned long pui)
+  : angularPID(&angularInput, &angularOutput, &angularSetPoint, ANGULAR_Kp, ANGULAR_Ki, ANGULAR_Kd, P_ON_E, DIRECT),
+    linearPID(&linearInput, &linearOutput, &linearSetPoint, LINEAR_Kp, LINEAR_Ki, LINEAR_Kd, P_ON_E, DIRECT)
+{
+  angularPID.SetSampleTime(pui);
+  angularPID.SetOutputLimits(-ANGULAR_MAX_OUTPUT, ANGULAR_MAX_OUTPUT);
+  linearPID.SetSampleTime(pui);
+  linearPID.SetOutputLimits(-LINEAR_MAX_OUTPUT, LINEAR_MAX_OUTPUT);
+  face.displayFace();
+}
+#endif
 
 void Zippy::move(double x, double y, double orientation)
 {
@@ -97,145 +104,186 @@ void Zippy::start()
   motors.start();
 #endif
 
-#ifdef MOTOR_MODEL_COMBINED
-  linearPID.SetMode(MANUAL);
-  angularPID.SetMode(MANUAL);
-
+#ifdef INDEPENDENT_WHEEL_PIDS
+  leftWheel.start();
+  rightWheel.start();
+#else
   //we need to reset the outputs before going back to automatic PID mode; see Arduino PID library source code for details
-  linearSetPoint = 0.0d;
-  linearInput = 0.0d;
-  linearOutput = 0.0d;
+  angularPID.SetMode(MANUAL);
   angularSetPoint = 0.0d;
   angularInput = 0.0d;
   angularOutput = 0.0d;
-
-  linearPID.SetMode(AUTOMATIC);
   angularPID.SetMode(AUTOMATIC);
-#else
-  leftWheel.start();
-  rightWheel.start();
+  linearPID.SetMode(MANUAL);
+  linearSetPoint = 0.0d;
+  linearInput = 0.0d;
+  linearOutput = 0.0d;
+  linearPID.SetMode(AUTOMATIC);
 #endif
 }
 
 bool Zippy::loop(const KPosition* currentPosition,
                  const KPosition* currentPositionDelta)
 {
-  /*
-  setMotors(-LINEAR_MIN_POWER, -LINEAR_MIN_POWER);
-  // setMotors(-ANGULAR_MIN_POWER, ANGULAR_MIN_POWER);
-  // setMotors(7200.0d, 0.0d);
-  return false;
-  // */
-  // /*
-#ifdef MOTOR_MODEL_COMBINED
-  if (stopped) {
-    //need to continue to let the PIDs loop or they get out of sync with the control loop
-    linearInput = 0.0d;
-    linearSetPoint = 0.0d;
-    angularInput = 0.0d;
-    linearPID.Compute();
-    angularPID.Compute();
-    return true;
-  }
+  KVector2 relativeVelocity(&currentPositionDelta->vector);
+  double previousOrientation = subtractAngles(currentPosition->orientation, currentPositionDelta->orientation);
+  relativeVelocity.rotate(-previousOrientation);
+  double relativeVelocityDistance = relativeDistance(&relativeVelocity);
+#ifdef INDEPENDENT_WHEEL_PIDS
+  updateInputs(relativeVelocityDistance, relativeVelocity.getOrientation());
+#endif
 
-  //calculate the vector from our current position to the current target position from the perspective of the current orientation
-  KVector2 deltaPosition(currentTargetPosition.vector.getX() - currentPosition->vector.getX(),
+  KVector2 relativeTargetPosition(currentTargetPosition.vector.getX() - currentPosition->vector.getX(),
       currentTargetPosition.vector.getY() - currentPosition->vector.getY());
-  deltaPosition.rotate(-currentPosition->orientation);
+  relativeTargetPosition.rotate(-currentPosition->orientation);
+  double relativeTargetDistance = relativeDistance(&relativeTargetPosition);
 
-  bool atTarget = calculateLinearInput(&deltaPosition, currentPosition, currentVelocity);
-  atTarget &= calculateAngularInput(&deltaPosition, currentPosition, currentVelocity);
+  // /*
+  //keep downward pressure on large increases in velocity to prevent PID overshoot
+  boolean sameDirection = relativeTargetDistance * linearSetPoint >= 0.0d;
+  if (!sameDirection ||
+      (sameDirection && relativeTargetPosition.getD() > abs(linearSetPoint)))
+  {
+    double velocityChange = relativeTargetDistance - linearSetPoint;
+    double maxVelocityChange = max(relativeVelocity.getD() * LINEAR_MAX_VELOCITY_CHANGE_FACTOR, LINEAR_MIN_VELOCITY_CHANGE);
+    relativeTargetDistance = relativeVelocityDistance + constrain(velocityChange, -maxVelocityChange, maxVelocityChange);
+  }
+  // */
 
-  linearPID.Compute();
-  angularPID.Compute();
+  double relativeOrientation;
+  if (!positionUpdated &&
+      relativeTargetPosition.getD() < LINEAR_EPSILON)
+  {
+    //we're at the target position and the position has not changed, so just turn in place while inching forward
+    //or backward just enough to keep the Zippy pinned to the target position
+    relativeOrientation = subtractAngles(currentTargetPosition.orientation, currentPosition->orientation);
+    /*
+    if (inReverse)
+      relativeOrientation = addAngles(relativeOrientation, M_PI);
+    // */
 
-  double left = linearOutput+angularOutput;
-  double right = linearOutput-angularOutput;
-  double pad = left * right < 0.0d ? ANGULAR_MIN_POWER : LINEAR_MIN_POWER;
-  setMotors(snap(left, MOTOR_MIN_THRESHOLD, pad),
-      snap(right, MOTOR_MIN_THRESHOLD, pad));
-
-  return atTarget;
+    //we are at the target position
+    if (!orientationUpdated &&
+        abs(relativeOrientation) < ANGULAR_EPSILON)// &&
+        // currentPositionDelta->vector.getD() < LINEAR_EPSILON &&
+        // abs(currentPositionDelta->orientation) < ANGULAR_EPSILON)
+    {
+      //we are pointing toward the target orientation and moving below the desired velocity threshold; stop moving
+#ifdef INDEPENDENT_WHEEL_PIDS
+      leftWheel.stop();
+      rightWheel.stop();
 #else
-  bool atTarget = leftWheel.loop(currentPosition, currentPositionDelta, &currentTargetPosition);
-  atTarget &= rightWheel.loop(currentPosition, currentPositionDelta, &currentTargetPosition);
+      angularInput = 0.0d;
+      angularSetPoint = 0.0d;
+      angularPID.Compute();
+      linearInput = 0.0d;
+      linearSetPoint = 0.0d;
+      linearPID.Compute();
+#endif
+      setMotors(0.0d, 0.0d);
+      return true;
+    }
+  }
+  else {
+    relativeOrientation = relativeTargetPosition.getOrientation();
+    /*
+    if (inReverse) {
+      if (relativeTargetPosition.getY() > 0.0d && abs(subtractAngles(currentPosition->orientation, currentTargetPosition.orientation)) > M_PI_2) {
+        relativeTargetPosition.setY(-relativeTargetPosition.getY());
+        relativeTargetPosition.setD(relativeTargetPosition.getD() / 2.0d);
+        relativeOrientation = relativeTargetPosition.getOrientation();
+      }
+      relativeOrientation = addAngles(relativeOrientation, M_PI);
+    }
+    else if (relativeTargetPosition.getY() < 0.0d && abs(subtractAngles(currentPosition->orientation, currentTargetPosition.orientation)) <= M_PI_2) {
+      //the position is currently moving, and we're pointing in the direction that the position is moving toward, but we've
+      //passed the current target position; in that situation, just turn back toward the target orientation and slow down
+      // face.clearScreen();
+      relativeTargetPosition.setY(-relativeTargetPosition.getY());
+      relativeTargetPosition.setD(relativeTargetPosition.getD() / 2.0d);
+      relativeOrientation = relativeTargetPosition.getOrientation();
+    }
+    // */
+  }
+  positionUpdated = false;
+  orientationUpdated = false;
+
+#ifdef INDEPENDENT_WHEEL_PIDS
+  double turnRadius = relativeTargetPosition.getY() <= 0.0d
+    ? 0.0d
+    : centerTurnRadius(relativeTargetDistance, relativeOrientation);
+  leftWheel.move(
+    turnRadius,
+    relativeOrientation);
+  rightWheel.move(
+    turnRadius,
+    relativeOrientation);
 
   double left = leftWheel.getOutput();
   double right = rightWheel.getOutput();
-  double padding = left * right < 0.0d ? ANGULAR_MIN_POWER : LINEAR_MIN_POWER;
-  // setMotors(snap(-left, MOTOR_MIN_THRESHOLD, padding),
-      // snap(-right, MOTOR_MIN_THRESHOLD, padding));
-  setMotors(pad(-left, LINEAR_MIN_POWER),
-      pad(-right, LINEAR_MIN_POWER));
+#else
+  angularInput = currentPositionDelta->orientation;
+  angularSetPoint = relativeOrientation;
+  angularPID.Compute();
+  linearInput = curveLength(&relativeVelocity);
+  linearSetPoint = curveLength(relativeTargetDistance, relativeTargetPosition.getOrientation());
+  // linearSetPoint = curveLength(&relativeTargetPosition);
+  linearPID.Compute();
 
-  return atTarget;
+  // double left = angularOutput;
+  // double right = -angularOutput;
+  double left = linearOutput + angularOutput;
+  double right = linearOutput - angularOutput;
 #endif
-  // */
-}
-
-#ifdef MOTOR_MODEL_COMBINED
-//calculate the linear velocity input; since the ZIppy can only move along its Y axis, we only consider the Y offset
-bool Zippy::calculateLinearInput(const KVector2* deltaPosition,
-                                 const KPosition* currentPosition,
-                                 const KPosition* currentVelocity)
-{
-  // linearInput = currentVelocity->vector.getD();
-  linearInput = currentVelocity->vector.getD() * ((double)pidUpdateInterval) / 1000.0d;
-  if (abs(subtractAngles(currentVelocity->vector.getOrientation(), currentPosition->orientation)) > M_PI_2)
-    linearInput = -linearInput;
-
-  if (!positionUpdated && deltaPosition->getD() < LINEAR_EPSILON) {
-    linearSetPoint = 0.0d;
-    return abs(linearInput) < LINEAR_EPSILON;
-  }
-  positionUpdated = false;
-
-  double deltaY = deltaPosition->getY();
-  double inputDelta = - deltaY - linearSetPoint;
-  // double inputDelta = - ((deltaPosition * 1000.0d) / ((double)pidUpdateInterval)) - linearSetPoint;
-
-  //limit the amount of acceleration to clamp down on PID overshoot; deceleration of any amount is fine
-  bool sameDirection = deltaY * linearSetPoint >= 0.0d;
-  if (!sameDirection ||
-      (sameDirection && abs(deltaY) > abs(linearSetPoint)))
-  {
-    double maxInputChange = max(abs(linearSetPoint) * LINEAR_MAX_INPUT_CHANGE_FACTOR, LINEAR_MIN_INPUT_CHANGE);
-    inputDelta = constrain(inputDelta, -maxInputChange, maxInputChange);
-  }
-  linearSetPoint += inputDelta;
+  // if (abs((left + right) / 2.0d) < LINEAR_MIN_POWER) {
+    left = snap(left);
+    right = snap(right);
+    // left = lerp(left);
+    // right = lerp(right);
+  // }
+  setMotors(-left, -right);
 
   return false;
 }
 
-//calculate the rotational velocity input
-bool Zippy::calculateAngularInput(const KVector2* deltaPosition,
-                                  const KPosition* currentPosition,
-                                  const KPosition* currentVelocity)
+#ifdef INDEPENDENT_WHEEL_PIDS
+void Zippy::updateInputs(double relativeVelocityDistance, double relativeOrientation)
 {
-  double deltaOrientation;
-  if (prioritizeOrientation ||
-      inReverse == (deltaPosition->getY() > 0.0d))
-    deltaOrientation = subtractAngles(currentTargetPosition.orientation, currentPosition->orientation);
-  else
-    deltaOrientation = deltaPosition->getOrientation();
-
-  if (inReverse)
-    deltaOrientation = addAngles(deltaOrientation, M_PI);
-
-  if (!orientationUpdated && abs(deltaOrientation) < ANGULAR_EPSILON) {
-    angularInput = 0.0d;
-    return true;
+  if (relativeOrientation == 0.0d) {
+    leftWheel.setInput(relativeVelocityDistance);
+    rightWheel.setInput(relativeVelocityDistance);
+    return;
   }
-  orientationUpdated = false;
 
-  angularInput = constrain(deltaOrientation, -0.5d, 0.5d);
-  // double absVelocity = currentVelocity->vector.getD();
-  // if (absVelocity >= LINEAR_EPSILON)
-    // angularInput = pad(angularInput, ANGULAR_SPEED_COMPENSATION * (absVelocity - LINEAR_EPSILON) / 1000.0d);
-
-  return false;
+  double velocityTurnRadius = centerTurnRadius(relativeVelocityDistance, relativeOrientation);
+  leftWheel.setInput(velocityTurnRadius, relativeOrientation);
+  rightWheel.setInput(velocityTurnRadius, relativeOrientation);
 }
 #endif
+
+double relativeDistance(const KVector2* v)
+{
+  double d = v->getD();
+  return v->getY() >= 0.0d ? d : -d;
+}
+
+double curveLength(const KVector2* v)
+{
+  return curveLength(relativeDistance(v), v->getOrientation());
+}
+
+double curveLength(double relativeDistance, double relativeOrientation)
+{
+  if (relativeOrientation == 0.0d)
+    return relativeDistance;
+
+  return (relativeDistance * relativeOrientation) / sin(relativeOrientation);
+}
+
+double centerTurnRadius(double distanceDelta, double orientationDelta)
+{
+  return distanceDelta / (2.0d * sin(-orientationDelta));
+}
 
 void Zippy::stop()
 {
@@ -252,25 +300,33 @@ void Zippy::setMotors(int32_t motorLeft, int32_t motorRight)
       motorRight > 0 ? motorRight: 0);
 }
 
-double snap(double motorPower, double zeroThreshold, double minimumMagnitude)
+double lerp(double motorPower)
 {
-  if (abs(motorPower) < zeroThreshold)
-    return 0.0d;
+  double absMotorPower = abs(motorPower);
+  if (absMotorPower > LINEAR_MIN_POWER)
+    return motorPower;
 
-  if (motorPower > 0.0d)
-    return minimumMagnitude + (motorPower - zeroThreshold);
-  else if (motorPower < 0.0d)
-    return -minimumMagnitude + (motorPower + zeroThreshold);
-
-  return 0.0d;
+  double lerp = quadraticLerp0(absMotorPower / LINEAR_MIN_POWER, LINEAR_MIN_POWER, LINEAR_MIN_POWER - (0.1d * LINEAR_MIN_POWER));
+  return motorPower >= 0.0d ? lerp : -lerp;
 }
 
-double pad(double motorPower, double minimumMagnitude)
+double snap(double motorPower)
+{
+  double absMotorPower = abs(motorPower);
+  if (absMotorPower < LINEAR_MIN_THRESHOLD)
+    return 0.0d;
+
+  absMotorPower -= LINEAR_MIN_THRESHOLD;
+  double power = LINEAR_MIN_POWER + absMotorPower;
+  return motorPower < 0.0d ? -power : power;
+}
+
+double pad(double motorPower)
 {
   if (motorPower > 0.0d)
-    return minimumMagnitude + motorPower;
+    return LINEAR_MIN_POWER + motorPower;
   else if (motorPower < 0.0d)
-    return -minimumMagnitude + motorPower;
+    return -LINEAR_MIN_POWER + motorPower;
 
   return 0.0d;
 }

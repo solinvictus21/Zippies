@@ -214,10 +214,10 @@ void KVector2::printDebug() const
 
 double snapAngle(double angle)
 {
-  if (angle < -M_PI)
-    angle += 2 * M_PI;
+  if (angle <= -M_PI)
+    angle += 2.0d * M_PI;
   else if (angle > M_PI)
-    angle -= 2 * M_PI;
+    angle -= 2.0d * M_PI;
   return angle;
 }
 

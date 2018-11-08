@@ -4,11 +4,11 @@
 
 #include <PID_v1.h>
 #include "ZippyFace.h"
-#include "ZippyWheel.h"
 #include "MotorDriver.h"
 #include "lighthouse/KPosition.h"
+#include "ZippyWheel.h"
 
-// #define MOTOR_MODEL_COMBINED 1
+// #define INDEPENDENT_WHEEL_PIDS 1
 
 class Zippy
 {
@@ -26,26 +26,18 @@ private:
   bool prioritizeOrientation = false;
   bool stopped = false;
 
-#ifdef MOTOR_MODEL_COMBINED
-  double linearSetPoint = 0.0d;
-  double linearInput = 0.0d;
-  double linearOutput = 0.0d;
-  PID linearPID;
-
-  double angularSetPoint = 0.0d;
-  double angularInput = 0.0d;
-  double angularOutput = 0.0d;
-  PID angularPID;
-
-  bool calculateLinearInput(const KVector2* deltaPosition,
-                            const KPosition* currentPosition,
-                            const KPosition* currentVelocity);
-  bool calculateAngularInput(const KVector2* deltaPosition,
-                             const KPosition* currentPosition,
-                             const KPosition* currentVelocity);
-#else
+#ifdef INDEPENDENT_WHEEL_PIDS
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
+#else
+  double angularInput = 0.0d;
+  double angularSetPoint = 0.0d;
+  double angularOutput = 0.0d;
+  PID angularPID;
+  double linearInput = 0.0d;
+  double linearSetPoint = 0.0d;
+  double linearOutput = 0.0d;
+  PID linearPID;
 #endif
 
   void setMotors(int32_t motorLeft, int32_t motorRight);
@@ -64,7 +56,8 @@ public:
   const KPosition* getTargetPosition() { return &currentTargetPosition; }
 
   bool loop(const KPosition* currentPosition,
-            const KPosition* currentVelocity);
+    const KPosition* currentVelocity);
+  void updateInputs(double relativeVelocityDistance, double relativeOrientation);
 
   void stop();
   bool isStopped() { return stopped; }

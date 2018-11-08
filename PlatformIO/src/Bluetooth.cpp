@@ -70,8 +70,8 @@ bool Bluetooth::start()
   }
 
   // if (!startAsPeripheral())
-  // if (!startAsBroadcaster())
-  if (!startAsObserver())
+  if (!startAsBroadcaster())
+  // if (!startAsObserver())
     return false;
 
   //+8 dBm output power
@@ -323,7 +323,7 @@ void Bluetooth::sendBroadcastData(float x, float y, float orientation, float lin
   memcpy(broadcastData+10, &y, sizeof(float));
   memcpy(broadcastData+14, &orientation, sizeof(float));
   memcpy(broadcastData+20, &linearVelocity, sizeof(float));
-  // aci_gap_update_adv_data(ADVERTISEMENT_PACKET_LENGTH, broadcastData);
+  aci_gap_update_adv_data(ADVERTISEMENT_PACKET_LENGTH, broadcastData);
 }
 
 void Bluetooth::packetReceived(uint8_t dataLength, uint8_t *data)

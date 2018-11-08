@@ -2,7 +2,7 @@
 #include "Executor.h"
 
 //the number of milliseconds between each time we evaluate the current position of the Zippy and adjust its motors to stay on the path
-#define LOOP_INTERVAL_MS                         50
+#define LOOP_INTERVAL_MS                         40
 
 //the time to pause between the moment the lighthouse signal is detected after it is lost and the moment we start moving again
 //adding an initial pause before moving allows time to completely set the Zippy down and the position detection to stabilize
@@ -61,6 +61,20 @@ void Executor::loop(unsigned long currentTime)
         zippy.move(startingPositionX, startingPositionY,
             atan2(startingPositionX - currentPosition->vector.getX(), startingPositionY - currentPosition->vector.getY()));
         currentMode = MoveIntoPlace;
+        /*
+        //determine the 16-bit ID of this Zippy
+        SerialUSB.print("Zippy ID: ");
+        // uint32_t* zippyID = ((uint32_t*)0x0080A00C);
+        // for (int i = 0; i < 4; i++)
+          // SerialUSB.print(zippyID[i], HEX);
+        uint8_t* zippyID = ((uint8_t*)0x0080A00C);
+        for (int i = 0; i < 16; i++) {
+          if (zippyID[i] < 0x10)
+            SerialUSB.print("0");
+          SerialUSB.print(zippyID[i], HEX);
+        }
+        SerialUSB.println();
+        */
       }
       break;
     case MoveIntoPlace:

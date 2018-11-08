@@ -13,14 +13,21 @@ private:
   KVector2 targetPosition;
   double targetOrientation;
   unsigned long executionTime;
+  bool inReverse;
 
 public:
   LinearMove(double tx, double ty, unsigned long t)
+    : LinearMove(tx, ty, t, false)
+  {}
+
+  LinearMove(double tx, double ty, unsigned long t, bool r)
     : targetPosition(tx, ty),
-      executionTime(t)
+      executionTime(t),
+      inReverse(r)
   {}
 
   unsigned long start(Zippy* zippy, const KPosition* sp) {
+    zippy->setReverse(inReverse);
     startingPosition = sp;
     targetOrientation = atan2(targetPosition.getX() - sp->vector.getX(),
         targetPosition.getY() - sp->vector.getY());

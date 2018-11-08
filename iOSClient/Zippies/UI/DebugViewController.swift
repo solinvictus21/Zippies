@@ -41,7 +41,7 @@ class DebugViewController: UIViewController
     @IBOutlet weak var rotationalVelocityLabel: UILabel!
 
     var zippyManager: ZippyManager?
-    var zippy: Zippy?
+    var zippy: Zippy2?
     
     var sensor0X: Float32 = 0.0
     var sensor0Y: Float32 = 0.0
@@ -49,6 +49,7 @@ class DebugViewController: UIViewController
     var sensor1Y: Float32 = 0.0
     
     override func viewDidLoad() {
+        /*
         super.viewDidLoad()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -58,12 +59,15 @@ class DebugViewController: UIViewController
         self.zippy?.delegate = self
         
         statusLabel.textColor = zippy != nil ? UIColor.green : UIColor.red
+         */
     }
     
     @IBAction func modeChanged(_ sender: Any) {
+        /*
         if self.zippy != nil {
           zippy!.setManualModeEnabled(modeSwitch.selectedSegmentIndex == 0)
         }
+        */
     }
 
 }
@@ -71,21 +75,31 @@ class DebugViewController: UIViewController
 extension DebugViewController: ZippyManagerDelegate
 {
     
-    func zippyConnected(_ zippy: Zippy) {
+    func zippyDiscovered(_ zippy: Zippy2)
+    {
+    }
+    
+    func zippyConnected(_ zippy: Zippy2)
+    {
+        /*
         if self.zippy == nil {
             self.zippy = zippy
             self.zippy?.delegate = self
             self.statusLabel.textColor = UIColor.green
         }
+        */
     }
     
-    func zippyDisconnected(_ zippy: Zippy) {
+    func zippyDisconnected(_ zippy: Zippy2)
+    {
+        /*
         if self.zippy == zippy {
             self.zippy = nil
             self.zippy?.delegate = nil
             self.statusLabel.textColor = UIColor.red
             self.zippyManager?.startDiscovery()
         }
+        */
     }
     
 }

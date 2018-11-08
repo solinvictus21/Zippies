@@ -40,6 +40,8 @@ private:
 public:
   Executor(double startingPositionX, double startingPositionY, double startingOrientation, ZippyMove** m, int mc);
 
+  const Lighthouse* getLighthouse() { return &lighthouse; }
+
   void start(unsigned long currentTime);
   void loop(unsigned long currentTime);
 

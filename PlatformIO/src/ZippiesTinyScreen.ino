@@ -5,12 +5,15 @@
 #include "commands/LinearTurn.h"
 #include "commands/PauseMove.h"
 #include "commands/CubicBezierMove.h"
+#include "lighthouse/KPosition.h"
+#include "lighthouse/KVector2.h"
 #include "Zippy.h"
 #include "Bluetooth.h"
 #include "ZippyConfig.h"
 
 //the number of milliseconds for each "beat" of the song we are building our movement routine against
 #define TEMPO_MS_PER_BEAT                       600.0d
+#define ZIPPY_OFFSET                             50.0d
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
 #define BLE_RECEIVE_MOTORS_SET       0x15
@@ -18,7 +21,7 @@
 #define BLE_SEND_DEBUG_INFO          0x00
 #define BLE_AUTODRIVE_MODE           0x20
 #define BLE_MANUAL_MODE              0x21
-#define BLE_SEND_INTERVAL_MS          500
+#define BLE_SEND_INTERVAL_MS          300
 
 #define LOOP_INDICATOR_INTERVAL 5000
 
@@ -53,7 +56,7 @@ void loop()
   uint64_t currentTime = millis();
 
 #ifdef ENABLE_BLUETOOTH
-  processBluetoothInput();
+  // processBluetoothInput();
 #endif
 
   executor->loop(currentTime);
@@ -66,32 +69,37 @@ void loop()
 void createExecutor()
 {
   double beatHalf = 0.5d * TEMPO_MS_PER_BEAT;
+  double beats1 = TEMPO_MS_PER_BEAT;
   double beats2 = 2.0d * TEMPO_MS_PER_BEAT;
   double beats3 = 3.0d * TEMPO_MS_PER_BEAT;
   double beats4 = 4.0d * TEMPO_MS_PER_BEAT;
 
   int nextMove = 0;
+
   /* move calibration
+  int moveCount = 15;
+  moves = new ZippyMove*[moveCount];
   unsigned long deltaTimeBeatCount =  4.0d * TEMPO_MS_PER_BEAT;
-  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, beats4);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, beats4);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, beats4);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, beats4);
   moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
 
   deltaTimeBeatCount =  2.0d * TEMPO_MS_PER_BEAT;
-  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, beats2);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, beats2);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, beats2);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, beats2);
   moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
 
   deltaTimeBeatCount =  TEMPO_MS_PER_BEAT;
-  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, deltaTimeBeatCount);
-  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, deltaTimeBeatCount);
+  moves[nextMove++] = new LinearMove(   0.0d,  200.0d, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearMove(   0.0d, -200.0d, TEMPO_MS_PER_BEAT);
+  moves[nextMove++] = new LinearMove(   0.0d,    0.0d, TEMPO_MS_PER_BEAT);
   moves[nextMove++] = new PauseMove(4.0d * TEMPO_MS_PER_BEAT);
+  executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
   // */
 
   /* turn calibration
@@ -121,49 +129,87 @@ void createExecutor()
   // */
 
   // /*
-  int moveCount = 20;
+  //test the ability for the Zippy to move through a variety of circlular paths defined by
+  //bezier curves at various target speeds
+  int moveCount = 27;
   moves = new ZippyMove*[moveCount];
-  moves[nextMove++] = new CubicBezierMove( 400.0d,  400.0d, M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove( 800.0d,    0.0d, M_PI, beats2);
-  moves[nextMove++] = new CubicBezierMove( 400.0d, -400.0d, -M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
-  moves[nextMove++] = new PauseMove(beats4);
-  moves[nextMove++] = new CubicBezierMove(-400.0d,  400.0d, -M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove(-800.0d,    0.0d, M_PI, beats2);
-  moves[nextMove++] = new CubicBezierMove(-400.0d, -400.0d, M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
-  moves[nextMove++] = new PauseMove(beats4);
-  moves[nextMove++] = new CubicBezierMove(-200.0d,  200.0d, -M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove(-400.0d,    0.0d, M_PI, beats2);
-  moves[nextMove++] = new CubicBezierMove(-200.0d, -200.0d, M_PI_2, beats2);
-  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats2);
-  moves[nextMove++] = new PauseMove(beats4);
-  moves[nextMove++] = new CubicBezierMove( 200.0d,  200.0d, M_PI_2, beats4);
-  moves[nextMove++] = new CubicBezierMove( 400.0d,    0.0d, M_PI, beats4);
-  moves[nextMove++] = new CubicBezierMove( 200.0d, -200.0d, -M_PI_2, beats4);
-  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats4);
-  moves[nextMove++] = new PauseMove(beats4);
-  executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
+  double offset = ZIPPY_ID == 0 ? +ZIPPY_OFFSET : -ZIPPY_OFFSET;
+  bool reversed = false;
+  //larger circle, clockwise, fast speed
+  moves[nextMove++] = new CubicBezierMove( 400.0d+offset,  400.0d+offset,  M_PI_2, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove( 920.0d+offset,    0.0d+offset,    M_PI, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove( 400.0d+offset, -400.0d+offset, -M_PI_2, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d+offset,    0.0d, reversed, beats2);
+  //larger circle, counter-clockwise, fast speed
+  moves[nextMove++] = new CubicBezierMove(-460.0d,  460.0d, -M_PI_2, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove(-920.0d,    0.0d, M_PI, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove(-460.0d, -460.0d, M_PI_2, reversed, beats2);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, reversed, beats2);
+  moves[nextMove++] = new PauseMove(reversed, beats4);
+  //medium circle, clockwise, medium speed
+  moves[nextMove++] = new CubicBezierMove( 345.0d,  345.0d, M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove( 690.0d,    0.0d, M_PI, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove( 345.0d, -345.0d, -M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, reversed, beats3);
+  //medium circle, counter-clockwise, medium speed
+  moves[nextMove++] = new CubicBezierMove(-345.0d,  345.0d, -M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(-690.0d,    0.0d, M_PI, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(-345.0d, -345.0d, M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, reversed, beats3);
+  moves[nextMove++] = new PauseMove(reversed, beats4);
+  //small circle, clockwise, low speed
+  moves[nextMove++] = new CubicBezierMove( 230.0d,  230.0d, M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove( 460.0d,    0.0d, M_PI, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove( 230.0d, -230.0d, -M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, reversed, beats3);
+  //small circle, counter-clockwise, lowspeed
+  moves[nextMove++] = new CubicBezierMove(-230.0d,  230.0d, -M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(-460.0d,    0.0d, M_PI, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(-230.0d, -230.0d, M_PI_2, reversed, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, reversed, beats3);
+  moves[nextMove++] = new PauseMove(reversed, beats4);
+  executor = new Executor(0.0d, 0.0d, reversed ? M_PI : 0.0d, moves, moveCount);
   // */
 
-  // /*
-  //start of dance routine, to be completed when we have movement perfected
   /*
-  int moveCount = 22;
+  //test the ability for the Zippy to start a bezier while facing the opposite direction
+  //from the first bezier point
+  int moveCount = 12;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new LinearTurn(M_PI, beats4, false);
+  moves[nextMove++] = new CubicBezierMove( 400.0d,  400.0d, M_PI_2, beats3);
+  moves[nextMove++] = new CubicBezierMove( 800.0d,    0.0d, M_PI, beats3);
+  moves[nextMove++] = new CubicBezierMove( 400.0d, -400.0d, -M_PI_2, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats3);
+  moves[nextMove++] = new PauseMove(beats4);
+  moves[nextMove++] = new LinearTurn(M_PI, beats4, false);
+  moves[nextMove++] = new CubicBezierMove(-400.0d,  400.0d, -M_PI_2, beats3);
+  moves[nextMove++] = new CubicBezierMove(-800.0d,    0.0d, M_PI, beats3);
+  moves[nextMove++] = new CubicBezierMove(-400.0d, -400.0d, M_PI_2, beats3);
+  moves[nextMove++] = new CubicBezierMove(   0.0d,    0.0d, 0.0d, beats3);
+  moves[nextMove++] = new PauseMove(beats4);
+  executor = new Executor(0.0d, 0.0d, M_PI, moves, moveCount);
+  // */
+
+  /*
+  //start of dance routine, to be completed when we have movement perfected
+  int moveCount = 15;
   moves = new ZippyMove*[moveCount];
   moves[nextMove++] = new PauseMove(beats2);
   moves[nextMove++] = new LinearMove(300.0d, 0.0d, beats4);
   moves[nextMove++] = new LinearTurn(-M_PI_2, beats3);
   moves[nextMove++] = new PauseMove(beats4 + beats2);
   moves[nextMove++] = new LinearTurn(0.0d, TEMPO_MS_PER_BEAT);
-  moves[nextMove++] = new CubicBezierMove(350.0d,  75.0d, 0.0d, beats2);
-  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, beats2);
-  moves[nextMove++] = new CubicBezierMove(350.0d, 225.0d, 0.0d, beats2);
-  moves[nextMove++] = new CubicBezierMove(300.0d, 300.0d, 0.0d, beats2);
-  moves[nextMove++] = new CubicBezierMove(250.0d, 225.0d, 0.0d, true, beats2);
-  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, true, beats2);
-  moves[nextMove++] = new CubicBezierMove(250.0d,  75.0d, 0.0d, true, beats2);
-  moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats2);
+  moves[nextMove++] = new CubicBezierMove(400.0d,  75.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(400.0d, 225.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 300.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(200.0d, 225.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(200.0d,  75.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new LinearMove(200.0d, 500.0d, beats4);
+  moves[nextMove++] = new LinearTurn(M_PI, beats4);
   executor = new Executor(200.0d, 500.0d, M_PI, moves, moveCount);
   // */
 
@@ -180,9 +226,27 @@ void createExecutor()
   moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats2);
   executor = new Executor(300.0d, 0.0d, 0.0d, moves, moveCount);
   // */
+
+  /*
+  //test shimmy forward and backward
+  int moveCount = 10;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new CubicBezierMove(400.0d,  75.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(400.0d, 225.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 300.0d, 0.0d, beats1);
+  moves[nextMove++] = new CubicBezierMove(200.0d, 225.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d, 150.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(200.0d,  75.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new CubicBezierMove(300.0d,   0.0d, 0.0d, true, beats1);
+  moves[nextMove++] = new LinearMove(300.0d, 0.0d, beats2, true);
+  moves[nextMove++] = new LinearTurn(0.0d, beats2);
+  executor = new Executor(300.0d, 0.0d, 0.0d, moves, moveCount);
+  // */
 }
 
 #ifdef ENABLE_BLUETOOTH
+/*
 void processBluetoothInput()
 {
   //now process all the inbound Bluetooth commands
@@ -236,52 +300,53 @@ void processBluetoothInput()
 }
 // */
 
+/*
 void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
 {
-    //X sync ticks (2 bytes)
-    unsigned short nextShortValue = 0;//sensor->getXSyncTickCount();
-    memcpy(debugPacket, &nextShortValue, sizeof(unsigned short));
-    int packetPosition = sizeof(unsigned short);
+  //X sync ticks (2 bytes)
+  unsigned short nextShortValue = 0;//sensor->getXSyncTickCount();
+  memcpy(debugPacket, &nextShortValue, sizeof(unsigned short));
+  int packetPosition = sizeof(unsigned short);
 
-    //X sweep ticks (4 bytes)
-    unsigned int nextIntValue = sensor->getXSweepTickCount();
-    memcpy(debugPacket+packetPosition, &nextIntValue, sizeof(unsigned int));
-    packetPosition += sizeof(unsigned int);
+  //X sweep ticks (4 bytes)
+  unsigned int nextIntValue = sensor->getXSweepTickCount();
+  memcpy(debugPacket+packetPosition, &nextIntValue, sizeof(unsigned int));
+  packetPosition += sizeof(unsigned int);
 
-    //calculated X position (4 bytes)
-    KVector2* currentSensorPosition = sensor->getPosition();
-    float nextFloatValue = currentSensorPosition->getX();
-    memcpy(debugPacket+packetPosition, &nextFloatValue, sizeof(float));
-    packetPosition += sizeof(float);
+  //calculated X position (4 bytes)
+  KVector2* currentSensorPosition = sensor->getPosition();
+  float nextFloatValue = currentSensorPosition->getX();
+  memcpy(debugPacket+packetPosition, &nextFloatValue, sizeof(float));
+  packetPosition += sizeof(float);
 
-    //Y sync ticks (2 bytes)
-    nextShortValue = 0;//sensor->getYSyncTickCount();
-    memcpy(debugPacket+packetPosition, &nextShortValue, sizeof(unsigned short));
-    packetPosition += sizeof(unsigned short);
+  //Y sync ticks (2 bytes)
+  nextShortValue = 0;//sensor->getYSyncTickCount();
+  memcpy(debugPacket+packetPosition, &nextShortValue, sizeof(unsigned short));
+  packetPosition += sizeof(unsigned short);
 
-    //Y sweep ticks (4 bytes)
-    nextIntValue = sensor->getYSweepTickCount();
-    memcpy(debugPacket+packetPosition, &nextIntValue, sizeof(unsigned int));
-    packetPosition += sizeof(unsigned int);
+  //Y sweep ticks (4 bytes)
+  nextIntValue = sensor->getYSweepTickCount();
+  memcpy(debugPacket+packetPosition, &nextIntValue, sizeof(unsigned int));
+  packetPosition += sizeof(unsigned int);
 
-    //calculated Y position (4 bytes)
-    nextFloatValue = currentSensorPosition->getY();
-    memcpy(debugPacket+packetPosition, &nextFloatValue, sizeof(float));
+  //calculated Y position (4 bytes)
+  nextFloatValue = currentSensorPosition->getY();
+  memcpy(debugPacket+packetPosition, &nextFloatValue, sizeof(float));
 }
+// */
 
 void processBluetoothOutput(unsigned long currentTime)
 {
   //check to see if we need to send debug info over Bluetooth
-  if (/*!bluetooth.isConnected() || */currentTime-bluetoothSendDebugInfoTmeStamp < BLE_SEND_INTERVAL_MS)
+  if (currentTime - bluetoothSendDebugInfoTmeStamp < BLE_SEND_INTERVAL_MS)
     return;
 
   // SerialUSB.println("Sent updated data.");
-  Lighthouse* lighthouse = zippy.getLighthouse();
-  KVector2* positionVector = lighthouse->getPosition();
-  KVector2* orientationVector = lighthouse->getOrientation();
-  KVector2* velocityVector = lighthouse->getVelocity();
-  bluetooth.sendBroadcastData(positionVector->getX(), positionVector->getY(),
-      orientationVector->getOrientation(), velocityVector->getD());
+  const Lighthouse* lighthouse = executor->getLighthouse();
+  const KPosition* position = lighthouse->getPosition();
+  const KPosition* positionDelta = lighthouse->getPositionDelta();
+  bluetooth.sendBroadcastData(position->vector.getX(), position->vector.getY(),
+      position->orientation, positionDelta->vector.getD());
   /*
   float deltaTimeSeconds = ((float)(currentTime - bluetoothSendDebugInfoTmeStamp)) / 1000.0f;
 

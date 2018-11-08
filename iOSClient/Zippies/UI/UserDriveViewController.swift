@@ -16,7 +16,7 @@ class UserDriveViewController: UIViewController
     @IBOutlet weak var statusLabel: UILabel!
     
     var zippyManager: ZippyManager?
-    var zippy: Zippy?
+    var zippy: Zippy2?
     
     var relativeMotorControl: Bool = false
     fileprivate var valueChangingTimer: Timer? = nil
@@ -30,9 +30,9 @@ class UserDriveViewController: UIViewController
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         self.zippyManager = appDelegate.zippyManager
         self.zippyManager?.delegate = self
-        self.zippy = zippyManager?.anyZippy()
+//        self.zippy = zippyManager?.anyZippy()
 
-        statusLabel.textColor = zippy != nil ? UIColor.green : UIColor.red
+//        statusLabel.textColor = zippy != nil ? UIColor.green : UIColor.red
     }
 
     @objc
@@ -43,6 +43,7 @@ class UserDriveViewController: UIViewController
     }
     
     func send(motorLeft: Float32, motorRight: Float32) {
+        /*
         guard self.zippy != nil else {
             return
         }
@@ -60,9 +61,11 @@ class UserDriveViewController: UIViewController
         }
         
         zippy?.setMotors(left: ml, right: mr)
+        */
     }
     
     func indirectMotorControl(motorLeft: inout Float32, motorRight: inout Float32) {
+        /*
         var slowerMotor, fasterMotor: Float32
         let absLeft = abs(motorLeft)
         let absRight = abs(motorRight)
@@ -101,6 +104,7 @@ class UserDriveViewController: UIViewController
             motorLeft = slowerMotor
             motorRight = fasterMotor
         }
+        */
     }
     
     override func didReceiveMemoryWarning() {
@@ -112,17 +116,26 @@ class UserDriveViewController: UIViewController
 extension UserDriveViewController: ZippyManagerDelegate
 {
     
-    func zippyConnected(_ zippy: Zippy) {
+    func zippyDiscovered(_ zippy: Zippy2)
+    {
+        
+    }
+    
+    func zippyConnected(_ zippy: Zippy2)
+    {
         self.zippy = zippy
         self.statusLabel.textColor = UIColor.green
     }
     
-    func compassUpdated(_ zippy: Zippy, x: Int32, y: Int32, z: Int32) {
+    func compassUpdated(_ zippy: Zippy2, x: Int32, y: Int32, z: Int32)
+    {
         
     }
     
-    func zippyDisconnected(_ zippy: Zippy) {
-        if self.zippy == zippy {
+    func zippyDisconnected(_ zippy: Zippy2)
+    {
+        if self.zippy == zippy
+        {
             self.zippy = nil
             self.statusLabel.textColor = UIColor.red
         }
@@ -134,6 +147,7 @@ extension UserDriveViewController: SnappingSliderDelegate
 {
     
     func snappingSliderDidChangeValue(_ slider:SnappingSlider) {
+        /*
         let motorLeft : Float32 = Float32(-sliderLeft.value())
         let motorRight : Float32 = Float32(-sliderRight.value())
         
@@ -150,6 +164,7 @@ extension UserDriveViewController: SnappingSliderDelegate
             send(motorLeft: motorLeft, motorRight: motorRight)
             valueChangingTimer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.sendValues), userInfo: nil, repeats: true)
         }
+        */
     }
     
 }
