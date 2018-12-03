@@ -17,14 +17,24 @@ unsigned long CubicBezierMove::start(Zippy* zippy, const KPosition* sp)
   //the length of each control point is half the distance between the anchor points
   const KVector2* startPoint = &startingPosition->vector;
   const KVector2* endPoint = &endingPosition.vector;
+  /*
   double controlPointLength = sqrt(pow(endPoint->getX() - startPoint->getX(), 2.0d) + pow(endPoint->getY() - startPoint->getY(), 2.0d)) / 2.0d;
-  // if (controlPointLength > CUBIC_CONTROL_POINT_LIMIT_MM)
-    // controlPointLength = CUBIC_CONTROL_POINT_LIMIT_MM;
   controlPoint1->set(0.0d, controlPointLength);
-  controlPoint1->rotate(startingPosition->orientation);
+  controlPoint1->rotate((inReverse != zippy->isInReverse()) ? addAngles(startingPosition->orientation, M_PI) : startingPosition->orientation);
   controlPoint1->addVector(startPoint);
   controlPoint2->set(0.0d, controlPointLength);
   controlPoint2->rotate(addAngles(endingPosition.orientation, M_PI));
+  controlPoint2->addVector(endPoint);
+  // */
+  double width = endingPosition.vector.getX() - startingPosition->vector.getX();
+  double height = endingPosition.vector.getY() - startingPosition->vector.getY();
+  controlPoint1->set(0.0d, 1.0d);
+  controlPoint1->rotate((inReverse != zippy->isInReverse()) ? addAngles(startingPosition->orientation, M_PI) : startingPosition->orientation);
+  controlPoint1->setD(abs((controlPoint1->getX() * width) + (controlPoint1->getY() * height)) / 2.0d);
+  controlPoint1->addVector(startPoint);
+  controlPoint2->set(0.0d, 1.0d);
+  controlPoint2->rotate(addAngles(endingPosition.orientation, M_PI));
+  controlPoint2->setD(abs((controlPoint2->getX() * width) + (controlPoint2->getY() * height)) / 2.0d);
   controlPoint2->addVector(endPoint);
 
   zippy->setReverse(inReverse);

@@ -2,7 +2,7 @@
 #include "Executor.h"
 
 //the number of milliseconds between each time we evaluate the current position of the Zippy and adjust its motors to stay on the path
-#define LOOP_INTERVAL_MS                         40
+#define LOOP_INTERVAL_MS                         25
 
 //the time to pause between the moment the lighthouse signal is detected after it is lost and the moment we start moving again
 //adding an initial pause before moving allows time to completely set the Zippy down and the position detection to stabilize
@@ -35,7 +35,7 @@ void Executor::loop(unsigned long currentTime)
   lastUpdateTime += LOOP_INTERVAL_MS;
 
   //for debugging, to provide a clear indication when our processing is falling behind
-  if (lastUpdateTime != currentTime)
+  if (currentTime - lastUpdateTime > 1)
     zippy.getFace()->clearScreen();
 
   if (!lighthouse.recalculate(currentTime)) {
@@ -87,7 +87,6 @@ void Executor::loop(unsigned long currentTime)
     case TurnIntoPlace:
       if (zippy.loop(currentPosition, currentPositionDelta)) {
         //stop moving and sync with the Lighthouse preamble
-        zippy.stop();
         lighthouse.clearPreambleFlag();
         currentMode = SyncWithPreamble;
       }

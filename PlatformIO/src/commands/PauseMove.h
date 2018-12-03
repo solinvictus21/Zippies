@@ -8,21 +8,14 @@ class PauseMove : public ZippyMove
 {
 
 private:
-  bool inReverse;
   unsigned long pauseTime;
 
 public:
   PauseMove(unsigned long t)
-    : PauseMove(t, false)
-  {}
-
-  PauseMove(bool r, unsigned long t)
-    : inReverse(r),
-      pauseTime(t)
+    : pauseTime(t)
   {}
 
   unsigned long start(Zippy* zippy, const KPosition* sp) {
-    zippy->setReverse(inReverse);
     return pauseTime;
   }
 
