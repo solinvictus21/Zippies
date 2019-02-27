@@ -7,7 +7,13 @@
 //mounted on surface of entertainment center
 //#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 930.0d
 //mounted on top of TV
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 1920.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM            1920.0d
+// #define LIGHTHOUSE_CENTER_OFFSET_X                         800.0d
+#define LIGHTHOUSE_CENTER_OFFSET_X                           0.0d
+#define LIGHTHOUSE_CENTER_OFFSET_Y                        1200.0d
+//the Z axis orientation offset (30 degrees)
+// #define LIGHTHOUSE_ORIENTATION_Z                             0.523598775598299d
+
 //height of the diode sensors from the floor
 #define ROBOT_DIODE_HEIGHT_MM 42.0d
 
@@ -519,6 +525,7 @@ void LighthouseSensor::calculateLighthousePosition()
   // SerialUSB.println(getAccelDirZ(), 6);
 #endif
 
+  // /*
   //The accelerometer reading from the lighthouse gives us a vector that represents the lighthouse "up" direction in a coordinate system
   //where the x and z axes are parallel to the ground, positive x is to the lighthouse "left", positive z is "forward, and positive y is
   //"up". This means swapping the y and z axes of the accelerometer and flipping the x axis to put them into our global coordinate system.
@@ -532,9 +539,14 @@ void LighthouseSensor::calculateLighthousePosition()
   //our quaternion; this calculation ultimately reduces to the y axis from the rotation unit vector becoming the x axis and the x axis
   //becoming the negative y axis; then obtain the unit vector of the result
   rotationUnitVector.set(rotationUnitVector.getY(), -rotationUnitVector.getX(), 0.0d, 1.0d);
+  // */
 
   //now that we have both the axis and angle of rotation, we can calculate our quaternion
   lighthouseOrientation.set(rotationUnitVector.getX(), rotationUnitVector.getY(), rotationUnitVector.getZ(), angleOfRotation);
+
+#ifdef LIGHTHOUSE_ORIENTATION_Z
+  lighthouseOrientation.rotateZ(LIGHTHOUSE_ORIENTATION_Z);
+#endif
 
   receivedLighthousePosition = true;
 }
@@ -566,6 +578,7 @@ bool LighthouseSensor::recalculate()
   //is 1.0, then the opposite is simply the TAN of the angle along each axis
   double idealAngleX = observedAngleX + xRotor.phase;
   double idealAngleZ = observedAngleZ + zRotor.phase;
+
   // /*
   double x = tan(idealAngleX);
   double z = tan(idealAngleZ);
@@ -591,7 +604,9 @@ bool LighthouseSensor::recalculate()
   //to the following
   double lighthouseDistanceFromDiodePlane = LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM - ROBOT_DIODE_HEIGHT_MM;
   double t = -lighthouseDistanceFromDiodePlane / directionFromLighthouse.getZ();
-  positionVector.set(directionFromLighthouse.getX() * t, (directionFromLighthouse.getY() * t) - CENTER_OFFSET_Y);
+  positionVector.set(
+      (directionFromLighthouse.getX() * t) - LIGHTHOUSE_CENTER_OFFSET_X,
+      (directionFromLighthouse.getY() * t) - LIGHTHOUSE_CENTER_OFFSET_Y);
   positionTimeStamp = newPositionTimeStamp;
 
   return true;

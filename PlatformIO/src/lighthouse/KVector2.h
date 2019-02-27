@@ -50,6 +50,7 @@ public:
 
   void addVector(const KVector2* v);
   void subtractVector(const KVector2* v);
+  void projectAlong(double orientation);
   double angleToVector(const KVector2* v) const { return angleToOrientation(v->getOrientation()); }
   double angleToOrientation(double a) const { return subtractAngles(a, getOrientation()); }
 

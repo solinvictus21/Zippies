@@ -58,7 +58,7 @@ void Lighthouse::setupClock()
    // SYSCTRL_DFLLCTRL_WAITLOCK |                     //output clock when DFLL is locked
    // SYSCTRL_DFLLCTRL_BPLCKC |                       //bypass coarse lock
    // SYSCTRL_DFLLCTRL_QLDIS |                        //disable quick lock
-   // SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
+   SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
    // SYSCTRL_DFLLCTRL_STABLE |                       //stable frequency mode
     SYSCTRL_DFLLCTRL_MODE |                         //closed-loop mode
     SYSCTRL_DFLLCTRL_ENABLE;
@@ -532,6 +532,7 @@ bool Lighthouse::recalculate(unsigned long currentTime)
     //estimate the new position and velocity based on the previous position and velocity
     estimatePosition(currentTime);
     return true;
+    // return false;
   }
   else
     lostPositionTimeStamp = 0;
@@ -546,24 +547,29 @@ void Lighthouse::calculatePosition()
   //capture the previous position to allow us to later calculate the velocity
   previousPosition.vector.set(&position.vector);
   previousPosition.orientation = position.orientation;
-  previousPositionDelta.vector.set(&positionDelta.vector);
-  previousPositionDelta.orientation = positionDelta.orientation;
+  // previousPositionDelta.vector.set(&positionDelta.vector);
+  // previousPositionDelta.orientation = positionDelta.orientation;
   previousPositionTimeStamp = positionTimeStamp;
 
+  //the orientation is calculated by crossing the vector between the sensors with the vector (0, 0, 1), which
+  //simplifies to (y, -x); then take the atan2 of that resulting vector to obtain the orientation
   position.orientation = atan2(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
           -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()));
-  // SerialUSB.println(position.orientation, 4);
   //the center position of the robot is the average position between the sensors
-  position.vector.set((SENSOR_OFFSET_Y * cos(position.orientation)) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
-      (SENSOR_OFFSET_Y * sin(position.orientation)) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
+  position.vector.set((SENSOR_OFFSET_Y * sin(position.orientation)) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
+      (SENSOR_OFFSET_Y * cos(position.orientation)) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
   // position.vector.set(((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
       // ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
   positionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
 
   //now calculate the change in position and orientation
-  positionDelta.vector.set(&position.vector);
-  positionDelta.vector.subtractVector(&previousPosition.vector);
   positionDelta.orientation = subtractAngles(position.orientation, previousPosition.orientation);
+  positionDelta.vector.set(position.vector.getX() - previousPosition.vector.getX(),
+      position.vector.getY() - previousPosition.vector.getY());
+
+  //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
+  //represented by half of the change in orientation; project the velocity vector along this line to eliminate velocity error
+  positionDelta.vector.projectAlong((position.orientation + previousPosition.orientation) / 2.0d);
 }
 
 void Lighthouse::estimatePosition(unsigned long currentTime)
@@ -587,11 +593,12 @@ void Lighthouse::estimatePosition(unsigned long currentTime)
   //capture the previous position and velocity
   previousPosition.vector.set(&position.vector);
   previousPosition.orientation = position.orientation;
-  previousPositionDelta.vector.set(&positionDelta.vector);
-  previousPositionDelta.orientation = positionDelta.orientation;
+  // previousPositionDelta.vector.set(&positionDelta.vector);
+  // previousPositionDelta.orientation = positionDelta.orientation;
   previousPositionTimeStamp = positionTimeStamp;
 
   //calculate the new position
+  // SerialUSB.println("Esitmating position.");
   position.vector.addVector(&deltaPosition);
   position.orientation = addAngles(position.orientation, deltaOrientation);
   //when estimating position updates, it is assumed that velocity does not change in magnitude, only in direction

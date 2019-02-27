@@ -147,6 +147,10 @@ public:
 
   void loop(unsigned long currentTime);
 
+  unsigned long getXSyncTickCount() const { return cycleData[0].pendingSyncTicks; }
+  unsigned long getXSweepTickCount() const { return cycleData[0].sweepHitTicks; }
+  unsigned long getYSyncTickCount() const { return cycleData[1].pendingSyncTicks; }
+  unsigned long getYSweepTickCount() const { return cycleData[1].sweepHitTicks; }
   const KVector2* getPosition() const { return &positionVector; }
 
   /*

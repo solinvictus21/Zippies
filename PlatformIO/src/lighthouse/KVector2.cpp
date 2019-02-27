@@ -147,6 +147,9 @@ void KVector2::set(double newX,
 void KVector2::setD(double newD)
 {
   set(this->x, this->y, newD);
+  // double lengthRatio = newD / getD();
+  // this->x *= lengthRatio;
+  // this->y *= lengthRatio;
 }
 
 void KVector2::addVector(const KVector2* v)
@@ -167,20 +170,23 @@ void KVector2::subtractVector(const KVector2* v)
   orientationValid = false;
 }
 
+void KVector2::projectAlong(double orientation)
+{
+  double sinTheta = sin(orientation);
+  double cosTheta = cos(orientation);
+  double newD = (x * sinTheta) + (y * cosTheta);
+  x = newD * sinTheta;
+  y = newD * cosTheta;
+  d = newD;
+  dValid = true;
+  d2Valid = false;
+  orientationValid = false;
+}
+
 double KVector2::getOrientation() const
 {
   if (!orientationValid) {
-    /*
-    SerialUSB.print("getOrientation 1a: (");
-    SerialUSB.print(this->x, 6);
-    SerialUSB.print(", ");
-    SerialUSB.print(this->y, 6);
-    SerialUSB.println(")");
-    */
     orientation = atan2(this->x, this->y);
-    /*
-    SerialUSB.println("getOrientation 1b");
-    */
     orientationValid = true;
   }
 
@@ -190,11 +196,7 @@ double KVector2::getOrientation() const
 void KVector2::rotate(double angleRadians)
 {
   double currentLength = getD();
-  orientation = getOrientation() + angleRadians;
-  if (orientation < -M_PI)
-    orientation += 2.0d * M_PI;
-  else if (orientation > M_PI)
-    orientation -= 2.0d * M_PI;
+  orientation = addAngles(getOrientation(), angleRadians);
 
   this->x = currentLength * sin(orientation);
   this->y = currentLength * cos(orientation);

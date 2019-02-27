@@ -17,7 +17,7 @@ private:
   LighthouseSensor rightSensor;
 
   KPosition previousPosition;
-  KPosition previousPositionDelta;
+  // KPosition previousPositionDelta;
   unsigned long previousPositionTimeStamp = 0;
 
   KPosition position;
