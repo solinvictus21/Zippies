@@ -8,6 +8,8 @@
 #include "KQuaternion3.h"
 #include "KPosition.h"
 
+//#define DEBUG_SIGNAL_EDGES 1
+
 class Lighthouse
 {
 
@@ -17,7 +19,6 @@ private:
   LighthouseSensor rightSensor;
 
   KPosition previousPosition;
-  // KPosition previousPositionDelta;
   unsigned long previousPositionTimeStamp = 0;
 
   KPosition position;
@@ -33,22 +34,26 @@ private:
   void setupTimer();
 
   void calculatePosition();
-  void estimatePosition(unsigned long currentTime);
   void calculateVelocity();
 
 public:
   Lighthouse();
 
   void start();
-  void loop(unsigned long currentTime);
+  bool loop(unsigned long currentTime);
 
   bool recalculate(unsigned long currentTime);
+  void estimatePosition(unsigned long currentTime);
 
   void clearPreambleFlag() { leftSensor.clearPreambleFlag(); rightSensor.clearPreambleFlag(); }
   bool foundPreamble() { return leftSensor.foundPreamble() && rightSensor.foundPreamble(); }
 
+  const LighthouseSensor* getLeftSensor() const { return &leftSensor; }
+  const LighthouseSensor* getRightSensor() const { return &rightSensor; }
   const KPosition* getPosition() const { return &position; }
   const KPosition* getPositionDelta() const { return &positionDelta; }
+
+  bool isSignalLocked() { return leftSensor.isSignalLocked() && rightSensor.isSignalLocked(); }
 
   void stop();
 

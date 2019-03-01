@@ -12,7 +12,7 @@
 #include "ZippyConfig.h"
 
 //the number of milliseconds for each "beat" of the song we are building our movement routine against
-#define TEMPO_MS_PER_BEAT                       600.0d
+#define TEMPO_MS_PER_BEAT                      1000.0d
 #define ZIPPY_OFFSET                            100.0d
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
@@ -24,8 +24,6 @@
 #define BLE_SEND_INTERVAL_MS          300
 
 #define LOOP_INDICATOR_INTERVAL 5000
-
-#define M_PI_34 2.356194490192345d
 
 ZippyMove** moves = NULL;
 Executor* executor = NULL;
@@ -49,7 +47,7 @@ void setup()
 #endif
 
   createExecutor();
-  executor->start(millis());
+  executor->start(micros() / 1000);
 }
 
 void loop()
@@ -76,10 +74,36 @@ void createExecutor()
   double beats2 = 2.0d * TEMPO_MS_PER_BEAT;
   double beats3 = 3.0d * TEMPO_MS_PER_BEAT;
   double beats4 = 4.0d * TEMPO_MS_PER_BEAT;
+  double beats6 = 6.0d * TEMPO_MS_PER_BEAT;
   double beats7 = 7.0d * TEMPO_MS_PER_BEAT;
   double beats8 = 8.0d * TEMPO_MS_PER_BEAT;
 
   int nextMove = 0;
+
+  /* move to center, face forward, and stop
+  int moveCount = 1;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new PauseMove(100000);
+  executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
+  */
+
+  /* follow a rectangular path around the perimeter
+  int moveCount = 8;
+  moves = new ZippyMove*[moveCount];
+  moves[nextMove++] = new LinearMove(-800.0d,  400.0d, beats6);
+  // moves[nextMove++] = new PauseMove(beats1);
+  moves[nextMove++] = new LinearTurn( M_PI  , beats3, false);
+  moves[nextMove++] = new LinearMove(-800.0d, -400.0d, beats3);
+  // moves[nextMove++] = new PauseMove(beats1);
+  moves[nextMove++] = new LinearTurn( M_PI_2, beats3, false);
+  moves[nextMove++] = new LinearMove( 800.0d, -400.0d, beats6);
+  // moves[nextMove++] = new PauseMove(beats1);
+  moves[nextMove++] = new LinearTurn(   0.0d, beats3, false);
+  moves[nextMove++] = new LinearMove( 800.0d,  400.0d, beats3);
+  // moves[nextMove++] = new PauseMove(beats1);
+  moves[nextMove++] = new LinearTurn(-M_PI_2, beats3, false);
+  executor = new Executor(800.0d, 400.0d, -M_PI_2, moves, moveCount);
+  // */
 
   // /*
   //test the ability for the Zippy to move through a variety of circlular paths defined by
@@ -91,6 +115,7 @@ void createExecutor()
       (ZIPPY_ID == 1 ? 0.0d : -ZIPPY_OFFSET);
   bool reversed = false;
   //large figure 8, fastest speed
+  // moves[nextMove++] = new PauseMove(100000.0d);
   moves[nextMove++] = new CubicBezierMove( 460.0d+offset,  460.0d,  M_PI_2, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove( 920.0d+offset,    0.0d,    M_PI, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove( 460.0d+offset, -460.0d, -M_PI_2, reversed, beats2);
@@ -100,16 +125,6 @@ void createExecutor()
   moves[nextMove++] = new CubicBezierMove(-460.0d+offset, -460.0d, M_PI_2, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats2);
   moves[nextMove++] = new PauseMove(beats4);
-  //medium figure 8, fastest speed
-  // moves[nextMove++] = new CubicBezierMove( 345.0d+offset,  345.0d, M_PI_2, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove( 690.0d+offset,    0.0d, M_PI, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove( 345.0d+offset, -345.0d, -M_PI_2, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove(-345.0d+offset,  345.0d, -M_PI_2, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove(-690.0d+offset,    0.0d, M_PI, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove(-345.0d+offset, -345.0d, M_PI_2, reversed, beats2);
-  // moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats2);
-  // moves[nextMove++] = new PauseMove(beats4);
   //smallest figure 8, fastest speed
   double beats = 400.0d;
   moves[nextMove++] = new CubicBezierMove( 100.0d+offset,  100.0d, M_PI_2, reversed, beats);
@@ -121,16 +136,6 @@ void createExecutor()
   moves[nextMove++] = new CubicBezierMove(-100.0d+offset, -100.0d, M_PI_2, reversed, beats);
   moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats);
   moves[nextMove++] = new PauseMove(beats4);
-  //medium figure 8, slowest speed
-  // moves[nextMove++] = new CubicBezierMove( 345.0d+offset,  345.0d, M_PI_2, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove( 690.0d+offset,    0.0d, M_PI, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove( 345.0d+offset, -345.0d, -M_PI_2, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove(-345.0d+offset,  345.0d, -M_PI_2, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove(-690.0d+offset,    0.0d, M_PI, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove(-345.0d+offset, -345.0d, M_PI_2, reversed, beats4);
-  // moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats4);
-  // moves[nextMove++] = new PauseMove(beats4);
   //small figure 8, slowest speed
   moves[nextMove++] = new CubicBezierMove( 100.0d+offset,  100.0d, M_PI_2, reversed, beats3);
   moves[nextMove++] = new CubicBezierMove( 200.0d+offset,    0.0d, M_PI, reversed, beats3);
@@ -437,6 +442,8 @@ void extractSensorPacket(LighthouseSensor* sensor, uint8_t* debugPacket)
 }
 // */
 
+double curveLength(const KVector2* v);
+
 void processBluetoothOutput(unsigned long currentTime)
 {
   //check to see if we need to send debug info over Bluetooth
@@ -445,10 +452,50 @@ void processBluetoothOutput(unsigned long currentTime)
 
   // SerialUSB.println("Sent updated data.");
   const Lighthouse* lighthouse = executor->getLighthouse();
-  const KPosition* position = lighthouse->getPosition();
-  const KPosition* positionDelta = lighthouse->getPositionDelta();
-  bluetooth.sendBroadcastData(position->vector.getX(), position->vector.getY(),
-      position->orientation, positionDelta->vector.getD());
+  const KPosition* currentPosition = lighthouse->getPosition();
+  const KPosition* currentPositionDelta = lighthouse->getPositionDelta();
+  KVector2 relativeVelocity(&currentPositionDelta->vector);
+  double previousOrientation = subtractAngles(currentPosition->orientation, currentPositionDelta->orientation);
+  relativeVelocity.rotate(-previousOrientation);
+
+  /*
+  KVector2 wheelPositionDelta(-16.7d, -5.9d);
+  wheelPositionDelta.rotate(currentPositionDelta->orientation);
+  wheelPositionDelta.addVector(&relativeVelocity);
+  wheelPositionDelta.set(wheelPositionDelta.getX()+16.7d, wheelPositionDelta.getY()+5.9d);
+  wheelPositionDelta.rotate(-relativeVelocity.getOrientation());
+  double wheelInput = curveLength(&wheelPositionDelta);
+  */
+
+  // const ZippyWheel* wheel = executor->getZippy()->getLeftWheel();
+  bluetooth.sendBroadcastData(
+      // currentPosition->vector.getX(),
+      // currentPosition->vector.getY(),
+      // currentPosition->vector.getX(),
+      // currentPosition->vector.getY(),
+      currentPosition->orientation,
+      // relativeVelocity.getX(),
+      // relativeVelocity.getY(),
+      // currentPositionDelta->vector.getX(),
+      // currentPositionDelta->vector.getY(),
+      // currentPositionDelta->vector.getD(),
+      // currentPositionDelta->vector.getOrientation(),
+      // currentPositionDelta->orientation,
+      // wheel->getInput(),
+      // wheel->getSetPoint(),
+      // wheel->getOutput(),
+      relativeVelocity.getX(),
+      relativeVelocity.getY(),
+      relativeVelocity.getD(),
+      relativeVelocity.getOrientation()
+      // currentPositionDelta->vector.getD(),
+      // executor->getZippy()->getTargetVelocity(),
+      // wheelInput,
+      // curveLength(&relativeVelocity));
+      // curveLength(&relativeVelocity),
+      // curveLength(&currentPositionDelta->vector.getD(), currentPositionDelta->vector.getOrientation()),
+      // executor->getZippy()->getTargetVelocity(),
+    );
   /*
   float deltaTimeSeconds = ((float)(currentTime - bluetoothSendDebugInfoTmeStamp)) / 1000.0f;
 

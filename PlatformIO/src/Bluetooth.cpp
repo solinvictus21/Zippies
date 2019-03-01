@@ -317,12 +317,13 @@ tBleStatus Bluetooth::sendComputedData(uint8_t* sendBuffer)
   return aci_gatt_update_char_value(serviceHandle, computedDataReceiveHandle, 0, SENSOR_DATA_LENGTH, sendBuffer);
 }
 
-void Bluetooth::sendBroadcastData(float x, float y, float orientation, float linearVelocity)
+void Bluetooth::sendBroadcastData(float x, float y, float orientation, float linearVelocity, float targetVelocity)
 {
   memcpy(broadcastData+6, &x, sizeof(float));
   memcpy(broadcastData+10, &y, sizeof(float));
   memcpy(broadcastData+14, &orientation, sizeof(float));
-  memcpy(broadcastData+20, &linearVelocity, sizeof(float));
+  memcpy(broadcastData+18, &linearVelocity, sizeof(float));
+  memcpy(broadcastData+22, &targetVelocity, sizeof(float));
   aci_gap_update_adv_data(ADVERTISEMENT_PACKET_LENGTH, broadcastData);
 }
 

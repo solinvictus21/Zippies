@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="8.6.3">
+<eagle version="9.1.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -1053,6 +1053,30 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </polygon>
 <text x="-2.0066" y="4.699" size="1.27" layer="25" ratio="6" rot="SR0">&gt;Name</text>
 </package>
+<package name="PW14">
+<smd name="1" x="-2.8" y="1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="2" x="-2.8" y="1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="3" x="-2.8" y="0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="4" x="-2.8" y="0" dx="1.6" dy="0.35" layer="1"/>
+<smd name="5" x="-2.8" y="-0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="6" x="-2.8" y="-1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="7" x="-2.8" y="-1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="8" x="2.8" y="-1.95" dx="1.6" dy="0.35" layer="1"/>
+<smd name="9" x="2.8" y="-1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="10" x="2.8" y="-0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="11" x="2.8" y="0" dx="1.6" dy="0.35" layer="1"/>
+<smd name="12" x="2.8" y="0.65" dx="1.6" dy="0.35" layer="1"/>
+<smd name="13" x="2.8" y="1.3" dx="1.6" dy="0.35" layer="1"/>
+<smd name="14" x="2.8" y="1.95" dx="1.6" dy="0.35" layer="1"/>
+<wire x1="2.15" y1="2.45" x2="2.15" y2="-2.45" width="0.1524" layer="51"/>
+<wire x1="-2.15" y1="2.45" x2="-2.15" y2="-2.45" width="0.1524" layer="51"/>
+<wire x1="0.3048" y1="2.55" x2="-0.3048" y2="2.55" width="0.1524" layer="21" curve="-180"/>
+<wire x1="-2.25" y1="-2.55" x2="2.25" y2="-2.55" width="0.1524" layer="21"/>
+<wire x1="2.25" y1="2.55" x2="0.3048" y2="2.55" width="0.1524" layer="21"/>
+<text x="-2.1336" y="2.794" size="1" layer="25" font="vector" ratio="6" rot="SR0">&gt;Name</text>
+<wire x1="0.3048" y1="2.55" x2="-0.3048" y2="2.55" width="0.1524" layer="21"/>
+<wire x1="-0.3048" y1="2.55" x2="-2.25" y2="2.55" width="0.1524" layer="21"/>
+</package>
 <package name="D14-M">
 <smd name="1" x="-2.5146" y="3.81" dx="2.286" dy="0.6096" layer="1"/>
 <smd name="2" x="-2.5146" y="2.54" dx="2.286" dy="0.6096" layer="1"/>
@@ -1251,7 +1275,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="TLV2464ID">
+<deviceset name="TLV2464">
 <gates>
 <gate name="G1" symbol="OPAMP_GATE" x="-17.78" y="12.7" swaplevel="1"/>
 <gate name="G2" symbol="OPAMP_GATE" x="-17.78" y="-15.24" swaplevel="1"/>
@@ -1260,7 +1284,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <gate name="PWR" symbol="POWER_SUPPLY" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="D14">
+<device name="ID" package="D14">
 <connects>
 <connect gate="G1" pin="IN+" pad="3"/>
 <connect gate="G1" pin="IN-" pad="2"/>
@@ -1303,6 +1327,27 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </technologies>
 </device>
 <device name="M" package="D14-M">
+<connects>
+<connect gate="G1" pin="IN+" pad="3"/>
+<connect gate="G1" pin="IN-" pad="2"/>
+<connect gate="G1" pin="OUT" pad="1"/>
+<connect gate="G2" pin="IN+" pad="5"/>
+<connect gate="G2" pin="IN-" pad="6"/>
+<connect gate="G2" pin="OUT" pad="7"/>
+<connect gate="G3" pin="IN+" pad="10"/>
+<connect gate="G3" pin="IN-" pad="9"/>
+<connect gate="G3" pin="OUT" pad="8"/>
+<connect gate="G4" pin="IN+" pad="12"/>
+<connect gate="G4" pin="IN-" pad="13"/>
+<connect gate="G4" pin="OUT" pad="14"/>
+<connect gate="PWR" pin="GND" pad="11"/>
+<connect gate="PWR" pin="VCC" pad="4"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="IPW" package="PW14">
 <connects>
 <connect gate="G1" pin="IN+" pad="3"/>
 <connect gate="G1" pin="IN-" pad="2"/>
@@ -1413,7 +1458,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="R2B" library="ZippyComponentLibrary" deviceset="RESISTOR" device="" value="18k"/>
 <part name="R3B" library="ZippyComponentLibrary" deviceset="RESISTOR" device="" value="1k"/>
 <part name="R4B" library="ZippyComponentLibrary" deviceset="RESISTOR" device="" value="100k"/>
-<part name="OA" library="ZippyComponentLibrary" deviceset="TLV2464ID" device="M" value="TLV2464IDM"/>
+<part name="OA" library="ZippyComponentLibrary" deviceset="TLV2464" device="IPW" value="TLV2464IPW"/>
 <part name="IO7" library="SparkFun-Connectors" deviceset="CONN_01" device="PTH_NO_SILK_YES_STOP"/>
 <part name="IO3" library="SparkFun-Connectors" deviceset="CONN_01" device="PTH_NO_SILK_YES_STOP"/>
 <part name="D2" library="ZippyComponentLibrary" deviceset="PHOTODIODE" device="BPW"/>

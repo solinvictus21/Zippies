@@ -6,11 +6,13 @@
 //0 - EDE7958A 0396C931 740872D0 702F6E3E
 #define ZIPPY_ID                                  0
 
-// #define ENABLE_BLUETOOTH                          1
+#define ENABLE_BLUETOOTH                          1
+// #define ENABLE_SDCARD_LOGGING                     1
 
 #define PLATFORM_TINYSCREEN                       1
-// #define PLATFORM_EXEN_MINI 1
+// #define PLATFORM_TINYZERO                         1
+// #define PLATFORM_EXEN_MINI                        1
 
-#define CENTER_OFFSET_Y                        1250.0d
+#define KINEMATIC_MODEL_INDEPENDENT   1
 
 #endif

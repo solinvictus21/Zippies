@@ -37,10 +37,10 @@ KVector3::KVector3(double x,
 
 void KVector3::rotate(double w2, double x2, double y2, double z2)
 {
-    double w1 =             - (x2*this->x) - (y2*this->y) - (z2*this->z);
-    double x1 = (w2*this->x)               + (y2*this->z) - (z2*this->y);
-    double y1 = (w2*this->y) - (x2*this->z)               + (z2*this->x);
-    double z1 = (w2*this->z) + (x2*this->y) - (y2*this->x)              ;
+    double w1 =              - (x2*this->x) - (y2*this->y) - (z2*this->z);
+    double x1 = (w2*this->x)                + (y2*this->z) - (z2*this->y);
+    double y1 = (w2*this->y) - (x2*this->z)                + (z2*this->x);
+    double z1 = (w2*this->z) + (x2*this->y) - (y2*this->x)               ;
 
     this->x =    (w1*(-x2))  + (x1*  w2 )  + (y1*(-z2))  - (z1*(-y2));
     this->y =    (w1*(-y2))  - (x1*(-z2))  + (y1*  w2 )  + (z1*(-x2));
@@ -87,6 +87,8 @@ double KVector3::dotVector(KVector3* v) {
 }
 
 void KVector3::crossVector(KVector3* v) {
+  //TODO: I know this calculation is inaccurate since the length of the resulting vector length is |A| * |B| * sin(angleBetween)
+  //      and not an actual unit vector; this function is not currently used in this codebase, so ignoring the issue for now
   double newX = (this->y * v->z) - (this->z * v->y);
   double newY = (this->z * v->x) - (this->x * v->z);
   double newZ = (this->x * v->y) - (this->y * v->x);

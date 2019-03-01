@@ -27,7 +27,12 @@ private:
   uint8_t broadcastData[ADVERTISEMENT_PACKET_LENGTH] = {
     3, AD_TYPE_16_BIT_SERV_UUID, 0x0B, 0xB0,
     26, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0
   };
 
   bool startAsPeripheral();
@@ -46,7 +51,7 @@ public:
   tBleStatus sendSensorLeft(uint8_t* sendBuffer);
   tBleStatus sendSensorRight(uint8_t* sendBuffer);
   tBleStatus sendComputedData(uint8_t* sendBuffer);
-  void sendBroadcastData(float x, float y, float orientation, float linearVelocity);
+  void sendBroadcastData(float x, float y, float orientation, float linearVelocity, float targetVelocity);
   uint8_t getReceivedDataLength() { return receivedDataLength; }
   uint8_t* getReceivedData() { return receivedData; }
   void stop();

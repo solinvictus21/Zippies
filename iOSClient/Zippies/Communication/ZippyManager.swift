@@ -99,7 +99,13 @@ extension ZippyManager: PeripheralFinderDelegate
         let zippyX = extractFloat32(values, position: 0)
         let zippyY = extractFloat32(values, position: 4)
         let zippyO = extractFloat32(values, position: 8)
-//        print("Got update: X=", zippyX, ", Y=", zippyY)
+        let zippyV = extractFloat32(values, position: 12)
+        let zippyTV = extractFloat32(values, position: 16)
+        print("  1: ", zippyX,
+              "  2: ", zippyY,
+              "  3: ", zippyO,
+              "  4: ", zippyV,
+              "  5: ", zippyTV)
 
         DispatchQueue.main.async(execute: {
             if let zippy = self._zippies[id]

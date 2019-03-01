@@ -842,38 +842,38 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <text x="-2.0066" y="-3.175" size="1.27" layer="25" ratio="6" rot="SR0">&gt;Name</text>
 </package>
 <package name="DF12(3.0)-32DS-0.5V(86)-MALE">
-<smd name="31" x="-3.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="32" x="-3.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="29" x="-3.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="30" x="-3.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="27" x="-2.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="28" x="-2.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="25" x="-2.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="26" x="-2.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="23" x="-1.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="24" x="-1.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="21" x="-1.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="22" x="-1.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="19" x="-0.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="20" x="-0.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="17" x="-0.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="18" x="-0.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="15" x="0.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="16" x="0.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="13" x="0.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="14" x="0.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="11" x="1.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="12" x="1.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="9" x="1.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="10" x="1.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="7" x="2.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="8" x="2.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="5" x="2.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="6" x="2.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="3" x="3.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="4" x="3.25" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
-<smd name="1" x="3.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
-<smd name="2" x="3.75" y="1.8" dx="0.3" dy="1.6" layer="1" cream="no"/>
+<smd name="31" x="-3.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="32" x="-3.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="29" x="-3.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="30" x="-3.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="27" x="-2.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="28" x="-2.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="25" x="-2.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="26" x="-2.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="23" x="-1.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="24" x="-1.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="21" x="-1.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="22" x="-1.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="19" x="-0.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="20" x="-0.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="17" x="-0.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="18" x="-0.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="15" x="0.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="16" x="0.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="13" x="0.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="14" x="0.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="11" x="1.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="12" x="1.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="9" x="1.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="10" x="1.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="7" x="2.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="8" x="2.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="5" x="2.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="6" x="2.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="3" x="3.25" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="4" x="3.25" y="1.8" dx="0.3" dy="1.6" layer="1"/>
+<smd name="1" x="3.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180"/>
+<smd name="2" x="3.75" y="1.8" dx="0.3" dy="1.6" layer="1"/>
 <hole x="-4.8" y="-1.5" drill="0.6"/>
 <hole x="4.8" y="-1.5" drill="0.6"/>
 <rectangle x1="-5.85" y1="-0.9" x2="-5.05" y2="0.9" layer="1"/>
@@ -885,40 +885,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="5.05" y1="-1.2" x2="-5.05" y2="-1.2" width="0.127" layer="51"/>
 <wire x1="-5.05" y1="-1.2" x2="-5.05" y2="1.2" width="0.127" layer="51"/>
 <text x="0" y="0" size="0.4572" layer="51" font="vector" align="center">&gt;NAME</text>
-<rectangle x1="-3.85" y1="1.05" x2="-3.65" y2="2.55" layer="31"/>
-<rectangle x1="-3.35" y1="1.05" x2="-3.15" y2="2.55" layer="31"/>
-<rectangle x1="-2.85" y1="1.05" x2="-2.65" y2="2.55" layer="31"/>
-<rectangle x1="-2.35" y1="1.05" x2="-2.15" y2="2.55" layer="31"/>
-<rectangle x1="-1.85" y1="1.05" x2="-1.65" y2="2.55" layer="31"/>
-<rectangle x1="-1.35" y1="1.05" x2="-1.15" y2="2.55" layer="31"/>
-<rectangle x1="-0.85" y1="1.05" x2="-0.65" y2="2.55" layer="31"/>
-<rectangle x1="-0.35" y1="1.05" x2="-0.15" y2="2.55" layer="31"/>
-<rectangle x1="0.15" y1="1.05" x2="0.35" y2="2.55" layer="31"/>
-<rectangle x1="0.65" y1="1.05" x2="0.85" y2="2.55" layer="31"/>
-<rectangle x1="1.15" y1="1.05" x2="1.35" y2="2.55" layer="31"/>
-<rectangle x1="1.65" y1="1.05" x2="1.85" y2="2.55" layer="31"/>
-<rectangle x1="2.15" y1="1.05" x2="2.35" y2="2.55" layer="31"/>
-<rectangle x1="2.65" y1="1.05" x2="2.85" y2="2.55" layer="31"/>
-<rectangle x1="3.15" y1="1.05" x2="3.35" y2="2.55" layer="31"/>
-<rectangle x1="3.65" y1="1.05" x2="3.85" y2="2.55" layer="31"/>
 <rectangle x1="5.05" y1="-0.9" x2="5.85" y2="0.9" layer="31"/>
 <rectangle x1="-5.85" y1="-0.9" x2="-5.05" y2="0.9" layer="31"/>
-<rectangle x1="-3.85" y1="-2.55" x2="-3.65" y2="-1.05" layer="31"/>
-<rectangle x1="-3.35" y1="-2.55" x2="-3.15" y2="-1.05" layer="31"/>
-<rectangle x1="-2.85" y1="-2.55" x2="-2.65" y2="-1.05" layer="31"/>
-<rectangle x1="-2.35" y1="-2.55" x2="-2.15" y2="-1.05" layer="31"/>
-<rectangle x1="-1.85" y1="-2.55" x2="-1.65" y2="-1.05" layer="31"/>
-<rectangle x1="-1.35" y1="-2.55" x2="-1.15" y2="-1.05" layer="31"/>
-<rectangle x1="-0.85" y1="-2.55" x2="-0.65" y2="-1.05" layer="31"/>
-<rectangle x1="-0.35" y1="-2.55" x2="-0.15" y2="-1.05" layer="31"/>
-<rectangle x1="0.15" y1="-2.55" x2="0.35" y2="-1.05" layer="31"/>
-<rectangle x1="0.65" y1="-2.55" x2="0.85" y2="-1.05" layer="31"/>
-<rectangle x1="1.15" y1="-2.55" x2="1.35" y2="-1.05" layer="31"/>
-<rectangle x1="1.65" y1="-2.55" x2="1.85" y2="-1.05" layer="31"/>
-<rectangle x1="2.15" y1="-2.55" x2="2.35" y2="-1.05" layer="31"/>
-<rectangle x1="2.65" y1="-2.55" x2="2.85" y2="-1.05" layer="31"/>
-<rectangle x1="3.15" y1="-2.55" x2="3.35" y2="-1.05" layer="31"/>
-<rectangle x1="3.65" y1="-2.55" x2="3.85" y2="-1.05" layer="31"/>
 </package>
 <package name="DF12(3.0)-32DS-0.5V(86)-FEMALE">
 <smd name="1" x="-3.75" y="-1.8" dx="0.3" dy="1.6" layer="1" rot="R180" cream="no"/>
@@ -998,6 +966,32 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <rectangle x1="2.65" y1="-2.55" x2="2.85" y2="-1.05" layer="31"/>
 <rectangle x1="3.15" y1="-2.55" x2="3.35" y2="-1.05" layer="31"/>
 <rectangle x1="3.65" y1="-2.55" x2="3.85" y2="-1.05" layer="31"/>
+</package>
+<package name="2X1_SMD_DIODE_PACKAGE">
+<smd name="ANODE" x="-2.54" y="0" dx="1.016" dy="2.032" layer="1"/>
+<smd name="CATHODE" x="2.54" y="0" dx="1.016" dy="2.032" layer="1"/>
+<text x="0" y="0" size="0.4318" layer="25" font="vector" align="center">&gt;NAME</text>
+<wire x1="-3.2512" y1="1.2192" x2="-1.8288" y2="1.2192" width="0.0508" layer="39"/>
+<wire x1="-1.8288" y1="1.2192" x2="-1.8288" y2="-1.2192" width="0.0508" layer="39"/>
+<wire x1="-1.8288" y1="-1.2192" x2="-3.2512" y2="-1.2192" width="0.0508" layer="39"/>
+<wire x1="-3.2512" y1="-1.2192" x2="-3.2512" y2="1.2192" width="0.0508" layer="39"/>
+<wire x1="1.8288" y1="1.2192" x2="3.2512" y2="1.2192" width="0.0508" layer="39"/>
+<wire x1="3.2512" y1="1.2192" x2="3.2512" y2="-1.2192" width="0.0508" layer="39"/>
+<wire x1="3.2512" y1="-1.2192" x2="1.8288" y2="-1.2192" width="0.0508" layer="39"/>
+<wire x1="1.8288" y1="-1.2192" x2="1.8288" y2="1.2192" width="0.0508" layer="39"/>
+</package>
+<package name="BPW34_BP104_SMD">
+<smd name="ANODE" x="-3.05" y="0" dx="1.4" dy="1.2" layer="1"/>
+<smd name="CATHODE" x="3.05" y="0" dx="1.4" dy="2.1" layer="1"/>
+<text x="0" y="0" size="0.4318" layer="25" font="vector" align="center">&gt;NAME</text>
+<wire x1="-3.9512" y1="0.8192" x2="-2.1288" y2="0.8192" width="0.0508" layer="39"/>
+<wire x1="-2.1288" y1="0.8192" x2="-2.1288" y2="-0.8192" width="0.0508" layer="39"/>
+<wire x1="-2.1288" y1="-0.8192" x2="-3.9512" y2="-0.8192" width="0.0508" layer="39"/>
+<wire x1="-3.9512" y1="-0.8192" x2="-3.9512" y2="0.8192" width="0.0508" layer="39"/>
+<wire x1="2.1288" y1="1.3192" x2="4.0512" y2="1.3192" width="0.0508" layer="39"/>
+<wire x1="4.0512" y1="1.3192" x2="4.0512" y2="-1.3192" width="0.0508" layer="39"/>
+<wire x1="4.0512" y1="-1.3192" x2="2.1288" y2="-1.3192" width="0.0508" layer="39"/>
+<wire x1="2.1288" y1="-1.3192" x2="2.1288" y2="1.3192" width="0.0508" layer="39"/>
 </package>
 </packages>
 <symbols>
@@ -1119,6 +1113,25 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="7.62" y1="20.32" x2="-5.08" y2="20.32" width="0.254" layer="94"/>
 <text x="0" y="21.336" size="1.778" layer="97" font="vector" align="bottom-center">&gt;NAME</text>
 <text x="1.27" y="-25.908" size="1.778" layer="97" font="vector" align="bottom-center">DF12-32DS</text>
+</symbol>
+<symbol name="PHOTODIODE">
+<wire x1="-3.81" y1="4.572" x2="3.81" y2="0" width="0.254" layer="94"/>
+<wire x1="3.81" y1="0" x2="-3.81" y2="-4.572" width="0.254" layer="94"/>
+<wire x1="-3.81" y1="-4.572" x2="-3.81" y2="4.572" width="0.254" layer="94"/>
+<pin name="ANODE" x="-8.89" y="0" visible="off" length="middle"/>
+<pin name="CATHODE" x="8.89" y="0" visible="off" length="middle" rot="R180"/>
+<text x="-3.81" y="5.842" size="1.778" layer="95" align="bottom-center">&gt;NAME</text>
+<text x="-8.128" y="0.254" size="1.27" layer="95">A</text>
+<text x="8.128" y="0.254" size="1.27" layer="95" align="bottom-right">C</text>
+<text x="-3.81" y="-5.842" size="1.778" layer="95" align="top-center">&gt;VALUE</text>
+<wire x1="3.81" y1="3.556" x2="3.81" y2="0" width="0.254" layer="94"/>
+<wire x1="3.81" y1="0" x2="3.81" y2="-3.556" width="0.254" layer="94"/>
+<wire x1="0.762" y1="4.826" x2="-0.762" y2="3.81" width="0.254" layer="94"/>
+<wire x1="-0.762" y1="3.81" x2="-0.508" y2="4.572" width="0.254" layer="94"/>
+<wire x1="-0.762" y1="3.81" x2="0" y2="3.81" width="0.254" layer="94"/>
+<wire x1="2.286" y1="3.81" x2="0.762" y2="2.794" width="0.254" layer="94"/>
+<wire x1="0.762" y1="2.794" x2="1.016" y2="3.556" width="0.254" layer="94"/>
+<wire x1="0.762" y1="2.794" x2="1.524" y2="2.794" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -1379,6 +1392,32 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </device>
 </devices>
 </deviceset>
+<deviceset name="PHOTODIODE">
+<description>"2x1 SMD Mounting Point For BPW34 Diode"</description>
+<gates>
+<gate name="G$1" symbol="PHOTODIODE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="SMD_HORIZONTAL" package="2X1_SMD_DIODE_PACKAGE">
+<connects>
+<connect gate="G$1" pin="ANODE" pad="ANODE"/>
+<connect gate="G$1" pin="CATHODE" pad="CATHODE"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="BPW" package="BPW34_BP104_SMD">
+<connects>
+<connect gate="G$1" pin="ANODE" pad="ANODE"/>
+<connect gate="G$1" pin="CATHODE" pad="CATHODE"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -1414,12 +1453,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="AO1" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
 <part name="AO2" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
 <part name="HCM" library="ZippyComponentLibrary" deviceset="HIROSE-DF12-32DS" device="MALE" value="HIROSE-DF12-32DSMALE"/>
-<part name="DOA" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
-<part name="DIA" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
-<part name="DIB" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
-<part name="DOB" library="ZippyComponentLibrary" deviceset="SINGLE-THROUGH-HOLE" device=""/>
 <part name="VCO" library="ZippyComponentLibrary" deviceset="CAPACITOR" device="" value="0.1uF"/>
 <part name="VMO" library="ZippyComponentLibrary" deviceset="CAPACITOR" device="" value="0.1uF"/>
+<part name="D1" library="ZippyComponentLibrary" deviceset="PHOTODIODE" device="BPW"/>
+<part name="D2" library="ZippyComponentLibrary" deviceset="PHOTODIODE" device="BPW"/>
 </parts>
 <sheets>
 <sheet>
@@ -1567,9 +1604,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="233.426" y="28.194" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="MD" gate="A" pin="AIN1"/>
-<wire x1="208.28" y1="116.84" x2="200.66" y2="116.84" width="0.1524" layer="91"/>
-<label x="200.66" y="117.094" size="1.778" layer="95"/>
+<pinref part="MD" gate="A" pin="BIN2"/>
+<wire x1="208.28" y1="106.68" x2="200.66" y2="106.68" width="0.1524" layer="91"/>
+<label x="200.914" y="106.934" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="IO8" class="0">
@@ -1579,9 +1616,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="233.426" y="25.654" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="MD" gate="A" pin="AIN2"/>
-<wire x1="208.28" y1="114.3" x2="200.66" y2="114.3" width="0.1524" layer="91"/>
-<label x="200.66" y="114.554" size="1.778" layer="95"/>
+<pinref part="MD" gate="A" pin="BIN1"/>
+<wire x1="208.28" y1="109.22" x2="200.66" y2="109.22" width="0.1524" layer="91"/>
+<label x="200.914" y="109.474" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="IO3" class="0">
@@ -1605,9 +1642,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="233.426" y="20.574" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="MD" gate="A" pin="BIN2"/>
-<wire x1="208.28" y1="106.68" x2="200.66" y2="106.68" width="0.1524" layer="91"/>
-<label x="200.914" y="106.934" size="1.778" layer="95"/>
+<pinref part="MD" gate="A" pin="AIN1"/>
+<wire x1="208.28" y1="116.84" x2="200.66" y2="116.84" width="0.1524" layer="91"/>
+<label x="200.66" y="117.094" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="IO7" class="0">
@@ -1617,9 +1654,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="233.426" y="23.114" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="MD" gate="A" pin="BIN1"/>
-<wire x1="208.28" y1="109.22" x2="200.66" y2="109.22" width="0.1524" layer="91"/>
-<label x="200.914" y="109.474" size="1.778" layer="95"/>
+<pinref part="MD" gate="A" pin="AIN2"/>
+<wire x1="208.28" y1="114.3" x2="200.66" y2="114.3" width="0.1524" layer="91"/>
+<label x="200.66" y="114.554" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
@@ -1657,10 +1694,8 @@ Gain=100</text>
 <instance part="OPAMP" gate="G2" x="149.86" y="83.82"/>
 <instance part="OPAMP" gate="G3" x="149.86" y="2.54"/>
 <instance part="OPAMP" gate="PWR" x="40.64" y="50.8" rot="R90"/>
-<instance part="DOA" gate="G$1" x="12.7" y="73.66" smashed="yes" rot="R270"/>
-<instance part="DIA" gate="G$1" x="43.18" y="88.9" smashed="yes"/>
-<instance part="DIB" gate="G$1" x="43.18" y="7.62" smashed="yes"/>
-<instance part="DOB" gate="G$1" x="20.32" y="73.66" smashed="yes" rot="R270"/>
+<instance part="D1" gate="G$1" x="50.8" y="88.9"/>
+<instance part="D2" gate="G$1" x="50.8" y="7.62"/>
 </instances>
 <busses>
 </busses>
@@ -1697,14 +1732,8 @@ Gain=100</text>
 <pinref part="CO" gate="G$1" pin="1"/>
 <wire x1="-2.54" y1="40.64" x2="-5.08" y2="40.64" width="0.1524" layer="91"/>
 <junction x="-5.08" y="40.64"/>
-<pinref part="DOA" gate="G$1" pin="1"/>
-<wire x1="-5.08" y1="58.42" x2="12.7" y2="58.42" width="0.1524" layer="91"/>
-<wire x1="12.7" y1="58.42" x2="12.7" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="-5.08" y1="58.42" x2="7.62" y2="58.42" width="0.1524" layer="91"/>
 <junction x="-5.08" y="58.42"/>
-<pinref part="DOB" gate="G$1" pin="1"/>
-<wire x1="12.7" y1="58.42" x2="20.32" y2="58.42" width="0.1524" layer="91"/>
-<wire x1="20.32" y1="58.42" x2="20.32" y2="66.04" width="0.1524" layer="91"/>
-<junction x="12.7" y="58.42"/>
 </segment>
 <segment>
 <pinref part="R2B" gate="G$1" pin="2"/>
@@ -1737,6 +1766,16 @@ Gain=100</text>
 <pinref part="R3B" gate="G$1" pin="2"/>
 <wire x1="137.16" y1="-27.94" x2="137.16" y2="-30.48" width="0.1524" layer="91"/>
 <label x="134.62" y="-33.02" size="1.778" layer="95"/>
+</segment>
+<segment>
+<label x="32.258" y="85.852" size="1.778" layer="95" rot="R90"/>
+<pinref part="D1" gate="G$1" pin="ANODE"/>
+<wire x1="41.91" y1="88.9" x2="33.02" y2="88.9" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<label x="32.258" y="4.572" size="1.778" layer="95" rot="R90"/>
+<pinref part="D2" gate="G$1" pin="ANODE"/>
+<wire x1="41.91" y1="7.62" x2="33.02" y2="7.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -1825,7 +1864,7 @@ Gain=100</text>
 </net>
 <net name="D2IN1" class="0">
 <segment>
-<wire x1="63.5" y1="88.9" x2="50.8" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="88.9" x2="59.69" y2="88.9" width="0.1524" layer="91"/>
 <pinref part="R1A" gate="G$1" pin="1"/>
 <wire x1="71.12" y1="104.14" x2="66.04" y2="109.22" width="0.1524" layer="91"/>
 <junction x="66.04" y="109.22"/>
@@ -1836,7 +1875,7 @@ Gain=100</text>
 <wire x1="63.5" y1="109.22" x2="66.04" y2="109.22" width="0.1524" layer="91"/>
 <junction x="63.5" y="88.9"/>
 <pinref part="OPAMP" gate="G1" pin="IN-"/>
-<pinref part="DIA" gate="G$1" pin="1"/>
+<pinref part="D1" gate="G$1" pin="CATHODE"/>
 </segment>
 </net>
 <net name="D1IN1" class="0">
@@ -1850,9 +1889,9 @@ Gain=100</text>
 <wire x1="71.12" y1="25.4" x2="66.04" y2="30.48" width="0.1524" layer="91"/>
 <junction x="66.04" y="30.48"/>
 <pinref part="OPAMP" gate="G4" pin="IN-"/>
-<pinref part="DIB" gate="G$1" pin="1"/>
-<wire x1="63.5" y1="7.62" x2="50.8" y2="7.62" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="7.62" x2="59.69" y2="7.62" width="0.1524" layer="91"/>
 <junction x="63.5" y="7.62"/>
+<pinref part="D2" gate="G$1" pin="CATHODE"/>
 </segment>
 </net>
 <net name="N$11" class="0">

@@ -7,8 +7,8 @@
 #define SENSOR_OFFSET_Y   4.2d
 
 Lighthouse* currentLighthouse = NULL;
-LighthouseSensorInput rightSensorInput;
 LighthouseSensorInput leftSensorInput;
+LighthouseSensorInput rightSensorInput;
 
 Lighthouse::Lighthouse()
   : leftSensor(&leftSensorInput, 0),
@@ -21,6 +21,13 @@ void Lighthouse::start()
   if (currentLighthouse != NULL)
     currentLighthouse->stop();
   currentLighthouse = this;
+
+  leftSensor.restart();
+  rightSensor.restart();
+
+  previousPositionTimeStamp = 0;
+  positionTimeStamp = 0;
+  lostPositionTimeStamp = 0;
 
   //configure the timing clock we'll use for counting cycles between IR pules
   setupClock();
@@ -58,8 +65,8 @@ void Lighthouse::setupClock()
    // SYSCTRL_DFLLCTRL_WAITLOCK |                     //output clock when DFLL is locked
    // SYSCTRL_DFLLCTRL_BPLCKC |                       //bypass coarse lock
    // SYSCTRL_DFLLCTRL_QLDIS |                        //disable quick lock
-   SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
-   // SYSCTRL_DFLLCTRL_STABLE |                       //stable frequency mode
+    SYSCTRL_DFLLCTRL_CCDIS |                        //disable chill cycle
+   // SYSCTRL_DFLLCTRL_STABLE |                       //stable frequency mode; testing indicates this poorly skews detection results
     SYSCTRL_DFLLCTRL_MODE |                         //closed-loop mode
     SYSCTRL_DFLLCTRL_ENABLE;
   while (!SYSCTRL->PCLKSR.bit.DFLLRDY);
@@ -359,7 +366,7 @@ void Lighthouse::setupTimer()
 //    TCC_INTENSET_TRG;             //enable interrupts on retrigger
 
   //connect the interrupt handler for TCC0
-  NVIC_SetPriority(TCC0_IRQn, 0);
+  NVIC_SetPriority(TCC0_IRQn, 1);
   NVIC_EnableIRQ(TCC0_IRQn);
 
   //enable TCC0
@@ -389,7 +396,7 @@ void Lighthouse::setupTimer()
     TCC_INTENSET_MC1;               //enable interrupts when a capture occurs on TCC1/MC1
 
   //connect the interrupt handler for TCC1
-  NVIC_SetPriority(TCC1_IRQn, 0);
+  NVIC_SetPriority(TCC1_IRQn, 1);
   NVIC_EnableIRQ(TCC1_IRQn);
 
   //enable TCC1
@@ -500,10 +507,11 @@ void TCC1_Handler()
   }
 }
 
-void Lighthouse::loop(unsigned long currentTime)
+bool Lighthouse::loop(unsigned long currentTime)
 {
-  rightSensor.loop(currentTime);
-  leftSensor.loop(currentTime);
+  bool hasPositionUpdate = rightSensor.loop(currentTime);
+  hasPositionUpdate &= leftSensor.loop(currentTime);
+  return hasPositionUpdate;
 }
 
 /**
@@ -513,11 +521,6 @@ void Lighthouse::loop(unsigned long currentTime)
  */
 bool Lighthouse::recalculate(unsigned long currentTime)
 {
-  if (!leftSensor.receivedLighthousePosition || !rightSensor.receivedLighthousePosition) {
-    //we have not yet finished receiving the base station info block and so are not ready to being calculating positions
-    return false;
-  }
-
   //update the position of the sensors
   if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
     //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
@@ -532,7 +535,6 @@ bool Lighthouse::recalculate(unsigned long currentTime)
     //estimate the new position and velocity based on the previous position and velocity
     estimatePosition(currentTime);
     return true;
-    // return false;
   }
   else
     lostPositionTimeStamp = 0;

@@ -34,9 +34,13 @@ void Executor::loop(unsigned long currentTime)
     return;
   lastUpdateTime += LOOP_INTERVAL_MS;
 
+#ifdef PLATFORM_TINYSCREEN
   //for debugging, to provide a clear indication when our processing is falling behind
+  /*
   if (currentTime - lastUpdateTime > 1)
     zippy.getFace()->clearScreen();
+  */
+#endif
 
   if (!lighthouse.recalculate(currentTime)) {
     //we are no longer able to determine our current position; stop moving
