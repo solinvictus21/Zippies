@@ -13,6 +13,8 @@
 // #define PLATFORM_TINYZERO                         1
 // #define PLATFORM_EXEN_MINI                        1
 
-#define KINEMATIC_MODEL_INDEPENDENT   1
+#define LIGHTHOUSE_CENTER_OFFSET_X                           0.0d
+// #define LIGHTHOUSE_CENTER_OFFSET_Y                        1200.0d
+#define LIGHTHOUSE_CENTER_OFFSET_Y                        1000.0d
 
 #endif

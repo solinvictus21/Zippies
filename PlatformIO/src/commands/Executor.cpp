@@ -62,23 +62,10 @@ void Executor::loop(unsigned long currentTime)
         //move to the starting position
         zippy.start();
         zippy.setReverse(false);
+        // zippy.move(startingPositionX, startingPositionY);
         zippy.move(startingPositionX, startingPositionY,
             atan2(startingPositionX - currentPosition->vector.getX(), startingPositionY - currentPosition->vector.getY()));
         currentMode = MoveIntoPlace;
-        /*
-        //determine the 16-bit ID of this Zippy
-        SerialUSB.print("Zippy ID: ");
-        // uint32_t* zippyID = ((uint32_t*)0x0080A00C);
-        // for (int i = 0; i < 4; i++)
-          // SerialUSB.print(zippyID[i], HEX);
-        uint8_t* zippyID = ((uint8_t*)0x0080A00C);
-        for (int i = 0; i < 16; i++) {
-          if (zippyID[i] < 0x10)
-            SerialUSB.print("0");
-          SerialUSB.print(zippyID[i], HEX);
-        }
-        SerialUSB.println();
-        */
       }
       break;
     case MoveIntoPlace:

@@ -47,10 +47,13 @@ public:
 
   bool equalsVector(const KVector2* v) const;
   double dotVector(const KVector2* v) const;
+  double dotOrientation(double orientation) const;
 
   void addVector(const KVector2* v);
   void subtractVector(const KVector2* v);
-  void projectAlong(double orientation);
+  void multiply(double orientation);
+  double projectAlong(double orientation);
+  double projectToward(double orientation);
   double angleToVector(const KVector2* v) const { return angleToOrientation(v->getOrientation()); }
   double angleToOrientation(double a) const { return subtractAngles(a, getOrientation()); }
 

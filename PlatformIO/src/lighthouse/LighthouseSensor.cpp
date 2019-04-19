@@ -10,12 +10,9 @@
 
 //height of the lighthouse from the floor
 //mounted on surface of entertainment center
-//#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 930.0d
+#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM 930.0d
 //mounted on top of TV
-#define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM            1920.0d
-// #define LIGHTHOUSE_CENTER_OFFSET_X                         800.0d
-#define LIGHTHOUSE_CENTER_OFFSET_X                           0.0d
-#define LIGHTHOUSE_CENTER_OFFSET_Y                        1200.0d
+// #define LIGHTHOUSE_CENTER_HEIGHT_FROM_FLOOR_MM            1920.0d
 //the Z axis orientation offset (30 degrees)
 // #define LIGHTHOUSE_ORIENTATION_Z                             0.523598775598299d
 
@@ -600,13 +597,6 @@ bool LighthouseSensor::recalculate()
       (zRotor.curve * x * x) +
       (sin(zRotor.gibbousPhase + idealAngleZ) * zRotor.gibbousMagnitude);
   // */
-
-  /*
-  KVector3 normalToXPlane(cos(-idealAngleX), sin(idealAngleX), 0.0d);
-  KVector3 directionFromLighthouse(0.0d, -sin(idealAngleZ), cos(idealAngleZ));
-  directionFromLighthouse.crossVector(&normalToXPlane);
-  directionFromLighthouse.normalize();
-  */
 
   //calculate the normal for the plane of the intersection from the horizontal sweep, which is a vertical plane whose normal
   //is a vector with no z component

@@ -12,7 +12,8 @@
 #include "ZippyConfig.h"
 
 //the number of milliseconds for each "beat" of the song we are building our movement routine against
-#define TEMPO_MS_PER_BEAT                      1000.0d
+// #define TEMPO_MS_PER_BEAT                       600.0d
+#define TEMPO_MS_PER_BEAT                      1200.0d
 #define ZIPPY_OFFSET                            100.0d
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
@@ -85,7 +86,7 @@ void createExecutor()
   moves = new ZippyMove*[moveCount];
   moves[nextMove++] = new PauseMove(100000);
   executor = new Executor(0.0d, 0.0d, 0.0d, moves, moveCount);
-  */
+  // */
 
   /* follow a rectangular path around the perimeter
   int moveCount = 8;
@@ -115,6 +116,18 @@ void createExecutor()
       (ZIPPY_ID == 1 ? 0.0d : -ZIPPY_OFFSET);
   bool reversed = false;
   //large figure 8, fastest speed
+  //smallest figure 8, fastest speed
+  // double beats = beatHalf;
+  double beats = beats1;
+  moves[nextMove++] = new CubicBezierMove(-100.0d+offset,  100.0d, -M_PI_2, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove(-200.0d+offset,    0.0d, M_PI, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove(-100.0d+offset, -100.0d, M_PI_2, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove( 100.0d+offset,  100.0d, M_PI_2, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove( 200.0d+offset,    0.0d, M_PI, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove( 100.0d+offset, -100.0d, -M_PI_2, reversed, beats);
+  moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats);
+  moves[nextMove++] = new PauseMove(beats4);
   // moves[nextMove++] = new PauseMove(100000.0d);
   moves[nextMove++] = new CubicBezierMove( 460.0d+offset,  460.0d,  M_PI_2, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove( 920.0d+offset,    0.0d,    M_PI, reversed, beats2);
@@ -124,17 +137,6 @@ void createExecutor()
   moves[nextMove++] = new CubicBezierMove(-920.0d+offset,    0.0d, M_PI, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove(-460.0d+offset, -460.0d, M_PI_2, reversed, beats2);
   moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats2);
-  moves[nextMove++] = new PauseMove(beats4);
-  //smallest figure 8, fastest speed
-  double beats = 400.0d;
-  moves[nextMove++] = new CubicBezierMove( 100.0d+offset,  100.0d, M_PI_2, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove( 200.0d+offset,    0.0d, M_PI, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove( 100.0d+offset, -100.0d, -M_PI_2, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove(-100.0d+offset,  100.0d, -M_PI_2, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove(-200.0d+offset,    0.0d, M_PI, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove(-100.0d+offset, -100.0d, M_PI_2, reversed, beats);
-  moves[nextMove++] = new CubicBezierMove(   0.0d+offset,    0.0d, 0.0d, reversed, beats);
   moves[nextMove++] = new PauseMove(beats4);
   //small figure 8, slowest speed
   moves[nextMove++] = new CubicBezierMove( 100.0d+offset,  100.0d, M_PI_2, reversed, beats3);

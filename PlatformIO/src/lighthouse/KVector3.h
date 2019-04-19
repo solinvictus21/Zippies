@@ -14,7 +14,6 @@ protected:
   double z;
 
   void setD(double newD, KVector3* unitVector);
-  void vectorChanged();
 
 public:
   KVector3();

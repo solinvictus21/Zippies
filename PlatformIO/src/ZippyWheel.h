@@ -10,6 +10,7 @@ class ZippyWheel
 
 private:
   KVector2 wheelOffset;
+  double wheelRadialOffset;
 
   double wheelInput = 0.0d;
   double wheelSetPoint = 0.0d;
@@ -17,10 +18,8 @@ private:
   PID wheelPID;
 
   double turnLength(double centerTurnRadius, double deltaOrientation);
-
-  void setInput(const KVector2* relativeVelocity, double relativeVelocityOrientation);
-  void move(double linearVelocity, double angularVelocity);
-  void turn(double relativeTargetOrientation);
+  // double power(double centerTurnRadius, double deltaOrientation);
+  // double relativeDistance(const KVector2* v);
 
 public:
   ZippyWheel(
@@ -39,9 +38,10 @@ public:
   double getSetPoint() const { return wheelSetPoint; }
   double getOutput() const { return wheelOutput; }
 
-  void setInput2(double velocityTurnRadius, double velocityOrientation);
-  void turn2(double relativeTargetOrientation);
-  void move2(double targetPositionTurnRadius, double targetPositionOrientation);
+  void setInput(double velocityTurnRadius, double velocityOrientation);
+  void turn(double relativeTargetOrientation);
+  void move(double targetPositionTurnRadius, double targetPositionOrientation);
+  void moveStraight(double linearVelocity);
 
 };
 

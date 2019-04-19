@@ -33,21 +33,22 @@ public:
   unsigned long start(Zippy* zippy, const KPosition* sp) {
     zippy->setReverse(inReverse);
     startingPosition = sp;
-    if (!interpolated)
-      zippy->turn(targetOrientation);
     return executionTime;
   }
 
   void update(Zippy* zippy, double atNormalizedTime) const {
-    if (!interpolated)
-      return;
+    if (interpolated) {
+      zippy->turn(addAngles(startingPosition->orientation,
+          (subtractAngles(targetOrientation, startingPosition->orientation)) * atNormalizedTime));
+    }
+    else
+      zippy->turn(targetOrientation);
+  }
 
-    zippy->turn(addAngles(startingPosition->orientation,
-        (subtractAngles(targetOrientation, startingPosition->orientation)) * atNormalizedTime));
+  void end() {
+    startingPosition = NULL;
   }
 
 };
-
-
 
 #endif

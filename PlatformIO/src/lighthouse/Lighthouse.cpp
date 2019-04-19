@@ -570,8 +570,8 @@ void Lighthouse::calculatePosition()
       position.vector.getY() - previousPosition.vector.getY());
 
   //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
-  //represented by half of the change in orientation; project the velocity vector along this line to eliminate velocity error
-  positionDelta.vector.projectAlong((position.orientation + previousPosition.orientation) / 2.0d);
+  //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
+  positionDelta.vector.projectAlong(addAngles(previousPosition.orientation, positionDelta.orientation / 2.0d));
 }
 
 void Lighthouse::estimatePosition(unsigned long currentTime)

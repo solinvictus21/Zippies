@@ -42,6 +42,10 @@ public:
         targetOrientation);
   }
 
+  void end() {
+    startingPosition = NULL;
+  }
+
 };
 
 #endif

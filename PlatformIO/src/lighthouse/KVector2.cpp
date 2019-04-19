@@ -33,29 +33,29 @@ KVector2::KVector2(double x,
 
 double KVector2::getD() const
 {
-    if (!dValid) {
-        d = sqrt(this->getD2());
-        dValid = true;
-    }
-    return d;
+  if (!dValid) {
+      d = sqrt(this->getD2());
+      dValid = true;
+  }
+  return d;
 }
 
 double KVector2::getD2() const
 {
-    if (!d2Valid) {
-        if (dValid)
-            d2 = d*d;
-        else
-            d2 = this->x*this->x + this->y*this->y;
-        d2Valid = true;
-    }
+  if (!d2Valid) {
+      if (dValid)
+          d2 = d*d;
+      else
+          d2 = this->x*this->x + this->y*this->y;
+      d2Valid = true;
+  }
 
-    return d2;
+  return d2;
 }
 
 bool KVector2::equalsVector(const KVector2* v) const
 {
-    return fabs(v->x-x) < EPSILON && fabs(v->y-y) < EPSILON;
+  return fabs(v->x-x) < EPSILON && fabs(v->y-y) < EPSILON;
 }
 
 /**
@@ -65,7 +65,21 @@ bool KVector2::equalsVector(const KVector2* v) const
  */
 double KVector2::dotVector(const KVector2* v) const
 {
-    return (x*v->x) + (y*v->y);
+  return (x*v->x) + (y*v->y);
+}
+
+double KVector2::dotOrientation(double o) const
+{
+  return (x * sin(o)) + (y * cos(o));
+}
+
+void KVector2::multiply(double m)
+{
+  x *= m;
+  y *= m;
+  if (dValid)
+    d *= m;
+  d2Valid = false;
 }
 
 void KVector2::reset()
@@ -170,17 +184,42 @@ void KVector2::subtractVector(const KVector2* v)
   orientationValid = false;
 }
 
-void KVector2::projectAlong(double orientation)
+double KVector2::projectAlong(double orientation)
 {
   double sinTheta = sin(orientation);
   double cosTheta = cos(orientation);
-  double newD = (x * sinTheta) + (y * cosTheta);
-  x = newD * sinTheta;
-  y = newD * cosTheta;
-  d = newD;
+  double dotProduct = (x * sinTheta) + (y * cosTheta);
+  this->x = dotProduct * sinTheta;
+  this->y = dotProduct * cosTheta;
+  double length = dotProduct / cosTheta;
+  this->d = abs(length);
   dValid = true;
+  //the result could be either the orientation specified or +M_PI, exactly the opposite direction
+  this->orientation = dotProduct >= 0.0d ? orientation : addAngles(orientation, M_PI);
+  orientationValid = true;
   d2Valid = false;
-  orientationValid = false;
+
+  return length;
+}
+
+double KVector2::projectToward(double orientation)
+{
+  double sinTheta = sin(orientation);
+  double cosTheta = cos(orientation);
+  double dotProduct = (x * sinTheta) + (y * cosTheta);
+  double absDotProduct = abs(dotProduct);
+  this->x = absDotProduct * sinTheta;
+  this->y = absDotProduct * cosTheta;
+  double length = dotProduct / cosTheta;
+  this->d = abs(length);
+  dValid = true;
+  // dValid = false;
+  this->orientation = orientation;
+  orientationValid = true;
+  // orientationValid = false;
+  d2Valid = false;
+
+  return length;
 }
 
 double KVector2::getOrientation() const

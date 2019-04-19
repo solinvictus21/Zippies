@@ -45,7 +45,6 @@ void KVector3::rotate(double w2, double x2, double y2, double z2)
     this->x =    (w1*(-x2))  + (x1*  w2 )  + (y1*(-z2))  - (z1*(-y2));
     this->y =    (w1*(-y2))  - (x1*(-z2))  + (y1*  w2 )  + (z1*(-x2));
     this->z =    (w1*(-z2))  + (x1*(-y2))  - (y1*(-x2))  + (z1*  w2 );
-    vectorChanged();
 }
 
 void KVector3::rotate(KQuaternion3* q)
@@ -103,9 +102,6 @@ double KVector3::angleToVector(KVector3* v) {
   return acos( dotVector(v) / (this->getD() * v->getD()) );
 }
 
-void KVector3::vectorChanged() {
-}
-
 void intersectPlane(KVector3* planeNormal,
                     KVector3* fromVector,
                     KVector3* throughVector,
@@ -125,8 +121,6 @@ void KVector3::setX(double newX) {
     x = newX;
     dValid = false;
     d2Valid = false;
-
-    this->vectorChanged();
 }
 
 void KVector3::setY(double newY) {
@@ -136,8 +130,6 @@ void KVector3::setY(double newY) {
     y = newY;
     dValid = false;
     d2Valid = false;
-
-    this->vectorChanged();
 }
 
 void KVector3::setZ(double newZ) {
@@ -147,8 +139,6 @@ void KVector3::setZ(double newZ) {
     z = newZ;
     dValid = false;
     d2Valid = false;
-
-    this->vectorChanged();
 }
 
 void KVector3::set(double newX,
@@ -160,8 +150,6 @@ void KVector3::set(double newX,
     z = newZ;
     dValid = false;
     d2Valid = false;
-
-    this->vectorChanged();
 }
 
 void KVector3::set(double newX,
@@ -189,8 +177,6 @@ void KVector3::set(double newX,
   dValid = true;
   d2 = d*d;
   d2Valid = true;
-
-  this->vectorChanged();
 }
 
 void KVector3::setD(double newD) {
