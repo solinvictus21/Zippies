@@ -4,8 +4,8 @@
 #include "../ZippyConfig.h"
 
 //#define LIGHTHOUSE_DEBUG_ERRORS 1
-#define DEBUG_LIGHTHOUSE_EDGES 1
-//#define DEBUG_OOTX 1
+// #define DEBUG_LIGHTHOUSE_EDGES 1
+// #define DEBUG_OOTX 1
 //#define DEBUG_OOTX_ERRPRS 1
 
 //height of the lighthouse from the floor
@@ -266,7 +266,13 @@ void LighthouseSensor::processSweepStart(unsigned long currentTime, unsigned int
     //we missed the sweep hit for this axis, but we're within the window to hit the next sync signal
 #ifdef DEBUG_LIGHTHOUSE_EDGES
     if (debugNumber == 0) {
-      SerialUSB.print("Missed sweep hit: ");
+      SerialUSB.print("Missed ");
+      SerialUSB.print(!currentAxis ? "X" : "Y");
+      SerialUSB.print(" sweep hit: ");
+      SerialUSB.print(cycleData[currentAxis].pendingSyncTicks);
+      SerialUSB.print(" ");
+      SerialUSB.print(deltaTickCount);
+      SerialUSB.print(" ");
       SerialUSB.println(totalSweepLength);
     }
 //    cycleData[currentAxis].sweepMisses++;
@@ -564,6 +570,15 @@ bool LighthouseSensor::recalculate()
 {
   if (!receivedLighthousePosition || detectedHitTimeStamp <= positionTimeStamp) {
     //position is already up-to-date
+    /*
+    if (receivedLighthousePosition) {
+      SerialUSB.print(debugNumber);
+      SerialUSB.print(" Failed to update position: ");
+      SerialUSB.print(detectedHitTimeStamp);
+      SerialUSB.print(" - ");
+      SerialUSB.println(positionTimeStamp);
+    }
+    */
     return false;
   }
 

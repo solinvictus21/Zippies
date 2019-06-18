@@ -13,8 +13,10 @@ class KVector2
 protected:
   double x;
   double y;
-  mutable double d, d2;
-  mutable bool dValid, d2Valid;
+  mutable double d;
+  mutable bool dValid;
+  mutable double d2;
+  mutable bool d2Valid;
   mutable double orientation;
   mutable bool orientationValid;
 
@@ -51,7 +53,7 @@ public:
 
   void addVector(const KVector2* v);
   void subtractVector(const KVector2* v);
-  void multiply(double orientation);
+  void multiply(double factor);
   double projectAlong(double orientation);
   double projectToward(double orientation);
   double angleToVector(const KVector2* v) const { return angleToOrientation(v->getOrientation()); }

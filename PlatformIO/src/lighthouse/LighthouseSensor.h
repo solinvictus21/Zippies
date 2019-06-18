@@ -109,7 +109,7 @@ private:
   bool recalculate();
 
   void clearPreambleFlag() { preambleFound = false; }
-  bool foundPreamble() { return preambleFound; }
+  bool foundPreamble() const { return preambleFound; }
 
   int8_t getAccelDirX();
   int8_t getAccelDirY();

@@ -46,7 +46,7 @@ public:
   void estimatePosition(unsigned long currentTime);
 
   void clearPreambleFlag() { leftSensor.clearPreambleFlag(); rightSensor.clearPreambleFlag(); }
-  bool foundPreamble() { return leftSensor.foundPreamble() && rightSensor.foundPreamble(); }
+  bool foundPreamble() const { return leftSensor.foundPreamble() && rightSensor.foundPreamble(); }
 
   const LighthouseSensor* getLeftSensor() const { return &leftSensor; }
   const LighthouseSensor* getRightSensor() const { return &rightSensor; }

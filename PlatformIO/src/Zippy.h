@@ -3,69 +3,81 @@
 #define _ZIPPY_H_
 
 #include <PID_v1.h>
+#include "ZippyController.h"
 #include "ZippyFace.h"
 #include "MotorDriver.h"
+#include "lighthouse/Lighthouse.h"
 #include "lighthouse/KPosition.h"
 #include "ZippyConfig.h"
 #include "ZippyWheel.h"
+#include "commands/PathMove.h"
 
-class Zippy
+class Zippy : public ZippyController
 {
 
 private:
+  KPosition targetPosition;
+  PathMove* movementPath;
+
 #ifdef PLATFORM_TINYSCREEN
   ZippyFace face;
 #endif
+  Lighthouse lighthouse;
+  bool lighthouseReady = false;
+
   MotorDriver motors;
-
-  bool inReverse = false;
-
-  KPosition currentTargetPosition;
-  bool positionUpdated = false;
-  bool orientationUpdated = false;
 
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
+  bool isMoving = false;
 
-  void plotBiArc(KVector2* relativeTargetPosition, double relativeDirectionOfMotion,
-    double* linearVelocity, double* angularVelocity);
+  unsigned long lastUpdateTime;
 
-  void setMotors(int32_t motorLeft, int32_t motorRight);
-  void driveStop();
-  void driveArc(double linearVelocity, double angularVelocity);
-  // void driveTurn(double relativeTargetOrientation);
-  // void driveCurved(KVector2* relativeTargetPosition, double relativeTargetOrientation, double relativeDirectionOfMotion);
-  // void driveWheels(double linearVelocity, double angularVelocity);
-  // void drivePinned(KVector2* relativeTargetPosition, double relativeTargetOrientation);
-  // void driveMotors();
+  void processInput();
+
+  void moveArc(const KPosition* relativeTargetPosition);
+  void moveBiArc(KPosition* relativeTargetPosition);
+  void reversePlotBiArc(KPosition* relativeTargetPosition);
+  void plotBiArc(KPosition* relativeTargetPosition);
+  double centerTurnRadius(double distanceDelta, double orientationDelta);
 
   double saturate(double a, double b);
-  double centerTurnRadius(double distanceDelta, double orientationDelta);
-  double rampUp(double velocity);
-  // double constrainAcceleration(double previousValue, double newValue, double changeFactor, double minimumAcceleration);
+  void driveMotors();
 
 public:
-  Zippy(unsigned long pidUpdateInterval);
+  Zippy(
+    double startingX,
+    double startingY,
+    double startingOrientation,
+    PathMove* movementPath);
 
-#ifdef PLATFORM_TINYSCREEN
-  ZippyFace* getFace() { return &face; }
-#endif
-
-  void start();
-
-  void setReverse(bool r) { inReverse = r; }
-  bool isInReverse() { return inReverse; }
-  // void move(double x, double y);
+  //start ZippyController interface
+  const KPosition* getTargetPosition() const { return &targetPosition; }
+  void startMoving();
   void move(double x, double y, double orientation);
   void turn(double orientation);
-  const KPosition* getTargetPosition() const { return &currentTargetPosition; }
+  void stopMoving();
+  void waitForPreamble() { lighthouse.clearPreambleFlag(); }
+  bool foundPreamble() const { return lighthouse.foundPreamble(); }
+  //end ZippyController interface
 
-  bool loop(const KPosition* currentPosition,
-    const KPosition* currentVelocity);
-  void stop() { setMotors(0.0d, 0.0d); }
+  const Lighthouse* getLighthouse() const { return &lighthouse; }
+
+#ifdef PLATFORM_TINYSCREEN
+  const ZippyFace* getFace() { return &face; }
+#endif
+
+  void start(unsigned long currentTime);
+  void loop(unsigned long currentTime);
 
   const ZippyWheel* getLeftWheel() const { return &leftWheel; }
   const ZippyWheel* getRightWheel() const { return &rightWheel; }
+
+  ~Zippy()
+  {
+    delete movementPath;
+  }
+
 };
 
 #endif

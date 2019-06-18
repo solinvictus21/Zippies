@@ -2,216 +2,291 @@
 #include <SPI.h>
 #include "Zippy.h"
 #include "PathData.h"
-#include "commands/QuadraticBezier1.h"
-#include "commands/CubicBezier1.h"
+#include "commands/PauseMove.h"
+#include "commands/LinearVelocityMove.h"
+#include "commands/LinearTurn.h"
+#include "commands/PathMove.h"
+#include "commands/SyncWithPreamble.h"
+
+//the number of milliseconds between each time we evaluate the current position of the Zippy and adjust its motors
+#define LOOP_INTERVAL_MS                         25
+
+//the time to pause between the moment the lighthouse signal is detected after it is lost and the moment we start moving again
+//adding an initial pause before moving allows time to completely set the Zippy down and the position detection to stabilize
+#define INITIAL_PAUSE_TIME                     2000
+#define INITIAL_LINEAR_VELOCITY                 200
 
 #define WHEEL_OFFSET_X   16.7d
 #define WHEEL_OFFSET_Y    5.9d
-#define M_PI_34 2.356194490192345d
 
 //TUNING - COMMAND EXECUTION COMPLETION
 //the distince in mm within which is to be considered "at the target" for the purpose of terminating the current driving command
-#define LINEAR_POSITION_EPSILON                           30.0d
+#define LINEAR_POSITION_EPSILON                            5.0d
 //the delta angle within which is to be considered "pointing at the desired orientation" (3 degrees)
 #define ANGULAR_POSITION_EPSILON                  0.05235987755983d
 
 //TUNING - PCM OUTPUT
 //the minimum PCM value below which the motors do not turn at all; i.e. the "dead zone"
-#define LINEAR_MIN_POWER                       5000.00d
+#define LINEAR_MIN_POWER                       3200.00d
 
-#define LINEAR_MAX_VELOCITY                      80.00d
-#define ANGULAR_MAX_VELOCITY                     M_PI_4
-
-Zippy::Zippy(unsigned long pui)
-  : leftWheel(-WHEEL_OFFSET_X, -WHEEL_OFFSET_Y, pui),
-    rightWheel(WHEEL_OFFSET_X, WHEEL_OFFSET_Y, pui)
+Zippy::Zippy(
+  double startingX,
+  double startingY,
+  double startingOrientation,
+  PathMove* mp)
+  : movementPath(mp),
+    leftWheel(-WHEEL_OFFSET_X, -WHEEL_OFFSET_Y, LOOP_INTERVAL_MS),
+    rightWheel(WHEEL_OFFSET_X, WHEEL_OFFSET_Y, LOOP_INTERVAL_MS)
 {
+  //add a set of commands to move the Zippy into place and sync with the preamble
+  ZippyMove** moves = new ZippyMove*[5];
+  moves[0] = new PauseMove(INITIAL_PAUSE_TIME);
+  moves[1] = new LinearVelocityMove(startingX, startingY, INITIAL_LINEAR_VELOCITY);
+  moves[2] = new LinearTurn(startingOrientation, INITIAL_PAUSE_TIME, false);
+  moves[3] = new SyncWithPreamble();
+  moves[4] = mp;
+  movementPath = new PathMove(moves, 5);
 
 #ifdef PLATFORM_TINYSCREEN
   face.displayFace();
 #endif
 }
 
-void Zippy::move(double x, double y, double orientation)
+//start the lighthouse and motors; we don't start the wheel PIDs until we have a solid lighthouse signal
+void Zippy::start(unsigned long currentTime)
 {
-  currentTargetPosition.vector.set(x, y);
-  currentTargetPosition.orientation = orientation;
-  positionUpdated = true;
-  orientationUpdated = true;
-}
-
-void Zippy::turn(double orientation)
-{
-  currentTargetPosition.orientation = orientation;
-  orientationUpdated = true;
-}
-
-//start all of our peripherals
-void Zippy::start()
-{
+  lighthouse.start();
   motors.start();
+  lastUpdateTime = currentTime;
+}
+
+void Zippy::loop(unsigned long currentTime)
+{
+  //process the Lighthouse diode hits on every loop, but don't both recalculating the position on the floor
+  //based on those raw hits until we actually want to use them because it's a lot of math to waste if we're
+  //not ready to use the data
+  lighthouse.loop(currentTime);
+  if (currentTime - lastUpdateTime < LOOP_INTERVAL_MS)
+    return;
+  lastUpdateTime += LOOP_INTERVAL_MS;
+
+  // SerialUSB.println("Calculating position.");
+  if (!lighthouse.recalculate(currentTime)) {
+    //we are no longer able to determine our current position; stop moving and stop executing further commands
+    if (lighthouseReady) {
+      // SerialUSB.println("Lost lighthouse signal.");
+      movementPath->end();
+      stopMoving();
+      lighthouseReady = false;
+    }
+    return;
+  }
+  else if (!lighthouseReady) {
+    targetPosition.set(lighthouse.getPosition());
+    movementPath->start(currentTime, this);
+    lighthouseReady = true;
+    return;
+  }
+
+  double timeRemaining = movementPath->loop(currentTime, this);
+  if (timeRemaining) {
+    movementPath->end();
+    targetPosition.set(lighthouse.getPosition());
+    movementPath->start(currentTime - timeRemaining, this);
+  }
+}
+
+void Zippy::startMoving()
+{
+  if (isMoving)
+    return;
 
   leftWheel.start();
   rightWheel.start();
+  isMoving = true;
 }
 
-bool Zippy::loop(const KPosition* currentPosition,
-                 const KPosition* currentPositionDelta)
+void Zippy::move(double x, double y, double orientation)
 {
-  KVector2 relativeVelocity(&currentPositionDelta->vector);
-  double previousOrientation = subtractAngles(currentPosition->orientation, currentPositionDelta->orientation);
-  relativeVelocity.rotate(-previousOrientation);
+  targetPosition.set(x, y, orientation);
+  if (!isMoving)
+    return;
 
-  KVector2 relativeTargetPosition(currentTargetPosition.vector.getX() - currentPosition->vector.getX(),
-      currentTargetPosition.vector.getY() - currentPosition->vector.getY());
-  relativeTargetPosition.rotate(-currentPosition->orientation);
-  double relativeDirectionOfMotion = subtractAngles(currentTargetPosition.orientation, currentPosition->orientation);
-  if (inReverse) {
-    relativeTargetPosition.set(-relativeTargetPosition.getX(), -relativeTargetPosition.getY());
-    relativeDirectionOfMotion = addAngles(relativeDirectionOfMotion, M_PI);
-  }
+  processInput();
 
-  double linearVelocity, angularVelocity;
-  if (!positionUpdated) {
-    if (relativeTargetPosition.getD() < LINEAR_POSITION_EPSILON) {
-      if (!orientationUpdated &&
-        abs(relativeDirectionOfMotion) < ANGULAR_POSITION_EPSILON/* &&
-        currentTargetVelocity < LINEAR_POSITION_EPSILON &&
-        currentPositionDelta->vector.getD() < LINEAR_EPSILON &&
-        abs(currentPositionDelta->orientation) < ANGULAR_POSITION_EPSILON*/)
-      {
-        //the position and orientation have stopped, we're in position and oriented and we're going slow enough to stop
-        driveStop();
-        return true;
-      }
+  const KPosition* position = lighthouse.getPosition();
+  KPosition relativeTargetPosition(
+      x - position->vector.getX(),
+      y - position->vector.getY(),
+      subtractAngles(orientation, position->orientation));
+  relativeTargetPosition.vector.rotate(-position->orientation);
 
-      //the position is not changing and we're near enough to it to just turn in place
-      linearVelocity = 0.0d;
-      angularVelocity = relativeDirectionOfMotion;
-    }
-    else {
-      //drive directly to the point
-      linearVelocity = min(relativeTargetPosition.getD(), LINEAR_MAX_VELOCITY);
-      angularVelocity = relativeTargetPosition.getOrientation();
-      if (abs(angularVelocity) > M_PI_2) {
-        linearVelocity = -linearVelocity;
-        angularVelocity = addAngles(angularVelocity, M_PI);
-      }
-    }
-  }
-  else
-    plotBiArc(&relativeTargetPosition, relativeDirectionOfMotion, &linearVelocity, &angularVelocity);
+  // plotBiArc(&relativeTargetPosition);
+  moveArc(&relativeTargetPosition);
 
-  positionUpdated = false;
-  orientationUpdated = false;
-
-  if (inReverse) {
-    linearVelocity = -linearVelocity;
-    angularVelocity = addAngles(angularVelocity, M_PI);
-  }
-
-  driveArc(linearVelocity, angularVelocity);
-
-  double left = leftWheel.getOutput();
-  double right = rightWheel.getOutput();
-  left = saturate(left, LINEAR_MIN_POWER);
-  right = saturate(right, LINEAR_MIN_POWER);
-  setMotors(left, right);
-
-  return false;
+  driveMotors();
 }
 
-void Zippy::plotBiArc(
-  KVector2* relativeTargetPosition, double relativeDirectionOfMotion,
-  double* linearVelocity, double* angularVelocity)
+void Zippy::plotBiArc(KPosition* relativeTargetPosition)
 {
-  //derived from formulae and helpful explainations provided from the following site
+  //derived from formulae and helpful explanations provided from the following site
   //  http://www.ryanjuckett.com/programming/biarc-interpolation/
-  double cosO = cos(relativeDirectionOfMotion);
-  double sinO = sin(relativeDirectionOfMotion);
+  double x = relativeTargetPosition->vector.getX();
+  double y = relativeTargetPosition->vector.getY();
+  double cosO = cos(relativeTargetPosition->orientation);
+  double sinO = sin(relativeTargetPosition->orientation);
 
   double d;
-  if (abs(relativeDirectionOfMotion) == 0.0d) {
-    double x = relativeTargetPosition->getX();
-    double y = relativeTargetPosition->getY();
+  if (abs(relativeTargetPosition->orientation) == 0.0d) {
     if (y == 0.0d) {
-      *linearVelocity = x / 2.0d;
-      *angularVelocity = x > 0.0d ? M_PI : -M_PI;
+      relativeTargetPosition->vector.multiply(0.5d);
       return;
     }
 
     //in this situation, our denominator becomes zero and d goes to infinity; handle this with different formulae
     double vDotT2 = (x * sinO) + (y * cosO);
-    d = relativeTargetPosition->getD2() / (4.0d * vDotT2);
+    d = relativeTargetPosition->vector.getD2() / (4.0d * vDotT2);
   }
   else {
     //t = t1 + t2
-    //  where t1 = current relative orientation =  (0, 1)
+    //  where t1 = current relative orientation = (0, 1)
     //        t2 = target relative orientation = (sin(o), cos(o))
     //v dot t = (v.x * t.x)           + (v.y * t.y)
-    //        = (v.x * (t1.x * t2.x)) + (v.y * (t1.y + t2.y))
+    //        = (v.x * (t1.x + t2.x)) + (v.y * (t1.y + t2.y))
+    //        = (v.x * (0 + sin(o)))  + (v.y * (1 + cos(o)))
     //        = (v.x * sin(o))        + (v.y * (1 + cos(o)))
-    double vDotT = (relativeTargetPosition->getX() * sinO) +
-        (relativeTargetPosition->getY() * (1.0d + cosO));
+    double vDotT = (x * sinO) + (y * (1.0d + cosO));
     //t1 dot t2 = (t1.x * t2.x) + (t1.y * t2.y)
+    //          = (0 * sin(o)) + (1 * cos(o))
     //          = cos(o)
     //2 * (1 - (t1 dot t2)) = 2 * (1 - cos(o))
     double t1DotT2Inv2 = 2.0d * (1.0d - cosO);
-    d = ( -vDotT + sqrt( pow(vDotT, 2.0d) + ( t1DotT2Inv2 * relativeTargetPosition->getD2() ) ) )
+    d = ( -vDotT + sqrt( pow(vDotT, 2.0d) + ( t1DotT2Inv2 * relativeTargetPosition->vector.getD2() ) ) )
         / t1DotT2Inv2;
   }
 
   //pm = (p2 + (d * (t1 - t2))) / 2
-  KVector2 pathConnectionPoint(-sinO, 1.0d - cosO);
-  pathConnectionPoint.multiply(d);
-  pathConnectionPoint.addVector(relativeTargetPosition);
-  pathConnectionPoint.multiply(0.5d);
-
-  *linearVelocity = pathConnectionPoint.getD();
-  *angularVelocity = pathConnectionPoint.getOrientation();
+  relativeTargetPosition->vector.set(
+    ((d * -sinO) + x) / 2.0d,
+    ((d * (1.0d - cosO)) + y) / 2.0d);
 }
 
-void Zippy::driveArc(double linearVelocity, double angularVelocity)
+void Zippy::moveArc(const KPosition* relativeTargetPosition)
 {
-  if (angularVelocity == 0.0d) {
-    //move without turning
-    leftWheel.moveStraight(linearVelocity);
-    rightWheel.moveStraight(linearVelocity);
+  if (relativeTargetPosition->vector.getX() == 0.0d) {
+    if (relativeTargetPosition->vector.getY() == 0.0d) {
+      leftWheel.stop();
+      rightWheel.stop();
+    }
+    else {
+      double linearVelocity = relativeTargetPosition->vector.getY();
+      leftWheel.moveStraight(linearVelocity);
+      rightWheel.moveStraight(linearVelocity);
+    }
     return;
   }
 
-  if (linearVelocity == 0.0d) {
-    //turn without moving
-    leftWheel.turn(angularVelocity);
-    rightWheel.turn(angularVelocity);
-    return;
+  double linearVelocity, angularVelocity;
+  if (relativeTargetPosition->vector.getY() == 0.0d) {
+    //handle asymptote at y = 0, since x/y would be NaN
+    linearVelocity = abs(relativeTargetPosition->vector.getX());
+    angularVelocity = relativeTargetPosition->vector.getX() < 0.0d ? -M_PI_2 : M_PI_2;
   }
+  else {
+    linearVelocity = relativeTargetPosition->vector.getD();
+    if (relativeTargetPosition->vector.getY() < 0.0d)
+      linearVelocity = -linearVelocity;
+    angularVelocity = atan(relativeTargetPosition->vector.getX() / relativeTargetPosition->vector.getY());
 
-  double turnRadius = centerTurnRadius(linearVelocity, angularVelocity);
-  leftWheel.move(
-    turnRadius,
-    angularVelocity);
-  rightWheel.move(
-    turnRadius,
-    angularVelocity);
+    // linearVelocity = min(linearVelocity, 100.0d);
+    /*
+    double finalOrientation = subtractAngles(2.0d * angularVelocity, relativeTargetPosition->orientation);
+    if (abs(finalOrientation) > M_PI_2) {
+      angularVelocity = -angularVelocity;
+      // angularVelocity = addAngles(angularVelocity,
+        // subtractAngles(relativeTargetPosition->orientation, angularVelocity) / 2.0d);
+    }
+    // */
+  }
+  leftWheel.moveWithTurn(linearVelocity, angularVelocity);
+  rightWheel.moveWithTurn(linearVelocity, angularVelocity);
 }
 
-void Zippy::driveStop()
+void Zippy::moveBiArc(KPosition* relativeTargetPosition)
 {
-  // currentTargetVelocity = 0.0d;
+  if (relativeTargetPosition->vector.getY() < 0.0d)
+    reversePlotBiArc(relativeTargetPosition);
+  else
+    plotBiArc(relativeTargetPosition);
+  moveArc(relativeTargetPosition);
+}
+
+void Zippy::turn(double orientation)
+{
+  targetPosition.orientation = orientation;
+  if (!isMoving)
+    return;
+
+  processInput();
+  const KPosition* position = lighthouse.getPosition();
+  double relativeOrientation = subtractAngles(orientation, position->orientation);
+  leftWheel.turn(relativeOrientation);
+  rightWheel.turn(relativeOrientation);
+  driveMotors();
+}
+
+void Zippy::stopMoving()
+{
+  if (!isMoving)
+    return;
+
   leftWheel.stop();
   rightWheel.stop();
-  // setMotors(0.0d, 0.0d);
   motors.writeCommand(COMMAND_ALL_PWM, 30000, 30000, 30000, 30000);
+  isMoving = false;
 }
 
-void Zippy::setMotors(int32_t motorLeft, int32_t motorRight)
+void Zippy::processInput()
 {
+  //calculate our velocity relative to our previous position
+  const KPosition* positionDelta = lighthouse.getPositionDelta();
+  double linearVelocity = positionDelta->vector.getD();
+  if (motors.inReverse())
+    linearVelocity = -linearVelocity;
+
+  double angularVelocity = positionDelta->orientation;
+  if (sin(angularVelocity) == 0.0d) {
+    //asymptote; direction is straight forward or straight backward, which would cause the
+    //curve radius to be NaN / infinite
+    leftWheel.setInputVelocity(linearVelocity);
+    rightWheel.setInputVelocity(linearVelocity);
+  }
+  else {
+    leftWheel.setInputWithTurn(linearVelocity, angularVelocity);
+    rightWheel.setInputWithTurn(linearVelocity, angularVelocity);
+  }
+}
+
+void Zippy::driveMotors()
+{
+  double left = leftWheel.getOutput();
+  double right = rightWheel.getOutput();
+  left = saturate(left, LINEAR_MIN_POWER);
+  right = saturate(right, LINEAR_MIN_POWER);
   motors.writeCommand(COMMAND_ALL_PWM,
-      motorLeft > 0 ? motorLeft : 0,
-      motorLeft < 0 ? -motorLeft : 0,
-      motorRight > 0 ? motorRight : 0,
-      motorRight < 0 ? -motorRight : 0);
+      left > 0 ? left : 0,
+      left < 0 ? -left : 0,
+      right > 0 ? right : 0,
+      right < 0 ? -right : 0);
+}
+
+void Zippy::reversePlotBiArc(KPosition* relativeTargetPosition)
+{
+  relativeTargetPosition->vector.set(
+      -relativeTargetPosition->vector.getX(),
+      -relativeTargetPosition->vector.getY());
+  // relativeDirectionOfMotion = addAngles(relativeDirectionOfMotion, M_PI);
+  plotBiArc(relativeTargetPosition);
 }
 
 double Zippy::centerTurnRadius(double distanceDelta, double orientationDelta)

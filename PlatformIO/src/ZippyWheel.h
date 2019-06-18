@@ -29,19 +29,22 @@ public:
 
   void start();
 
+  // void setInput(double velocityTurnRadius, double velocityOrientation);
+  void setInputWithTurn(double linearVelocity, double angularVelocity);
+  void setInputVelocity(double linearVelocity) { wheelInput = linearVelocity; }
+  double getInput() const { return wheelInput; }
+
+  void turn(double relativeTargetOrientation);
+  void moveStraight(double linearVelocity);
+  // void move(double targetPositionTurnRadius, double targetPositionOrientation);
+  void moveWithTurn(double linearVelocity, double angularVelocity);
   void stop() {
     wheelSetPoint = wheelInput;
     wheelPID.Compute();
   }
-
-  double getInput() const { return wheelInput; }
   double getSetPoint() const { return wheelSetPoint; }
-  double getOutput() const { return wheelOutput; }
 
-  void setInput(double velocityTurnRadius, double velocityOrientation);
-  void turn(double relativeTargetOrientation);
-  void move(double targetPositionTurnRadius, double targetPositionOrientation);
-  void moveStraight(double linearVelocity);
+  double getOutput() const { return wheelOutput; }
 
 };
 

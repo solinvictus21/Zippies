@@ -28,7 +28,6 @@ ZippyFace::ZippyFace()
 
 void ZippyFace::displayFace()
 {
-  // /*
   display.begin();
   display.setBrightness(4);
   display.setFlip(true);
@@ -40,7 +39,6 @@ void ZippyFace::displayFace()
   display.writeBuffer((uint8_t*)FACE_HAPPY, 6144);
 
   display.endTransfer();
-  // */
 }
 
 void ZippyFace::clearScreen()

@@ -1,0 +1,314 @@
+
+import Foundation
+
+let EPSILON: Double = 0.0001
+
+class KVector2: NSObject
+{
+    
+    fileprivate var x: Double
+    fileprivate var y: Double
+    fileprivate var d: Double
+    fileprivate var dValid: Bool
+    fileprivate var d2: Double
+    fileprivate var d2Valid: Bool
+    fileprivate var orientation: Double
+    fileprivate var orientationValid: Bool
+
+    override init()
+    {
+        self.x = 0.0
+        self.y = 0.0
+        self.d = 0.0
+        self.dValid = true
+        self.d2 = 0.0
+        self.d2Valid = true
+        self.orientation = 0.0
+        self.orientationValid = true
+    }
+
+    init(_ v: KVector2)
+    {
+        self.x = v.x
+        self.y = v.y
+        self.d = v.d
+        self.dValid = v.dValid
+        self.d2 = v.d2
+        self.d2Valid = v.d2Valid
+        self.orientation = v.orientation
+        self.orientationValid = v.orientationValid
+    }
+
+    init(x: Double, y: Double)
+    {
+        self.x = x
+        self.y = y
+        self.d2 = 0.0
+        self.d2Valid = false
+        self.d = 0.0
+        self.dValid = false
+        self.orientation = 0.0
+        self.orientationValid = false
+    }
+
+    func getD() -> Double
+    {
+        if (!dValid) {
+            d = sqrt(self.getD2())
+            dValid = true
+        }
+        return d
+    }
+
+    func getD2() -> Double
+    {
+        if (!d2Valid) {
+            if (dValid) {
+                d2 = d*d
+            }
+            else {
+                d2 = self.x*self.x + self.y*self.y
+            }
+            d2Valid = true
+        }
+    
+        return d2
+    }
+
+    func equalsVector(v: KVector2) -> Bool
+    {
+        return abs(v.x-x) < EPSILON && abs(v.y-y) < EPSILON
+    }
+
+    /**
+     * Given two vectors, returns the cos(ϴ) * L1 * L2, where ϴ is the angle between
+     * the vectors and L1 and L2 are the lengths of each vector. For unit vectors, the
+     * result will be just cos(ϴ).
+     */
+    func dotVector(v: KVector2) -> Double
+    {
+        return (x*v.x) + (y*v.y)
+    }
+
+    func dotOrientation(o: Double) -> Double
+    {
+        return (x * sin(o)) + (y * cos(o))
+    }
+
+    func multiply(m: Double)
+    {
+        x *= m
+        y *= m
+        if (dValid) {
+            d *= m
+        }
+        d2Valid = false
+    }
+
+    func reset()
+    {
+        x = 0.0
+        y = 0.0
+        d = 0.0
+        dValid = true
+        d2 = 0.0
+        d2Valid = true
+        orientation = 0.0
+        orientationValid = true
+    }
+
+    func setX(newX: Double)
+    {
+        if (x == newX) {
+            return
+        }
+    
+        x = newX
+        dValid = false
+        d2Valid = false
+        orientationValid = false
+    }
+    
+    func getX() -> Double
+    {
+        return x
+    }
+
+    func setY(newY: Double)
+    {
+        if (y == newY) {
+            return
+        }
+    
+        y = newY
+        dValid = false
+        d2Valid = false
+        orientationValid = false
+    }
+
+    func getY() -> Double
+    {
+        return y
+    }
+    
+    func set(v: KVector2)
+    {
+        self.x = v.x
+        self.y = v.y
+        self.d = v.d
+        self.dValid = v.dValid
+        self.d2 = v.d2
+        self.d2Valid = v.d2Valid
+        self.orientation = v.orientation
+        self.orientationValid = v.orientationValid
+    }
+
+    func set(x: Double, y: Double)
+    {
+        self.x = x
+        self.y = y
+        dValid = false
+        d2Valid = false
+        orientationValid = false
+    }
+
+    func set(x: Double, y: Double, ofLength: Double)
+    {
+        if (ofLength == 0.0 || (x == 0.0 && y == 0.0)) {
+            self.x = 0.0
+            self.y = 0.0
+            d = 0.0
+            dValid = true
+            d2 = 0.0
+            d2Valid = true
+            orientation = 0.0
+            orientationValid = true
+            return
+        }
+    
+        //calculate the actual values from the unit vector
+        let vd = sqrt(x*x+y*y)
+        self.x = (x*ofLength)/vd
+        self.y = (y*ofLength)/vd
+        d = ofLength
+        dValid = true
+        d2 = d*d
+        d2Valid = true
+        orientationValid = false
+    }
+
+    func setD(newD: Double)
+    {
+        set(x: self.x, y: self.y, ofLength: newD)
+    }
+
+    func addVector(v: KVector2)
+    {
+        self.x += v.x
+        self.y += v.y
+        dValid = false
+        d2Valid = false
+        orientationValid = false
+    }
+
+    func subtractVector(v: KVector2)
+    {
+        self.x -= v.x
+        self.y -= v.y
+        dValid = false
+        d2Valid = false
+        orientationValid = false
+    }
+
+    func projectAlong(orientation: Double) -> Double
+    {
+        let sinTheta = sin(orientation)
+        let cosTheta = cos(orientation)
+        let dotProduct = (x * sinTheta) + (y * cosTheta)
+        self.x = dotProduct * sinTheta
+        self.y = dotProduct * cosTheta
+        let length = dotProduct / cosTheta
+        self.d = abs(length)
+        dValid = true
+        //the result could be either the orientation specified or +M_PI, exactly the opposite direction
+        self.orientation = dotProduct >= 0.0 ? orientation : addAngles(a1: orientation, a2: Double.pi)
+        orientationValid = true
+        d2Valid = false
+    
+        return length
+    }
+
+    func projectToward(orientation: Double) -> Double
+    {
+        let sinTheta = sin(orientation)
+        let cosTheta = cos(orientation)
+        let dotProduct = (x * sinTheta) + (y * cosTheta)
+        let absDotProduct = abs(dotProduct)
+        self.x = absDotProduct * sinTheta
+        self.y = absDotProduct * cosTheta
+        let length = dotProduct / cosTheta
+        self.d = abs(length)
+        dValid = true
+        // dValid = false
+        self.orientation = orientation
+        orientationValid = true
+        // orientationValid = false
+        d2Valid = false
+    
+        return length
+    }
+
+    func getOrientation() -> Double
+    {
+        if (!orientationValid) {
+            orientation = atan2(self.x, self.y)
+            orientationValid = true
+        }
+    
+        return orientation
+    }
+
+    func rotate(angleRadians: Double)
+    {
+        let currentLength = getD()
+        orientation = addAngles(a1: getOrientation(), a2: angleRadians)
+    
+        self.x = currentLength * sin(orientation)
+        self.y = currentLength * cos(orientation)
+        orientationValid = true
+    }
+
+}
+
+func snapAngle(angle: Double) -> Double
+{
+    var a = angle
+    if (a <= -Double.pi) {
+        a += 2.0 * Double.pi
+    }
+    else if (a > Double.pi) {
+        a -= 2.0 * Double.pi
+    }
+    return a
+}
+
+func subtractAngles(a1: Double, a2: Double) -> Double
+{
+    return snapAngle(angle: a1 - a2)
+}
+
+func addAngles(a1: Double, a2: Double) -> Double
+{
+    return snapAngle(angle: a1 + a2)
+}
+
+func distanceBetween(x1: Double, y1: Double, x2: Double, y2: Double) -> Double
+{
+    return sqrt(pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0))
+}
+
+func distanceBetween(v1: KVector2, v2: KVector2) -> Double
+{
+    return distanceBetween(x1: v1.getX(), y1: v1.getY(), x2: v2.getX(), y2: v2.getY())
+}
+

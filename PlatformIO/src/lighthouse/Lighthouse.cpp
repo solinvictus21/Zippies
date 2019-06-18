@@ -525,23 +525,29 @@ bool Lighthouse::recalculate(unsigned long currentTime)
   if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
     //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
     //both sensors; we will continue to estimate the position and velocity until a designated timeout interval
-    if (!lostPositionTimeStamp) {
+    if (!previousPositionTimeStamp ||
+      (lostPositionTimeStamp && currentTime - lostPositionTimeStamp >= LIGHTHOUSE_LOST_SIGNAL_TIMEOUT))
+    {
+      //we do not have a new position and we don't have enough data to estimate the position or
+      //the historical data is too stale to estimate accurately
+      previousPositionTimeStamp = 0;
+      return false;
+    }
+    else if (!lostPositionTimeStamp) {
       //keep track the time the signal was lost
       lostPositionTimeStamp = positionTimeStamp;
     }
-    else if (currentTime - lostPositionTimeStamp >= LIGHTHOUSE_LOST_SIGNAL_TIMEOUT)
-      return false;
 
     //estimate the new position and velocity based on the previous position and velocity
     estimatePosition(currentTime);
-    return true;
   }
-  else
+  else {
     lostPositionTimeStamp = 0;
+    // SerialUSB.println("Calculating position.");
+    calculatePosition();
+  }
 
-  calculatePosition();
-
-  return true;
+  return previousPositionTimeStamp;
 }
 
 void Lighthouse::calculatePosition()
@@ -571,7 +577,7 @@ void Lighthouse::calculatePosition()
 
   //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
   //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
-  positionDelta.vector.projectAlong(addAngles(previousPosition.orientation, positionDelta.orientation / 2.0d));
+  // positionDelta.vector.projectAlong(addAngles(previousPosition.orientation, positionDelta.orientation / 2.0d));
 }
 
 void Lighthouse::estimatePosition(unsigned long currentTime)
@@ -595,8 +601,6 @@ void Lighthouse::estimatePosition(unsigned long currentTime)
   //capture the previous position and velocity
   previousPosition.vector.set(&position.vector);
   previousPosition.orientation = position.orientation;
-  // previousPositionDelta.vector.set(&positionDelta.vector);
-  // previousPositionDelta.orientation = positionDelta.orientation;
   previousPositionTimeStamp = positionTimeStamp;
 
   //calculate the new position

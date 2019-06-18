@@ -2,21 +2,42 @@
 #ifndef _CUBICBEZIERMOVE_H_
 #define _CUBICBEZIERMOVE_H_
 
-#include "ZippyMove.h"
+#include "TimedFixedMove.h"
 #include "../lighthouse/KVector2.h"
 
-class CubicBezierMove : public ZippyMove
+class CubicBezierMove : public TimedFixedMove
 {
 
 private:
-  const KPosition* startingPosition;
+  KPosition endingPosition;
   bool inReverse;
+
+  KVector2* startingPosition = NULL;
   KVector2* controlPoint1 = NULL;
   KVector2* controlPoint2 = NULL;
-  KPosition endingPosition;
-  unsigned long executionTime;
 
-  void releaseControlPoints() {
+protected:
+  void startTimed(ZippyController* zippy);
+  void loopTimed(double normalizedTime, ZippyController* zippy);
+
+public:
+  CubicBezierMove(double endx, double endy, double o, unsigned long et)
+    : CubicBezierMove(endx, endy, o, false, et)
+  {}
+
+  CubicBezierMove(double endx, double endy, double o, bool r, unsigned long et)
+    : TimedFixedMove(et),
+      endingPosition(endx, endy, o),
+      inReverse(r)
+  {
+  }
+
+  void end() {
+    // TimedFixedMove::end();
+    if (startingPosition != NULL) {
+      delete startingPosition;
+      startingPosition = NULL;
+    }
     if (controlPoint1 != NULL) {
       delete controlPoint1;
       controlPoint1 = NULL;
@@ -27,30 +48,8 @@ private:
     }
   }
 
-public:
-  CubicBezierMove(double endx, double endy, double o, unsigned long t)
-    : CubicBezierMove(endx, endy, o, false, t)
-  {}
-
-  CubicBezierMove(double endx, double endy, double o, bool r, unsigned long t)
-    : inReverse(r),
-      executionTime(t)
-  {
-    endingPosition.vector.set(endx, endy);
-    endingPosition.orientation = o;
-  }
-
-  unsigned long start(Zippy* zippy, const KPosition* sp);
-
-  void update(Zippy* zippy, double atNormalizedTime) const;
-
-  void end() {
-    ZippyMove::end();
-    releaseControlPoints();
-  }
-
   ~CubicBezierMove() {
-    releaseControlPoints();
+    end();
   }
 
 };

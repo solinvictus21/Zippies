@@ -10,7 +10,14 @@ KVector2::KVector2()
 }
 
 KVector2::KVector2(const KVector2* v)
-  : KVector2::KVector2(v->x, v->y)
+  : x(v->x),
+    y(v->y),
+    d(v->d),
+    dValid(v->dValid),
+    d2(v->d2),
+    d2Valid(v->d2Valid),
+    orientation(v->orientation),
+    orientationValid(v->orientationValid)
 {
 }
 

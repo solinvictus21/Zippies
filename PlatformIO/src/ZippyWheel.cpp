@@ -1,9 +1,15 @@
 #include "ZippyWheel.h"
 
-#define WHEEL_Kp                                65.00d
+// #define WHEEL_Kp                                66.00d
+// #define WHEEL_Ki                                 0.00d
+// #define WHEEL_Kd                                 7.70d
+#define WHEEL_Kp                               110.00d
 #define WHEEL_Ki                                 0.00d
-#define WHEEL_Kd                                10.00d
+#define WHEEL_Kd                                 9.50d
 #define WHEEL_MAX_POWER                      60000.00d
+
+// #define WHEEL_INTER_AXLE_POWER_LOSS              0.942886053042126d
+#define WHEEL_INTER_AXLE_POWER_LOSS              1.110965890978642d
 
 ZippyWheel::ZippyWheel(
     double wheelOffsetX,
@@ -30,23 +36,22 @@ void ZippyWheel::start()
   wheelPID.SetMode(AUTOMATIC);
 }
 
-void ZippyWheel::setInput(double velocityTurnRadius, double velocityOrientation)
+void ZippyWheel::setInputWithTurn(double linearVelocity, double angularVelocity)
 {
-  //calculate the velocity for this wheel
-  wheelInput = turnLength(velocityTurnRadius, velocityOrientation);
+  wheelInput = turnLength(linearVelocity, angularVelocity);
 }
 
-void ZippyWheel::turn(double targetPositionOrientation)
+void ZippyWheel::turn(double angularVelocity)
 {
   //calculate the new target velocity
-  wheelSetPoint = wheelRadialOffset * 2.0d * -targetPositionOrientation;
+  wheelSetPoint = -wheelRadialOffset * 2.0d * angularVelocity;
+  // wheelSetPoint *= WHEEL_INTER_AXLE_POWER_LOSS;
   wheelPID.Compute();
 }
 
-void ZippyWheel::move(double targetPositionTurnRadius, double targetPositionOrientation)
+void ZippyWheel::moveWithTurn(double linearVelocity, double angularVelocity)
 {
-  //calculate the new target velocity
-  wheelSetPoint = turnLength(targetPositionTurnRadius, targetPositionOrientation);
+  wheelSetPoint = turnLength(linearVelocity, angularVelocity);
   wheelPID.Compute();
 }
 
@@ -56,7 +61,23 @@ void ZippyWheel::moveStraight(double linearVelocity)
   wheelPID.Compute();
 }
 
-double ZippyWheel::turnLength(double centerTurnRadius, double deltaOrientation)
+double ZippyWheel::turnLength(double linearVelocity, double angularVelocity)
 {
-  return (centerTurnRadius + wheelRadialOffset) * 2.0d * -deltaOrientation;
+  double wheelTurnRadius = (linearVelocity / (2.0d * sin(angularVelocity))) - wheelRadialOffset;
+  return wheelTurnRadius * 2.0d * angularVelocity;
+  // return (centerTurnRadius + wheelRadialOffset) * 2.0d * deltaOrientation;
+  /*
+  double offsetRadius = centerTurnRadius + wheelRadialOffset;
+  double desiredPower = offsetRadius * 2.0d * deltaOrientation;
+  if (centerTurnRadius * wheelRadialOffset < 0.0d)
+    return desiredPower;
+
+  //in turns, the wheel on the outside of the turn is moving faster and so will experience power loss from the wheel
+  //on the inside of the turn pulling or pushing on it along the axis of rotation
+  // if (abs(centerTurnRadius) < abs(wheelRadialOffset))
+    // return desiredPower * WHEEL_INTER_AXLE_POWER_LOSS;
+
+  double dragPowerLoss = 1.0 + pow(cos(atan(offsetRadius / (2.0d * wheelOffset.getY()))), 2.0d);
+  return desiredPower * dragPowerLoss;
+  // */
 }

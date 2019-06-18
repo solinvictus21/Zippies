@@ -409,9 +409,8 @@ void HCI_Event_CB(void *blePacket)
             break;
           case EVT_LE_ADVERTISING_REPORT:
             {
-              // /*
-              le_advertising_info* advEvent = (le_advertising_info*)metaEvent->data;
               /*
+              le_advertising_info* advEvent = (le_advertising_info*)metaEvent->data;
               if (advEvent->evt_type != 1) {
                 SerialUSB.print("Got advertisement of type: ");
                 SerialUSB.println(advEvent->evt_type, HEX);

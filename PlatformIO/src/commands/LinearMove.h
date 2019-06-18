@@ -2,49 +2,56 @@
 #ifndef _LINEARMOVE_H_
 #define _LINEARMOVE_H_
 
-#include "ZippyMove.h"
+#include "TimedFixedMove.h"
 #include "../lighthouse/KVector2.h"
 
-class LinearMove : public ZippyMove
+class LinearMove : public TimedFixedMove
 {
 
 private:
-  const KPosition* startingPosition;
   KVector2 targetPosition;
   double targetOrientation;
-  unsigned long executionTime;
-  bool inReverse;
+
+  const KPosition* startingPosition = NULL;
+
+protected:
+  void startTimed(ZippyController* zippy)
+  {
+    end();
+    zippy->startMoving();
+    startingPosition = new KPosition(zippy->getTargetPosition());
+    targetOrientation = atan2(targetPosition.getX() - startingPosition->vector.getX(),
+        targetPosition.getY() - startingPosition->vector.getY());
+  }
+
+  void loopTimed(double normalizedTime, ZippyController* zippy)
+  {
+    double currentX = startingPosition->vector.getX() +
+        ((targetPosition.getX() - startingPosition->vector.getX()) * normalizedTime);
+    double currentY = startingPosition->vector.getY() +
+        ((targetPosition.getY() - startingPosition->vector.getY()) * normalizedTime);
+    zippy->move(currentX, currentY, targetOrientation);
+  }
 
 public:
-  LinearMove(double tx, double ty, unsigned long t)
-    : LinearMove(tx, ty, t, false)
+  LinearMove(double tx, double ty, unsigned long et)
+    : TimedFixedMove(et),
+      targetPosition(tx, ty)
   {}
 
-  LinearMove(double tx, double ty, unsigned long t, bool r)
-    : targetPosition(tx, ty),
-      executionTime(t),
-      inReverse(r)
+  LinearMove(double tx, double ty, bool r, unsigned long et)
+    : TimedFixedMove(et),
+      targetPosition(tx, ty)
   {}
-
-  unsigned long start(Zippy* zippy, const KPosition* sp) {
-    zippy->setReverse(inReverse);
-    startingPosition = sp;
-    targetOrientation = atan2(targetPosition.getX() - sp->vector.getX(),
-        targetPosition.getY() - sp->vector.getY());
-    return executionTime;
-  }
-
-  void update(Zippy* zippy, double atNormalizedTime) const {
-    zippy->move(startingPosition->vector.getX() +
-        ((targetPosition.getX() - startingPosition->vector.getX()) * atNormalizedTime),
-        startingPosition->vector.getY() +
-            ((targetPosition.getY() - startingPosition->vector.getY()) * atNormalizedTime),
-        targetOrientation);
-  }
 
   void end() {
-    startingPosition = NULL;
+    if (startingPosition != NULL) {
+      delete startingPosition;
+      startingPosition = NULL;
+    }
   }
+
+  ~LinearMove() { end(); }
 
 };
 

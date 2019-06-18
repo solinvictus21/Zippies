@@ -141,21 +141,24 @@ void MotorDriver::writeCommand(uint8_t cmd, uint16_t val)
   Wire.endTransmission();
 }
 
-void MotorDriver::writeCommand(uint8_t cmd, uint16_t val1, uint16_t val2, uint16_t val3, uint16_t val4)
+void MotorDriver::writeCommand(uint8_t cmd,
+  uint16_t leftForward, uint16_t leftBackward,
+  uint16_t rightForward, uint16_t rightBackward)
 {
-  int MSB=val1>>8;
+  direction = ((int32_t)leftForward) - ((int32_t)leftBackward) + ((int32_t)rightForward) - ((int32_t)rightBackward);
+  int MSB = leftForward >> 8;
   Wire.beginTransmission(MOTORS_ADDRESS);
   Wire.write(cmd);
-  Wire.write(val1);
+  Wire.write(leftForward);
   Wire.write(MSB);
-  MSB=val2>>8;
-  Wire.write(val2);
+  MSB = leftBackward >> 8;
+  Wire.write(leftBackward);
   Wire.write(MSB);
-  MSB=val3>>8;
-  Wire.write(val3);
+  MSB = rightForward >> 8;
+  Wire.write(rightForward);
   Wire.write(MSB);
-  MSB=val4>>8;
-  Wire.write(val4);
+  MSB = rightBackward >> 8;
+  Wire.write(rightBackward);
   Wire.write(MSB);
   Wire.endTransmission();
 }

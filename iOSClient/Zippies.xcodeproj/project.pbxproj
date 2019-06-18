@@ -17,6 +17,10 @@
 		C31026392048F616004C817B /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026352048F616004C817B /* DebugViewController.swift */; };
 		C310263A2048F616004C817B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026362048F616004C817B /* AppDelegate.swift */; };
 		C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026382048F616004C817B /* UserDriveViewController.swift */; };
+		C311A7BF22AEC9E100838FCB /* KVector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7BE22AEC9E100838FCB /* KVector2.swift */; };
+		C311A7C122AED33400838FCB /* KPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C022AED33400838FCB /* KPosition.swift */; };
+		C311A7C322AED52F00838FCB /* BiArc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C222AED52F00838FCB /* BiArc.swift */; };
+		C311A7C522B021E000838FCB /* Arc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C422B021E000838FCB /* Arc.swift */; };
 		C33485C11F0FE85F000E02E0 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */; };
 		C36A5FFF21750A9800713527 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C36A5FFE21750A9800713527 /* Images.xcassets */; };
 		C37AE0E32175112B00CE8E6D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */; };
@@ -38,6 +42,10 @@
 		C31026362048F616004C817B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Zippies/UI/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		C31026372048F616004C817B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		C31026382048F616004C817B /* UserDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserDriveViewController.swift; path = Zippies/UI/UserDriveViewController.swift; sourceTree = SOURCE_ROOT; };
+		C311A7BE22AEC9E100838FCB /* KVector2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KVector2.swift; sourceTree = "<group>"; };
+		C311A7C022AED33400838FCB /* KPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KPosition.swift; sourceTree = "<group>"; };
+		C311A7C222AED52F00838FCB /* BiArc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiArc.swift; sourceTree = "<group>"; };
+		C311A7C422B021E000838FCB /* Arc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arc.swift; sourceTree = "<group>"; };
 		C33485AA1F0FE6FF000E02E0 /* Zippies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zippies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		C36A5FFE21750A9800713527 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -121,6 +129,10 @@
 				C31026352048F616004C817B /* DebugViewController.swift */,
 				C310262E2048F608004C817B /* ZippyNavigationController.swift */,
 				C37AE0E62175376600CE8E6D /* TopDownView.swift */,
+				C311A7BE22AEC9E100838FCB /* KVector2.swift */,
+				C311A7C022AED33400838FCB /* KPosition.swift */,
+				C311A7C222AED52F00838FCB /* BiArc.swift */,
+				C311A7C422B021E000838FCB /* Arc.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -152,20 +164,20 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Davis, Kyle";
 				TargetAttributes = {
 					C33485A91F0FE6FF000E02E0 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 84MU2LDRQH;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
 			buildConfigurationList = C33485A51F0FE6FF000E02E0 /* Build configuration list for PBXProject "Zippies" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -200,13 +212,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */,
+				C311A7C522B021E000838FCB /* Arc.swift in Sources */,
+				C311A7C122AED33400838FCB /* KPosition.swift in Sources */,
 				C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */,
 				C37AE0E72175376600CE8E6D /* TopDownView.swift in Sources */,
 				C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */,
 				C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */,
 				C37AE0E32175112B00CE8E6D /* SummaryViewController.swift in Sources */,
+				C311A7C322AED52F00838FCB /* BiArc.swift in Sources */,
 				C37AE0E921753EB900CE8E6D /* Zippy2.swift in Sources */,
 				C31026342048F608004C817B /* ZippyManager.swift in Sources */,
+				C311A7BF22AEC9E100838FCB /* KVector2.swift in Sources */,
 				C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */,
 				C31026392048F616004C817B /* DebugViewController.swift in Sources */,
 				C310263A2048F616004C817B /* AppDelegate.swift in Sources */,
@@ -339,6 +355,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
@@ -356,6 +373,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;

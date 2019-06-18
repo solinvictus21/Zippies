@@ -10,16 +10,26 @@ class PauseMove : public ZippyMove
 private:
   unsigned long pauseTime;
 
+  unsigned long startTime;
+
 public:
-  PauseMove(unsigned long t)
-    : pauseTime(t)
+  PauseMove(unsigned long pt)
+    : pauseTime(pt)
   {}
 
-  unsigned long start(Zippy* zippy, const KPosition* sp) {
-    return pauseTime;
+  void start(unsigned long st, ZippyController* zippy)
+  {
+    startTime = st;
   }
 
-  void update(Zippy* zippy, double atNormalizedTime) const {
+  unsigned long loop(unsigned long currentTime, ZippyController* zippy)
+  {
+    zippy->stopMoving();
+    unsigned long deltaTime = currentTime - startTime;
+    if (deltaTime > pauseTime)
+      return deltaTime - pauseTime;
+
+    return 0;
   }
 
 };

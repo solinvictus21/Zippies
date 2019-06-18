@@ -2,52 +2,48 @@
 #ifndef _LINEARTURN_H_
 #define _LINEARTURN_H_
 
-#include "ZippyMove.h"
+#include "TimedFixedMove.h"
 
-class LinearTurn : public ZippyMove
+class LinearTurn : public TimedFixedMove
 {
 
 private:
-  const KPosition* startingPosition;
   double targetOrientation;
-  unsigned long executionTime;
   bool interpolated;
-  bool inReverse;
 
-public:
-  LinearTurn(double o, unsigned long t)
-    : LinearTurn(o, t, true, false)
-  {}
+  double startingOrientation;
 
-  LinearTurn(double o, unsigned long t, bool i)
-    : LinearTurn(o, t, i, false)
-  {}
-
-  LinearTurn(double o, unsigned long t, bool i, bool r)
-    : targetOrientation(o),
-      executionTime(t),
-      interpolated(i),
-      inReverse(r)
-  {}
-
-  unsigned long start(Zippy* zippy, const KPosition* sp) {
-    zippy->setReverse(inReverse);
-    startingPosition = sp;
-    return executionTime;
+protected:
+  void startTimed(ZippyController* zippy)
+  {
+    zippy->startMoving();
+    startingOrientation = zippy->getTargetPosition()->orientation;
   }
 
-  void update(Zippy* zippy, double atNormalizedTime) const {
+  void loopTimed(double normalizedTime, ZippyController* zippy)
+  {
     if (interpolated) {
-      zippy->turn(addAngles(startingPosition->orientation,
-          (subtractAngles(targetOrientation, startingPosition->orientation)) * atNormalizedTime));
+      zippy->turn(addAngles(startingOrientation,
+          (subtractAngles(targetOrientation, startingOrientation)) * normalizedTime));
     }
     else
       zippy->turn(targetOrientation);
   }
 
-  void end() {
-    startingPosition = NULL;
-  }
+public:
+  LinearTurn(double o, unsigned long et)
+    : LinearTurn(o, et, true, false)
+  {}
+
+  LinearTurn(double o, unsigned long et, bool i)
+    : LinearTurn(o, et, i, false)
+  {}
+
+  LinearTurn(double o, unsigned long et, bool i, bool r)
+    : TimedFixedMove(et),
+      targetOrientation(o),
+      interpolated(i)
+  {}
 
 };
 

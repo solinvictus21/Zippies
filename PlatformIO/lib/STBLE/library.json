@@ -1,0 +1,15 @@
+{
+  "name": "STBLE",
+  "version": "0.1.0",
+  "author": "TinyCircuits",
+  "maintainer": "TinyCircuits <info@TinyCircuits.com>",
+  "sentence": "Driver for STBLE BlueNRG based modules",
+  "paragraph": "This library implements Arduino compatibility with ST's BlueNRG BLE stack",
+  "category": "Communication",
+  "url": "http://www.tinycircuits.com",
+  "architectures": "*",
+  "includes": "STBLE.h",
+  "build": {
+    "flags": "-Wno-unused-value -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function -D BLUENRG_CONFIG=BLUENRG_32_MHZ"
+  }
+}

@@ -9,6 +9,7 @@ class MotorDriver
 
 private:
   bool started;
+  int32_t direction = 0;
 
   void writeByte(uint8_t);
   void writeByte(uint8_t, uint8_t);
@@ -18,9 +19,10 @@ private:
 public:
   MotorDriver();
   bool start();
-
   void setFailsafe(uint16_t ms);
+
   void writeCommand(uint8_t, uint16_t, uint16_t, uint16_t, uint16_t);
+  bool inReverse() { return direction < 0; }
 
 };
 
