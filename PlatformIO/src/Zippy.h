@@ -3,7 +3,6 @@
 #define _ZIPPY_H_
 
 #include <PID_v1.h>
-#include "ZippyController.h"
 #include "ZippyFace.h"
 #include "MotorDriver.h"
 #include "lighthouse/Lighthouse.h"
@@ -12,54 +11,56 @@
 #include "ZippyWheel.h"
 #include "commands/PathMove.h"
 
-class Zippy : public ZippyController
+#include "paths/ZPathPlanner.h"
+
+typedef enum _ZippyState
+{
+  WaitingForLighthouse,
+  MovingToInitialPosition,
+  SyncingWithPreamble,
+  Executing
+} ZippyState;
+
+class Zippy
 {
 
 private:
+  KPosition startPosition;
+
+  ZippyState currentState = WaitingForLighthouse;
+  int routineIndex = 0;
+  ZPath* currentPath = NULL;
+  unsigned long currentPathStartTime = 0;
+  unsigned long currentPathDeltaTime = 0;
   KPosition targetPosition;
-  PathMove* movementPath;
 
 #ifdef PLATFORM_TINYSCREEN
   ZippyFace face;
 #endif
   Lighthouse lighthouse;
-  bool lighthouseReady = false;
+  // bool lighthouseReady = false;
 
   MotorDriver motors;
 
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
-  bool isMoving = false;
 
   unsigned long lastUpdateTime;
 
+  void processCurrentPath(unsigned long currentTime);
+  void planNextPath(unsigned long currentTime);
   void processInput();
-
-  void moveArc(const KPosition* relativeTargetPosition);
-  void moveBiArc(KPosition* relativeTargetPosition);
-  void reversePlotBiArc(KPosition* relativeTargetPosition);
-  void plotBiArc(KPosition* relativeTargetPosition);
-  double centerTurnRadius(double distanceDelta, double orientationDelta);
-
-  double saturate(double a, double b);
+  void executeMove();
   void driveMotors();
+  double saturate(double a, double b);
 
 public:
   Zippy(
     double startingX,
     double startingY,
-    double startingOrientation,
-    PathMove* movementPath);
+    double startingOrientation);
 
-  //start ZippyController interface
   const KPosition* getTargetPosition() const { return &targetPosition; }
-  void startMoving();
-  void move(double x, double y, double orientation);
-  void turn(double orientation);
-  void stopMoving();
-  void waitForPreamble() { lighthouse.clearPreambleFlag(); }
-  bool foundPreamble() const { return lighthouse.foundPreamble(); }
-  //end ZippyController interface
 
   const Lighthouse* getLighthouse() const { return &lighthouse; }
 
@@ -73,10 +74,12 @@ public:
   const ZippyWheel* getLeftWheel() const { return &leftWheel; }
   const ZippyWheel* getRightWheel() const { return &rightWheel; }
 
+  /*
   ~Zippy()
   {
     delete movementPath;
   }
+  // */
 
 };
 

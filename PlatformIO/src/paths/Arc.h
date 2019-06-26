@@ -5,7 +5,7 @@
 #include "../lighthouse/KVector2.h"
 #include "ZPath.h"
 
-class Arc : ZPath
+class Arc : public ZPath
 {
 private:
   KVector2 center;
@@ -16,60 +16,49 @@ private:
   double deltaAngle;
   double arcLength;
 
-  void calculateArc(double startX, double startY, double tangentX, double tangentY,
-      double endX, double endY)
+  void calculateArc(
+    double startX, double startY, double startO,
+    double endX, double endY)
   {
-    //pmp = the vector from the starting point to the ending point
+    this->startOrientation = startO;
     double deltaX = endX - startX;
     double deltaY = endY - startY;
     double deltaDotDelta = (deltaX * deltaX) + (deltaY * deltaY);
+    double tangentX = sin(startO);
+    double tangentY = cos(startO);
     double n2DotDelta = ((2.0 * -tangentY) * deltaX) + ((2.0 * tangentX) * deltaY);
 
     //the radius; a negative value indicates a turn forward to the right or backward to the left
-    radius = deltaDotDelta / n2DotDelta;
+    double s = deltaDotDelta / n2DotDelta;
 
     //c = the center point
-    center.set(startX + (radius * -tangentY), startY + (radius * tangentX));
-    startAngle = atan2(startX - center.getX(), startY - center.getY());
-    deltaAngle = subtractAngles(atan2(endX - center.getX(), endY - center.getY()), startAngle);
-    radius = abs(radius);
-    arcLength = abs(radius * deltaAngle);
+    center.set(startX + (s * -tangentY), startY + (s * tangentX));
+    this->startAngle = atan2(startX - center.getX(), startY - center.getY());
+    double endAngle = atan2(endX - center.getX(), endY - center.getY());
+    this->deltaAngle = subtractAngles(endAngle, startAngle);
+    this->radius = abs(s);
+    this->arcLength = abs(radius * deltaAngle);
   }
 
 public:
-  Arc(double startX, double startY, double o,
+  Arc(double startX, double startY, double startO,
       double endX, double endY)
-    : startOrientation(o)
+    : startOrientation(startO)
   {
-    calculateArc(startX, startY, sin(startOrientation), cos(startOrientation), endX, endY);
+    calculateArc(startX, startY, startO, endX, endY);
   }
 
-  Arc(double startX, double startY, double tangentX, double tangentY,
-      double endX, double endY)
-    : startOrientation(atan2(tangentX, tangentY))
+  double getDeltaAngle() const { return deltaAngle; }
+
+  double getLength() const { return arcLength;}
+
+  void interpolate(double normalizedTime, KPosition* position) const
   {
-    calculateArc(startX, startY, tangentX, tangentY, endX, endY);
-  }
-
-  double getDeltaAngle() { return deltaAngle; }
-
-  double getArcLength() { return arcLength;}
-
-  void interpolate(double normalizedTime, double* x, double* y, double* orientation)
-  {
-      double currentAngle = deltaAngle * normalizedTime;
-      double angleOnArc = addAngles(startAngle, currentAngle);
-      *x = center.getX() + (radius * sin(angleOnArc));
-      *y = center.getY() + (radius * cos(angleOnArc));
-      *orientation = addAngles(startOrientation, currentAngle);
-  }
-
-  void interpolate(double normalizedTime, KPosition* position)
-  {
-    double x, y, o;
-    interpolate(normalizedTime, &x, &y, &o);
-    position->vector.set(x, y);
-    position->orientation = o;
+    double currentAngle = deltaAngle * normalizedTime;
+    double angleOnArc = addAngles(startAngle, currentAngle);
+    position->vector.set(center.getX() + (radius * sin(angleOnArc)),
+      center.getY() + (radius * cos(angleOnArc)));
+    position->orientation = addAngles(startOrientation, currentAngle);
   }
 
 };

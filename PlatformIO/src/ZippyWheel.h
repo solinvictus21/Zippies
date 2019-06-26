@@ -36,12 +36,12 @@ public:
 
   void turn(double relativeTargetOrientation);
   void moveStraight(double linearVelocity);
-  // void move(double targetPositionTurnRadius, double targetPositionOrientation);
   void moveWithTurn(double linearVelocity, double angularVelocity);
   void stop() {
-    wheelSetPoint = wheelInput;
+    wheelSetPoint = 0.0d;
     wheelPID.Compute();
   }
+
   double getSetPoint() const { return wheelSetPoint; }
 
   double getOutput() const { return wheelOutput; }

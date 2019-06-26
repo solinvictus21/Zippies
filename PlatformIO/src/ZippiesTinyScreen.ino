@@ -12,10 +12,9 @@
 #include "Zippy.h"
 #include "Bluetooth.h"
 #include "ZippyConfig.h"
-#include "ZippyRoutine.h"
 
 //the number of milliseconds for each "beat" of the song we are building our movement routine against
-// #define TEMPO_MS_PER_BEAT                       900.0d
+#define TEMPO_MS_PER_BEAT                       900.0d
 #define ZIPPY_OFFSET                            100.0d
 
 #define BLE_RECEIVE_MOTORS_ALL_STOP  0x00
@@ -51,7 +50,8 @@ void setup()
   // SerialUSB.println("Bluetooth started.");
 #endif
 
-  createZippy();
+  zippy = new Zippy(-50.0d, 500.0d, M_PI);
+  // createZippy();
   // SerialUSB.println("Executor created.");
 
   //start the Zippy
@@ -77,9 +77,10 @@ void loop()
   // */
 }
 
+/*
 void createZippy()
 {
-  // int nextMove = 0;
+  int nextMove = 0;
 
   /* move to center, face forward, and stop
   int moveCount = 1;
@@ -462,8 +463,8 @@ void createZippy()
   moves[nextMove++] = new LinearMove(300.0d, 0.0d, true, beats2);
   moves[nextMove++] = new LinearTurn(0.0d, beats2);
   executor = new Executor(300.0d, 0.0d, 0.0d, moves, moveCount);
-  // */
 }
+*/
 
 #ifdef ENABLE_BLUETOOTH
 /*

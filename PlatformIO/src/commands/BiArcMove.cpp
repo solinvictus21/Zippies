@@ -79,14 +79,15 @@ void BiArcMove::startTimed(ZippyController* zippy)
   double pmy = ( p1y + p2y + (d * (t1y - t2y)) ) / 2.0d;
 
   //calculate the the two arcs
-  arc1 = new Arc(p1x, p1y, t1x, t1y, pmx, pmy);
+  arc1 = new Arc(p1x, p1y, startingPosition->orientation, pmx, pmy);
   double knotO = addAngles(startingPosition->orientation, arc1->getDeltaAngle());
   arc2 = new Arc(pmx, pmy, knotO, p2x, p2y);
-  totalArcLength = arc1->getArcLength() + arc2->getArcLength();
+  totalArcLength = arc1->getLength() + arc2->getLength();
 }
 
 void BiArcMove::loopTimed(double normalizedTime, ZippyController* zippy)
 {
+  /*
   double distance = normalizedTime * totalArcLength;
   double x, y, orientation;
   double arcLength1 = arc1->getArcLength();
@@ -101,4 +102,5 @@ void BiArcMove::loopTimed(double normalizedTime, ZippyController* zippy)
   }
 
   zippy->move(x, y, orientation);
+  */
 }

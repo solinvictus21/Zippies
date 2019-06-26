@@ -2,11 +2,17 @@
 #ifndef _ZPATH_H_
 #define _ZPATH_H_
 
+#include "../lighthouse/KPosition.h"
+
 class ZPath
 {
 
+protected:
+  ZPath() {}
+
 public:
-  virtual void interpolate(double interpolatedTime, KPosition* currentPosition) = 0;
+  virtual double getLength() const = 0;
+  virtual void interpolate(double interpolatedTime, KPosition* targetPosition) const = 0;
 
   virtual ~ZPath() {}
 

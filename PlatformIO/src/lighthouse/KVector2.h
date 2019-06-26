@@ -3,9 +3,11 @@
 #define _KVECTOR2_H_
 
 #include <Arduino.h>
+#include "KRotation.h"
 
 extern double subtractAngles(double a1, double a2);
 extern double addAngles(double a1, double a2);
+extern double snapAngle(double angle);
 
 class KVector2
 {
@@ -40,6 +42,7 @@ public:
   void set(double x, double y);
   void set(double x, double y, double ofLength);
   void rotate(double angleRadians);
+  void rotate(const KRotation* rotation);
 
   double getD() const;
   void setD(double newD);

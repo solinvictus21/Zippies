@@ -4,11 +4,11 @@
 
 #include "ZippyConfig.h"
 
-#define COMMAND_PAUSE                 0
-#define COMMAND_MOVE_ARC             10
-#define COMMAND_MOVE_BIARC           11
-#define COMMAND_TURN_INTERPOLATED    20
-#define COMMAND_TURN_IMMEDIATE       21
+#define COMMAND_PAUSE                  0
+#define COMMAND_MOVE_ARC              10
+#define COMMAND_MOVE_BIARC            11
+#define COMMAND_TURN_INTERPOLATED     20
+#define COMMAND_TURN_IMMEDIATE        21
 
 #define TIMING_BEATS_1_2             300
 #define TIMING_BEATS_1               600
@@ -30,7 +30,7 @@ typedef struct _Command
 
 Command ROUTINE[] = {
   //intro
-  { TIMING_BEATS_2,      50.0d,   500.0d,    M_PI },
+  { TIMING_BEATS_2,     -50.0d,   500.0d,    M_PI },
   { TIMING_BEATS_4,      50.0d,     0.0d,    M_PI },
   { TIMING_BEATS_3,      50.0d,     0.0d, -M_PI_2 },
   { TIMING_BEATS_7,      50.0d,     0.0d, -M_PI_2 },
@@ -65,13 +65,14 @@ Command ROUTINE[] = {
   { TIMING_BEATS_1_2,   -25.0d,    75.0d, -M_PI_2 },
   { TIMING_BEATS_1_2,    50.0d,     0.0d,    0.0d },
 
-  //rush off to the right
-  { TIMING_BEATS_2,    1000.0d,     0.0d,  M_PI_2 },
+  //rush off backwards to the right
+  { TIMING_BEATS_2,    1000.0d,     0.0d, -M_PI_2 },
 
   //wait
   { TIMING_BEATS_4,    1000.0d,     0.0d, -M_PI_2 },
 };
 
+int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));
 #else
 
 uint8_t COMMANDS = {

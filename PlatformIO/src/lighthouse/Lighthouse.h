@@ -25,7 +25,9 @@ private:
   KPosition positionDelta;
   unsigned long positionTimeStamp = 0;
 
-  unsigned long lostPositionTimeStamp = 0;
+  unsigned long positionLockedTimeStamp = 0;
+  unsigned long positionUnlockedTimeStamp = 0;
+  bool positionValid = false;
 
   void setupClock();
   void setupEIC();

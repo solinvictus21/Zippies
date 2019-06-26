@@ -1,13 +1,14 @@
 
 import Foundation
+import UIKit
 
-class KPosition: NSObject
+class KPosition
 {
     
     var vector: KVector2
     var orientation: Double
-    
-    override init()
+
+    init()
     {
         vector = KVector2()
         orientation = 0.0
@@ -19,15 +20,15 @@ class KPosition: NSObject
         orientation = p.orientation
     }
     
-    init(v: KVector2, o: Double)
+    init(_ v: KVector2, _ o: Double)
     {
         vector = KVector2(v)
         orientation = o
     }
     
-    init(x: Double, y: Double, o: Double)
+    init(_ x: Double, _ y: Double, _ o: Double)
     {
-        vector = KVector2(x: x, y: y)
+        vector = KVector2(x, y)
         orientation = o
     }
     
@@ -37,9 +38,9 @@ class KPosition: NSObject
         orientation = p.orientation
     }
     
-    func set(x: Double, y: Double, o: Double)
+    func set(_ x: Double, _ y: Double, _ o: Double)
     {
-        vector.set(x: x, y: y);
+        vector.set(x, y);
         orientation = o;
     }
     

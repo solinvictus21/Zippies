@@ -249,6 +249,15 @@ void KVector2::rotate(double angleRadians)
   orientationValid = true;
 }
 
+void KVector2::rotate(const KRotation* rotation)
+{
+  double newX = (this->x * rotation->cosTheta()) - (this->y * rotation->sinTheta());
+  double newY = (this->x * rotation->sinTheta()) + (this->y * rotation->cosTheta());
+  this->x = newX;
+  this->y = newY;
+  orientationValid = false;
+}
+
 void KVector2::printDebug() const
 {
   // /*

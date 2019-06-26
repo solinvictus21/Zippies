@@ -2,9 +2,11 @@
 #include <SPI.h>
 #include "Lighthouse.h"
 
-#define LIGHTHOUSE_LOST_SIGNAL_TIMEOUT 200
+#define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
+#define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      200
 #define SENSOR_OFFSET_X  10.8d
 #define SENSOR_OFFSET_Y   4.2d
+// #define VELOCITY_UNITS_MM_PER_SEC
 
 Lighthouse* currentLighthouse = NULL;
 LighthouseSensorInput leftSensorInput;
@@ -27,7 +29,9 @@ void Lighthouse::start()
 
   previousPositionTimeStamp = 0;
   positionTimeStamp = 0;
-  lostPositionTimeStamp = 0;
+  positionLockedTimeStamp = 0;
+  positionUnlockedTimeStamp = 0;
+  positionValid = false;
 
   //configure the timing clock we'll use for counting cycles between IR pules
   setupClock();
@@ -525,29 +529,47 @@ bool Lighthouse::recalculate(unsigned long currentTime)
   if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
     //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
     //both sensors; we will continue to estimate the position and velocity until a designated timeout interval
-    if (!previousPositionTimeStamp ||
-      (lostPositionTimeStamp && currentTime - lostPositionTimeStamp >= LIGHTHOUSE_LOST_SIGNAL_TIMEOUT))
-    {
-      //we do not have a new position and we don't have enough data to estimate the position or
-      //the historical data is too stale to estimate accurately
-      previousPositionTimeStamp = 0;
-      return false;
-    }
-    else if (!lostPositionTimeStamp) {
-      //keep track the time the signal was lost
-      lostPositionTimeStamp = positionTimeStamp;
+    if (positionValid) {
+      if (!positionUnlockedTimeStamp) {
+        //keep track the time the signal was lost
+        // SerialUSB.println("Lighthouse position unlocked.");
+        positionUnlockedTimeStamp = currentTime;
+      }
+      else if (currentTime - positionUnlockedTimeStamp >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
+        //we can no longer estimate
+        // SerialUSB.println("Lighthouse position invalid.");
+        positionValid = false;
+        positionLockedTimeStamp = 0;
+      }
     }
 
     //estimate the new position and velocity based on the previous position and velocity
-    estimatePosition(currentTime);
+    if (positionValid) {
+      estimatePosition(currentTime);
+      return true;
+    }
   }
   else {
-    lostPositionTimeStamp = 0;
+    if (!positionValid) {
+      if (!positionLockedTimeStamp) {
+        // SerialUSB.println("Lighthouse position locked.");
+        positionLockedTimeStamp = currentTime;
+      }
+      else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
+        // SerialUSB.println("Lighthouse position valid.");
+        positionUnlockedTimeStamp = 0;
+        positionValid = true;
+      }
+    }
+
     // SerialUSB.println("Calculating position.");
-    calculatePosition();
+    if (positionValid) {
+      calculatePosition();
+      return true;
+    }
   }
 
-  return previousPositionTimeStamp;
+  return false;
 }
 
 void Lighthouse::calculatePosition()
@@ -578,6 +600,10 @@ void Lighthouse::calculatePosition()
   //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
   //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
   // positionDelta.vector.projectAlong(addAngles(previousPosition.orientation, positionDelta.orientation / 2.0d));
+
+// #ifdef VELOCITY_UNITS_MM_PER_SEC
+  // double velocityFactor = 1000.0d / ((double)positionTimeStamp - previousPositionTimeStamp);
+// #endif
 }
 
 void Lighthouse::estimatePosition(unsigned long currentTime)
