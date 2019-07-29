@@ -16,8 +16,10 @@ KVector2::KVector2(const KVector2* v)
     dValid(v->dValid),
     d2(v->d2),
     d2Valid(v->d2Valid),
-    orientation(v->orientation),
-    orientationValid(v->orientationValid)
+    _arctan(v->_arctan),
+    arctanValid(v->arctanValid),
+    _arctan2(v->_arctan2),
+    arctan2Valid(v->arctan2Valid)
 {
 }
 
@@ -28,7 +30,8 @@ KVector2::KVector2(double x,
     this->y = y;
     d2Valid = false;
     dValid = false;
-    orientationValid = false;
+    arctanValid = false;
+    arctan2Valid = false;
 }
 
 KVector2::KVector2(double x,
@@ -97,8 +100,10 @@ void KVector2::reset()
   dValid = true;
   d2 = 0.0d;
   d2Valid = true;
-  orientation = 0.0d;
-  orientationValid = true;
+  _arctan = 0.0d;
+  arctanValid = true;
+  _arctan2 = 0.0d;
+  arctan2Valid = true;
 }
 
 void KVector2::setX(double newX)
@@ -109,7 +114,8 @@ void KVector2::setX(double newX)
     x = newX;
     dValid = false;
     d2Valid = false;
-    orientationValid = false;
+    arctanValid = false;
+    arctan2Valid = false;
 }
 
 void KVector2::setY(double newY)
@@ -120,7 +126,8 @@ void KVector2::setY(double newY)
     y = newY;
     dValid = false;
     d2Valid = false;
-    orientationValid = false;
+    arctanValid = false;
+    arctan2Valid = false;
 }
 
 void KVector2::set(const KVector2* v)
@@ -135,7 +142,8 @@ void KVector2::set(double newX,
     y = newY;
     dValid = false;
     d2Valid = false;
-    orientationValid = false;
+    arctanValid = false;
+    arctan2Valid = false;
 }
 
 void KVector2::set(double newX,
@@ -143,14 +151,7 @@ void KVector2::set(double newX,
                    double ofLength)
 {
   if (ofLength == 0.0d || (newX == 0.0d && newY == 0.0d)) {
-    this->x = 0.0d;
-    this->y = 0.0d;
-    d = 0.0d;
-    dValid = true;
-    d2 = 0.0d;
-    d2Valid = true;
-    orientation = 0.0d;
-    orientationValid = true;
+    reset();
     return;
   }
 
@@ -162,7 +163,8 @@ void KVector2::set(double newX,
   dValid = true;
   d2 = d*d;
   d2Valid = true;
-  orientationValid = false;
+  arctanValid = false;
+  arctan2Valid = false;
 }
 
 void KVector2::setD(double newD)
@@ -179,7 +181,8 @@ void KVector2::addVector(const KVector2* v)
   this->y += v->y;
   dValid = false;
   d2Valid = false;
-  orientationValid = false;
+  arctanValid = false;
+  arctan2Valid = false;
 }
 
 void KVector2::subtractVector(const KVector2* v)
@@ -188,7 +191,8 @@ void KVector2::subtractVector(const KVector2* v)
   this->y -= v->y;
   dValid = false;
   d2Valid = false;
-  orientationValid = false;
+  arctanValid = false;
+  arctan2Valid = false;
 }
 
 double KVector2::projectAlong(double orientation)
@@ -201,9 +205,10 @@ double KVector2::projectAlong(double orientation)
   double length = dotProduct / cosTheta;
   this->d = abs(length);
   dValid = true;
-  //the result could be either the orientation specified or +M_PI, exactly the opposite direction
-  this->orientation = dotProduct >= 0.0d ? orientation : addAngles(orientation, M_PI);
-  orientationValid = true;
+  //the result could be either the arctan2 specified or +M_PI, exactly the opposite direction
+  arctanValid = false;
+  this->_arctan2 = dotProduct >= 0.0d ? orientation : addAngles(orientation, M_PI);
+  arctan2Valid = true;
   d2Valid = false;
 
   return length;
@@ -220,42 +225,63 @@ double KVector2::projectToward(double orientation)
   double length = dotProduct / cosTheta;
   this->d = abs(length);
   dValid = true;
-  // dValid = false;
-  this->orientation = orientation;
-  orientationValid = true;
-  // orientationValid = false;
+  arctanValid = false;
+  this->_arctan2 = orientation;
+  arctan2Valid = true;
   d2Valid = false;
 
   return length;
 }
 
-double KVector2::getOrientation() const
+double KVector2::arctan() const
 {
-  if (!orientationValid) {
-    orientation = atan2(this->x, this->y);
-    orientationValid = true;
+  if (!arctanValid) {
+    _arctan = atan(this->x / this->y);
+    arctanValid = true;
   }
 
-  return orientation;
+  return _arctan;
+}
+
+double KVector2::arctan2() const
+{
+  if (!arctan2Valid) {
+    _arctan2 = atan2(this->x, this->y);
+    arctan2Valid = true;
+  }
+
+  return _arctan2;
 }
 
 void KVector2::rotate(double angleRadians)
 {
   double currentLength = getD();
-  orientation = addAngles(getOrientation(), angleRadians);
+  this->_arctan2 = addAngles(arctan2(), angleRadians);
 
-  this->x = currentLength * sin(orientation);
-  this->y = currentLength * cos(orientation);
-  orientationValid = true;
+  this->x = currentLength * sin(this->_arctan2);
+  this->y = currentLength * cos(this->_arctan2);
+  arctan2Valid = true;
+  arctanValid = false;
 }
 
-void KVector2::rotate(const KRotation* rotation)
+void KVector2::rotate(const KRotation2* rotation)
 {
-  double newX = (this->x * rotation->cosTheta()) - (this->y * rotation->sinTheta());
-  double newY = (this->x * rotation->sinTheta()) + (this->y * rotation->cosTheta());
+  double newX = (this->x *  rotation->cos()) + (this->y * -rotation->sin());
+  double newY = (this->x *  rotation->sin()) + (this->y *  rotation->cos());
   this->x = newX;
   this->y = newY;
-  orientationValid = false;
+  arctanValid = false;
+  arctan2Valid = false;
+}
+
+void KVector2::unrotate(const KRotation2* rotation)
+{
+  double newX = (this->x *  rotation->cos()) + (this->y *  rotation->sin());
+  double newY = (this->x * -rotation->sin()) + (this->y *  rotation->cos());
+  this->x = newX;
+  this->y = newY;
+  arctanValid = false;
+  arctan2Valid = false;
 }
 
 void KVector2::printDebug() const

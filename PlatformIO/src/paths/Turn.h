@@ -18,9 +18,13 @@ public:
 
   double getLength() const { return deltaO; }
 
-  void interpolate(double normalizedTime, KPosition* position) const
+  void interpolate(
+    double normalizedTime,
+    KPosition* position,
+    bool* reverseMotion) const
   {
     position->orientation = addAngles(startO, deltaO * normalizedTime);
+    *reverseMotion = false;
   }
 
 };

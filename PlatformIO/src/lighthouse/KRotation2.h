@@ -1,45 +1,45 @@
 
-#ifndef _KROTATION_H_
-#define _KROTATION_H_
+#ifndef _KROTATION2_H_
+#define _KROTATION2_H_
 
 #include <Arduino.h>
 
-class KRotation
+class KRotation2
 {
 
 private:
-  double t;
+  double _theta;
   mutable double cosT;
   mutable bool cosTValid = false;
   mutable double sinT;
   mutable bool sinTValid = false;
 
 public:
-  KRotation(double theta)
-    : t(theta)
+  KRotation2(double t)
+    : _theta(t)
   {}
 
   double theta() const {
-    return t;
+    return this->_theta;
   }
 
-  void setTheta(double theta) {
-    this->t = theta;
+  void setTheta(double t) {
+    this->_theta = t;
     cosTValid = false;
     sinTValid = false;
   }
 
-  double cosTheta() const {
+  double cos() const {
     if (!cosTValid) {
-      cosT = cos(t);
+      cosT = ::cos(this->_theta);
       cosTValid = true;
     }
     return cosT;
   }
 
-  double sinTheta() const {
+  double sin() const {
     if (!sinTValid) {
-      sinT = sin(t);
+      sinT = ::sin(this->_theta);
       sinTValid = true;
     }
     return sinT;

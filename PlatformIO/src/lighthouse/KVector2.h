@@ -3,7 +3,7 @@
 #define _KVECTOR2_H_
 
 #include <Arduino.h>
-#include "KRotation.h"
+#include "KRotation2.h"
 
 extern double subtractAngles(double a1, double a2);
 extern double addAngles(double a1, double a2);
@@ -19,8 +19,10 @@ protected:
   mutable bool dValid;
   mutable double d2;
   mutable bool d2Valid;
-  mutable double orientation;
-  mutable bool orientationValid;
+  mutable double _arctan;
+  mutable bool arctanValid;
+  mutable double _arctan2;
+  mutable bool arctan2Valid;
 
   void setD(double newD, KVector2* unitVector);
 
@@ -42,12 +44,15 @@ public:
   void set(double x, double y);
   void set(double x, double y, double ofLength);
   void rotate(double angleRadians);
-  void rotate(const KRotation* rotation);
+  void rotate(const KRotation2* rotation);
+  void unrotate(const KRotation2* rotation);
 
   double getD() const;
   void setD(double newD);
   double getD2() const;
-  double getOrientation() const;
+  double arctan() const;
+  double arctan2() const;
+  double getOrientation() const { return arctan2(); }
   void normalize() { this->setD(1.0f); }
 
   bool equalsVector(const KVector2* v) const;

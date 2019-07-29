@@ -20,13 +20,17 @@ public:
 
   double getLength() const { return distance; }
 
-  void interpolate(double normalizedTime, KPosition* position) const
+  void interpolate(
+    double normalizedTime,
+    KPosition* position,
+    bool* reverseMotion) const
   {
     double currentDistance = distance * normalizedTime;
     position->vector.set(
       startX + (currentDistance * sin(startO)),
       startY + (currentDistance * cos(startO)));
     position->orientation = startO;
+    *reverseMotion = distance < 0.0d;
   }
 
 };

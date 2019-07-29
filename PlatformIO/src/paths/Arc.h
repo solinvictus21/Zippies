@@ -11,6 +11,7 @@ private:
   KVector2 center;
 
   double startOrientation;
+  bool reverseMotion;
   double radius;
   double startAngle;
   double deltaAngle;
@@ -20,7 +21,6 @@ private:
     double startX, double startY, double startO,
     double endX, double endY)
   {
-    this->startOrientation = startO;
     double deltaX = endX - startX;
     double deltaY = endY - startY;
     double deltaDotDelta = (deltaX * deltaX) + (deltaY * deltaY);
@@ -42,8 +42,9 @@ private:
 
 public:
   Arc(double startX, double startY, double startO,
-      double endX, double endY)
-    : startOrientation(startO)
+      double endX, double endY, bool r)
+    : startOrientation(startO),
+      reverseMotion(r)
   {
     calculateArc(startX, startY, startO, endX, endY);
   }
@@ -52,13 +53,17 @@ public:
 
   double getLength() const { return arcLength;}
 
-  void interpolate(double normalizedTime, KPosition* position) const
+  void interpolate(
+    double normalizedTime,
+    KPosition* position,
+    bool* reverseMotion) const
   {
     double currentAngle = deltaAngle * normalizedTime;
     double angleOnArc = addAngles(startAngle, currentAngle);
     position->vector.set(center.getX() + (radius * sin(angleOnArc)),
       center.getY() + (radius * cos(angleOnArc)));
     position->orientation = addAngles(startOrientation, currentAngle);
+    *reverseMotion = this->reverseMotion;
   }
 
 };

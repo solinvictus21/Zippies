@@ -3,7 +3,7 @@
 #include "Turn.h"
 #include "Move.h"
 #include "Arc.h"
-#include "BiArc.h"
+#include "CompositePath.h"
 
 //the distince in mm within which is to be considered "at the target" for the purpose of terminating the current driving command
 #define LINEAR_EPSILON                   5.0d
@@ -53,22 +53,21 @@ ZPath* planPath(
       }
 
       //now find the "knot" (the connection point between the arcs)
-      //pm = ( p1 + p2 + (d * (t1 - t2)) ) / 2
       double pmx = ( startX + endX ) / 2.0;
       double pmy = ( startY + endY ) / 2.0;
-      Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy);
-      Arc* arc2 = new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY);
+      bool reverseMotion = relativeTargetPosition.vector.getY() < 0.0d;
+      Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
+      Arc* arc2 = new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY, reverseMotion);
       // SerialUSB.println("Planned complex bi-arc to matching orientation");
-      return new BiArc(arc1, arc2);
+      return new CompositePath(arc1, arc2);
   }
-
 
   double orientationAtTarget = addAngles(
       relativeTargetPosition.vector.getOrientation(),
       relativeTargetPosition.vector.getOrientation());
   if (anglesEquivalent(orientationAtTarget, relativeTargetPosition.orientation)) {
       // SerialUSB.println("Planned simple arc.");
-      return new Arc(startX, startY, startO, endX, endY);
+      return new Arc(startX, startY, startO, endX, endY, relativeTargetPosition.vector.getY() < 0.0d);
   }
 
   double t1x = sin(startO);
@@ -96,16 +95,18 @@ ZPath* planPath(
   double t1DotT2Inv2 = 2.0 * (1.0 - t1DotT2);
   double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
 
-  double d;
+  //choose to follow the reverse path if it means less of a turn is required toward the final orientation
   double turnTowardTarget = 2.0d * relativeTargetPosition.vector.getOrientation();
   double turnTowardOrientation = subtractAngles(relativeTargetPosition.orientation, turnTowardTarget);
-  if (abs(turnTowardTarget + turnTowardOrientation) <= M_PI) {
-    //move forward
-    d = ( -vDotT + discrim ) / t1DotT2Inv2;
-  }
-  else {
+  bool reverseMotion = abs(turnTowardTarget + turnTowardOrientation) > M_PI;
+  double d;
+  if (reverseMotion) {
     //move backward
     d = ( -vDotT - discrim ) / t1DotT2Inv2;
+  }
+  else {
+    //move forward
+    d = ( -vDotT + discrim ) / t1DotT2Inv2;
   }
 
   //now find the "knot" (the connection point between the arcs)
@@ -115,16 +116,90 @@ ZPath* planPath(
 
   //calculate the the two arcs
   if (distance2Zero(pow(pmx - startX, 2.0) + pow(pmy - startY, 2.0)))
-      return new Arc(pmx, pmy, startO, endX, endY);
+      return new Arc(pmx, pmy, startO, endX, endY, reverseMotion);
   if (distance2Zero(pow(pmx - endX, 2.0) + pow(pmy - endY, 2.0)))
-      return new Arc(startX, startY, startO, pmx, pmy);
+      return new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
 
-  Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy);
+  Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
   // SerialUSB.println("Planned complex bi-arc move forward");
-  return new BiArc(
+  return new CompositePath(
     arc1,
-    new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY));
+    new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY, reverseMotion));
 }
+
+bool calculateBiArcKnot(const KPosition* relativeTargetPosition, KVector2* knotPosition)
+{
+  double arrivalOrientation = 2.0d * atan(relativeTargetPosition->vector.getX() / relativeTargetPosition->vector.getY());
+  if (anglesEquivalent(relativeTargetPosition->orientation, arrivalOrientation)) {
+    return false;
+  }
+
+  double t2x = sin(relativeTargetPosition->orientation);
+  double t2y = cos(relativeTargetPosition->orientation);
+
+  //v dot v = (v.x * v.x) + (v.y * v.y)
+  double vDotV = relativeTargetPosition->vector.getD2();
+
+  //t = t1 + t2
+  //  = (sin(p1.o) + sin(p2.o), cos(p1.o) + cos(p2.o))
+  //v dot t = (v.x * t.x)                               + (v.y * t.y)
+  //        = ((p2.x - p1.x) * (t1.x + t2.x))           + ((p2.y - p1.y) * (t1.y + t2.y))
+  //        = ((p2.x - p1.x) * (sin(p1.o) + sin(p2.o))) + ((p2.y - p1.y) * (cos(p1.o) + cos(p2.o)))
+  double vDotT = (relativeTargetPosition->vector.getX() * t2x) +
+    (relativeTargetPosition->vector.getY() * (1.0d + t2y));
+  // print("vDotT is zero:", distanceZero(vDotT))
+
+  //t1 dot t2 = (t1.x * t2.x)           + (t1.y * t2.y)
+  //          = (sin(p1.o) * sin(p2.o)) + (cos(p1.o) * cos(p2.o))
+  //          = t2.y
+  // double t1DotT2 = t2y;
+
+  // print("Planned complex bi-arc.")
+  //precalc = 2 * (1 - (t1 dot t2))
+  double t1DotT2Inv2 = 2.0 * (1.0 - t2y);
+  double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
+
+  //choose to follow the reverse path if it means less of a turn is required toward the final orientation
+  double turnTowardTarget = 2.0d * relativeTargetPosition->vector.getOrientation();
+  double turnTowardOrientation = subtractAngles(relativeTargetPosition->orientation, turnTowardTarget);
+  bool reverseMotion = abs(turnTowardTarget + turnTowardOrientation) > M_PI;
+  double d;
+  if (reverseMotion) {
+    //move backward
+    d = ( -vDotT - discrim ) / t1DotT2Inv2;
+  }
+  else {
+    //move forward
+    d = ( -vDotT + discrim ) / t1DotT2Inv2;
+  }
+
+  //now find the "knot" (the connection point between the arcs)
+  //pm = ( p1 + p2 + (d * (t1 - t2)) ) / 2
+  knotPosition->set(
+    ( relativeTargetPosition->vector.getX() + (d * (-t2x)) ) / 2.0,
+    ( relativeTargetPosition->vector.getY() + (d * (1.0d - t2y)) ) / 2.0);
+  return true;
+}
+
+/*
+void calculateBiArcKnot(
+  double startX, double startY, double startO,
+  double endX, double endY, double endO,
+  double* knotX, double* knotY)
+{
+
+}
+
+void calculateBiArcKnot(
+  const KPosition* start,
+  const KPosition* end,
+  double* knotX, double* knotY)
+{
+  calculateBiArcKnot(
+    start->vector.getX(), start->vector.getY(), start->orientation,
+    end->vector.getX(), end->vector.getY(), end->orientation)
+}
+*/
 
 bool distanceZero(double distance)
 {

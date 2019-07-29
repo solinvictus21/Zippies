@@ -2,6 +2,8 @@
 import Foundation
 import UIKit
 
+let TURN_RADIUS = 30.0
+
 protocol ZDrawable
 {
     
@@ -28,6 +30,62 @@ class ZCompoundDrawable: ZDrawable
     
 }
 
+class ZDrawableLine: ZDrawable
+{
+    fileprivate let color: UIColor
+    fileprivate let start: CGPoint
+    fileprivate let end: CGPoint
+    
+    init(
+        _ color: UIColor,
+        _ startX: Double,
+        _ startY: Double,
+        _ endX: Double,
+        _ endY: Double)
+    {
+        self.color = color
+        self.start = CGPoint(x: startX, y: startY)
+        self.end = CGPoint(x: endX, y: endY)
+    }
+    
+    convenience init(
+        _ color: UIColor,
+        _ start: KVector2,
+        _ endX: Double,
+        _ endY: Double)
+    {
+        self.init(color, start.getX(), start.getY(), endX, endY)
+    }
+    
+    convenience init(
+        _ color: UIColor,
+        _ startX: Double,
+        _ startY: Double,
+        _ end: KVector2)
+    {
+        self.init(color, startX, startY, end.getX(), end.getY())
+    }
+    
+    convenience init(
+        _ color: UIColor,
+        _ start: KVector2,
+        _ end: KVector2)
+    {
+        self.init(color, start.getX(), start.getY(), end.getX(), end.getY())
+    }
+    
+    func draw(_ transform: CGAffineTransform)
+    {
+        color.setStroke()
+        let orientationIndicator = UIBezierPath()
+        orientationIndicator.move(to: start)
+        orientationIndicator.addLine(to: end)
+        orientationIndicator.apply(transform)
+        orientationIndicator.stroke()
+    }
+    
+}
+
 class ZDrawableArrow: ZDrawable
 {
     fileprivate let color: UIColor
@@ -40,6 +98,14 @@ class ZDrawableArrow: ZDrawable
         self.color = color
         self.position = CGPoint(x: x, y: y)
         self.orientation = CGFloat(o)
+        self.size = CGFloat(s)
+    }
+    
+    init(_ color: UIColor, _ p: KMatrix2, _ s: Double)
+    {
+        self.color = color
+        self.position = CGPoint(x: p.position.getX(), y: p.position.getY())
+        self.orientation = CGFloat(p.orientation.rotation)
         self.size = CGFloat(s)
     }
     
@@ -68,6 +134,35 @@ class ZDrawableArrow: ZDrawable
     
 }
 
+class ZDrawableTurn: ZDrawable
+{
+    
+    fileprivate let color: UIColor
+    fileprivate let startPosition: KVector2
+    fileprivate let turn: Turn
+    
+    init(_ color: UIColor, _ startX: Double, _ startY: Double, _ turn: Turn)
+    {
+        self.color = color
+        self.startPosition = KVector2(startX, startY);
+        self.turn = turn;
+    }
+
+    func draw(_ transform: CGAffineTransform)
+    {
+        color.setStroke()
+        let drawingPath = UIBezierPath(
+            ovalIn: CGRect(
+                x: startPosition.getX() - TURN_RADIUS,
+                y: startPosition.getY() - TURN_RADIUS,
+                width: 2 * TURN_RADIUS,
+                height: 2 * TURN_RADIUS))
+        drawingPath.apply(transform)
+        drawingPath.stroke()
+    }
+    
+}
+
 class ZDrawableCircle: ZDrawable
 {
     
@@ -76,20 +171,27 @@ class ZDrawableCircle: ZDrawable
     fileprivate let radius: CGFloat
     fileprivate let fill: Bool
     
-    init(_ color: UIColor, _ x: Double, _ y: Double, _ r: Double)
-    {
-        self.color = color
-        self.center = CGPoint(x: x, y: y)
-        self.radius = CGFloat(r)
-        self.fill = false
-    }
-    
     init(_ color: UIColor, _ x: Double, _ y: Double, _ r: Double, _ fill: Bool)
     {
         self.color = color
         self.center = CGPoint(x: x, y: y)
         self.radius = CGFloat(r)
         self.fill = fill
+    }
+    
+    convenience init(_ color: UIColor, _ x: Double, _ y: Double, _ r: Double)
+    {
+        self.init(color, x, y, r, false)
+    }
+    
+    convenience init(_ color: UIColor, _ center: KVector2, _ radius: Double)
+    {
+        self.init(color, center.getX(), center.getY(), radius, false)
+    }
+    
+    convenience init(_ color: UIColor, _ center: KVector2, _ radius: Double, _ fill: Bool)
+    {
+        self.init(color, center.getX(), center.getY(), radius, fill)
     }
     
     func draw(_ transform: CGAffineTransform)
@@ -139,15 +241,15 @@ class ZDrawablePath: ZDrawable
         color.setStroke()
 
         //draw the path
-        let nextPoint = KPosition()
+        let nextPoint = KMatrix2()
         let drawingPath = UIBezierPath()
         for nextPath in paths {
             nextPath.interpolate(0, nextPoint)
-            drawingPath.move(to: CGPoint(x: nextPoint.vector.getX(), y: nextPoint.vector.getY()))
+            drawingPath.move(to: CGPoint(x: nextPoint.position.getX(), y: nextPoint.position.getY()))
             for n in 1...SEGMENTS_PER_PATH {
                 let pointNum = Double(n) / Double(SEGMENTS_PER_PATH)
                 nextPath.interpolate(pointNum, nextPoint)
-                drawingPath.addLine(to: CGPoint(x: nextPoint.vector.getX(), y: nextPoint.vector.getY()))
+                drawingPath.addLine(to: CGPoint(x: nextPoint.position.getX(), y: nextPoint.position.getY()))
             }
         }
         

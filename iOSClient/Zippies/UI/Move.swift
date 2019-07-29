@@ -18,11 +18,11 @@ class Move: ZPath
         self.deltaDistance = deltaDistance
     }
 
-    func interpolate(_ t: Double, _ p: KPosition)
+    func interpolate(_ t: Double, _ p: KMatrix2)
     {
         let currentDistance = deltaDistance * t
-        p.vector.set(startX + (currentDistance * sin(startO)),
+        p.position.set(startX + (currentDistance * sin(startO)),
                      startY + (currentDistance * cos(startO)))
-        p.orientation = self.startO
+        p.orientation.rotation = self.startO
     }
 }

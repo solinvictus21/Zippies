@@ -5,22 +5,18 @@ import UIKit
 class Turn: ZPath
 {
     
-    let startX: Double
-    let startY: Double
     let startO: Double
     let deltaO: Double
     
-    init(_ x: Double, _ y: Double, _ o: Double, _ deltaO: Double)
+    init(_ o: Double, _ deltaO: Double)
     {
-        self.startX = x
-        self.startY = y
         self.startO = o
         self.deltaO = deltaO
     }
     
-    func interpolate(_ t: Double, _ p: KPosition)
+    func interpolate(_ t: Double, _ p: KMatrix2)
     {
-        p.orientation = addAngles(startO, deltaO * t);
+        p.orientation.rotation = addAngles(startO, deltaO * t);
     }
 
 }

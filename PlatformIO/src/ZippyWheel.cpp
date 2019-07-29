@@ -1,6 +1,6 @@
 #include "ZippyWheel.h"
 
-#define WHEEL_Kp                                60.00d
+#define WHEEL_Kp                                80.00d
 #define WHEEL_Ki                                 0.00d
 #define WHEEL_Kd                                 5.00d
 // #define WHEEL_Kp                                66.00d

@@ -10,9 +10,11 @@
 #define COMMAND_TURN_INTERPOLATED     20
 #define COMMAND_TURN_IMMEDIATE        21
 
-#define TIMING_BEATS_1_2             300
+#define TIMING_BEATS_0_5             300
 #define TIMING_BEATS_1               600
+#define TIMING_BEATS_1_5             900
 #define TIMING_BEATS_2              1200
+#define TIMING_BEATS_2_5            1500
 #define TIMING_BEATS_3              1800
 #define TIMING_BEATS_4              2400
 #define TIMING_BEATS_5              3000
@@ -30,10 +32,11 @@ typedef struct _Command
 
 Command ROUTINE[] = {
   //intro
-  { TIMING_BEATS_2,     -50.0d,   500.0d,    M_PI },
+  { TIMING_BEATS_3,     -50.0d,   500.0d,    M_PI },
   { TIMING_BEATS_4,      50.0d,     0.0d,    M_PI },
   { TIMING_BEATS_3,      50.0d,     0.0d, -M_PI_2 },
-  { TIMING_BEATS_7,      50.0d,     0.0d, -M_PI_2 },
+  { TIMING_BEATS_5,      50.0d,     0.0d, -M_PI_2 },
+  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
 
   //turn; dance forward to right
   { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
@@ -60,16 +63,27 @@ Command ROUTINE[] = {
   { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
 
   //clockwise circle in reverse
-  { TIMING_BEATS_1_2,   -25.0d,   -75.0d,  M_PI_2 },
-  { TIMING_BEATS_1_2,  -100.0d,     0.0d,    M_PI },
-  { TIMING_BEATS_1_2,   -25.0d,    75.0d, -M_PI_2 },
-  { TIMING_BEATS_1_2,    50.0d,     0.0d,    0.0d },
+  { TIMING_BEATS_0_5,   -25.0d,   -75.0d,  M_PI_2 },
+  { TIMING_BEATS_0_5,  -100.0d,     0.0d,    M_PI },
+  { TIMING_BEATS_0_5,   -25.0d,    75.0d, -M_PI_2 },
+  // { TIMING_BEATS_0_5,    50.0d,     0.0d,    0.0d },
 
   //rush off backwards to the right
-  { TIMING_BEATS_2,    1000.0d,     0.0d, -M_PI_2 },
+  { TIMING_BEATS_2_5,   500.0d,    75.0d, -M_PI_2 },
 
-  //wait
-  { TIMING_BEATS_4,    1000.0d,     0.0d, -M_PI_2 },
+  //currently offscreen; turn forward and then ease around to the stage right
+  { TIMING_BEATS_2_5,     0.0d,   500.0d, -M_PI_2 },
+  { TIMING_BEATS_2_5,  -500.0d,     0.0d,    M_PI },
+  { TIMING_BEATS_1,    -500.0d,     0.0d,  M_PI_2 },
+
+  //enter from stage right to center
+  { TIMING_BEATS_1_5,     0.0d,     0.0d,  M_PI_2 },
+  { TIMING_BEATS_0_5,     0.0d,     0.0d,    0.0d },
+  { TIMING_BEATS_0_5,     0.0d,     0.0d, -M_PI_2 },
+  { TIMING_BEATS_0_5,     0.0d,     0.0d,    M_PI },
+  { TIMING_BEATS_0_5,     0.0d,     0.0d,  M_PI_2 },
+  { TIMING_BEATS_0_5,     0.0d,     0.0d,    0.0d },
+
 };
 
 int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));

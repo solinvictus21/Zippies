@@ -16,7 +16,7 @@ class BiArc: ZPath
         self.totalArcLength = arc1.arcLength + arc2.arcLength
     }
 
-    func interpolate(_ t: Double, _ p: KPosition)
+    func interpolate(_ t: Double, _ p: KMatrix2)
     {
         let distance = t * totalArcLength;
         if (distance < arc1.arcLength) {

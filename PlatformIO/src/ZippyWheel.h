@@ -37,6 +37,11 @@ public:
   void turn(double relativeTargetOrientation);
   void moveStraight(double linearVelocity);
   void moveWithTurn(double linearVelocity, double angularVelocity);
+  void turnArc(double centerOffset, double angularVelocity) {
+    wheelSetPoint = (centerOffset - wheelRadialOffset) * angularVelocity;
+    wheelPID.Compute();
+  }
+
   void stop() {
     wheelSetPoint = 0.0d;
     wheelPID.Compute();

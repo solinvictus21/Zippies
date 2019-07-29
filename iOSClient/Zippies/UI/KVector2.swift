@@ -151,7 +151,7 @@ class KVector2: NSObject
         return y
     }
     
-    func set(v: KVector2)
+    func set(_ v: KVector2)
     {
         self.x = v.x
         self.y = v.y
@@ -277,7 +277,23 @@ class KVector2: NSObject
         self.y = currentLength * cos(orientation)
         orientationValid = true
     }
-
+    
+    func rotate(_ rotation: KRotation2) {
+        let newX = (self.x *  rotation.cos) + (self.y * -rotation.sin)
+        let newY = (self.x *  rotation.sin) + (self.y *  rotation.cos)
+        self.x = newX
+        self.y = newY
+        orientationValid = false
+    }
+    
+    func unrotate(_ rotation: KRotation2) {
+        let newX = (self.x *  rotation.cos) + (self.y *  rotation.sin)
+        let newY = (self.x * -rotation.sin) + (self.y *  rotation.cos)
+        self.x = newX
+        self.y = newY
+        orientationValid = false
+    }
+    
 }
 
 func snapAngle(_ angle: Double) -> Double

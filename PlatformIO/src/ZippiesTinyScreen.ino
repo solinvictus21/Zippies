@@ -1,12 +1,5 @@
 
 #include <Wire.h>
-#include "commands/PathMove.h"
-#include "commands/LinearMove.h"
-#include "commands/LinearTurn.h"
-#include "commands/PauseMove.h"
-#include "commands/CubicBezierMove.h"
-#include "commands/ArcMove.h"
-#include "commands/BiArcMove.h"
 #include "lighthouse/KPosition.h"
 #include "lighthouse/KVector2.h"
 #include "Zippy.h"

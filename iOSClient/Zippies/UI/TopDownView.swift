@@ -20,20 +20,20 @@ class TopDownView : UIView
 
     init(s: String, i: Int)
     {
-        moveToDisplay = createTestPath()
+        moveToDisplay = createTestDrawable()
         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     }
     
     required init?(coder aDecoder: NSCoder)
     {
-        moveToDisplay = createTestPath()
+        moveToDisplay = createTestDrawable()
         super.init(coder: aDecoder)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
     {
         super.touchesBegan(touches, with: event)
-        moveToDisplay = createTestPath()
+        moveToDisplay = createTestDrawable()
         setNeedsDisplay()
     }
 
