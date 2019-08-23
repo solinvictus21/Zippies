@@ -134,35 +134,6 @@ class ZDrawableArrow: ZDrawable
     
 }
 
-class ZDrawableTurn: ZDrawable
-{
-    
-    fileprivate let color: UIColor
-    fileprivate let startPosition: KVector2
-    fileprivate let turn: Turn
-    
-    init(_ color: UIColor, _ startX: Double, _ startY: Double, _ turn: Turn)
-    {
-        self.color = color
-        self.startPosition = KVector2(startX, startY);
-        self.turn = turn;
-    }
-
-    func draw(_ transform: CGAffineTransform)
-    {
-        color.setStroke()
-        let drawingPath = UIBezierPath(
-            ovalIn: CGRect(
-                x: startPosition.getX() - TURN_RADIUS,
-                y: startPosition.getY() - TURN_RADIUS,
-                width: 2 * TURN_RADIUS,
-                height: 2 * TURN_RADIUS))
-        drawingPath.apply(transform)
-        drawingPath.stroke()
-    }
-    
-}
-
 class ZDrawableCircle: ZDrawable
 {
     
@@ -231,6 +202,12 @@ class ZDrawablePath: ZDrawable
     fileprivate let paths: [ZPath]
     
     init(_ color: UIColor, _ paths: ZPath...)
+    {
+        self.color = color
+        self.paths = paths
+    }
+    
+    init(_ color: UIColor, _ paths: [ZPath])
     {
         self.color = color
         self.paths = paths

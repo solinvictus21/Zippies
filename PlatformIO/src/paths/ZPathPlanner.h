@@ -2,17 +2,15 @@
 #ifndef _ZPATHPLANNER_H_
 #define _ZPATHPLANNER_H_
 
+#include "../lighthouse/KMatrix2.h"
 #include "ZPath.h"
 
-ZPath* planPath(
-  double startX, double startY, double startO,
+const ZPath* planPath(
+  const KMatrix2* start,
   double endX, double endY, double endO);
-
-extern bool distanceZero(double distance);
-extern bool distance2Zero(double distance2);
-extern bool positionsEquivalent(const KPosition* p1, const KPosition* p2);
-extern bool angleZero(double angle);
-extern bool anglesEquivalent(double angle1, double angle2);
-extern bool isTurnTowardTarget(const KPosition* relativeTargetPosition);
+const ZPath* planPath(const KMatrix2* fromPosition, const KMatrix2* toPosition);
+const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget);
+void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition);
+bool requiresBiArcMove(const KMatrix2* relativeTarget);
 
 #endif

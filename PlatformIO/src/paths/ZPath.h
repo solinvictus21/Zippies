@@ -2,7 +2,7 @@
 #ifndef _ZPATH_H_
 #define _ZPATH_H_
 
-#include "../lighthouse/KPosition.h"
+#include "../lighthouse/KMatrix2.h"
 
 class ZPath
 {
@@ -11,11 +11,12 @@ protected:
   ZPath() {}
 
 public:
+  virtual bool updatesPosition() const { return false; }
   virtual double getLength() const = 0;
+
   virtual void interpolate(
     double interpolatedTime,
-    KPosition* targetPosition,
-    bool* reverseMotion) const = 0;
+    KMatrix2* targetPosition) const = 0;
 
   virtual ~ZPath() {}
 

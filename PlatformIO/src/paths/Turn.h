@@ -3,6 +3,7 @@
 #define _TURN_H_
 
 #include "ZPath.h"
+#include "../ZippyConfig.h"
 
 class Turn : public ZPath
 {
@@ -16,15 +17,13 @@ public:
       deltaO(dto)
   {}
 
-  double getLength() const { return deltaO; }
+  double getLength() const { return WHEEL_OFFSET_X * abs(deltaO); }
 
   void interpolate(
     double normalizedTime,
-    KPosition* position,
-    bool* reverseMotion) const
+    KMatrix2* position) const
   {
-    position->orientation = addAngles(startO, deltaO * normalizedTime);
-    *reverseMotion = false;
+    position->orientation.set(addAngles(startO, deltaO * normalizedTime));
   }
 
 };

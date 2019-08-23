@@ -94,7 +94,7 @@ extension ZippyManager: PeripheralFinderDelegate
     func peripheral(_ peripheral: CBPeripheral,
                     didDiscover advertisementData: [String : Any])
     {
-        let id = peripheral.identifier;
+        let id = peripheral.identifier
         let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
         let zippyX = extractFloat32(values, position: 0)
         let zippyY = extractFloat32(values, position: 4)
@@ -127,7 +127,7 @@ extension ZippyManager: PeripheralFinderDelegate
             return
         }
         
-//        print(peripheral.identifier.uuidString);
+//        print(peripheral.identifier.uuidString)
 //        print(advertisementData.count)
         let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
         print(serviceUUIDs.first!.uuidString, ", X=", extractFloat32(values, position: 0), ", Y=", extractFloat32(values, position: 4))
@@ -176,7 +176,7 @@ extension ZippyManager: PeripheralFinderDelegate
     func peripheral(didDisconnect peripheral: CBPeripheral) {
         /*
         if peripheral == lighthouse?.peripheral {
-            //lighthouse disconnected; rediscover it
+            //lighthouse disconnected. rediscover it
             self.lighthouse = nil
             discoverLighthouse()
         }

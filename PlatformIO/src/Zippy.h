@@ -5,82 +5,35 @@
 #include <PID_v1.h>
 #include "ZippyFace.h"
 #include "MotorDriver.h"
-#include "lighthouse/Lighthouse.h"
-#include "lighthouse/KPosition.h"
+#include "lighthouse/KMatrix2.h"
 #include "ZippyConfig.h"
 #include "ZippyWheel.h"
-#include "paths/ZPathPlanner.h"
-
-typedef enum _ZippyState
-{
-  WaitingForLighthouse,
-  MovingToInitialPosition,
-  SyncingWithPreamble,
-  Executing
-} ZippyState;
+#include "paths/ZPath.h"
+#include "ZippyRoutine.h"
 
 class Zippy
 {
 
 private:
-  KPosition startPosition;
-
-  ZippyState currentState = WaitingForLighthouse;
-  int routineIndex = 0;
-  ZPath* currentPath = NULL;
-  unsigned long currentPathStartTime = 0;
-  unsigned long currentPathDeltaTime = 0;
-  KPosition targetPosition;
-  bool reverseMotion = false;
-
 #ifdef PLATFORM_TINYSCREEN
   ZippyFace face;
 #endif
-  Lighthouse lighthouse;
-  // bool lighthouseReady = false;
-
   MotorDriver motors;
-
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
 
-  unsigned long lastUpdateTime;
-
-  void processCurrentPath(unsigned long currentTime);
-  void planNextPath(unsigned long currentTime);
-  void processInput();
-  void executeMove();
-  void driveArc(const KPosition* relativeTargetPosition);
-  void driveHalfBiArc(const KPosition* relativeTargetPosition);
+  void processInput(const KMatrix2* positionDelta);
   void driveMotors();
-  double saturate(double a, double b);
+  void stopPath();
 
 public:
-  Zippy(
-    double startingX,
-    double startingY,
-    double startingOrientation);
+  Zippy();
 
-  const KPosition* getTargetPosition() const { return &targetPosition; }
-
-  const Lighthouse* getLighthouse() const { return &lighthouse; }
-
-#ifdef PLATFORM_TINYSCREEN
-  const ZippyFace* getFace() { return &face; }
-#endif
-
-  void start(unsigned long currentTime);
+  void start();
+  void executeMove(const KMatrix2* positionDelta, KMatrix2* relativeTarget);
+  void executeTurn(const KMatrix2* positionDelta, double relativeOrientation);
+  void executeStop();
   void loop(unsigned long currentTime);
-
-  const ZippyWheel* getLeftWheel() const { return &leftWheel; }
-  const ZippyWheel* getRightWheel() const { return &rightWheel; }
-
-  /*
-  ~Zippy()
-  {
-    delete movementPath;
-  }
-  // */
 
 };
 

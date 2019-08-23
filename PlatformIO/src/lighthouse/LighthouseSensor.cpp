@@ -76,7 +76,6 @@ void LighthouseSensor::restart()
   positionTimeStamp = 0;
 }
 
-
 int8_t LighthouseSensor::getAccelDirX() {
   return ((BaseStationInfoBlock*)baseStationInfoBlock)->accel_dir_x;
 }
@@ -156,14 +155,7 @@ bool LighthouseSensor::loop(unsigned long currentTime)
     }
   }
 
-/*
-  if (edgeCount > 10) {
-    SerialUSB.print("Processed edges: ");
-    SerialUSB.println(edgeCount);
-  }
-*/
-
-  return receivedLighthousePosition && detectedHitTimeStamp > positionTimeStamp;
+  return receivedLighthousePosition && (positionTimeStamp || detectedHitTimeStamp);
 }
 
 void LighthouseSensor::reacquireSyncPulse(unsigned int deltaTickCount)
@@ -568,20 +560,6 @@ void LighthouseSensor::calculateLighthousePosition()
  */
 bool LighthouseSensor::recalculate()
 {
-  if (!receivedLighthousePosition || detectedHitTimeStamp <= positionTimeStamp) {
-    //position is already up-to-date
-    /*
-    if (receivedLighthousePosition) {
-      SerialUSB.print(debugNumber);
-      SerialUSB.print(" Failed to update position: ");
-      SerialUSB.print(detectedHitTimeStamp);
-      SerialUSB.print(" - ");
-      SerialUSB.println(positionTimeStamp);
-    }
-    */
-    return false;
-  }
-
   //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode by normalizing the angle on each axis
   //from the lighthouse to +/- M_PI_2
   double observedAngleX = ((((double)detectedHitX) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;

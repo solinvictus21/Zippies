@@ -27,7 +27,7 @@ extension SummaryViewController: ZippyManagerDelegate
     func zippyDiscovered(_ zippy: Zippy2)
     {
 //        print("Requesting redraw")
-        zippyView.setNeedsDisplay();
+        zippyView.setNeedsDisplay()
     }
     
     func zippyConnected(_ zippy: Zippy2)

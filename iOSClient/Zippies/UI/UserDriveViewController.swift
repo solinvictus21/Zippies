@@ -5,7 +5,7 @@ import CoreBluetooth
 
 //a "max turn" when moving forward or backward would be with one motor at 0.0 and the other at 1.0/-1.0
 //we scale that so that the slower moving motor can never be different from the faster motor to keep
-//the turning from being "touchy" and favor driving straight; this does not apply when spinning
+//the turning from being "touchy" and favor driving straight. this does not apply when spinning
 let MOTORS_MIN_TURNING_PERCENTAGE : Float32  = 0.99
 
 class UserDriveViewController: UIViewController
@@ -88,9 +88,9 @@ class UserDriveViewController: UIViewController
                 (turningRatio * fasterMotor * (1.0-MOTORS_MIN_TURNING_PERCENTAGE))
         }
         else {
-            //the values are in different directions; while the smaller value goes from zero to the negative
+            //the values are in different directions. while the smaller value goes from zero to the negative
             //of the higher value, scale from the value of the turning ratio toward the negative of the higher
-            //value; so when the magnitude of both values is the same, the robot should be perfectly spinning
+            //value. so when the magnitude of both values is the same, the robot should be perfectly spinning
             let difference = fasterMotor - slowerMotor
             slowerMotor = (fasterMotor * MOTORS_MIN_TURNING_PERCENTAGE) +
                 (turningRatio * difference)

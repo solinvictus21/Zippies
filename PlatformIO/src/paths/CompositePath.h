@@ -8,20 +8,20 @@ class CompositePath : public ZPath
 {
 
 private:
-  ZPath** paths;
-  double pathCount;
+  const ZPath** paths;
+  int pathCount;
   double totalLength;
 
 public:
-  CompositePath(ZPath* p1, ZPath* p2) {
-    paths = new ZPath*[2];
+  CompositePath(const ZPath* p1, const ZPath* p2) {
+    paths = new const ZPath*[2];
     paths[0] = p1;
     paths[1] = p2;
     pathCount = 2;
     totalLength = p1->getLength() + p2->getLength();
   }
 
-  CompositePath(ZPath** p, int c)
+  CompositePath(const ZPath** p, int c)
     : paths(p),
       pathCount(c)
   {
@@ -30,12 +30,12 @@ public:
       totalLength = paths[i]->getLength();
   }
 
+  bool updatesPosition() const { return true; }
   double getLength() const { return totalLength; }
 
   void interpolate(
     double normalizedTime,
-    KPosition* targetPosition,
-    bool* reverseMotion) const
+    KMatrix2* targetPosition) const
   {
     double distance = normalizedTime * totalLength;
     int currentPathIndex = 0;
@@ -45,8 +45,7 @@ public:
     //moving through first arc
     paths[currentPathIndex]->interpolate(
       distance / paths[currentPathIndex]->getLength(),
-      targetPosition,
-      reverseMotion);
+      targetPosition);
   }
 
   ~CompositePath()

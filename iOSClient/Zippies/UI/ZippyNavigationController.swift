@@ -3,8 +3,8 @@ import Foundation
 import UIKit
 import CoreBluetooth
 
-let ModeChangeDrive = "kModeChangeDrive";
-let ModeChangeDebug = "kModeChangeDebug";
+let ModeChangeDrive = "kModeChangeDrive"
+let ModeChangeDebug = "kModeChangeDebug"
 
 class ZippyNavigationController: UINavigationController
 {

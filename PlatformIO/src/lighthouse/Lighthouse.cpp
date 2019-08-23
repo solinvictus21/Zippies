@@ -6,7 +6,7 @@
 #define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      200
 #define SENSOR_OFFSET_X  10.8d
 #define SENSOR_OFFSET_Y   4.2d
-// #define VELOCITY_UNITS_MM_PER_SEC
+// #define VELOCITY_UNITS_PER_SEC
 
 Lighthouse* currentLighthouse = NULL;
 LighthouseSensorInput leftSensorInput;
@@ -511,11 +511,30 @@ void TCC1_Handler()
   }
 }
 
+//returns true if the lighthouse signal is locked
 bool Lighthouse::loop(unsigned long currentTime)
 {
-  bool hasPositionUpdate = rightSensor.loop(currentTime);
-  hasPositionUpdate &= leftSensor.loop(currentTime);
-  return hasPositionUpdate;
+  rightSensor.loop(currentTime);
+  leftSensor.loop(currentTime);
+
+  if (!leftSensor.receivedLighthousePosition || !rightSensor.receivedLighthousePosition)
+    return false;
+  // SerialUSB.println("Both sensors received lighthouse positions.");
+
+  if (currentTime - min(leftSensor.detectedHitTimeStamp, rightSensor.detectedHitTimeStamp) >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
+    // SerialUSB.println("Lighthouse signal lost.");
+    positionLockedTimeStamp = 0;
+    return false;
+  }
+  // SerialUSB.println("Both sensors have position updates.");
+
+  if (!positionLockedTimeStamp) {
+    // SerialUSB.println("Lighthouse signal locked. Beginning initial timeout.");
+    positionLockedTimeStamp = currentTime;
+    return false;
+  }
+
+  return (currentTime - positionLockedTimeStamp) >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE;
 }
 
 /**
@@ -523,8 +542,13 @@ bool Lighthouse::loop(unsigned long currentTime)
  * with the information about the orientation of the Lighthouse (received from the base station info block) and the
  * known distance of the Lighthouse from the plane of the sensors.
  */
+/*
 bool Lighthouse::recalculate(unsigned long currentTime)
 {
+  if (!leftSensor.receivedLighthousePosition || !leftSensor.detectedHitTimeStamp ||
+      !rightSensor.receivedLighthousePosition || !leftSensor.detectedHitTimeStamp)
+    return false;
+
   //update the position of the sensors
   if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
     //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
@@ -571,39 +595,53 @@ bool Lighthouse::recalculate(unsigned long currentTime)
 
   return false;
 }
+*/
 
-void Lighthouse::calculatePosition()
+bool Lighthouse::recalculate()
 {
+  if (leftSensor.detectedHitTimeStamp <= leftSensor.positionTimeStamp ||
+      rightSensor.detectedHitTimeStamp <= rightSensor.positionTimeStamp)
+  {
+    return false;
+  }
+
+  leftSensor.recalculate();
+  rightSensor.recalculate();
+
   //capture the previous position to allow us to later calculate the velocity
-  previousPosition.vector.set(&position.vector);
-  previousPosition.orientation = position.orientation;
-  // previousPositionDelta.vector.set(&positionDelta.vector);
-  // previousPositionDelta.orientation = positionDelta.orientation;
+  previousPosition.position.set(&position.position);
+  previousPosition.orientation.set(position.orientation.get());
+  // previousPositionDelta.position.set(&positionDelta.position);
+  // previousPositionDelta.orientation.get() = positionDelta.orientation;
   previousPositionTimeStamp = positionTimeStamp;
 
   //the orientation is calculated by crossing the vector between the sensors with the vector (0, 0, 1), which
   //simplifies to (y, -x); then take the atan2 of that resulting vector to obtain the orientation
-  position.orientation = atan2(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
-          -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX()));
+  position.orientation.set(atan2(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
+          -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX())));
   //the center position of the robot is the average position between the sensors
-  position.vector.set((SENSOR_OFFSET_Y * sin(position.orientation)) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
-      (SENSOR_OFFSET_Y * cos(position.orientation)) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
-  // position.vector.set(((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
+  position.position.set(
+      (SENSOR_OFFSET_Y * position.orientation.sin()) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
+      (SENSOR_OFFSET_Y * position.orientation.cos()) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
+  // position.position.set(((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
       // ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
   positionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
 
   //now calculate the change in position and orientation
-  positionDelta.orientation = subtractAngles(position.orientation, previousPosition.orientation);
-  positionDelta.vector.set(position.vector.getX() - previousPosition.vector.getX(),
-      position.vector.getY() - previousPosition.vector.getY());
+  positionDelta.set(&position);
+  positionDelta.unconcat(&previousPosition);
 
   //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
   //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
-  // positionDelta.vector.projectAlong(addAngles(previousPosition.orientation, positionDelta.orientation / 2.0d));
+  positionDelta.position.projectAlong(positionDelta.orientation.get() / 2.0d);
 
-// #ifdef VELOCITY_UNITS_MM_PER_SEC
-  // double velocityFactor = 1000.0d / ((double)positionTimeStamp - previousPositionTimeStamp);
-// #endif
+#ifdef VELOCITY_UNITS_PER_SEC
+  double velocityFactor = 1000.0d / ((double)positionTimeStamp - previousPositionTimeStamp);
+  positionDelta.position.multiply(velocityFactor);
+  positionDelta.orientation.set(velocityFactor * positionDelta.orientation.get());
+#endif
+
+  return previousPositionTimeStamp;
 }
 
 void Lighthouse::estimatePosition(unsigned long currentTime)
@@ -614,28 +652,28 @@ void Lighthouse::estimatePosition(unsigned long currentTime)
   double divide = positionTimeStamp - previousPositionTimeStamp;
 
   //calculate the change in orientation based on the previous change in orientation scaled to the new change in time
-  double deltaOrientation = (subtractAngles(position.orientation, previousPosition.orientation) * scale) / divide;
+  double deltaOrientation = (subtractAngles(position.orientation.get(), previousPosition.orientation.get()) * scale) / divide;
 
   //calculate the previous change in position
-  KVector2 deltaPosition(position.vector.getX() - previousPosition.vector.getX(),
-      position.vector.getY() - previousPosition.vector.getY());
+  KVector2 deltaPosition(position.position.getX() - previousPosition.position.getX(),
+      position.position.getY() - previousPosition.position.getY());
   //rotate it by the change in orientation
   deltaPosition.rotate(deltaOrientation);
   //scale it to the new change in time
   deltaPosition.setD((deltaPosition.getD() * scale) / divide);
 
   //capture the previous position and velocity
-  previousPosition.vector.set(&position.vector);
-  previousPosition.orientation = position.orientation;
+  previousPosition.position.set(&position.position);
+  previousPosition.orientation.set(position.orientation.get());
   previousPositionTimeStamp = positionTimeStamp;
 
   //calculate the new position
   // SerialUSB.println("Esitmating position.");
-  position.vector.addVector(&deltaPosition);
-  position.orientation = addAngles(position.orientation, deltaOrientation);
+  position.position.addVector(&deltaPosition);
+  position.orientation.set(addAngles(position.orientation.get(), deltaOrientation));
   //when estimating position updates, it is assumed that velocity does not change in magnitude, only in direction
-  positionDelta.vector.rotate(deltaOrientation);
-  positionDelta.vector.setD((positionDelta.vector.getD() * scale) / divide);
+  positionDelta.position.rotate(deltaOrientation);
+  positionDelta.position.setD((positionDelta.position.getD() * scale) / divide);
   positionTimeStamp = currentTime;
 }
 

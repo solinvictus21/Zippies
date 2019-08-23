@@ -77,7 +77,7 @@ class Zippy: BluetoothPeripheral
     func setManualModeEnabled(_ e: Bool) {
         let data = NSMutableData(capacity: 1)
         var header: UInt8 = e ? MESSAGE_MANUAL_MODE : MESSAGE_AUTODRIVE_MODE
-        data!.append(&header, length: 1);
+        data!.append(&header, length: 1)
         writeValue(data! as Data)
     }
     

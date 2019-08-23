@@ -83,6 +83,11 @@ double KVector2::dotOrientation(double o) const
   return (x * sin(o)) + (y * cos(o));
 }
 
+double KVector2::crossProduct(const KVector2* v) const
+{
+  return (x*v->y) - (y*v->x);
+}
+
 void KVector2::multiply(double m)
 {
   x *= m;
@@ -233,20 +238,27 @@ double KVector2::projectToward(double orientation)
   return length;
 }
 
-double KVector2::arctan() const
+double KVector2::atan() const
 {
   if (!arctanValid) {
-    _arctan = atan(this->x / this->y);
+    if (this->y == 0.0d) {
+      if (this->x == 0.0d)
+        _arctan = 0.0d;
+      else
+        _arctan = -M_PI_2;
+    }
+    else
+      _arctan = ::atan(this->x / this->y);
     arctanValid = true;
   }
 
   return _arctan;
 }
 
-double KVector2::arctan2() const
+double KVector2::atan2() const
 {
   if (!arctan2Valid) {
-    _arctan2 = atan2(this->x, this->y);
+    _arctan2 = ::atan2(this->x, this->y);
     arctan2Valid = true;
   }
 
@@ -256,7 +268,7 @@ double KVector2::arctan2() const
 void KVector2::rotate(double angleRadians)
 {
   double currentLength = getD();
-  this->_arctan2 = addAngles(arctan2(), angleRadians);
+  this->_arctan2 = addAngles(atan2(), angleRadians);
 
   this->x = currentLength * sin(this->_arctan2);
   this->y = currentLength * cos(this->_arctan2);
@@ -293,25 +305,6 @@ void KVector2::printDebug() const
   SerialUSB.print(y, 10);
   SerialUSB.println(")");
   // */
-}
-
-double snapAngle(double angle)
-{
-  if (angle <= -M_PI)
-    angle += 2.0d * M_PI;
-  else if (angle > M_PI)
-    angle -= 2.0d * M_PI;
-  return angle;
-}
-
-double subtractAngles(double a1, double a2)
-{
-  return snapAngle(a1 - a2);
-}
-
-double addAngles(double a1, double a2)
-{
-  return snapAngle(a1 + a2);
 }
 
 double distanceBetween(double x1, double y1, double x2, double y2)

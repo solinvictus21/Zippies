@@ -18,19 +18,22 @@ public:
       distance(d)
   {}
 
-  double getLength() const { return distance; }
+  Move(const KMatrix2* start, double d)
+    : Move(start->position.getX(), start->position.getY(), start->orientation.get(), d)
+  {}
+
+  bool updatesPosition() const { return true; }
+  double getLength() const { return abs(distance); }
 
   void interpolate(
     double normalizedTime,
-    KPosition* position,
-    bool* reverseMotion) const
+    KMatrix2* position) const
   {
     double currentDistance = distance * normalizedTime;
-    position->vector.set(
+    position->position.set(
       startX + (currentDistance * sin(startO)),
       startY + (currentDistance * cos(startO)));
-    position->orientation = startO;
-    *reverseMotion = distance < 0.0d;
+    position->orientation.set(startO);
   }
 
 };

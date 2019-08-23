@@ -5,10 +5,6 @@
 #include <Arduino.h>
 #include "KRotation2.h"
 
-extern double subtractAngles(double a1, double a2);
-extern double addAngles(double a1, double a2);
-extern double snapAngle(double angle);
-
 class KVector2
 {
 
@@ -50,22 +46,22 @@ public:
   double getD() const;
   void setD(double newD);
   double getD2() const;
-  double arctan() const;
-  double arctan2() const;
-  double getOrientation() const { return arctan2(); }
+  double atan() const;
+  double atan2() const;
   void normalize() { this->setD(1.0f); }
 
   bool equalsVector(const KVector2* v) const;
   double dotVector(const KVector2* v) const;
   double dotOrientation(double orientation) const;
+  double crossProduct(const KVector2* v) const;
 
   void addVector(const KVector2* v);
   void subtractVector(const KVector2* v);
   void multiply(double factor);
   double projectAlong(double orientation);
   double projectToward(double orientation);
-  double angleToVector(const KVector2* v) const { return angleToOrientation(v->getOrientation()); }
-  double angleToOrientation(double a) const { return subtractAngles(a, getOrientation()); }
+  double angleToVector(const KVector2* v) const { return angleToOrientation(v->atan2()); }
+  double angleToOrientation(double a) const { return subtractAngles(a, atan2()); }
 
   void printDebug() const;
 

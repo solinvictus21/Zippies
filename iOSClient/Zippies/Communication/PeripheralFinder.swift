@@ -33,7 +33,7 @@ class PeripheralFinder: NSObject
     
     func startObserving(_ primaryServiceUUID: CBUUID)
     {
-        stopDiscovery();
+        stopDiscovery()
         
         self.advertisedServiceUUID = primaryServiceUUID
         self.primaryServiceUUID = primaryServiceUUID
@@ -87,13 +87,13 @@ class PeripheralFinder: NSObject
     
     func stopDiscovery() {
         guard self.centralManager != nil && self.centralManager!.isScanning else {
-            return;
+            return
         }
         
         //stop scanning for new peripherals
         self.centralManager!.stopScan()
-        self.primaryServiceUUID = nil;
-        self.characteristicUUIDs = nil;
+        self.primaryServiceUUID = nil
+        self.characteristicUUIDs = nil
         self.discoveredPeripherals.removeAll()
         self.servicesByPeripheral.removeAll()
     }
@@ -112,7 +112,7 @@ extension PeripheralFinder: CBCentralManagerDelegate
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch (central.state) {
         case .poweredOn:
-            //step #1; Bluetooth is now on; scan for Zippies
+            //step #1. Bluetooth is now on. scan for Zippies
             print("Bluetooth powered on.")
 //            self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!], options: nil)
             self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!],
@@ -148,12 +148,12 @@ extension PeripheralFinder: CBCentralManagerDelegate
         //retain the peripheral first
 //        discoveredPeripherals.insert(peripheral)
         
-        //step #2; connect to this peripheral
+        //step #2. connect to this peripheral
 //        central.connect(peripheral, options: nil)
     }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        //a periphal connected; find the primary service
+        //a periphal connected. find the primary service
         //TODO: short-circuit straight to characteristic discovery if the primary service already exists on the peripheral
         peripheral.delegate = self
         peripheral.discoverServices([self.primaryServiceUUID!])
@@ -190,7 +190,7 @@ extension PeripheralFinder: CBPeripheralDelegate
         
         for service in peripheral.services! {
             if service.uuid == primaryServiceUUID {
-                //step #4; discover characteristics
+                //step #4. discover characteristics
                 servicesByPeripheral[peripheral] = service
                 peripheral.discoverCharacteristics(self.characteristicUUIDs, for: service)
             }
@@ -206,7 +206,7 @@ extension PeripheralFinder: CBPeripheralDelegate
         //no matter what we do after this point, there is no need for us to continue retaining this data, since
         //it has all been collected to be passed along to the delegate
         self.servicesByPeripheral.removeValue(forKey: peripheral)
-        self.discoveredPeripherals.remove(peripheral);
+        self.discoveredPeripherals.remove(peripheral)
         
         guard error == nil else {
             print("Received unexpected bluetooth error during characteristic discovery.")
@@ -222,19 +222,19 @@ extension PeripheralFinder: CBPeripheralDelegate
             if self.characteristicUUIDs!.contains(characteristic.uuid) {
                 characteristicsByUUID[characteristic.uuid] = characteristic
                 if characteristicsByUUID.count == self.characteristicUUIDs!.count {
-                    break;
+                    break
                 }
             }
         }
         
-        //step #5; connection is complete; notify our delegate
+        //step #5. connection is complete. notify our delegate
         DispatchQueue.main.async(execute: {
             self.delegate?.peripheral(peripheral, didConnect: service, characteristics: characteristicsByUUID)
         })
     }
     
 //    func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-//        print("Received descriptors");
+//        print("Received descriptors")
 //    }
 
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {

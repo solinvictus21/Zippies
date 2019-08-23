@@ -4,7 +4,6 @@
 #include "ZippyFace.h"
 
 /*
-#define SCREEN_WIDTH_PIXELS 96
 #define SCREEN_HEIGHT_PIXELS 64
 #define SCREEN_REFRESH_INTERVAL_MS 250
 
@@ -41,10 +40,50 @@ void ZippyFace::displayFace()
   display.endTransfer();
 }
 
-void ZippyFace::clearScreen()
+void ZippyFace::begin()
 {
   display.begin();
+}
+
+void ZippyFace::clearScreen()
+{
   display.clearScreen();
+}
+
+void ZippyFace::displayText(uint8_t x, uint8_t y, const char* text)
+{
+  //label
+  display.fontColor(TS_8b_Blue, TS_8b_Black);
+  display.setCursor(x, y);
+  display.print(text);
+}
+
+void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data)
+{
+  displayText(x, y, label);
+
+  //data
+  display.fontColor(TS_8b_White, TS_8b_Black);
+  String s = String(data, 1);
+  uint8_t printWidth = display.getPrintWidth((char*)s.c_str());
+  display.setCursor(x+SCREEN_WIDTH_PIXELS_2-printWidth, y);
+  display.print(s);
+}
+
+void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, int data)
+{
+  displayText(x, y, label);
+
+  //data
+  display.fontColor(TS_8b_White, TS_8b_Black);
+  String s = String(data);
+  uint8_t printWidth = display.getPrintWidth((char*)s.c_str());
+  display.setCursor(x+SCREEN_WIDTH_PIXELS_2-printWidth, y);
+  display.print(s);
+}
+
+void ZippyFace::end()
+{
   display.endTransfer();
 }
 
@@ -82,7 +121,7 @@ void ZippyFace::loop()
   //show the calculated separation between each of the sensor positions; ideally, this will be exactly the same everywhere on the floor
   drawCoordinate(0, nextRow, "D: ", 0.0d, 1);
   //show the orientation
-  drawCoordinate(screenCenter, nextRow, "O: ", (lighthouse.getOrientation() / M_PI) * 180.0d, 1);
+  drawCoordinate(screenCenter, nextRow, "O: ", (lighthouse.atan2() / M_PI) * 180.0d, 1);
 
   //show the calculated x,y position of the center of the Zippy
 //  nextRow += printHeight;

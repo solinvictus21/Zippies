@@ -5,224 +5,143 @@
 #include "Arc.h"
 #include "CompositePath.h"
 
-//the distince in mm within which is to be considered "at the target" for the purpose of terminating the current driving command
-#define LINEAR_EPSILON                   5.0d
-#define LINEAR2_EPSILON                 25.0d
-//the delta angle within which is to be considered "pointing at the desired orientation" (1 degree)
-#define ANGULAR_EPSILON                  0.017453292519943d
+void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
+                                KMatrix2* knotPosition);
 
-ZPath* planPath(const KPosition* start, const KPosition* end)
-{
-  return planPath(
-    start->vector.getX(), start->vector.getY(), start->orientation,
-    end->vector.getX(), end->vector.getY(), end->orientation);
-}
-
-ZPath* planPath(
-  double startX, double startY, double startO,
+const ZPath* planPath(
+  const KMatrix2* start,
   double endX, double endY, double endO)
 {
-  //the following code is derived from formulae and helpful explanations provided from the following site
-  //  http://www.ryanjuckett.com/programming/biarc-interpolation
-
-  // SerialUSB.println("Planning path");
-  double deltaX = endX - startX;
-  double deltaY = endY - startY;
-  KPosition relativeTargetPosition = new KPosition(deltaX, deltaY, subtractAngles(endO, startO));
-  relativeTargetPosition.vector.rotate(-startO);
-
-  if (distance2Zero(relativeTargetPosition.vector.getD2())) {
-      //no movement
-      if (angleZero(relativeTargetPosition.orientation)) {
-          //no turn do nothing
-          return NULL;
-      }
-
-      //linear turn
-      return new Turn(startO, subtractAngles(endO, startO));
-  }
-
-  // SerialUSB.println("Distance is non-zero");
-  if (angleZero(relativeTargetPosition.orientation)) {
-      //orientation at target is equivalent to the starting orientation
-      if (distanceZero(relativeTargetPosition.vector.getX())) {
-          //target is directly in front or behind
-          //linear move
-          // SerialUSB.println("Planned linear move.");
-          return new Move(startX, startY, startO, relativeTargetPosition.vector.getY());
-      }
-
-      //now find the "knot" (the connection point between the arcs)
-      double pmx = ( startX + endX ) / 2.0;
-      double pmy = ( startY + endY ) / 2.0;
-      bool reverseMotion = relativeTargetPosition.vector.getY() < 0.0d;
-      Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
-      Arc* arc2 = new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY, reverseMotion);
-      // SerialUSB.println("Planned complex bi-arc to matching orientation");
-      return new CompositePath(arc1, arc2);
-  }
-
-  double orientationAtTarget = addAngles(
-      relativeTargetPosition.vector.getOrientation(),
-      relativeTargetPosition.vector.getOrientation());
-  if (anglesEquivalent(orientationAtTarget, relativeTargetPosition.orientation)) {
-      // SerialUSB.println("Planned simple arc.");
-      return new Arc(startX, startY, startO, endX, endY, relativeTargetPosition.vector.getY() < 0.0d);
-  }
-
-  double t1x = sin(startO);
-  double t1y = cos(startO);
-  double t2x = sin(endO);
-  double t2y = cos(endO);
-
-  //v dot v = (v.x * v.x) + (v.y * v.y)
-  double vDotV = pow(deltaX, 2.0) + pow(deltaY, 2.0);
-
-  //t = t1 + t2
-  //  = (sin(p1.o) + sin(p2.o), cos(p1.o) + cos(p2.o))
-  //v dot t = (v.x * t.x)                               + (v.y * t.y)
-  //        = ((p2.x - p1.x) * (t1.x + t2.x))           + ((p2.y - p1.y) * (t1.y + t2.y))
-  //        = ((p2.x - p1.x) * (sin(p1.o) + sin(p2.o))) + ((p2.y - p1.y) * (cos(p1.o) + cos(p2.o)))
-  double vDotT = (deltaX * (t1x + t2x)) + (deltaY * (t1y + t2y));
-  // print("vDotT is zero:", distanceZero(vDotT))
-
-  //t1 dot t2 = (t1.x * t2.x)           + (t1.y * t2.y)
-  //          = (sin(p1.o) * sin(p2.o)) + (cos(p1.o) * cos(p2.o))
-  double t1DotT2 = (t1x * t2x) + (t1y * t2y);
-
-  // print("Planned complex bi-arc.")
-  //precalc = 2 * (1 - (t1 dot t2))
-  double t1DotT2Inv2 = 2.0 * (1.0 - t1DotT2);
-  double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
-
-  //choose to follow the reverse path if it means less of a turn is required toward the final orientation
-  double turnTowardTarget = 2.0d * relativeTargetPosition.vector.getOrientation();
-  double turnTowardOrientation = subtractAngles(relativeTargetPosition.orientation, turnTowardTarget);
-  bool reverseMotion = abs(turnTowardTarget + turnTowardOrientation) > M_PI;
-  double d;
-  if (reverseMotion) {
-    //move backward
-    d = ( -vDotT - discrim ) / t1DotT2Inv2;
-  }
-  else {
-    //move forward
-    d = ( -vDotT + discrim ) / t1DotT2Inv2;
-  }
-
-  //now find the "knot" (the connection point between the arcs)
-  //pm = ( p1 + p2 + (d * (t1 - t2)) ) / 2
-  double pmx = ( startX + endX + (d * (t1x - t2x)) ) / 2.0;
-  double pmy = ( startY + endY + (d * (t1y - t2y)) ) / 2.0;
-
-  //calculate the the two arcs
-  if (distance2Zero(pow(pmx - startX, 2.0) + pow(pmy - startY, 2.0)))
-      return new Arc(pmx, pmy, startO, endX, endY, reverseMotion);
-  if (distance2Zero(pow(pmx - endX, 2.0) + pow(pmy - endY, 2.0)))
-      return new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
-
-  Arc* arc1 = new Arc(startX, startY, startO, pmx, pmy, reverseMotion);
-  // SerialUSB.println("Planned complex bi-arc move forward");
-  return new CompositePath(
-    arc1,
-    new Arc(pmx, pmy, addAngles(startO, arc1->getDeltaAngle()), endX, endY, reverseMotion));
+  KMatrix2 end(endX, endY, endO);
+  return planPath(start, &end);
 }
 
-bool calculateBiArcKnot(const KPosition* relativeTargetPosition, KVector2* knotPosition)
+const ZPath* planPath(const KMatrix2* start, const KMatrix2* toPosition)
 {
-  double arrivalOrientation = 2.0d * atan(relativeTargetPosition->vector.getX() / relativeTargetPosition->vector.getY());
-  if (anglesEquivalent(relativeTargetPosition->orientation, arrivalOrientation)) {
-    return false;
+  //determine if we need to plan a bi-arc move first
+  KMatrix2 relativeTarget(toPosition);
+  relativeTarget.unconcat(start);
+  if (!requiresBiArcMove(&relativeTarget))
+    return planRelativePath(start, &relativeTarget);
+
+  //plan a bi-arc path move
+  KMatrix2 knot;
+  calculateRelativeBiArcKnot(&relativeTarget, &knot);
+
+  const ZPath* firstSegment = planRelativePath(start, &knot);
+
+  relativeTarget.unconcat(&knot);
+  knot.concat(start);
+  const ZPath* secondSegment = planRelativePath(&knot, &relativeTarget);
+
+  if (!firstSegment)
+    return secondSegment;
+  else if (!secondSegment)
+    return firstSegment;
+
+  return new CompositePath(firstSegment, secondSegment);
+}
+
+const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget)
+{
+  if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
+    double deltaAngle = relativeTarget->orientation.get();
+    if (abs(deltaAngle) < DOUBLE_EPSILON)
+      return NULL;
+
+    return new Turn(start->orientation.get(), deltaAngle);
   }
 
-  double t2x = sin(relativeTargetPosition->orientation);
-  double t2y = cos(relativeTargetPosition->orientation);
+  if (abs(relativeTarget->position.atan()) < DOUBLE_EPSILON)
+    return new Move(start, relativeTarget->position.getY());
+
+  return new Arc(start, relativeTarget);
+}
+
+double calculateBiArcD(double vDotV,
+                       double vDotT,
+                       double t1DotT2);
+
+void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition)
+{
+  calculateRelativeBiArcKnot(relativeTargetPosition, relativeTargetPosition);
+}
+
+void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
+                                KMatrix2* knotPosition)
+{
+  if (abs(relativeTargetPosition->orientation.get()) < DOUBLE_EPSILON) {
+    knotPosition->position.set(
+      relativeTargetPosition->position.getX() / 2.0d,
+      relativeTargetPosition->position.getY() / 2.0d);
+    knotPosition->orientation.set(2.0d * knotPosition->position.atan());
+    return;
+  }
+
+  double t2x = sin(relativeTargetPosition->orientation.get());
+  double t2y = cos(relativeTargetPosition->orientation.get());
 
   //v dot v = (v.x * v.x) + (v.y * v.y)
-  double vDotV = relativeTargetPosition->vector.getD2();
-
-  //t = t1 + t2
-  //  = (sin(p1.o) + sin(p2.o), cos(p1.o) + cos(p2.o))
+  //        = distanceToTarget ^ 2
   //v dot t = (v.x * t.x)                               + (v.y * t.y)
   //        = ((p2.x - p1.x) * (t1.x + t2.x))           + ((p2.y - p1.y) * (t1.y + t2.y))
   //        = ((p2.x - p1.x) * (sin(p1.o) + sin(p2.o))) + ((p2.y - p1.y) * (cos(p1.o) + cos(p2.o)))
-  double vDotT = (relativeTargetPosition->vector.getX() * t2x) +
-    (relativeTargetPosition->vector.getY() * (1.0d + t2y));
-  // print("vDotT is zero:", distanceZero(vDotT))
-
   //t1 dot t2 = (t1.x * t2.x)           + (t1.y * t2.y)
   //          = (sin(p1.o) * sin(p2.o)) + (cos(p1.o) * cos(p2.o))
   //          = t2.y
-  // double t1DotT2 = t2y;
 
-  // print("Planned complex bi-arc.")
-  //precalc = 2 * (1 - (t1 dot t2))
-  double t1DotT2Inv2 = 2.0 * (1.0 - t2y);
-  double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
+  //use these calculations to find the appropriate d value for the bi-arc
+  double vDotT = (relativeTargetPosition->position.getX() * t2x) +
+      (relativeTargetPosition->position.getY() * (1.0 + t2y));
+  double d = calculateBiArcD(
+      relativeTargetPosition->position.getD2(),
+      vDotT,
+      t2y);
 
-  //choose to follow the reverse path if it means less of a turn is required toward the final orientation
-  double turnTowardTarget = 2.0d * relativeTargetPosition->vector.getOrientation();
-  double turnTowardOrientation = subtractAngles(relativeTargetPosition->orientation, turnTowardTarget);
-  bool reverseMotion = abs(turnTowardTarget + turnTowardOrientation) > M_PI;
-  double d;
-  if (reverseMotion) {
-    //move backward
-    d = ( -vDotT - discrim ) / t1DotT2Inv2;
-  }
-  else {
-    //move forward
-    d = ( -vDotT + discrim ) / t1DotT2Inv2;
-  }
+  //now we can use the d value to calculation the position of the "knot", which is the intersection
+  //of the two arcs which make up the bi-arc
+  knotPosition->position.set(
+      ( relativeTargetPosition->position.getX() + (d * (-t2x)) ) / 2.0,
+      ( relativeTargetPosition->position.getY() + (d * (1.0 - t2y)) ) / 2.0);
+  knotPosition->orientation.set(2.0d * knotPosition->position.atan());
+}
 
-  //now find the "knot" (the connection point between the arcs)
-  //pm = ( p1 + p2 + (d * (t1 - t2)) ) / 2
-  knotPosition->set(
-    ( relativeTargetPosition->vector.getX() + (d * (-t2x)) ) / 2.0,
-    ( relativeTargetPosition->vector.getY() + (d * (1.0d - t2y)) ) / 2.0);
+double calculateBiArcD(
+  double vDotV,
+  double vDotT,
+  double t1DotT2)
+{
+    //precalc = 2 * (1 - (t1 dot t2))
+    double t1DotT2Inv2 = 2.0 * (1.0 - t1DotT2);
+    double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
+
+    //now find the smallest d value of the bi-arc to create the shortest bi-arc to the target
+    double d = -vDotT + discrim;
+    double altD = -vDotT - discrim;
+    if (abs(d) > abs(altD)) {
+        return altD / t1DotT2Inv2;
+    }
+
+    return d / t1DotT2Inv2;
+}
+
+bool requiresBiArcMove(const KMatrix2* relativeTarget)
+{
+  //a simple turn in place does not need a bi-arc
+  if (relativeTarget->position.getD2() < DOUBLE_EPSILON)
+    return false;
+
+  //a simple linear move forward or backward does not need a bi-arc
+  double directionToTarget = relativeTarget->position.atan();
+  if (abs(directionToTarget) < DOUBLE_EPSILON)
+    return false;
+
+  //a simple arc move that arrives at the torget position in the correct orientation also
+  //does not require a bi-arc move
+  double subtendedAngle = 2.0d * directionToTarget;
+  // if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) < ANGULAR_POSITION_EPSILON)
+  if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) < DOUBLE_EPSILON)
+    return false;
+
   return true;
-}
-
-/*
-void calculateBiArcKnot(
-  double startX, double startY, double startO,
-  double endX, double endY, double endO,
-  double* knotX, double* knotY)
-{
-
-}
-
-void calculateBiArcKnot(
-  const KPosition* start,
-  const KPosition* end,
-  double* knotX, double* knotY)
-{
-  calculateBiArcKnot(
-    start->vector.getX(), start->vector.getY(), start->orientation,
-    end->vector.getX(), end->vector.getY(), end->orientation)
-}
-*/
-
-bool distanceZero(double distance)
-{
-  return abs(distance) <= LINEAR_EPSILON;
-}
-
-bool distance2Zero(double distance2)
-{
-  return abs(distance2) <= LINEAR2_EPSILON;
-}
-
-bool positionsEquivalent(const KPosition* p1, const KPosition* p2)
-{
-  return distance2Zero(pow(p2->vector.getX() - p1->vector.getX(), 2.0d) +
-      pow(p2->vector.getY() - p1->vector.getY(), 2.0d));
-}
-
-bool angleZero(double angle)
-{
-  return abs(angle) <= ANGULAR_EPSILON;
-}
-
-bool anglesEquivalent(double angle1, double angle2)
-{
-  return abs(subtractAngles(angle2, angle1)) <= ANGULAR_EPSILON;
 }

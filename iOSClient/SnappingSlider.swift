@@ -97,7 +97,7 @@ class SnappingSlider: UIView
         case .changed:
             let translationInView = sliderPanGestureRecognizer.translation(in: sliderView)
             let translatedCenter: CGFloat = (bounds.size.width * 0.5) + (touchesBeganPoint.y + translationInView.y)
-            sliderView.center = CGPoint(x: sliderView.center.x, y: translatedCenter);
+            sliderView.center = CGPoint(x: sliderView.center.x, y: translatedCenter)
             
             delegate?.snappingSliderDidChangeValue(self)
             

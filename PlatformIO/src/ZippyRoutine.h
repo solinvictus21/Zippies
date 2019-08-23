@@ -4,153 +4,152 @@
 
 #include "ZippyConfig.h"
 
-#define COMMAND_PAUSE                  0
-#define COMMAND_MOVE_ARC              10
-#define COMMAND_MOVE_BIARC            11
-#define COMMAND_TURN_INTERPOLATED     20
-#define COMMAND_TURN_IMMEDIATE        21
-
+#define TIMING_BEATS_0_25            150
 #define TIMING_BEATS_0_5             300
-#define TIMING_BEATS_1               600
+#define TIMING_BEATS_1_0             600
 #define TIMING_BEATS_1_5             900
-#define TIMING_BEATS_2              1200
+#define TIMING_BEATS_2_0            1200
 #define TIMING_BEATS_2_5            1500
-#define TIMING_BEATS_3              1800
-#define TIMING_BEATS_4              2400
-#define TIMING_BEATS_5              3000
-#define TIMING_BEATS_6              3600
-#define TIMING_BEATS_7              4200
-#define TIMING_BEATS_8              4800
+#define TIMING_BEATS_3_0            1800
+#define TIMING_BEATS_4_0            2400
+#define TIMING_BEATS_5_0            3000
+#define TIMING_BEATS_6_0            3600
+#define TIMING_BEATS_7_0            4200
+#define TIMING_BEATS_8_0            4800
+
+#define M_PI_14 0.785398163397448d
+#define M_PI_34 2.356194490192345d
+
+typedef enum _CommandType
+{
+  CommandSync,         //sync with Lighthouse
+  CommandPause,        //do nothing
+  CommandMoveTo,       //absolute move to a specific point and orientation
+  CommandTurnTo,       //absolute turn to a specific orientation
+  //all commands below this point are relative to the current position and orientation
+  CommandMove,         //straight move forward or backward
+  CommandArc,          //arc with radius and subtended angle
+  CommandTurn,         //arc with no radius
+  CommandSetWheels,    //directly control the wheel power; useful for "micro-movements"
+  //all commands below this point are control structures
+  CommandSubRoutine
+} CommandType;
+
+typedef enum _EasingType
+{
+  EasingNone,
+  EasingIn,
+  EasingOut,
+  EasingInOut
+} EasingType;
 
 typedef struct _Command
 {
   unsigned long timing;
-  double x, y, o;
+  CommandType type;
+  union {
+    struct {
+      double p1, p2, p3;
+    } params;
+    struct {
+      _Command* subcommands;
+      int subcommandsCount;
+      int loopCount;
+    } subroutine;
+  };
+  EasingType easing;
 } Command;
 
-#if ZIPPY_ID == 0
+typedef enum struct _Test
+{
+  TestSync
+} Test;
 
-Command ROUTINE[] = {
-  //intro
-  { TIMING_BEATS_3,     -50.0d,   500.0d,    M_PI },
-  { TIMING_BEATS_4,      50.0d,     0.0d,    M_PI },
-  { TIMING_BEATS_3,      50.0d,     0.0d, -M_PI_2 },
-  { TIMING_BEATS_5,      50.0d,     0.0d, -M_PI_2 },
-  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
+class ZippyRoutine
+{
 
-  //turn; dance forward to right
-  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
-  { TIMING_BEATS_1,     150.0d,    75.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,   150.0d,    0.0d },
-  { TIMING_BEATS_1,     150.0d,   225.0d,    0.0d },
+private:
+  Command* commands;
+  int commandCount;
+  int loopCount;
 
-  //pause; dance backward to left
-  { TIMING_BEATS_1,     150.0d,   225.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,   150.0d,    0.0d },
-  { TIMING_BEATS_1,     150.0d,    75.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
+  int currentCommandIndex = -1;
+  ZippyRoutine* currentSubroutine = NULL;
+  int currentLoopCount = 0;
 
-  //pause; dance forward to the left
-  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
-  { TIMING_BEATS_1,     -50.0d,    75.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,   150.0d,    0.0d },
-  { TIMING_BEATS_1,     -50.0d,   225.0d,    0.0d },
+public:
+  ZippyRoutine(Command* c, int cc)
+    : commands(c),
+      commandCount(cc),
+      loopCount(0)
+  {}
 
-  //pause; dance backward to right
-  { TIMING_BEATS_1,     -50.0d,   225.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,   150.0d,    0.0d },
-  { TIMING_BEATS_1,     -50.0d,    75.0d,    0.0d },
-  { TIMING_BEATS_1,      50.0d,     0.0d,    0.0d },
+  ZippyRoutine(Command* c, int cc, int lc)
+    : commands(c),
+      commandCount(cc),
+      loopCount(lc)
+  {}
 
-  //clockwise circle in reverse
-  { TIMING_BEATS_0_5,   -25.0d,   -75.0d,  M_PI_2 },
-  { TIMING_BEATS_0_5,  -100.0d,     0.0d,    M_PI },
-  { TIMING_BEATS_0_5,   -25.0d,    75.0d, -M_PI_2 },
-  // { TIMING_BEATS_0_5,    50.0d,     0.0d,    0.0d },
+  Command* getNextCommand() {
+    if (currentSubroutine) {
+      Command* nextCommand = currentSubroutine->getNextCommand();
+      if (nextCommand)
+        return nextCommand;
 
-  //rush off backwards to the right
-  { TIMING_BEATS_2_5,   500.0d,    75.0d, -M_PI_2 },
+      //subroutine is complete
+      delete currentSubroutine;
+      currentSubroutine = NULL;
+    }
 
-  //currently offscreen; turn forward and then ease around to the stage right
-  { TIMING_BEATS_2_5,     0.0d,   500.0d, -M_PI_2 },
-  { TIMING_BEATS_2_5,  -500.0d,     0.0d,    M_PI },
-  { TIMING_BEATS_1,    -500.0d,     0.0d,  M_PI_2 },
+    currentCommandIndex++;
+    if (currentCommandIndex >= commandCount) {
+      currentLoopCount++;
+      if (currentLoopCount >= loopCount) {
+        if (loopCount)
+          return NULL;
 
-  //enter from stage right to center
-  { TIMING_BEATS_1_5,     0.0d,     0.0d,  M_PI_2 },
-  { TIMING_BEATS_0_5,     0.0d,     0.0d,    0.0d },
-  { TIMING_BEATS_0_5,     0.0d,     0.0d, -M_PI_2 },
-  { TIMING_BEATS_0_5,     0.0d,     0.0d,    M_PI },
-  { TIMING_BEATS_0_5,     0.0d,     0.0d,  M_PI_2 },
-  { TIMING_BEATS_0_5,     0.0d,     0.0d,    0.0d },
+        currentLoopCount = 0;
+      }
+      currentCommandIndex = 0;
+    }
 
-};
+    // SerialUSB.print("Preparing command index: ");
+    // SerialUSB.println(currentCommandIndex);
+    Command* nextCommand = &commands[currentCommandIndex];
+    if (nextCommand->type == CommandSubRoutine) {
+      currentSubroutine = new ZippyRoutine(
+        nextCommand->subroutine.subcommands,
+        nextCommand->subroutine.subcommandsCount,
+        nextCommand->subroutine.loopCount);
 
-int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));
-#else
+      return currentSubroutine->getNextCommand();
+    }
 
-uint8_t COMMANDS = {
-  COMMAND_PAUSE,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  COMMAND_TURN_INTERPOLATED,
-  COMMAND_PAUSE,
-  //turn; dance forward to right
-  COMMAND_TURN_IMMEDIATE,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  //pause; dance backward to left
-  COMMAND_PAUSE,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  //pause; dance forward to the left
-  COMMAND_PAUSE,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  //pause; dance backward to right
-  COMMAND_PAUSE,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
-  COMMAND_MOVE_BIARC,
+    return nextCommand;
+  }
+
+  void reset() {
+    if (currentSubroutine) {
+      delete currentSubroutine;
+      currentSubroutine = NULL;
+    }
+    currentCommandIndex = -1;
+    currentLoopCount = 0;
+  }
+
+  ~ZippyRoutine() {
+    if (currentSubroutine)
+      delete currentSubroutine;
+  }
 
 };
 
-unsigned long TIMINGS = {
-  //intro
-  TIMING_BEATS_8,
-  TIMING_BEATS_4,
-  TIMING_BEATS_3,
-  TIMING_BEATS_1,
-  //turn; dance forward to right
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  //pause; dance backward to left
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  //pause; dance forward to left
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  //pause; dance backward to right
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
-  TIMING_BEATS_1,
+/*
+extern Command ROUTINE[];
+extern int ROUTINE_POSITION_COUNT;
+*/
 
-};
-
-double POSITIONS = {
-    -50.0d,    0.0d,   M_PI,
-};
-
-#endif
+extern Command ROUTINE[];
+extern int ROUTINE_POSITION_COUNT;
 
 #endif

@@ -3,58 +3,12 @@
 #include <Wire.h>
 #include "T841Defs.h"
 #include "MotorDriver.h"
-#include "lighthouse/Lighthouse.h"
+#include "MotorDriverConstants.h"
+#include "ZippyConfig.h"
 
-#define MOTORS_ADDRESS 0x62
-#define MOTORS_MAX_PWM_PERIOD 0xFFFF
-#define MOTORS_ACCELERATION_TIME_MICROS 10000
-
-#define COMMAND_SET_MODE 0x00  //write mode- command, register access
-#define COMMAND_SERVO_1 0x01 //write 16 bit pwm value 1
-#define COMMAND_SERVO_2 0x02 //write 16 bit pwm value 2
-#define COMMAND_SERVO_3 0x03 //write 16 bit pwm value 3
-#define COMMAND_SERVO_4 0x04 //write 16 bit pwm value 4
-#define COMMAND_MOTOR_1 0x05 //write first two 16 bit pwm values
-#define COMMAND_MOTOR_2 0x06 //write second two 16 bit pwm values
-#define COMMAND_TIMER_1 0x08 //write 16 bit timer 1 top value
-#define COMMAND_TIMER_2 0x09 //write 16 bit timer 2 top value
-#define COMMAND_PRESCALER_1 0x0A //write timer 1 prescaler
-#define COMMAND_PRESCALER_2 0x0B //write timer 2 prescaler
-#define COMMAND_CLOCK_PRESCALER 0x0C //write system clock prescaler
-#define COMMAND_SET_SLEEP_MODE 0x0D //set sleep mode
-#define COMMAND_SLEEP 0x0E //go to sleep after I2C communication is done
-#define COMMAND_SET_FAILSAFE_VALUES 0x0F //set failsafe PWM values - default is 0
-#define COMMAND_SET_FAILSAFE_PRESCALER 0x10 //set failsafe timeout
-#define COMMAND_SET_FAILSAFE_TIMEOUT 0x11 //set failsafe timeout
-#define COMMAND_ALL_PWM_8 0x12 //write four 8 bit pwm values
-
-#define T841_CLOCK_PRESCALER_1 0x00
-#define T841_CLOCK_PRESCALER_2 0x01
-#define T841_CLOCK_PRESCALER_4 0x02
-#define T841_CLOCK_PRESCALER_8 0x03
-#define T841_CLOCK_PRESCALER_16 0x04
-#define T841_CLOCK_PRESCALER_32 0x05
-#define T841_CLOCK_PRESCALER_64 0x06
-#define T841_CLOCK_PRESCALER_128 0x07
-#define T841_CLOCK_PRESCALER_256 0x08
-
-#define T841_TIMER_PRESCALER_0 0x00
-#define T841_TIMER_PRESCALER_1 0x01
-#define T841_TIMER_PRESCALER_8 0x02
-#define T841_TIMER_PRESCALER_64 0x03
-#define T841_TIMER_PRESCALER_256 0x04
-#define T841_TIMER_PRESCALER_1024 0x05
-
-#define T841_SLEEP_MODE_IDLE 0
-#define T841_SLEEP_MODE_ADC _BV(T841_SM0)
-#define T841_SLEEP_MODE_PWR_DOWN _BV(T841_SM1)
-
-#define MODE_REGISTER_INC 0xAA
-#define MODE_REGISTER_DEC 0xAB
-#define MODE_COMMAND 0xAC
-
-#define FIRMWARE_REVISION_REG 0x19
-#define EXPECTED_FIRMWARE 0x1A
+//the minimum PCM value below which the motors do not turn at all; i.e. the "dead zone"
+#define POWER_DEAD_ZONE                      3800.00d
+#define POWER_RAMP_ZONE                       100.00d
 
 #define _BV(bit) (1 << (bit))
 
@@ -105,6 +59,51 @@ bool MotorDriver::start()
 
   started = true;
   return true;
+}
+
+void MotorDriver::setMotors(double left, double right)
+{
+  // SerialUSB.print("Setting motors: ");
+  // SerialUSB.print(left, 0);
+  // SerialUSB.print(" => ");
+  left = deadZoneRamp(left);
+  // SerialUSB.print(left, 0);
+  // SerialUSB.print(", ");
+  // SerialUSB.print(right, 0);
+  // SerialUSB.print(" => ");
+  right = deadZoneRamp(right);
+  // SerialUSB.println(right, 0);
+
+  writeCommand(COMMAND_ALL_PWM,
+      left > 0 ? left : 0,
+      left < 0 ? -left : 0,
+      right > 0 ? right : 0,
+      right < 0 ? -right : 0);
+}
+
+void MotorDriver::stopMotors()
+{
+  writeCommand(COMMAND_ALL_PWM, 10000, 10000, 10000, 10000);
+}
+
+double MotorDriver::deadZoneRamp(double a)
+{
+  double absA = abs(a);
+
+  //bail out early when power output is extremely close to zero
+  if (absA < DOUBLE_EPSILON)
+    return 0.0d;
+
+  //just use the linear power curve outside of the dead zone
+  double deadZoneDeltaRange = POWER_DEAD_ZONE - POWER_RAMP_ZONE;
+  if (absA >= POWER_RAMP_ZONE)
+    return (a < 0.0d ? -deadZoneDeltaRange : deadZoneDeltaRange) + a;
+
+  //the real magic of ramping smoothly through the dead zone
+  double t = absA / POWER_RAMP_ZONE;
+  double easing = -t * (t - 2.0d);
+  double rampedValue = absA + (deadZoneDeltaRange * easing);
+  return a < 0.0d ? -rampedValue : rampedValue;
 }
 
 void MotorDriver::setFailsafe(uint16_t ms)

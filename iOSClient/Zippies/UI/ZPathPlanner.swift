@@ -5,6 +5,7 @@ import UIKit
 fileprivate let LINEAR_EPSILON: Double = 2.0
 fileprivate let LINEAR2_EPSILON: Double = 4.0
 fileprivate let ANGULAR_EPSILON: Double = 0.017453292519943
+fileprivate let DOUBLE_EPSILON: Double = 0.000001
 //the delta angle within which is to be considered "pointing at the desired orientation" (1 degree)
 fileprivate let SEMICIRCLE_QUARTER = Double.pi/2
 
@@ -12,6 +13,9 @@ fileprivate let ZIPPY_ORIENTATION_LENGTH: Double = 60
 fileprivate let ZIPPY_POINT_INDICATOR_RADIUS: Double = 10
 fileprivate let ZIPPY_POINT_INDICATOR_ORTHOGONAL: Double = 50
 fileprivate let ZIPPY_ORIENTATION_LINE: Double = 150
+
+fileprivate let ZIPPY_RANGE_X: Double = 600
+fileprivate let ZIPPY_RANGE_Y: Double = 400
 
 let lightRed = UIColor.red.withAlphaComponent(0.20)
 let lightLightRed = UIColor.red.withAlphaComponent(0.10)
@@ -23,38 +27,124 @@ let lightBlue = UIColor.blue.withAlphaComponent(0.20)
 let lightLightBlue = UIColor.blue.withAlphaComponent(0.10)
 let lightPurple = UIColor.blue.withAlphaComponent(0.15)
 
-func distanceZero(_ distance: Double) -> Bool
+//start of conversion
+func planTestDrawable() -> ZDrawable
 {
-    return abs(distance) <= LINEAR_EPSILON
+    print()
+    
+    let start = KMatrix2(
+        Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+        Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
+        Double.random(in: -Double.pi..<Double.pi))
+    let target = generateTarget(start)
+    return planPathDrawable(start, target)
 }
 
-func distance2Zero(_ distance2: Double) -> Bool
+func planPathDrawable(_ start: KMatrix2, _ toPosition: KMatrix2) -> ZDrawable
 {
-    return abs(distance2) <= LINEAR2_EPSILON
+    let path = planPath(start, toPosition)
+    guard path != nil else {
+        return ZDrawableCircle(UIColor.green, start.position.getX(), start.position.getY(), ZIPPY_POINT_INDICATOR_RADIUS, true)
+    }
+    
+    return ZCompoundDrawable(
+        ZDrawableArrow(UIColor.green, start, ZIPPY_POINT_INDICATOR_RADIUS),
+        path!.getDrawable(UIColor.green),
+        ZDrawableArrow(UIColor.red, toPosition, ZIPPY_POINT_INDICATOR_RADIUS))
 }
 
-func angleZero(_ angle: Double) -> Bool
+func planPath(_ start: KMatrix2, _ toPosition: KMatrix2) -> ZPath?
 {
-    return abs(angle) <= ANGULAR_EPSILON
+    //determine if we need to plan a bi-arc move first
+    let relativeTarget = KMatrix2(toPosition)
+    relativeTarget.unconcat(start)
+    if !requiresBiArcMove(relativeTarget) {
+        return planRelativePath(start, relativeTarget)
+    }
+    
+    //plan a bi-arc path move
+    print("Planned bi-arc path subdivision.")
+    let knot = KMatrix2()
+    calculateRelativeBiArcKnot(relativeTarget, knot)
+    
+    let firstSegment = planRelativePath(start, knot)
+    
+    relativeTarget.unconcat(knot)
+    knot.concat(start)
+    let secondSegment = planRelativePath(knot, relativeTarget)
+    
+    if firstSegment == nil {
+        return secondSegment
+    }
+    else if secondSegment == nil {
+        return firstSegment
+    }
+    
+    return CompositePath(firstSegment!, secondSegment!)
 }
 
-func anglesEquivalent(_ angle1: Double, _ angle2: Double) -> Bool
+func planRelativePath(_ start: KMatrix2, _ relativeTarget: KMatrix2) -> ZPath?
 {
-    return abs(subtractAngles(angle2, angle1)) <= ANGULAR_EPSILON
+    if relativeTarget.position.getD2() < DOUBLE_EPSILON {
+        let deltaAngle = relativeTarget.orientation.get()
+        if abs(deltaAngle) < DOUBLE_EPSILON {
+            print("Planned stop.")
+            return nil
+        }
+        
+        print("Planned turn.")
+        return Turn(start, deltaAngle)
+    }
+    
+    if abs(relativeTarget.position.atan) < DOUBLE_EPSILON {
+        print("Planned linear move.")
+        return Move(start, relativeTarget.position.getY())
+    }
+    
+    print("Planned simple arc.")
+    return Arc(start, relativeTarget)
 }
+
+func requiresBiArcMove(_ relativeTarget: KMatrix2) -> Bool
+{
+    //a simple turn in place does not need a bi-arc
+    if relativeTarget.position.getD2() < DOUBLE_EPSILON {
+        return false
+    }
+    
+    //a simple linear move forward or backward does not need a bi-arc
+    let directionToTarget = relativeTarget.position.atan
+    if abs(directionToTarget) < DOUBLE_EPSILON {
+        return false
+    }
+    
+    //a simple arc move that arrives at the torget position in the correct orientation also
+    //does not require a bi-arc move
+    let subtendedAngle = 2.0 * directionToTarget
+    if abs(subtractAngles(subtendedAngle, relativeTarget.orientation.get())) < DOUBLE_EPSILON {
+        return false
+    }
+    
+    return true
+}
+//end of conversion
 
 func createTestDrawable() -> ZDrawable
 {
     print()
 
     let startPosition = KMatrix2(
-        Double.random(in: -300...300),
-        Double.random(in: -200...200),
+        Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+        Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
         Double.random(in: -Double.pi..<Double.pi))
     let startpointDrawable = ZDrawableArrow(UIColor.green,
                                             startPosition,
                                             ZIPPY_POINT_INDICATOR_RADIUS)
     let targetPosition = generateTarget(startPosition)
+//    let targetPosition = KMatrix2(
+//        Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+//        Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
+//        Double.random(in: -Double.pi..<Double.pi))
     
     let targetIndicator = createTargetIndicator(targetPosition)
     let endpointDrawable = ZDrawableArrow(UIColor.red,
@@ -81,7 +171,7 @@ func createTestDrawable() -> ZDrawable
     }
     
     let knot = KMatrix2()
-    calculateBiArcKnotRelative(relativeTargetPosition, knot.position)
+    calculateRelativeBiArcKnot(relativeTargetPosition, knot)
     knot.orientation.rotation = 2.0 *  atan(knot.position.getX() / knot.position.getY())
     let (distance1, rotation1) = createRelativeMove(knot)
     knot.concat(startPosition)
@@ -126,7 +216,7 @@ fileprivate func createMove(_ relativeTargetPosition: KVector2) -> (Double?, KRo
 {
     let subtendedAngle = 2.0 * atan(relativeTargetPosition.getX() / relativeTargetPosition.getY())
     if angleZero(subtendedAngle) {
-        //target is directly in front or behind; linear move
+        //target is directly in front or behind. linear move
         return (relativeTargetPosition.getY(), nil)
     }
     
@@ -150,38 +240,37 @@ fileprivate func convertToDrawable(_ color: UIColor,
         }
         
         //linear turn
-        print("Planned linear turn.")
+        print("Planned turn.")
         return ZDrawableCircle(color, startPosition.position, ZIPPY_POINT_INDICATOR_RADIUS)
     }
     
     guard subtendedAngle != nil else {
         //linear move
-        print("Planned linear move.")
+        print("Planned move.")
         let targetPosition = KMatrix2(0.0, distanceToMove!, 0.0)
         targetPosition.concat(startPosition)
         return ZDrawableLine(color, startPosition.position, targetPosition.position)
     }
     
     //fallback in the simple use case is a simple arc
-    print("Planned simple arc.")
+    print("Planned arc.")
     return ZDrawablePath(color,
                          Arc(startPosition, distanceToMove!, subtendedAngle!.rotation))
 }
 
-fileprivate func calculateBiArcKnotRelative(_ relativeTargetPosition: KMatrix2,
-                                            _ targetVector: KVector2)
+func calculateRelativeBiArcKnot(_ relativeTargetPosition: KMatrix2,
+                                _ knotPosition: KMatrix2)
 {
-    if angleZero(relativeTargetPosition.orientation.rotation) {
-        //this would create an asymptote in the regular bi-arc equation because the dot product of our orientation with
-        //the target orientation would be 1; so handle it as a special use case
-        print("Planned simple bi-arc to matching orientation.")
-        targetVector.set(relativeTargetPosition.position.getX() / 2.0, relativeTargetPosition.position.getY() / 2.0)
+    if angleZero(relativeTargetPosition.orientation.get()) {
+        knotPosition.position.set(
+            relativeTargetPosition.position.getX() / 2.0,
+            relativeTargetPosition.position.getY() / 2.0)
+        knotPosition.orientation.rotation = 2.0 * knotPosition.position.atan
         return
     }
     
-    print("Planned complex bi-arc.")
-    let t2x = sin(relativeTargetPosition.orientation.rotation)
-    let t2y = cos(relativeTargetPosition.orientation.rotation)
+    let t2x = sin(relativeTargetPosition.orientation.get())
+    let t2y = cos(relativeTargetPosition.orientation.get())
     
     //v dot v = (v.x * v.x) + (v.y * v.y)
     //        = distanceToTarget ^ 2
@@ -202,9 +291,10 @@ fileprivate func calculateBiArcKnotRelative(_ relativeTargetPosition: KMatrix2,
     
     //now we can use the d value to calculation the position of the "knot", which is the intersection
     //of the two arcs which make up the bi-arc
-    targetVector.set(
+    knotPosition.position.set(
         ( relativeTargetPosition.position.getX() + (d * (-t2x)) ) / 2.0,
         ( relativeTargetPosition.position.getY() + (d * (1.0 - t2y)) ) / 2.0)
+    knotPosition.orientation.rotation = 2.0 * knotPosition.position.atan
 }
 
 fileprivate func calculateBiArcKnotAbsolute(_ startPosition: KMatrix2,
@@ -218,7 +308,7 @@ fileprivate func calculateBiArcKnotAbsolute(_ startPosition: KMatrix2,
     let deltaY = endPosition.position.getY() - startPosition.position.getY()
     if anglesEquivalent(startPosition.orientation.rotation, endPosition.orientation.rotation) {
         //this would create an asymptote in the regular bi-arc equation because the dot product of our orientation with
-        //the target orientation would be 1; so handle it as a special use case
+        //the target orientation would be 1. so handle it as a special use case
         print("Planned simple bi-arc to matching orientation.")
         targetVector.set(startPosition.position.getX() + (deltaX / 2.0),
                          startPosition.position.getY() + (deltaY / 2.0))
@@ -295,7 +385,7 @@ fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
         
     case 2:
         print("Plotted linear move.")
-        let distanceDelta = Double.random(in: -200...200)
+        let distanceDelta = Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X)
         endPosition = KMatrix2(
             startPosition.position.getX() + (distanceDelta * sin(startPosition.orientation.rotation)),
             startPosition.position.getY() + (distanceDelta * cos(startPosition.orientation.rotation)),
@@ -304,30 +394,30 @@ fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
         
     case 3:
         print("Plotted simple arc.")
-        let radius = Double.random(in: -300...300)
-        let centerX = startPosition.position.getX() + (radius * -cos(startPosition.orientation.rotation))
-        let centerY = startPosition.position.getY() + (radius * sin(startPosition.orientation.rotation))
-        let orientationDelta = Double.random(in: -Double.pi..<Double.pi)
-        let endingOrientation = addAngles(startPosition.orientation.rotation, orientationDelta)
-//        let arcEndAngle = addAngles(subtractAngles(startPosition.orientation, Double.pi/2), orientationDelta)
-        let arcEndAngle = addAngles(startPosition.orientation.rotation, addAngles(Double.pi/2, orientationDelta))
+        let radius = Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X)
+        let center = KMatrix2(radius, 0.0, -Double.pi / 2.0)
+        center.concat(startPosition)
+        
+        let deltaAngle = Double.random(in: -Double.pi..<Double.pi)
+        let arcEndAngle = addAngles(center.orientation.get(), deltaAngle)
         endPosition = KMatrix2(
-            centerX + (radius * sin(arcEndAngle)),
-            centerY + (radius * cos(arcEndAngle)),
-            addAngles(startPosition.orientation.rotation, endingOrientation))
+            center.position.getX() + (radius * sin(arcEndAngle)),
+            center.position.getY() + (radius * cos(arcEndAngle)),
+            addAngles(startPosition.orientation.get(), deltaAngle))
         break
         
     case 4:
         print("Plotted simple arc to inverted orientation.")
-        let radius = Double.random(in: -300...300)
-        let centerX = startPosition.position.getX() + (radius * -cos(startPosition.orientation.rotation))
-        let centerY = startPosition.position.getY() + (radius * sin(startPosition.orientation.rotation))
-        let orientationDelta = Double.random(in: -Double.pi..<Double.pi)
-        let arcEndAngle = addAngles(radius < 0 ? -Double.pi/2 : Double.pi/2, orientationDelta)
+        let radius = Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X)
+        let center = KMatrix2(radius, 0.0, -Double.pi / 2.0)
+        center.concat(startPosition)
+
+        let deltaAngle = Double.random(in: -Double.pi..<Double.pi)
+        let arcEndAngle = addAngles(center.orientation.get(), deltaAngle)
         endPosition = KMatrix2(
-            centerX + (abs(radius) * sin(arcEndAngle)),
-            centerY + (abs(radius) * cos(arcEndAngle)),
-            addAngles(addAngles(startPosition.orientation.rotation, orientationDelta), Double.pi))
+            center.position.getX() + (radius * sin(arcEndAngle)),
+            center.position.getY() + (radius * cos(arcEndAngle)),
+            addAngles(addAngles(startPosition.orientation.get(), deltaAngle), Double.pi))
         break
         
     case 5:
@@ -335,8 +425,8 @@ fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
         //denominator in our default formula will go to zero, causing an undefined calculation of the d value
         print("Plotted simple bi-arc to matching orientation.")
         endPosition = KMatrix2(
-            Double.random(in: -400...400),
-            Double.random(in: -400...400),
+            Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+            Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
             startPosition.orientation.rotation)
         break
         
@@ -344,7 +434,7 @@ fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
         //the web page describing bi-arc interpolation says this is another special use case (i.e. "Case 3"), but
         //from my analysis of this use case, the optimal know should just be computed the same was as above
         print("Plotted simple bi-arc to matching orientation at y=0.")
-        let distanceDelta = Double.random(in: -200...200)
+        let distanceDelta = Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X)
         endPosition = KMatrix2(
             startPosition.position.getX() + (distanceDelta * -cos(startPosition.orientation.rotation)),
             startPosition.position.getY() + (distanceDelta * sin(startPosition.orientation.rotation)),
@@ -353,9 +443,10 @@ fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
         
     default:
         print("Plotted random move.")
-        endPosition = KMatrix2(Double.random(in: -400...400),
-                                Double.random(in: -400...400),
-                                Double.random(in: -Double.pi..<Double.pi))
+        endPosition = KMatrix2(
+            Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+            Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
+            Double.random(in: -Double.pi..<Double.pi))
         break
         
     }
@@ -409,409 +500,23 @@ func drawSecondaryBiArc(
         ZDrawablePath(lightRed, secondaryArc2))
 }
 
-/*
- fileprivate func createSimpleMove(_ color: UIColor,
- _ startPosition: KMatrix2,
- _ relativeTargetPosition: KVector2) -> ZDrawable
- {
- //check if we can do a single-motion move first
- if distance2Zero(relativeTargetPosition.getD2()) {
- //no linear movement
- if angleZero(relativeTargetPosition.getOrientation()) {
- //no linear turn do nothing
- print("Planned stop.")
- return ZDrawableCircle(color, startPosition.position.getX(), startPosition.position.getY(), ZIPPY_POINT_INDICATOR_RADIUS)
- }
- 
- //linear turn
- print("Planned linear turn.")
- return ZDrawableCircle(color, startPosition.position.getX(), startPosition.position.getY(), ZIPPY_POINT_INDICATOR_RADIUS)
- }
- 
- let turnTowardTarget = atan(relativeTargetPosition.getX() / relativeTargetPosition.getY())
- //    print("target orientation:", relativeOrientation)
- //    print("arrival angle     :", arrivalAngleAtTarget)
- if angleZero(2.0 * turnTowardTarget) {
- //target is directly in front or behind
- //linear move
- print("Planned linear move.")
- return ZDrawableLine(color,
- startPosition.position.getX(), startPosition.position.getY(),
- startPosition.position.getX() + (relativeTargetPosition.getD() * sin(turnTowardTarget)),
- startPosition.position.getY() + (relativeTargetPosition.getD() * cos(turnTowardTarget)))
- }
- 
- //fallback in the simple use case is a simple arc
- print("Planned simple arc.")
- return ZDrawablePath(color, Arc(startPosition.position.getX(), startPosition.position.getY(), startPosition.orientationOld,
- startPosition.position.getX() + (relativeTargetPosition.getD() * sin(relativeTargetPosition.getOrientation())),
- startPosition.position.getY() + (relativeTargetPosition.getD() * cos(relativeTargetPosition.getOrientation())),
- relativeTargetPosition.getY() < 0.0))
- }
- */
-
-/*
-fileprivate func createTestPathExecution(_ relativeTargetPosition: KPosition) -> ZDrawable
+func distanceZero(_ distance: Double) -> Bool
 {
-    //first determine the single arc which would move us to be directly on the ray represented by the vector
-    //to the target position and the target orientation we are trying to achieve from that position; since
-    //the change in our current orientation will be twice the angle to the goal, that means that our goal
-    //should be along the line represented by half of the change in orientation from our current orientation
-    //toward our target orientation
-//    let subtendedArc = relativeTargetPosition.orientation
-    /*
-    let turnTowardPosition = atan(relativeTargetPosition.vector.getX() / relativeTargetPosition.vector.getY());
-    let normalArrivalOrientation = addAngles(
-        turnTowardPosition,
-        turnTowardPosition)
-    let relativePositionToOrientation = subtractAngles(relativeTargetPosition.orientation, normalArrivalOrientation)
-    let turnTowardOrientation = subtractAngles(
-        relativeTargetPosition.vector.getOrientation(),
-        relativePositionToOrientation / 2.0)
-     */
-    /*
-    let subtendedArc = addAngles(
-//        relativeTargetPosition.vector.getOrientation(),
-        turnTowardPosition,
-        subtractAngles(relativeTargetPosition.orientation, relativeTargetPosition.vector.getOrientation()) / 2.0)
-     */
-    //now we have a radius, distance, and angle for an ideal arc from our current position and orientation
-    //to a position along the line of target orientation which will arrive precisely aligned with that line
-    
-    //but our primary goal is to maintain alignment with the line from the target position that is orthogonal
-    //to the orientation line; the goal is for the target position along the orientation line to "sweep" the
-    //robot forward along the orientation line
-    let idealArc = calculateConvergingArc(relativeTargetPosition)
-    let idealEndpoint = KPosition()
-    idealArc.interpolate(1.0, idealEndpoint)
-    let forward = (idealArc.deltaAngle * idealArc.radius) > 0.0
-
-    /*
-    //alternate execution plan; curve onto the line 45 degrees toward the target
-    let turnTowardTarget = pow(
-        atan(relativeTargetPosition.vector.getX() / relativeTargetPosition.vector.getY()),
-        2.0)
-    let alternativeTurn = addAngles(
-        turnTowardTarget,
-        subtractAngles(relativeTargetPosition.orientation, turnTowardTarget)) / 2.0
-     */
-    return ZCompoundDrawable(
-        //the alternative arc path
-        /*
-        ZDrawablePath(
-            UIColor.lightGray,
-            Arc(0.0, 0.0, 0.0,
-                relativeTargetPosition.vector.getD() * sin(alternativeTurn),
-                relativeTargetPosition.vector.getD() * cos(alternativeTurn),
-                false)),
-         */
-        //arc range lines
-        //line from center of arc to start of arc
-        /*
-        ZDrawableLine(
-            lightLightBlue,
-            KVector2(0, 0),
-            arcCenterOffset,
-            0.0),
-         */
-        //line from center of arc to target position
-        /*
-        ZDrawableLine(
-            lightYellow,
-            arcCenterOffset,
-            0.0,
-            relativeTargetPosition.vector),
-         */
-        //line from center of arc to end of arc
-        ZDrawableLine(
-            lightLightBlue,
-            idealArc.radius,
-            0.0,
-            idealEndpoint.vector.getX(),
-            idealEndpoint.vector.getY()),
-        //dot at center of arc
-        ZDrawableCircle(
-            lightBlue,
-            idealArc.center,
-            ZIPPY_POINT_INDICATOR_RADIUS / 2.0,
-            true),
-        //line from current position to target position
-        /*
-        ZDrawableLine(
-            lightLightGreen,
-            KVector2(0, 0),
-            relativeTargetPosition.vector),
-         */
-        //line from intersection point to the target position
-        /*
-        ZDrawableLine(
-            lightYellow,
-            intersectionX,
-            intersectionY,
-            relativeTargetPosition.vector.getX(),
-            relativeTargetPosition.vector.getY()),
-         */
-        /*
-        ZDrawableArrow(
-            lightLightRed,
-            orientationIntersection.getX(),
-            orientationIntersection.getY(),
-            relativeTargetPosition.orientation,
-            ZIPPY_POINT_INDICATOR_RADIUS),
-         */
-        //the ideal arc curve
-        ZDrawablePath(
-            forward ? UIColor.green : UIColor.red,
-            idealArc),
-        //portion of arc that we ARE traveling
-        /*
-        ZDrawablePath(
-            UIColor.green,
-            Arc(arcCenterOffset, angleDelta)),
-        ZDrawableArrow(
-            UIColor.red,
-            targetIntersection.getX(),
-            targetIntersection.getY(),
-            angleDelta,
-            ZIPPY_POINT_INDICATOR_RADIUS),
-         */
-        //arrow at starting position and orientation
-        ZDrawableArrow(
-            forward ? UIColor.green : UIColor.red,
-            0.0,
-            0.0,
-            0.0,
-            ZIPPY_POINT_INDICATOR_RADIUS),
-        //arrow at the ideal arc curve endpoint
-        ZDrawableArrow(
-            UIColor.blue,
-            idealEndpoint,
-            ZIPPY_POINT_INDICATOR_RADIUS))
-}
- */
-
-/*
-fileprivate func calculateConvergingArc(_ relativeTargetPosition: KPosition) -> Arc
-{
-    //now determine the intersection point from the direction of our goal arc to that ray
-    //the distance along that arc angle is (tv X to) / (aa X to), where
-    //  tv = vector to the current target position
-    //  to = the target orientation
-    //  aa = the angle of the ideal arc to the ray of the target orientation from the target position
-    //in a more generalized use case, we would first calculate (aa X to) and check if this value
-    //is zero before proceeding, but that can only happen when the current orientation is parallel
-    //to the target orientation; the assumption here is that we've already eliminated that condition
-    let subtendedArc = relativeTargetPosition.orientation
-    let sinO = sin(subtendedArc)
-    let cosO = cos(subtendedArc)
-    let sinA = sin(subtendedArc / 2.0)
-    let cosA = cos(subtendedArc / 2.0)
-//    print("target orientation   :", 180.0 * (relativeTargetPosition.orientation / Double.pi))
-//    print("subtended arc        :", 180.0 * (subtendedArc / Double.pi))
-
-    //the distance to the intersection point from vector A to ray bB is calculated by dividing the cross
-    //product of b and B with the cross product of A and B
-    let intersectionDistance =
-        ( (relativeTargetPosition.vector.getX() * cosO) - (relativeTargetPosition.vector.getY() * sinO) ) /
-            ( (sinA * cosO) - (cosA * sinO) )
-    /*
-     let intersectionDistance =
-     ( (relativeTargetPosition.vector.getX() * sinO) + (relativeTargetPosition.vector.getY() * cosO) ) /
-     ( (sinA * sinO) + (cosA * cosO) )
-     */
-//    print("intersection distance:", intersectionDistance)
-    
-    //once we have the distance from A to the intersection point with bB, then the intersection point is...
-    let intersectionX = intersectionDistance * sinA
-    let deltaDotDelta = pow(intersectionX, 2.0) + pow(intersectionDistance * cosA, 2.0)
-    let n2DotDelta = (-2.0 * intersectionX)
-    let arcCenterOffset = -deltaDotDelta / n2DotDelta
-//    print("intersection radius  :", arcCenterOffset)
-//    print()
-    
-    return Arc(arcCenterOffset, subtendedArc)
-}
- */
-
-/*
-func planArc(
-    _ color: UIColor,
-    _ startX: Double,
-    _ startY: Double,
-    _ startO: Double,
-    _ endX: Double,
-    _ endY: Double) -> ZDrawable
-{
-    let deltaX = endX - startX
-    let deltaY = endY - startY
-    if distance2Zero(pow(deltaX, 2.0) + pow(deltaY, 2.0)) {
-        print("Planned turn instead of arc.")
-        return ZDrawableTurn(UIColor.blue, startX, startY, Turn(startO, Double.pi))
-    }
-    
-    return ZDrawablePath(color, Arc(startX, startY, startO, deltaX, deltaY))
-}
- */
-
-/*
-func calculateArc(
-    _ startX: Double,
-    _ startY: Double,
-    _ startO: Double,
-    _ deltaX: Double,
-    _ deltaY: Double) -> Arc
-{
-    let tangentX = sin(startO)
-    let tangentY = cos(startO)
-    let deltaDotDelta = (deltaX * deltaX) + (deltaY * deltaY)
-    let n2DotDelta = ((2.0 * -tangentY) * deltaX) + ((2.0 * tangentX) * deltaY)
-    let s = deltaDotDelta / n2DotDelta
-    let centerX = startX + (s * -tangentY)
-    let centerY = startY + (s * tangentX)
-    let startAngle = atan2(startX - centerX, startY - centerY);
-    let endAngle = atan2((startX+deltaX) - centerX, (startY+deltaY) - centerY);
-    let deltaAngle = subtractAngles(endAngle, startAngle);
-    return Arc(centerX, centerY, abs(s),
-               startO, startAngle, deltaAngle)
-}
-*/
-
-/*
-func createTestPathPlan(
-    _ startPosition: KPosition,
-    _ targetPosition: KPosition,
-    _ displaySecondaryBiArc: Bool) -> ZDrawable
-{
-    return createTestPathPlan(
-        startPosition.vector.getX(),
-        startPosition.vector.getY(),
-        startPosition.orientation,
-        targetPosition.vector.getX(),
-        targetPosition.vector.getY(),
-        targetPosition.orientation,
-        displaySecondaryBiArc)
+    return abs(distance) <= LINEAR_EPSILON
 }
 
-func createTestPathPlan(
-    _ startX: Double, _ startY: Double, _ startO: Double,
-    _ endX: Double, _ endY: Double, _ endO: Double,
-    _ displaySecondaryBiArc: Bool) -> ZDrawable
+func distance2Zero(_ distance2: Double) -> Bool
 {
-    //the following code is derived from formulae and helpful explanations provided from the following site
-    //  http://www.ryanjuckett.com/programming/biarc-interpolation
-    
-    let deltaX = endX - startX
-    let deltaY = endY - startY
-
-    //v dot v = (v.x * v.x) + (v.y * v.y)
-    let vDotV = pow(deltaX, 2.0) + pow(deltaY, 2.0)
-    
-    let t1x = sin(startO)
-    let t1y = cos(startO)
-    let t2x = sin(endO)
-    let t2y = cos(endO)
-    
-    //t = t1 + t2
-    //  = (sin(p1.o) + sin(p2.o), cos(p1.o) + cos(p2.o))
-    let tx = t1x + t2x
-    let ty = t1y + t2y
-    //v dot t = (v.x * t.x)                               + (v.y * t.y)
-    //        = ((p2.x - p1.x) * (t1.x + t2.x))           + ((p2.y - p1.y) * (t1.y + t2.y))
-    //        = ((p2.x - p1.x) * (sin(p1.o) + sin(p2.o))) + ((p2.y - p1.y) * (cos(p1.o) + cos(p2.o)))
-    let vDotT = (deltaX * tx) + (deltaY * ty)
-    
-    //t1 dot t2 = (t1.x * t2.x)           + (t1.y * t2.y)
-    //          = (sin(p1.o) * sin(p2.o)) + (cos(p1.o) * cos(p2.o))
-    let t1DotT2 = (t1x * t2x) + (t1y * t2y)
-    
-//    print("Planned complex bi-arc.")
-    //precalc = 2 * (1 - (t1 dot t2))
-    let t1DotT2Inv2 = 2.0 * (1.0 - t1DotT2)
-    let discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) )
-    
-    //now find the "knot" (the connection point between the arcs)
-    //pm = ( p1 + p2 + (d * (t1 - t2)) ) / 2
-    let d = ( -vDotT + discrim ) / t1DotT2Inv2
-    let pmx = ( startX + endX + (d * (t1x - t2x)) ) / 2.0
-    let pmy = ( startY + endY + (d * (t1y - t2y)) ) / 2.0
-    let arc1 = Arc(startX, startY, startO, pmx, pmy, false)
-    let arc2 = Arc(pmx, pmy, addAngles(startO, arc1.deltaAngle), endX, endY, false)
-    
-    //also calculate the inverted path
-    let invD = ( -vDotT - discrim ) / t1DotT2Inv2
-    let pmxr = ( startX + endX + (invD * (t1x - t2x)) ) / 2.0
-    let pmyr = ( startY + endY + (invD * (t1y - t2y)) ) / 2.0
-    let arc1r = Arc(startX, startY, startO, pmxr, pmyr, true)
-    let arc2r = Arc(pmxr, pmyr, addAngles(startO, arc1r.deltaAngle), endX, endY, true)
-    
-    //move in reverse if the turn from moving forward is greater than the turn would be from moving in reverse
-    let relativeTargetPosition = KPosition(deltaX, deltaY, subtractAngles(endO, startO))
-    relativeTargetPosition.vector.rotate(-startO)
-    let turnTowardTarget = 2.0 * relativeTargetPosition.vector.getOrientation()
-    let turnTowardOrientation = subtractAngles(relativeTargetPosition.orientation, turnTowardTarget)
-    let reverseMotion = abs(turnTowardTarget + turnTowardOrientation) > Double.pi
-    if reverseMotion {
-        //move the reverse way around the arc paths
-        var drawable = drawPrimaryBiArc(
-            startX, startY, startO,
-            endX, endY, endO,
-            arc1r, arc2r,
-            true)
-        if displaySecondaryBiArc {
-            drawable = ZCompoundDrawable(
-                drawSecondaryBiArc(arc1, arc2),
-                drawable)
-        }
-        return drawable
-    }
-    
-    //default use case; move forward toward target position and orientation
-    var drawable = drawPrimaryBiArc(
-        startX, startY, startO,
-        endX, endY, endO,
-        arc1, arc2,
-        false)
-    if displaySecondaryBiArc {
-        drawable = ZCompoundDrawable(
-            drawSecondaryBiArc(arc1r, arc2r),
-            drawable)
-    }
-    return drawable
-}
- */
-
-/*
-func drawBiArc(
-    _ startX: Double, _ startY: Double, _ startO: Double,
-    _ endX: Double, _ endY: Double, _ endO: Double,
-    _ primaryArc1: Arc,
-    _ primaryArc2: Arc,
-    _ alternateArc1: Arc,
-    _ alternateArc2: Arc) -> ZDrawable
-{
-    return ZCompoundDrawable(
-        ZDrawableCircle(lightLightGreen, primaryArc1.center.getX(), primaryArc1.center.getY(), primaryArc1.radius, true),
-        ZDrawableCircle(lightLightRed, primaryArc2.center.getX(), primaryArc2.center.getY(), primaryArc2.radius, true),
-        ZDrawablePath(UIColor.green, primaryArc1),
-        ZDrawablePath(UIColor.red, primaryArc2),
-        ZDrawablePath(lightGreen, alternateArc1),
-        ZDrawablePath(lightRed, alternateArc2),
-        ZDrawableArrow(UIColor.green, startX, startY, startO, ZIPPY_POINT_INDICATOR_RADIUS),
-        ZDrawableArrow(UIColor.blue, endX, endY, endO, ZIPPY_POINT_INDICATOR_RADIUS))
+    return abs(distance2) <= LINEAR2_EPSILON
 }
 
-func drawBiArc(
-    _ startX: Double, _ startY: Double, _ startO: Double,
-    _ endX: Double, _ endY: Double, _ endO: Double,
-    _ primaryArc1: Arc,
-    _ primaryArc2: Arc) -> ZDrawable
+func angleZero(_ angle: Double) -> Bool
 {
-    return ZCompoundDrawable(
-        ZDrawableCircle(lightLightGreen, primaryArc1.center.getX(), primaryArc1.center.getY(), primaryArc1.radius, true),
-        ZDrawableCircle(lightLightRed, primaryArc2.center.getX(), primaryArc2.center.getY(), primaryArc2.radius, true),
-        ZDrawablePath(UIColor.green, primaryArc1),
-        ZDrawablePath(UIColor.red, primaryArc2),
-        ZDrawableArrow(UIColor.green, startX, startY, startO, ZIPPY_POINT_INDICATOR_RADIUS),
-        ZDrawableArrow(UIColor.blue, endX, endY, endO, ZIPPY_POINT_INDICATOR_RADIUS))
+    return abs(angle) <= ANGULAR_EPSILON
 }
- */
+
+func anglesEquivalent(_ angle1: Double, _ angle2: Double) -> Bool
+{
+    return abs(subtractAngles(angle2, angle1)) <= ANGULAR_EPSILON
+}
+

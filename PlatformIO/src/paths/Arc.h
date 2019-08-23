@@ -2,68 +2,57 @@
 #ifndef _ARC_H_
 #define _ARC_H_
 
-#include "../lighthouse/KVector2.h"
+// #include "../lighthouse/KVector2.h"
+#include "../lighthouse/KMatrix2.h"
 #include "ZPath.h"
+#include "../ZippyConfig.h"
 
 class Arc : public ZPath
 {
 private:
-  KVector2 center;
-
   double startOrientation;
-  bool reverseMotion;
-  double radius;
-  double startAngle;
   double deltaAngle;
-  double arcLength;
+  double radius;
 
-  void calculateArc(
-    double startX, double startY, double startO,
-    double endX, double endY)
-  {
-    double deltaX = endX - startX;
-    double deltaY = endY - startY;
-    double deltaDotDelta = (deltaX * deltaX) + (deltaY * deltaY);
-    double tangentX = sin(startO);
-    double tangentY = cos(startO);
-    double n2DotDelta = ((2.0 * -tangentY) * deltaX) + ((2.0 * tangentX) * deltaY);
-
-    //the radius; a negative value indicates a turn forward to the right or backward to the left
-    double s = deltaDotDelta / n2DotDelta;
-
-    //c = the center point
-    center.set(startX + (s * -tangentY), startY + (s * tangentX));
-    this->startAngle = atan2(startX - center.getX(), startY - center.getY());
-    double endAngle = atan2(endX - center.getX(), endY - center.getY());
-    this->deltaAngle = subtractAngles(endAngle, startAngle);
-    this->radius = abs(s);
-    this->arcLength = abs(radius * deltaAngle);
-  }
+  KMatrix2 center;
 
 public:
-  Arc(double startX, double startY, double startO,
-      double endX, double endY, bool r)
-    : startOrientation(startO),
-      reverseMotion(r)
+  Arc(
+    const KMatrix2* startPosition,
+    const KMatrix2* relativeTargetPosition)
   {
-    calculateArc(startX, startY, startO, endX, endY);
+    this->startOrientation = startPosition->orientation.get();
+    this->radius = relativeTargetPosition->position.getD() / (2.0 * sin(relativeTargetPosition->position.atan2()));
+    this->deltaAngle = 2.0d * relativeTargetPosition->position.atan();
+    this->center.set(radius, 0.0, -M_PI_2);
+    this->center.concat(startPosition);
   }
 
-  double getDeltaAngle() const { return deltaAngle; }
+  Arc(
+    const KMatrix2* startPosition,
+    double radius, double subtendedAngle)
+  {
+    this->startOrientation = startPosition->orientation.get();
+    this->radius = abs(radius);
+    this->deltaAngle = subtendedAngle;
+    this->center.set(radius, 0.0, radius < 0.0d ? M_PI_2 : -M_PI_2);
+    this->center.concat(startPosition);
+  }
 
-  double getLength() const { return arcLength;}
+  bool updatesPosition() const { return true; }
+
+  double getLength() const { return (abs(radius) + WHEEL_OFFSET_X) * abs(deltaAngle); }
 
   void interpolate(
     double normalizedTime,
-    KPosition* position,
-    bool* reverseMotion) const
+    KMatrix2* position) const
   {
     double currentAngle = deltaAngle * normalizedTime;
-    double angleOnArc = addAngles(startAngle, currentAngle);
-    position->vector.set(center.getX() + (radius * sin(angleOnArc)),
-      center.getY() + (radius * cos(angleOnArc)));
-    position->orientation = addAngles(startOrientation, currentAngle);
-    *reverseMotion = this->reverseMotion;
+    // double angleOnArc = addAngles(startAngle, currentAngle);
+    double angleOnArc = addAngles(center.orientation.get(), currentAngle);
+    position->position.set(center.position.getX() + (radius * sin(angleOnArc)),
+      center.position.getY() + (radius * cos(angleOnArc)));
+    position->orientation.set(addAngles(startOrientation, currentAngle));
   }
 
 };

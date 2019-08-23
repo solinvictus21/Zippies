@@ -6,7 +6,7 @@
 #include "LighthouseSensor.h"
 #include "KVector2.h"
 #include "KQuaternion3.h"
-#include "KPosition.h"
+#include "KMatrix2.h"
 
 //#define DEBUG_SIGNAL_EDGES 1
 
@@ -18,11 +18,11 @@ private:
   LighthouseSensor leftSensor;
   LighthouseSensor rightSensor;
 
-  KPosition previousPosition;
+  KMatrix2 previousPosition;
   unsigned long previousPositionTimeStamp = 0;
 
-  KPosition position;
-  KPosition positionDelta;
+  KMatrix2 position;
+  KMatrix2 positionDelta;
   unsigned long positionTimeStamp = 0;
 
   unsigned long positionLockedTimeStamp = 0;
@@ -35,14 +35,12 @@ private:
   void connectInterruptsToTimer();
   void setupTimer();
 
-  void calculatePosition();
-  void calculateVelocity();
-
 public:
   Lighthouse();
 
   void start();
   bool loop(unsigned long currentTime);
+  bool recalculate();
 
   bool recalculate(unsigned long currentTime);
   void estimatePosition(unsigned long currentTime);
@@ -52,8 +50,8 @@ public:
 
   const LighthouseSensor* getLeftSensor() const { return &leftSensor; }
   const LighthouseSensor* getRightSensor() const { return &rightSensor; }
-  const KPosition* getPosition() const { return &position; }
-  const KPosition* getPositionDelta() const { return &positionDelta; }
+  const KMatrix2* getPosition() const { return &position; }
+  const KMatrix2* getPositionDelta() const { return &positionDelta; }
 
   bool isSignalLocked() { return leftSensor.isSignalLocked() && rightSensor.isSignalLocked(); }
 
