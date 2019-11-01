@@ -5,62 +5,40 @@
 #define M2_PI 6.283185307179586d
 
 Command ROUTINE[] = {
-  //for data analysis
-  {             6000, CommandArc,             100.0d,      M2_PI        },
-  {             6000, CommandArc,            -100.0d,     -M2_PI        },
-
-  {             5800, CommandArc,             100.0d,      M2_PI        },
-  {             5800, CommandArc,            -100.0d,     -M2_PI        },
-
-  {             5600, CommandArc,             100.0d,      M2_PI        },
-  {             5600, CommandArc,            -100.0d,     -M2_PI        },
-
-  {             5400, CommandArc,             100.0d,      M2_PI        },
-  {             5400, CommandArc,            -100.0d,     -M2_PI        },
-
-  {             5200, CommandArc,             100.0d,      M2_PI        },
-  {             5200, CommandArc,            -100.0d,     -M2_PI        },
+  //sync with lighthouse
+  // /*
+  // {             6000, CommandMoveTo,            0.0d,     0.0d,    0.0d },
+  {             4400, CommandArc,            -300.0d,      -M_PI        },
+  {             4400, CommandArc,            -300.0d,      -M_PI        },
+  {             4400, CommandArc,             300.0d,       M_PI        },
+  {             4400, CommandArc,             300.0d,       M_PI        },
+  /*
+  {             3400, CommandArc,            -300.0d,      -M_PI        },
+  {             3400, CommandArc,            -300.0d,      -M_PI        },
+  {             3400, CommandArc,             300.0d,       M_PI        },
+  {             3400, CommandArc,             300.0d,       M_PI        },
+  */
+  // {             2800, CommandArc,            -300.0d,      -M_PI        },
+  // {             2800, CommandArc,            -300.0d,      -M_PI        },
+  // {             2800, CommandArc,             300.0d,       M_PI        },
+  // {             2800, CommandArc,             300.0d,       M_PI        },
+  // {             2000, CommandPause                                      },
+  // {             2000, CommandArc,            -200.0d,      -M_PI        },
+  // {             2000, CommandArc,            -200.0d,      -M_PI        },
+  // {             2000, CommandArc,             200.0d,       M_PI        },
+  // {             2000, CommandArc,             200.0d,       M_PI        },
+  // */
 
   /*
-  {             5000, CommandArc,              50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d,  2.0d*M_PI        },
-  */
-
-  /*
-  {             5000, CommandArc,             -50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,             -50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,             -50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,             -50.0d,  2.0d*M_PI        },
-  */
-
-  /*
-  {             5000, CommandArc,              50.0d, -2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d, -2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d, -2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d, -2.0d*M_PI        },
-  */
-
-/*
-  {             5000, CommandArc,             -50.0d,      -M_PI        },
-  {             4750, CommandArc,             -75.0d,      -M_PI        },
-  {             4500, CommandArc,            -100.0d,      -M_PI        },
-  {             4250, CommandArc,            -125.0d,      -M_PI        },
-  {             4000, CommandArc,            -150.0d,      -M_PI        },
-  {             3750, CommandArc,            -175.0d,      -M_PI        },
-  {             3500, CommandArc,            -200.0d,      -M_PI        },
-  {             3250, CommandArc,            -225.0d,      -M_PI        },
-  {             3000, CommandArc,            -250.0d,      -M_PI        },
-  {             2750, CommandArc,            -275.0d,      -M_PI        },
-  {             2500, CommandArc,            -300.0d,      -M_PI        },
-  {             2250, CommandArc,            -325.0d,      -M_PI        },
-  {             2000, CommandArc,            -300.0d,      -M_PI        },
-  {             2000, CommandArc,            -300.0d,      -M_PI        },
-  {             2250, CommandArc,            -250.0d,      -M_PI        },
-  {             2750, CommandArc,            -100.0d,      -M_PI        },
-
-  {             2000, CommandPause                                      },
+  {                0, CommandSync                                       },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
+  {             2000, CommandTurn,              M_PI                    },
   */
 
   /*
@@ -135,10 +113,8 @@ Command ROUTINE[] = {
   */
 
   /*
-  {             5000, CommandArc,              50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,             -50.0d, -2.0d*M_PI        },
-  {             5000, CommandArc,             -50.0d,  2.0d*M_PI        },
-  {             5000, CommandArc,              50.0d, -2.0d*M_PI        },
+  {             8000, CommandMoveTo,            0.0d,     0.0d,    0.0d },
+  {                0, CommandSync                                       },
 
   //dance forward to right
   { TIMING_BEATS_0_5, CommandArc,             100.0d,   M_PI_4          },
@@ -159,11 +135,11 @@ Command ROUTINE[] = {
   { TIMING_BEATS_0_5, CommandArc,             -50.0d,  -M_PI_4          },
   { TIMING_BEATS_0_5, CommandArc,            -100.0d,   M_PI_4          },
   { TIMING_BEATS_0_5, CommandArc,             -50.0d,  -M_PI_4          },
-  */
+  // */
 
   /*
   //4 seconds to move into starting position
-  {             4000, CommandMoveTo,          -50.0d,   500.0d,    M_PI },
+  {             2000, CommandMoveTo,          -50.0d,   500.0d,    M_PI },
   //sync with lighthouse
   {                0, CommandSync                                       },
 
@@ -227,8 +203,8 @@ Command ROUTINE[] = {
   { TIMING_BEATS_1_0, CommandTurn,        -(2.0d*M_PI) - M_PI_2         },
   { TIMING_BEATS_0_5, CommandPause                                      },
 
-  {             5000, CommandPause                                      },
-  */
+  {             2000, CommandPause                                      },
+  // */
 };
 
 int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));

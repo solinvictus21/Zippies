@@ -6,10 +6,19 @@
 #include "ZippyFace.h"
 #include "MotorDriver.h"
 #include "lighthouse/KMatrix2.h"
+#include "lighthouse/KRotation2.h"
 #include "ZippyConfig.h"
 #include "ZippyWheel.h"
 #include "paths/ZPath.h"
 #include "ZippyRoutine.h"
+
+typedef enum class _MovementState
+{
+  Stopped,
+  Turning,
+  Moving,
+  PreparingToMove
+} MovementState;
 
 class Zippy
 {
@@ -18,22 +27,55 @@ private:
 #ifdef PLATFORM_TINYSCREEN
   ZippyFace face;
 #endif
-  MotorDriver motors;
+  KMatrix2 currentPosition;
+  KMatrix2 currentVelocity;
+  // double currentLinearVelocity;
+  MovementState currentMovementState = MovementState::Stopped;
+
+  KMatrix2 targetPosition;
+  bool targetPositionUpdated = false;
+  bool targetOrientationUpdated = false;
+  KMatrix2 targetVelocity;
+
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
+  MotorDriver motors;
 
-  void processInput(const KMatrix2* positionDelta);
-  void driveMotors();
-  void stopPath();
+  bool errorCaptureEnabled = false;
+  double errorMin = 0.0d;
+  double errorAccumulator = 0.0d;
+  double errorMax = 0.0d;
+  unsigned long errorCounter = 0;
+
+  friend class ZPrimaryController;
+
+  void start();
+  void setInputs(const KMatrix2* cp, const KMatrix2* cv);
+  void loop();
+  void processInputs();
+  void captureError();
+  void executeMove();
+  void executeTurn();
+  void stop();
 
 public:
   Zippy();
 
-  void start();
-  void executeMove(const KMatrix2* positionDelta, KMatrix2* relativeTarget);
-  void executeTurn(const KMatrix2* positionDelta, double relativeOrientation);
-  void executeStop();
-  void loop(unsigned long currentTime);
+  //for auto-tuning; only call this while the Zippy is stopped
+  void setTunings(double p, double i, double d) {
+    leftWheel.setTunings(p, i, d);
+    rightWheel.setTunings(p, i, d);
+  }
+
+  void setTargetPosition(const KMatrix2* tp);
+  void setTargetOrientation(const KRotation2* r);
+  bool isStopped() { return currentMovementState == MovementState::Stopped; }
+
+  ZippyFace* getFace() { return &face; }
+  void startErrorCapture();
+  void stopErrorCapture();
+  double getErrorAverage() const { return errorAccumulator / ((double)errorCounter); }
+  double getErrorRange() const { return errorMax - errorMin; }
 
 };
 

@@ -31,6 +31,7 @@ public:
   void clearScreen();
   void displayText(uint8_t x, uint8_t y, const char* text);
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data);
+  void displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data, uint8_t digits);
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, int data);
   void end();
 

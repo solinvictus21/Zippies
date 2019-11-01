@@ -2,60 +2,43 @@
 #ifndef _LIGHTHOUSE_H_
 #define _LIGHTHOUSE_H_
 
-#include <Arduino.h>
-#include "LighthouseSensor.h"
-#include "KVector2.h"
+#include "LighthouseAxis.h"
 #include "KQuaternion3.h"
-#include "KMatrix2.h"
 
-//#define DEBUG_SIGNAL_EDGES 1
+typedef enum class _LighthouseState
+{
+  //waiting for the OOTX base station info block to download
+  DownloadingBaseStationInfoBlock,
+  SearchingForSignal,
+  //once we have the signal locked, pause for a bit to allow the robot position to stabilize before
+  //we're ready to provide position updates
+  InitialPause,
+  Ready
+} LighthouseState;
 
 class Lighthouse
 {
 
 private:
-  //sensors
-  LighthouseSensor leftSensor;
-  LighthouseSensor rightSensor;
+  LighthouseState currentState = LighthouseState::DownloadingBaseStationInfoBlock;
 
-  KMatrix2 previousPosition;
-  unsigned long previousPositionTimeStamp = 0;
+  LighthouseAxis axes[2];
+  int currentAxis;
 
-  KMatrix2 position;
-  KMatrix2 positionDelta;
-  unsigned long positionTimeStamp = 0;
-
-  unsigned long positionLockedTimeStamp = 0;
-  unsigned long positionUnlockedTimeStamp = 0;
-  bool positionValid = false;
-
-  void setupClock();
-  void setupEIC();
-  void connectPortPinsToInterrupts();
-  void connectInterruptsToTimer();
-  void setupTimer();
+  KQuaternion3 orientation;
+  bool receivedOrientation = false;
 
 public:
-  Lighthouse();
+  Lighthouse()
+  {}
 
-  void start();
-  bool loop(unsigned long currentTime);
-  bool recalculate();
+  void processSyncPulse(unsigned long syncPulse) {
 
-  bool recalculate(unsigned long currentTime);
-  void estimatePosition(unsigned long currentTime);
+  }
 
-  void clearPreambleFlag() { leftSensor.clearPreambleFlag(); rightSensor.clearPreambleFlag(); }
-  bool foundPreamble() const { return leftSensor.foundPreamble() && rightSensor.foundPreamble(); }
+  void processSweepHitPulse(unsigned long syncHit) {
 
-  const LighthouseSensor* getLeftSensor() const { return &leftSensor; }
-  const LighthouseSensor* getRightSensor() const { return &rightSensor; }
-  const KMatrix2* getPosition() const { return &position; }
-  const KMatrix2* getPositionDelta() const { return &positionDelta; }
-
-  bool isSignalLocked() { return leftSensor.isSignalLocked() && rightSensor.isSignalLocked(); }
-
-  void stop();
+  }
 
 };
 

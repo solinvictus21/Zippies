@@ -30,6 +30,8 @@ public:
   void rotateZ(double angle);
   void rotate(double x, double y, double z, double angle);
 
+  void printDebug();
+
 };
 
 #endif

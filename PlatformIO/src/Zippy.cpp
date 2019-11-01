@@ -1,148 +1,210 @@
 
 #include <SPI.h>
 #include "Zippy.h"
-#include "PathData.h"
 #include "ZippyRoutine.h"
+#include "ZippyConfig.h"
 #include "paths/Turn.h"
 #include "paths/Move.h"
 #include "paths/Arc.h"
 #include "paths/CompositePath.h"
 #include "paths/ZPathPlanner.h"
 
-//wheel PID config
-#define WHEEL_Kp                               100.00d
+#define WHEEL_Kp                               240.00d
 #define WHEEL_Ki                                 0.00d
-#define WHEEL_Kd                                20.00d
-#define WHEEL_MAX_POWER                      60000.00d
+#define WHEEL_Kd                                13.40d
+#define WHEEL_MAX_POWER                      30000.00d
 
-#define PID_INTERVAL                           17
+// #define PID_INTERVAL                            17
+#define PID_INTERVAL                            17
 
-#define DISPLAY_UPDATE_INTERVAL              5000
+//the distince in mm within which is to be considered "at the target" for the purpose of terminating movement
+#define START_LINEAR_EPSILON_2                       25.00d
+#define FOLLOW_EPSILON                               10.00d
+#define STOP_LINEAR_EPSILON_2                       144.00d
+//the delta angle within which is to be considered "pointing at the desired orientation" (3 degrees)
+#define ANGULAR_EPSILON                          0.052359877559830d
 
-unsigned long lastDisplayUpdateTime;
+const double WHEEL_RADIAL_OFFSET = WHEEL_OFFSET_X;
+// const double WHEEL_RADIAL_OFFSET = sqrt(sq(WHEEL_OFFSET_X) + sq(WHEEL_OFFSET_Y));
+// const double WHEEL_SIN = WHEEL_OFFSET_X / WHEEL_RADIAL_OFFSET;
+
 Zippy::Zippy()
-  : leftWheel(-WHEEL_OFFSET_X, -WHEEL_OFFSET_Y,
+  : leftWheel(-WHEEL_RADIAL_OFFSET,
         WHEEL_Kp, WHEEL_Ki, WHEEL_Kd, WHEEL_MAX_POWER, PID_INTERVAL),
-    rightWheel(WHEEL_OFFSET_X, WHEEL_OFFSET_Y,
+    rightWheel(WHEEL_RADIAL_OFFSET,
         WHEEL_Kp, WHEEL_Ki, WHEEL_Kd, WHEEL_MAX_POWER, PID_INTERVAL)
 {
-#ifdef PLATFORM_TINYSCREEN
-  face.displayFace();
-#endif
 }
 
-//start the lighthouse and motors; we don't start the wheel PIDs until we have a solid lighthouse signal
 void Zippy::start()
 {
-  motors.start();
-  leftWheel.start();
-  rightWheel.start();
-  lastDisplayUpdateTime = micros() / 1000;
 }
 
-void Zippy::loop(unsigned long currentTime)
+void Zippy::startErrorCapture()
 {
-  if (currentTime - lastDisplayUpdateTime >= DISPLAY_UPDATE_INTERVAL) {
-    lastDisplayUpdateTime += DISPLAY_UPDATE_INTERVAL;
-    // face.begin();
-    face.clearScreen();
-    face.displayLabelAndData(
-        0,
-        SCREEN_HEIGHT_PIXELS_2,
-        "RE", rightWheel.getAverageError());
-    face.displayLabelAndData(
-        SCREEN_WIDTH_PIXELS_2,
-        SCREEN_HEIGHT_PIXELS_2,
-        "LE", leftWheel.getAverageError());
-    face.displayLabelAndData(
-        0,
-        SCREEN_HEIGHT_PIXELS_2 + face.getFontHeight(),
-        "R", (int)rightWheel.getMaxOutput());
-    face.displayLabelAndData(
-        SCREEN_WIDTH_PIXELS_2,
-        SCREEN_HEIGHT_PIXELS_2 + face.getFontHeight(),
-        "L", (int)leftWheel.getMaxOutput());
-    leftWheel.clearError();
-    rightWheel.clearError();
-    // face.end();
+  errorCaptureEnabled = true;
+  errorMin = 1000000.0d;
+  errorAccumulator = 0.0d;
+  errorMax = 0.0d;
+  errorCounter = 0;
+}
+
+void Zippy::setInputs(const KMatrix2* cp, const KMatrix2* cv)
+{
+  currentPosition.set(cp);
+  currentVelocity.set(cv);
+
+  if (errorCaptureEnabled &&
+      (currentMovementState == MovementState::Moving || currentMovementState == MovementState::Turning) &&
+      targetVelocity.position.getD2() >= 1.0d)
+    captureError();
+}
+
+void Zippy::captureError()
+{
+  //only capture data for statistically significant target velocities
+  double error = sqrt(sq(currentVelocity.position.getX() - targetVelocity.position.getX()) +
+      sq(currentVelocity.position.getY() - targetVelocity.position.getY())) /
+      targetVelocity.position.getD();
+
+  errorAccumulator += error;
+  errorCounter++;
+  errorMin = min(errorMin, error);
+  errorMax = max(errorMax, error);
+}
+
+void Zippy::setTargetPosition(const KMatrix2* tp)
+{
+  targetPosition.set(tp);
+  targetPositionUpdated = true;
+  targetOrientationUpdated = true;
+  if (currentMovementState == MovementState::Stopped)
+    currentMovementState = MovementState::PreparingToMove;
+  else if (currentMovementState == MovementState::Turning)
+    currentMovementState = MovementState::Moving;
+}
+
+void Zippy::setTargetOrientation(const KRotation2* r)
+{
+  targetPosition.orientation.set(r);
+  targetOrientationUpdated = true;
+  if (currentMovementState == MovementState::Stopped) {
+    leftWheel.start();
+    rightWheel.start();
+    currentMovementState = MovementState::Turning;
   }
 }
 
-void Zippy::processInput(const KMatrix2* positionDelta)
+void Zippy::loop()
+{
+  processInputs();
+
+  //check if we can downgrade our current movement state
+  targetVelocity.set(&targetPosition);
+  targetVelocity.unconcat(&currentPosition);
+  switch (currentMovementState) {
+    case MovementState::PreparingToMove:
+      if (targetVelocity.position.getD2() < START_LINEAR_EPSILON_2) {
+        if (!targetPositionUpdated) {
+          leftWheel.start();
+          rightWheel.start();
+          currentMovementState = MovementState::Turning;
+        }
+      }
+      else {
+        leftWheel.start();
+        rightWheel.start();
+        currentMovementState = MovementState::Moving;
+      }
+      break;
+
+    case MovementState::Moving:
+      if (!targetPositionUpdated) {
+        if (targetVelocity.position.getD2() < STOP_LINEAR_EPSILON_2)
+            currentMovementState = MovementState::Turning;
+      }
+      else
+        targetVelocity.position.setD(max(targetVelocity.position.getD() - FOLLOW_EPSILON, 0.0d));
+      break;
+
+    case MovementState::Turning:
+      if (!targetOrientationUpdated && abs(targetVelocity.orientation.get()) < ANGULAR_EPSILON) {
+        leftWheel.stop();
+        rightWheel.stop();
+        motors.stopMotors();
+        currentMovementState = MovementState::Stopped;
+      }
+      break;
+  }
+  targetPositionUpdated = false;
+  targetOrientationUpdated = false;
+
+  switch (currentMovementState) {
+    case MovementState::Moving:
+      executeMove();
+      break;
+
+    case MovementState::Turning:
+      executeTurn();
+      break;
+  }
+}
+
+void Zippy::processInputs()
 {
   //process our PID inputs
-  if (abs(positionDelta->position.atan()) < DOUBLE_EPSILON) {
+  double currentAtan = currentVelocity.position.atan();
+  if (abs(currentAtan) < DOUBLE_EPSILON) {
     //asymptote; direction is straight forward or straight backward, which would cause the
     //curve radius to be NaN / infinite or, at the very least, create a radius that would
     //induce far too much Abbe error into the arc calculation
-    double distance = positionDelta->position.getY();
-    leftWheel.setInputStraight(distance);
-    rightWheel.setInputStraight(distance);
+    double linearVelocity = currentVelocity.position.getY();
+    leftWheel.setInputStraight(linearVelocity);
+    rightWheel.setInputStraight(linearVelocity);
   }
   else {
-    double subtendedAngle = positionDelta->orientation.get();
-    // double radius = positionDelta->position.getD() / (2.0 * sin(positionDelta->position.atan2()));
-    // double radius = positionDelta->position.getD() / positionDelta->orientation.sin();
-    // double radius = (M_PI - subtendedAngle) / 2.0d;
-    // double radius = (motors.inReverse() ? -positionDelta->position.getD() : positionDelta->position.getD()) / (2.0d * sin(subtendedAngle / 2.0d));
-    double radius = positionDelta->position.getY() / positionDelta->orientation.sin();
+    //simple arc
+    double subtendedAngle = 2.0d * currentAtan;
+    double radius = currentVelocity.position.getD() / (2.0d * sin(currentVelocity.position.atan2()));
     leftWheel.setInputArc(radius, subtendedAngle);
     rightWheel.setInputArc(radius, subtendedAngle);
   }
 }
 
-void Zippy::executeMove(const KMatrix2* positionDelta, KMatrix2* relativeTarget)
+void Zippy::executeMove()
 {
-  if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
-    //this is actually just a turn
-    executeTurn(positionDelta, relativeTarget->orientation.get());
-    return;
-  }
-
-  processInput(positionDelta);
-  //determine if we need to plan a bi-arc move first
-  if (requiresBiArcMove(relativeTarget))
-    calculateRelativeBiArcKnot(relativeTarget);
-
-  if (abs(relativeTarget->position.atan()) < DOUBLE_EPSILON) {
+  double targetAtan = targetVelocity.position.atan();
+  if (abs(targetAtan) < DOUBLE_EPSILON) {
     //just drive straight
-    double distance = relativeTarget->position.getY();
-    leftWheel.moveStraight(distance);
-    rightWheel.moveStraight(distance);
+    double velocity = targetVelocity.position.getY();
+    leftWheel.moveStraight(velocity);
+    rightWheel.moveStraight(velocity);
   }
   else {
     //simple arc
-    double subtendedAngle = 2.0d * relativeTarget->position.atan();
-    double radius = relativeTarget->position.getD() / (2.0 * sin(relativeTarget->position.atan2()));
+    double subtendedAngle = 2.0d * targetAtan;
+    double radius = targetVelocity.position.getD() / (2.0 * sin(targetVelocity.position.atan2()));
     leftWheel.moveArc(radius, subtendedAngle);
     rightWheel.moveArc(radius, subtendedAngle);
   }
-  driveMotors();
+  motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
 }
 
-void Zippy::executeTurn(const KMatrix2* positionDelta, double deltaOrientation)
+void Zippy::executeTurn()
 {
-  if (abs(deltaOrientation) < DOUBLE_EPSILON) {
-    executeStop();
-    return;
-  }
-
-  processInput(positionDelta);
+  double deltaOrientation = targetVelocity.orientation.get();
   leftWheel.turn(deltaOrientation);
   rightWheel.turn(deltaOrientation);
-  driveMotors();
-}
-
-void Zippy::executeStop()
-{
-  leftWheel.setInputStraight(0.0d);
-  rightWheel.setInputStraight(0.0d);
-  leftWheel.stop();
-  rightWheel.stop();
-  motors.stopMotors();
-}
-
-void Zippy::driveMotors()
-{
   motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
+}
+
+void Zippy::stopErrorCapture()
+{
+  errorCaptureEnabled = false;
+}
+
+//stopped when the signal from the lighthouse is lost
+void Zippy::stop()
+{
+  motors.stopMotors();
 }

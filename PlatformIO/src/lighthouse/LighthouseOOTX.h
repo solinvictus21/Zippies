@@ -2,23 +2,37 @@
 #ifndef _LIGHTHOUSEOOTX_H_
 #define _LIGHTHOUSEOOTX_H_
 
-/*
- * Lighthouse factory calibration data for the lighthouse being used for beta testing and development.
- *
- * X Rotor Factory Calibration:
- *   Phase (radians):              1.116435
- *   Tilt (radians):               0.312331
- *   Curve (radians):             -0.070105
- *   Gibbous Phase (radians):      1.673828
- *   Gibbous Magnitude (0.0-1.0):  0.025238
- *
- * Y Rotor Factory Calibration:
- *   Phase (radians):              0.568272
- *   Tilt (radians):              -0.130265
- *   Curve (radians):              0.133325
- *   Gibbous Phase (radians):      0.238892
- *   Gibbous Magnitude (0.0-1.0): -0.007553
- */
+#include <Arduino.h>
+
+//use the full 180 degrees to determine the actual range of ticks
+#define SWEEP_DURATION_TICK_COUNT 400000
+#define SYNC_PULSE_AXIS_WINDOW       500
+#define SYNC_PULSE_OOTX_BIT_WINDOW  1000
+#define SYNC_PULSE_MIN              2945
+#define SYNC_PULSE_MAX              6945
+//x axis, OOTX bit 0
+#define SYNC_PULSE_J0_MIN           SYNC_PULSE_J0_MIN
+//y axis, OOTX bit 0
+#define SYNC_PULSE_K0_MIN           3445
+//x axis, OOTX bit 1
+#define SYNC_PULSE_J1_MIN           3945
+//y axis, OOTX bit 1
+#define SYNC_PULSE_K1_MIN           4445
+//x axis, OOTX bit 0, skip
+#define SYNC_PULSE_J2_MIN           4945
+//y axis, OOTX bit 0, skip
+#define SYNC_PULSE_K2_MIN           5445
+//x axis, OOTX bit 1, skip
+#define SYNC_PULSE_J3_MIN           5945
+//y axis, OOTX bit 1, skip
+#define SYNC_PULSE_K3_MIN           6445
+
+#define SYNC_PULSE_NUMBER(a)        (a - SYNC_PULSE_MIN) / SYNC_PULSE_AXIS_WINDOW
+#define SYNC_PULSE_AXIS(a)          (SYNC_PULSE_NUMBER(a)) & 0x1
+#define SYNC_PULSE_BIT(a)           (a - SYNC_PULSE_MIN) / SYNC_PULSE_OOTX_BIT_WINDOW
+
+float float16ToFloat32(uint16_t half);
+
 //we need the base station info block struct to be byte-aligned; otherwise it'll be aligned according to the MCU
 //we're running on (32 bits for SAMD21) and the data we want from it will be unintelligible; hence these pragmas
 //several of these values are actually 16-bit floating point numbers, but since our platform doesn't have those, we treat them
@@ -60,5 +74,46 @@ typedef struct _BaseStationInfoBlock {
   uint8_t sys_faults;
 } BaseStationInfoBlock;
 #pragma pack(pop)
+
+class LighthouseOOTX
+{
+
+private:
+  //data and code required to process the OOTX frame, for the purpose of extracting the lighthouse orientation
+  int zeroCount = 0;
+  int syncBitCounter = 0;
+  unsigned short payloadLength = 0;
+  unsigned short payloadReadMask = 0;
+  int readInfoBlockIndex = 0;
+  byte readInfoBlockMask = 0;
+
+  BaseStationInfoBlock baseStationInfoBlock;
+  bool baseStationInfoBlockReceived = false;
+
+public:
+  LighthouseOOTX();
+
+  void restart();
+  void processOOTXBit(unsigned int syncDelta);
+
+  bool receivedBaseStationInfoBlock() const { return baseStationInfoBlockReceived; }
+
+  double getXRotorPhase() const { return float16ToFloat32(baseStationInfoBlock.fcal_0_phase); }
+  double getXRotorTilt() const { return float16ToFloat32(baseStationInfoBlock.fcal_0_tilt); }
+  double getXRotorCurve() const { return float16ToFloat32(baseStationInfoBlock.fcal_0_curve); }
+  double getXRotorGibbousPhase() const { return float16ToFloat32(baseStationInfoBlock.fcal_0_gibphase); }
+  double getXRotorGibbousMagnitude() const { return float16ToFloat32(baseStationInfoBlock.fcal_0_gibmag); }
+
+  double getZRotorPhase() const { return float16ToFloat32(baseStationInfoBlock.fcal_1_phase); }
+  double getZRotorTilt() const { return float16ToFloat32(baseStationInfoBlock.fcal_1_tilt); }
+  double getZRotorCurve() const { return float16ToFloat32(baseStationInfoBlock.fcal_1_curve); }
+  double getZRotorGibbousPhase() const { return float16ToFloat32(baseStationInfoBlock.fcal_1_gibphase); }
+  double getZRotorGibbousMagnitude() const { return float16ToFloat32(baseStationInfoBlock.fcal_1_gibmag); }
+
+  double getAccelDirX() const { return baseStationInfoBlock.accel_dir_x; }
+  double getAccelDirY() const { return baseStationInfoBlock.accel_dir_y; }
+  double getAccelDirZ() const { return baseStationInfoBlock.accel_dir_z; }
+
+};
 
 #endif

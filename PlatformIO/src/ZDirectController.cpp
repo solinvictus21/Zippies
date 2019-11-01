@@ -22,16 +22,15 @@ typedef struct _DirectMove
 } DirectMove;
 
 DirectMove movements[] = {
-  {   8000,   3000.0d,    300.0d },
+  // {   8000,   3000.0d,    300.0d },
+  {   8000,  10000.0d,  10000.0d },
   {   5000,      0.0d,      0.0d },
 };
 int movementCount = (int)(sizeof(movements) / sizeof(DirectMove));
 
-ZDirectController::ZDirectController(Lighthouse* l)
+ZDirectController::ZDirectController(SensorFusor* l)
   : lighthouse(l)
 {
-  motors.start();
-
 #ifdef ENABLE_SDCARD_LOGGING
   if (SD.begin(CHIP_SELECT_PIN))
     sdCardInitialized = true;
@@ -44,14 +43,17 @@ void ZDirectController::loop(unsigned long currentTime)
 {
   if (!lighthouse->loop(currentTime)) {
     if (lighthouseReady) {
+      previousPositionTimeStamp = 0;
       stopController(currentTime);
       lighthouseReady = false;
     }
     return;
   }
 
-  if (!lighthouse->recalculate())
+  //check if we have a position update
+  if (lighthouse->getPositionTimeStamp() <= previousPositionTimeStamp)
     return;
+  previousPositionTimeStamp = lighthouse->getPositionTimeStamp();
 
   if (!lighthouseReady) {
     lighthouseReady = true;
@@ -94,6 +96,10 @@ void ZDirectController::startNextMove(unsigned long currentTime)
 {
   currentMoveStartTime = currentTime;
   currentMoveDeltaTime = movements[currentMoveIndex].deltaTime;
+  // SerialUSB.print("Setting motors: ");
+  // SerialUSB.print(movements[currentMoveIndex].leftWheelPower, 0);
+  // SerialUSB.print(", ");
+  // SerialUSB.println(movements[currentMoveIndex].rightWheelPower, 0);
   motors.setMotors(movements[currentMoveIndex].leftWheelPower, movements[currentMoveIndex].rightWheelPower);
   currentMoveIndex++;
   if (currentMoveIndex == movementCount)

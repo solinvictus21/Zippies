@@ -1,4 +1,5 @@
 
+#include <Arduino.h>
 #include <math.h>
 #include "KVector3.h"
 
@@ -37,14 +38,30 @@ KVector3::KVector3(double x,
 
 void KVector3::rotate(double w2, double x2, double y2, double z2)
 {
-    double w1 =              - (x2*this->x) - (y2*this->y) - (z2*this->z);
-    double x1 = (w2*this->x)                + (y2*this->z) - (z2*this->y);
-    double y1 = (w2*this->y) - (x2*this->z)                + (z2*this->x);
-    double z1 = (w2*this->z) + (x2*this->y) - (y2*this->x)               ;
+  //old version of quaternion-vector multiplication; euqally accurate; more math computations
+  //deprecated and will be deleted eventually
+  /*
+  double w1 =              - (x2*this->x) - (y2*this->y) - (z2*this->z);
+  double x1 = (w2*this->x)                + (y2*this->z) - (z2*this->y);
+  double y1 = (w2*this->y) - (x2*this->z)                + (z2*this->x);
+  double z1 = (w2*this->z) + (x2*this->y) - (y2*this->x)               ;
 
-    this->x =    (w1*(-x2))  + (x1*  w2 )  + (y1*(-z2))  - (z1*(-y2));
-    this->y =    (w1*(-y2))  - (x1*(-z2))  + (y1*  w2 )  + (z1*(-x2));
-    this->z =    (w1*(-z2))  + (x1*(-y2))  - (y1*(-x2))  + (z1*  w2 );
+  this->x =    (w1*(-x2))  + (x1*  w2 )  + (y1*(-z2))  - (z1*(-y2));
+  this->y =    (w1*(-y2))  - (x1*(-z2))  + (y1*  w2 )  + (z1*(-x2));
+  this->z =    (w1*(-z2))  + (x1*(-y2))  - (y1*(-x2))  + (z1*  w2 );
+  */
+
+  //credit goes to this source for describing a more efficient version of quaternion-vector multiplication
+  //    https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication
+  //
+  // t = 2 * (q.xyz cross v)
+  double tx = 2.0d * ((y2*this->z) - (z2*this->y));
+  double ty = 2.0d * ((z2*this->x) - (x2*this->z));
+  double tz = 2.0d * ((x2*this->y) - (y2*this->x));
+  // v' = v + (q.w * t) + (q.xyz cross t)
+  this->x += (w2 * tx) + ((y2*tz) - (z2*ty));
+  this->y += (w2 * ty) + ((z2*tx) - (x2*tz));
+  this->z += (w2 * tz) + ((x2*ty) - (y2*tx));
 }
 
 void KVector3::rotate(KQuaternion3* q)
@@ -86,8 +103,6 @@ double KVector3::dotVector(KVector3* v) {
 }
 
 void KVector3::crossVector(KVector3* v) {
-  //TODO: I know this calculation is inaccurate since the length of the resulting vector length is |A| * |B| * sin(angleBetween)
-  //      and not an actual unit vector; this function is not currently used in this codebase, so ignoring the issue for now
   double newX = (this->y * v->z) - (this->z * v->y);
   double newY = (this->z * v->x) - (this->x * v->z);
   double newZ = (this->x * v->y) - (this->y * v->x);
@@ -142,8 +157,8 @@ void KVector3::setZ(double newZ) {
 }
 
 void KVector3::set(double newX,
-                  double newY,
-                  double newZ)
+                   double newY,
+                   double newZ)
 {
     x = newX;
     y = newY;
@@ -153,9 +168,9 @@ void KVector3::set(double newX,
 }
 
 void KVector3::set(double newX,
-                  double newY,
-                  double newZ,
-                  double ofLength)
+                   double newY,
+                   double newZ,
+                   double ofLength)
 {
   if (ofLength == 0.0d || (newX == 0.0d && newY == 0.0d && newZ == 0.0d)) {
     this->x = 0.0d;
@@ -173,23 +188,41 @@ void KVector3::set(double newX,
   this->x = (newX*ofLength)/vd;
   this->y = (newY*ofLength)/vd;
   this->z = (newZ*ofLength)/vd;
-  d = ofLength;
+  d = abs(ofLength);
   dValid = true;
   d2 = d*d;
   d2Valid = true;
 }
 
-void KVector3::setD(double newD) {
-  set(this->x, this->y, this->z, newD);
+void KVector3::setD(double newD)
+{
+  double previousD = getD();
+  if (previousD == 0.0d || newD == 0.0d) {
+    this->x = 0.0d;
+    this->y = 0.0d;
+    this->z = 0.0d;
+    d = 0.0d;
+    dValid = true;
+    d2 = 0.0d;
+    d2Valid = true;
+    return;
+  }
+
+  double ratio = previousD / newD;
+  this->x *= ratio;
+  this->y *= ratio;
+  this->z *= ratio;
+  d = abs(newD);
+  dValid = true;
+  d2 = d*d;
+  d2Valid = true;
 }
 
 void KVector3::printDebug()
 {
-  /*
   SerialUSB.print(x, 10);
   SerialUSB.print("  ");
   SerialUSB.print(y, 10);
   SerialUSB.print("  ");
   SerialUSB.println(z, 10);
-  */
 }

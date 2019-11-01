@@ -45,7 +45,7 @@ public:
 
   void concat(const KMatrix2* m)
   {
-      //rotate and move
+      //unrotate and move
       position.unrotate(&m->orientation);
       position.addVector(&m->position);
       orientation.add(&m->orientation);
@@ -53,7 +53,7 @@ public:
 
   void unconcat(const KMatrix2* m)
   {
-      //rotate and move
+      //move and rotate
       orientation.subtract(&m->orientation);
       position.subtractVector(&m->position);
       position.rotate(&m->orientation);

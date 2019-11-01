@@ -1,37 +1,50 @@
 
 #include <SPI.h>
-#include "Lighthouse.h"
+#include "SensorFusor.h"
 
 #define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
-#define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      200
+// #define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      200
 #define SENSOR_OFFSET_X  10.8d
 #define SENSOR_OFFSET_Y   4.2d
-// #define VELOCITY_UNITS_PER_SEC
+//height of the lighthouse from the diode plane
+//mounted on surface of entertainment center
+#define LIGHTHOUSE_HEIGHT            908.0d
 
-Lighthouse* currentLighthouse = NULL;
+SensorFusor* currentLighthouse = NULL;
 LighthouseSensorInput leftSensorInput;
 LighthouseSensorInput rightSensorInput;
 
-Lighthouse::Lighthouse()
-  : leftSensor(&leftSensorInput, 0),
-    rightSensor(&rightSensorInput, 1)
+SensorFusor::SensorFusor()
+  // : sensors[0](&leftSensorInput, 0),
+    // sensors[1](&rightSensorInput, 1)
 {
+  sensors[0].debugNumber = 0;
+  sensors[0].sensorInput = &leftSensorInput;
+  sensors[1].debugNumber = 0;
+  sensors[1].sensorInput = &rightSensorInput;
 }
 
-void Lighthouse::start()
+void SensorFusor::start()
 {
   if (currentLighthouse != NULL)
     currentLighthouse->stop();
   currentLighthouse = this;
 
-  leftSensor.restart();
-  rightSensor.restart();
+  sensors[0].restart();
+  sensors[1].restart();
 
   previousPositionTimeStamp = 0;
   positionTimeStamp = 0;
   positionLockedTimeStamp = 0;
-  positionUnlockedTimeStamp = 0;
-  positionValid = false;
+
+  if (!receivedLighthouseData) {
+    preambleBitCount = 0;
+    preambleFound = false;
+    ootxParser.restart();
+    currentSignalState = LighthouseSignalState::ReceivingLighthouseData;
+  }
+  else
+    currentSignalState = LighthouseSignalState::AcquiringPositionLock;
 
   //configure the timing clock we'll use for counting cycles between IR pules
   setupClock();
@@ -47,7 +60,7 @@ void Lighthouse::start()
 }
 
 //#define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
-void Lighthouse::setupClock()
+void SensorFusor::setupClock()
 {
   /*
   // DFLL default is open loop mode:
@@ -127,36 +140,11 @@ void Lighthouse::setupClock()
   while (GCLK->STATUS.bit.SYNCBUSY);
 }
 
-void Lighthouse::connectPortPinsToInterrupts()
+void SensorFusor::connectPortPinsToInterrupts()
 {
   //enable the PORT subsystem
   PM->APBBMASK.bit.PORT_ = 1;
 
-#ifdef PLATFORM_EXEN_MINI
-  //set port A (group 0), pin 11 (PA11, Exen Mini pin 1) as an input
-  PORT->Group[0].DIRCLR.reg = PORT_PA11;
-
-  //configure PA11
-  PORT->Group[0].PINCFG[11].reg =
-    PORT_PINCFG_PULLEN |         //enable pull-down
-    PORT_PINCFG_INEN |           //enable input buffering
-    PORT_PINCFG_PMUXEN;          //enable pin muxing
-
-  //mux PA21 over to EXTINT5
-  PORT->Group[0].PMUX[5].reg = PORT_PMUX_PMUXO(PORT_PMUX_PMUXO_A_Val);
-
-  //set port A (group 0), pin 10 (PA10, Exen Mini pin 0) as an input
-  PORT->Group[0].DIRCLR.reg = PORT_PA10;
-
-  //configure PA09
-  PORT->Group[0].PINCFG[10].reg =
-    PORT_PINCFG_PULLEN |         //enable pull-down
-    PORT_PINCFG_INEN |           //enable input buffering
-    PORT_PINCFG_PMUXEN;          //enable pin muxing
-
-  //mux PA09 over to EXTINT9
-  PORT->Group[0].PMUX[5].reg = PORT_PMUX_PMUXE(PORT_PMUX_PMUXE_A_Val);
-#else
   //set port A (group 0), pin 21 (PA21, Tinyduino proto board pin IO7) as an input
   PORT->Group[0].DIRCLR.reg = PORT_PA21;
 
@@ -180,10 +168,9 @@ void Lighthouse::connectPortPinsToInterrupts()
 
   //mux PA09 over to EXTINT9
   PORT->Group[0].PMUX[4].reg = PORT_PMUX_PMUXO(PORT_PMUX_PMUXE_A_Val);
-#endif
 }
 
-void Lighthouse::setupEIC()
+void SensorFusor::setupEIC()
 {
   //turn on power to the external interrupt controller (EIC)
   PM->APBAMASK.bit.EIC_ = 1;
@@ -192,19 +179,6 @@ void Lighthouse::setupEIC()
   EIC->CTRL.bit.ENABLE = 0;
   while (EIC->STATUS.bit.SYNCBUSY);
 
-#ifdef PLATFORM_EXEN_MINI
-  //right diode interrupt config
-  //detect both rising and falling edges
-  EIC->CONFIG[1].bit.SENSE3 = EIC_CONFIG_SENSE3_HIGH_Val;
-  //generate interrupts on interrupt #9 when edges are detected
-  EIC->EVCTRL.bit.EXTINTEO11 = 1;
-
-  //left diode interrupt config
-  //detect both rising and falling edges
-  EIC->CONFIG[1].bit.SENSE2 = EIC_CONFIG_SENSE2_HIGH_Val;
-  //generate interrupts on interrupt #5 when edges are detected
-  EIC->EVCTRL.bit.EXTINTEO10 = 1;
-#else
   //right diode interrupt config
 //  EIC->CONFIG[1].bit.FILTEN1 = 1;
   //detect both rising and falling edges
@@ -218,7 +192,6 @@ void Lighthouse::setupEIC()
   EIC->CONFIG[0].bit.SENSE5 = EIC_CONFIG_SENSE1_HIGH_Val;
   //generate interrupts on interrupt #5 when edges are detected
   EIC->EVCTRL.bit.EXTINTEO5 = 1;
-#endif
 
   //enable the EIC
   EIC->CTRL.bit.ENABLE = 1;
@@ -227,56 +200,11 @@ void Lighthouse::setupEIC()
   while (EIC->STATUS.bit.SYNCBUSY);
 }
 
-void Lighthouse::connectInterruptsToTimer()
+void SensorFusor::connectInterruptsToTimer()
 {
   //enable the event subsystem
   PM->APBCMASK.bit.EVSYS_ = 1;
 
-#ifdef PLATFORM_EXEN_MINI
-  //input config for right diode
-  REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
-//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
-                      EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_11) |    //from external interrupt 9
-                      EVSYS_CHANNEL_CHANNEL(0);                           //to EVSYS channel 0
-
-  //output config for right diode
-  REG_EVSYS_USER = EVSYS_USER_CHANNEL(1) |                                //attach output from channel 0 (n+1)
-                   EVSYS_USER_USER(EVSYS_ID_USER_TCC0_MC_0);              //to user (recipient) TCC0, MC0
-  while (!EVSYS->CHSTATUS.bit.USRRDY0);
-
-  //input config for right diode
-  REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(2) |                           //detect falling edge
-//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
-                      EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_11) |    //from external interrupt 9
-                      EVSYS_CHANNEL_CHANNEL(1);                           //to EVSYS channel 1
-
-  //output config for right diode
-  REG_EVSYS_USER = EVSYS_USER_CHANNEL(2) |                                //attach output from channel 1 (n+1)
-                   EVSYS_USER_USER(EVSYS_ID_USER_TCC0_MC_1);              //to user (recipient) TCC0, MC1
-  while (!EVSYS->CHSTATUS.bit.USRRDY0);
-
-  //input config for left diode
-  REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
-//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
-                      EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_10) |    //from external interrupt 5
-                      EVSYS_CHANNEL_CHANNEL(2);                           //to EVSYS channel 2
-
-  //output config for left diode
-  REG_EVSYS_USER = EVSYS_USER_CHANNEL(3) |                                //attach output from channel 2 (n+1)
-                   EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_0);              //to user (recipient) TCC1, MC0
-
-  //input config for left diode
-  REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(2) |                           //detect falling edge
-//                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
-                      EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_EIC_EXTINT_10) |    //from external interrupt 5
-                      EVSYS_CHANNEL_CHANNEL(3);                           //to EVSYS channel 3
-
-  //output config for left diode
-  REG_EVSYS_USER = EVSYS_USER_CHANNEL(4) |                                //attach output from channel 3 (n+1)
-                   EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_1);              //to user (recipient) TCC1, MC1
-
-  while (!EVSYS->CHSTATUS.bit.USRRDY0);
-#else
   //input config for right diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
 //                      EVSYS_CHANNEL_PATH_SYNCHRONOUS |                    //synchronously
@@ -320,10 +248,9 @@ void Lighthouse::connectInterruptsToTimer()
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_1);              //to user (recipient) TCC1, MC1
 
   while (!EVSYS->CHSTATUS.bit.USRRDY0);
-#endif
 }
 
-void Lighthouse::setupTimer()
+void SensorFusor::setupTimer()
 {
   //enable the TCC0 subsystem
   PM->APBCMASK.bit.TCC0_ = 1;
@@ -511,103 +438,242 @@ void TCC1_Handler()
   }
 }
 
-//returns true if the lighthouse signal is locked
-bool Lighthouse::loop(unsigned long currentTime)
+bool SensorFusor::loop(unsigned long currentTime)
 {
-  rightSensor.loop(currentTime);
-  leftSensor.loop(currentTime);
+  sensors[0].loop(currentTime);
+  sensors[1].loop(currentTime);
 
-  if (!leftSensor.receivedLighthousePosition || !rightSensor.receivedLighthousePosition)
-    return false;
-  // SerialUSB.println("Both sensors received lighthouse positions.");
+  switch (currentSignalState) {
+    case LighthouseSignalState::ReceivingLighthouseData:
+      processLighthouseData(currentTime);
+      break;
 
-  if (currentTime - min(leftSensor.detectedHitTimeStamp, rightSensor.detectedHitTimeStamp) >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
-    // SerialUSB.println("Lighthouse signal lost.");
-    positionLockedTimeStamp = 0;
-    return false;
-  }
-  // SerialUSB.println("Both sensors have position updates.");
+    case LighthouseSignalState::AcquiringPositionLock:
+      acquirePosition(currentTime);
+      break;
 
-  if (!positionLockedTimeStamp) {
-    // SerialUSB.println("Lighthouse signal locked. Beginning initial timeout.");
-    positionLockedTimeStamp = currentTime;
-    return false;
+    case LighthouseSignalState::SignalLocked:
+      acquirePosition(currentTime);
+      break;
   }
 
-  return (currentTime - positionLockedTimeStamp) >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE;
+  return currentSignalState == LighthouseSignalState::SignalLocked;
 }
 
-/**
- * Recalculates the position of each sensor based on the most recently received sync and sweep pulses for each combined
- * with the information about the orientation of the Lighthouse (received from the base station info block) and the
- * known distance of the Lighthouse from the plane of the sensors.
- */
-/*
-bool Lighthouse::recalculate(unsigned long currentTime)
+void SensorFusor::processLighthouseData(unsigned long currentTime)
 {
-  if (!leftSensor.receivedLighthousePosition || !leftSensor.detectedHitTimeStamp ||
-      !rightSensor.receivedLighthousePosition || !leftSensor.detectedHitTimeStamp)
-    return false;
-
-  //update the position of the sensors
-  if (!leftSensor.recalculate() || !rightSensor.recalculate()) {
-    //we were not able to get an updated position because we have not received recent hits from the Lighthouse for one or
-    //both sensors; we will continue to estimate the position and velocity until a designated timeout interval
-    if (positionValid) {
-      if (!positionUnlockedTimeStamp) {
-        //keep track the time the signal was lost
-        // SerialUSB.println("Lighthouse position unlocked.");
-        positionUnlockedTimeStamp = currentTime;
-      }
-      else if (currentTime - positionUnlockedTimeStamp >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
-        //we can no longer estimate
-        // SerialUSB.println("Lighthouse position invalid.");
-        positionValid = false;
-        positionLockedTimeStamp = 0;
-      }
-    }
-
-    //estimate the new position and velocity based on the previous position and velocity
-    if (positionValid) {
-      estimatePosition(currentTime);
-      return true;
-    }
-  }
-  else {
-    if (!positionValid) {
-      if (!positionLockedTimeStamp) {
-        // SerialUSB.println("Lighthouse position locked.");
-        positionLockedTimeStamp = currentTime;
-      }
-      else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
-        // SerialUSB.println("Lighthouse position valid.");
-        positionUnlockedTimeStamp = 0;
-        positionValid = true;
-      }
-    }
-
-    // SerialUSB.println("Calculating position.");
-    if (positionValid) {
-      calculatePosition();
-      return true;
-    }
+  if (!sensors[0].completedCycleTimeStamp || !sensors[1].completedCycleTimeStamp) {
+    //signal lock was Lost
+    ootxParser.restart();
+    return;
   }
 
-  return false;
-}
-*/
+  if (sensors[0].completedCycleTimeStamp <= cycleProcessedTime || sensors[1].completedCycleTimeStamp <= cycleProcessedTime)
+    return;
+  cycleProcessedTime = currentTime;
 
-bool Lighthouse::recalculate()
-{
-  if (leftSensor.detectedHitTimeStamp <= leftSensor.positionTimeStamp ||
-      rightSensor.detectedHitTimeStamp <= rightSensor.positionTimeStamp)
+  if (SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[0].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[0].syncTicks) ||
+      SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[1].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[1].syncTicks))
   {
-    return false;
+    //sensors did not see the same sync pairs; that's a problem; restart the OOTX parsing process
+    ootxParser.restart();
+    return;
   }
 
-  leftSensor.recalculate();
-  rightSensor.recalculate();
+  ootxParser.processOOTXBit((sensors[0].completedHitCycles[0].syncTicks + sensors[1].completedHitCycles[0].syncTicks) / 2);
+  ootxParser.processOOTXBit((sensors[0].completedHitCycles[1].syncTicks + sensors[1].completedHitCycles[1].syncTicks) / 2);
+  if (ootxParser.receivedBaseStationInfoBlock()) {
+    preambleFound = true;
+    calculateLighthouseData();
+    resetPositionLock();
+  }
+}
 
+void SensorFusor::resetPositionLock()
+{
+  previousPositionTimeStamp = 0;
+  positionTimeStamp = 0;
+  positionLockedTimeStamp = 0;
+  if (!preambleFound)
+    preambleBitCount = 0;
+  currentSignalState = LighthouseSignalState::AcquiringPositionLock;
+}
+
+void SensorFusor::acquirePosition(unsigned long currentTime)
+{
+  if (!sensors[0].completedCycleTimeStamp || !sensors[1].completedCycleTimeStamp) {
+    //signal lock was Lost
+    // SerialUSB.println("Lost cycle signal lock.");
+    resetPositionLock();
+    return;
+  }
+
+  if (sensors[0].completedCycleTimeStamp <= cycleProcessedTime || sensors[1].completedCycleTimeStamp <= cycleProcessedTime)
+    return;
+  cycleProcessedTime = currentTime;
+
+  if (SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[0].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[0].syncTicks) ||
+      SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[1].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[1].syncTicks))
+  {
+    //sensors did not see the same sync pairs; that's a problem; restart the OOTX parsing process
+    // SerialUSB.println("Detected mismatched sync cycles.");
+    resetPositionLock();
+    return;
+  }
+
+  if (!sensors[0].completedHitCycles[0].sweepHitStartTicks || !sensors[1].completedHitCycles[0].sweepHitStartTicks ||
+      !sensors[0].completedHitCycles[1].sweepHitStartTicks || !sensors[1].completedHitCycles[1].sweepHitStartTicks)
+  {
+    // if (currentSignalState == LighthouseSignalState::SignalLocked)
+      // SerialUSB.println("No hit detected on one or more sensor axes.");
+    resetPositionLock();
+    return;
+  }
+
+  unsigned long averageXSyncTicks = (sensors[0].completedHitCycles[0].syncTicks + sensors[1].completedHitCycles[0].syncTicks) / 2;
+  unsigned long averageZSyncTicks = (sensors[0].completedHitCycles[1].syncTicks + sensors[1].completedHitCycles[1].syncTicks) / 2;
+  if (!preambleFound) {
+    processPreambleBit(averageXSyncTicks);
+    processPreambleBit(averageZSyncTicks);
+  }
+
+  //recalculate the new position
+  calculateSensorPosition(
+    averageXSyncTicks + sensors[0].completedHitCycles[0].sweepHitStartTicks + (sensors[0].completedHitCycles[0].sweepHitEndTicks / 2),
+    averageZSyncTicks + sensors[0].completedHitCycles[1].sweepHitStartTicks + (sensors[0].completedHitCycles[1].sweepHitEndTicks / 2),
+    &sensorPositions[0]);
+  calculateSensorPosition(
+    averageXSyncTicks + sensors[1].completedHitCycles[0].sweepHitStartTicks + (sensors[1].completedHitCycles[0].sweepHitEndTicks / 2),
+    averageZSyncTicks + sensors[1].completedHitCycles[1].sweepHitStartTicks + (sensors[1].completedHitCycles[1].sweepHitEndTicks / 2),
+    &sensorPositions[1]);
+  calculatePosition();
+  // position.printDebug();
+  positionTimeStamp = currentTime;
+  if (!positionLockedTimeStamp) {
+    if (previousPositionTimeStamp)
+      positionLockedTimeStamp = currentTime;
+  }
+  else if (currentSignalState != LighthouseSignalState::SignalLocked &&
+      currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE)
+  {
+    // SerialUSB.println("Sensors locked. Starting routine.");
+    currentSignalState = LighthouseSignalState::SignalLocked;
+  }
+}
+
+void SensorFusor::processPreambleBit(unsigned long syncTickCount)
+{
+  if (SYNC_PULSE_BIT(syncTickCount)) {
+    preambleBitCount = 0;
+    return;
+  }
+
+  preambleBitCount++;
+  if (preambleBitCount >= 17)
+    preambleFound = true;
+}
+
+void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, KVector2* out)
+{
+  //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode by normalizing the angle on each axis
+  //from the lighthouse to +/- M_PI_2
+  double observedAngleX = ((((double)xTicks) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
+  double observedAngleZ = ((((double)zTicks) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5d) * M_PI;
+
+  //correct for the factory calibration data; algorithm pulled from notes and code from the open source libsurvive project
+  //    https://github.com/cnlohr/libsurvive/wiki/BSD-Calibration-Values
+  observedAngleX += xRotor.phase;
+  observedAngleZ += zRotor.phase;
+  double correctionX = sin(xRotor.tilt * observedAngleZ);
+  double correctionZ = sin(zRotor.tilt * observedAngleX);
+  observedAngleX += correctionX;
+  observedAngleZ += correctionZ;
+  correctionX = xRotor.curve * observedAngleZ;
+  correctionZ = zRotor.curve * observedAngleX;
+  observedAngleX += correctionX;
+  observedAngleZ += correctionZ;
+  observedAngleX += cos(xRotor.gibbousPhase + observedAngleX) * xRotor.gibbousMagnitude;
+  observedAngleZ += cos(zRotor.gibbousPhase + observedAngleZ) * zRotor.gibbousMagnitude;
+
+  //calculate the normal for the plane of the intersection from the right-to-left sweep, which is a vertical plane whose normal
+  //is a vector with no z component
+  //note that we must flip the x axis while converting to our global coordinate system because our tick counts get greater
+  //from right-to-left from the perspective of the lighthouse; this is contrary to some animations online which illustrate
+  //the horizontal beam sweeping from left-to-right from the perspective of the lighthouse
+  double verticalNormalX = cos(observedAngleX);
+  double verticalNormalY = sin(observedAngleX);
+
+  //calculate the normal for the plane of the intersection from the bottom-to-top sweep, which is a horizontal plane whose normal
+  //is a vector with no x component
+  double horizontalNormalY = -sin(observedAngleZ);
+  double horizontalNormalZ = cos(observedAngleZ);
+
+  //now cross the plane of the horizontal sweep with the plane of the vertical sweep and normalize it; this will give us a
+  //unit vector which represents the intersection of these two planes in the local coordinate system of the lighthouse
+  //this calculation reduces to the following
+  KVector3 directionFromLighthouse(
+      -(horizontalNormalZ * verticalNormalY),
+      horizontalNormalZ * verticalNormalX,
+      -(horizontalNormalY * verticalNormalX),
+      1.0d);
+
+  //now convert the vector from the lighthouse in its local coordinate system to our global coordinate system
+  directionFromLighthouse.unrotate(&lighthouseOrientation);
+
+  //now intersect with the plane of the diodes on the robot; since our diode plane is defined by the normal 0,0,1, and we have a
+  //vector which identifies the position of the lighthouse from 0,0,0, the entire formula for our diode-plane intersection reduces
+  //to the following
+  double t = -LIGHTHOUSE_HEIGHT / directionFromLighthouse.getZ();
+  out->set(
+      // directionFromLighthouse.getX() * t,
+      // directionFromLighthouse.getY() * t);
+      (directionFromLighthouse.getX() * t) - LIGHTHOUSE_CENTER_OFFSET_X,
+      (directionFromLighthouse.getY() * t) - LIGHTHOUSE_CENTER_OFFSET_Y);
+}
+
+void SensorFusor::calculateLighthouseData()
+{
+  //capture the factory calibration data for the x rotor
+  xRotor.phase = ootxParser.getXRotorPhase();
+  xRotor.tilt = ootxParser.getXRotorTilt();
+  xRotor.curve = ootxParser.getXRotorCurve();
+  xRotor.gibbousPhase = ootxParser.getXRotorGibbousPhase();
+  xRotor.gibbousMagnitude = ootxParser.getXRotorGibbousMagnitude();
+
+  //capture the factory calibration data for the z rotor
+  zRotor.phase = ootxParser.getZRotorPhase();
+  zRotor.tilt = ootxParser.getZRotorTilt();
+  zRotor.curve = ootxParser.getZRotorCurve();
+  zRotor.gibbousPhase = ootxParser.getZRotorGibbousPhase();
+  zRotor.gibbousMagnitude = ootxParser.getZRotorGibbousMagnitude();
+
+  //The accelerometer reading from the lighthouse provides a vector that represents the lighthouse "up" direction in a coordinate system
+  //from the perspective of the lighthouse such that x and z axes are parallel to the ground, positive x is to the lighthouse "right",
+  //positive z is "forward, and positive y is "up".
+  // KVector3 rotationUnitVector(-ootxParser.getAccelDirX(), ootxParser.getAccelDirZ(), ootxParser.getAccelDirY(), 1.0d);
+  KVector3 rotationUnitVector(-ootxParser.getAccelDirX(), ootxParser.getAccelDirZ(), ootxParser.getAccelDirY(), 1.0d);
+
+  //now calculate the angle of rotation from the "up" normal in our global coordinate system (0,0,1) to the rotation unit vector
+  //this calculation ultimately reduces to the inverse cosine of the z axis of the rotation unit vector
+  double angleOfRotation = acos(rotationUnitVector.getZ());
+
+  //now cross the "up" vector of the lighthouse with the "up" normal of the global coordinate system to obtain the axis of rotation for
+  //our quaternion; this calculation ultimately reduces to the y axis from the rotation unit vector becoming the x axis and the x axis
+  //becoming the negative y axis; then obtain the unit vector of the result
+  rotationUnitVector.set(rotationUnitVector.getY(), -rotationUnitVector.getX(), 0.0d, 1.0d);
+
+  //now that we have both the axis and angle of rotation, we can calculate our quaternion
+  lighthouseOrientation.set(rotationUnitVector.getX(), rotationUnitVector.getY(), rotationUnitVector.getZ(), angleOfRotation);
+
+#ifdef LIGHTHOUSE_ORIENTATION_Z
+  lighthouseOrientation.rotateZ(LIGHTHOUSE_ORIENTATION_Z);
+#endif
+
+  receivedLighthouseData = true;
+}
+
+void SensorFusor::calculatePosition()
+{
   //capture the previous position to allow us to later calculate the velocity
   previousPosition.position.set(&position.position);
   previousPosition.orientation.set(position.orientation.get());
@@ -617,15 +683,12 @@ bool Lighthouse::recalculate()
 
   //the orientation is calculated by crossing the vector between the sensors with the vector (0, 0, 1), which
   //simplifies to (y, -x); then take the atan2 of that resulting vector to obtain the orientation
-  position.orientation.set(atan2(leftSensor.positionVector.getY() - rightSensor.positionVector.getY(),
-          -(leftSensor.positionVector.getX() - rightSensor.positionVector.getX())));
+  position.orientation.set(atan2(sensorPositions[0].getY() - sensorPositions[1].getY(),
+          -(sensorPositions[0].getX() - sensorPositions[1].getX())));
   //the center position of the robot is the average position between the sensors
   position.position.set(
-      (SENSOR_OFFSET_Y * position.orientation.sin()) + ((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
-      (SENSOR_OFFSET_Y * position.orientation.cos()) + ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
-  // position.position.set(((leftSensor.positionVector.getX() + rightSensor.positionVector.getX()) / 2.0d),
-      // ((leftSensor.positionVector.getY() + rightSensor.positionVector.getY()) / 2.0d));
-  positionTimeStamp = max(leftSensor.positionTimeStamp, rightSensor.positionTimeStamp);
+      (SENSOR_OFFSET_Y * position.orientation.sin()) + ((sensorPositions[0].getX() + sensorPositions[1].getX()) / 2.0d),
+      (SENSOR_OFFSET_Y * position.orientation.cos()) + ((sensorPositions[0].getY() + sensorPositions[1].getY()) / 2.0d));
 
   //now calculate the change in position and orientation
   positionDelta.set(&position);
@@ -640,11 +703,10 @@ bool Lighthouse::recalculate()
   positionDelta.position.multiply(velocityFactor);
   positionDelta.orientation.set(velocityFactor * positionDelta.orientation.get());
 #endif
-
-  return previousPositionTimeStamp;
 }
 
-void Lighthouse::estimatePosition(unsigned long currentTime)
+/*
+void SensorFusor::estimatePosition(unsigned long currentTime)
 {
   //calculate the change f-rom the last known position to the position prior to that; this change occurred over the time delta between
   //those two positions, but we need to scale that over the time delta between our last known position time stamp to the new time stamp
@@ -676,8 +738,9 @@ void Lighthouse::estimatePosition(unsigned long currentTime)
   positionDelta.position.setD((positionDelta.position.getD() * scale) / divide);
   positionTimeStamp = currentTime;
 }
+*/
 
-void Lighthouse::stop()
+void SensorFusor::stop()
 {
   REG_TCC0_CTRLA &= ~TCC_CTRLA_ENABLE;
   REG_TCC1_CTRLA &= ~TCC_CTRLA_ENABLE;

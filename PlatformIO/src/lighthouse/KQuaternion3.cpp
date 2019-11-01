@@ -1,4 +1,5 @@
 
+#include <Arduino.h>
 #include <math.h>
 #include "KQuaternion3.h"
 
@@ -84,4 +85,15 @@ void KQuaternion3::normalize()
     y /= magnitude;
     z /= magnitude;
     w /= magnitude;
+}
+
+void KQuaternion3::printDebug()
+{
+  SerialUSB.print(x, 10);
+  SerialUSB.print("  ");
+  SerialUSB.print(y, 10);
+  SerialUSB.print("  ");
+  SerialUSB.print(z, 10);
+  SerialUSB.print("  ");
+  SerialUSB.println(w, 10);
 }

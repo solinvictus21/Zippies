@@ -5,9 +5,6 @@
 #include "Arc.h"
 #include "CompositePath.h"
 
-void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
-                                KMatrix2* knotPosition);
-
 const ZPath* planPath(
   const KMatrix2* start,
   double endX, double endY, double endO)
@@ -113,7 +110,7 @@ double calculateBiArcD(
 {
     //precalc = 2 * (1 - (t1 dot t2))
     double t1DotT2Inv2 = 2.0 * (1.0 - t1DotT2);
-    double discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * vDotV ) );
+    double discrim = sqrt( sq(vDotT) + ( t1DotT2Inv2 * vDotV ) );
 
     //now find the smallest d value of the bi-arc to create the shortest bi-arc to the target
     double d = -vDotT + discrim;

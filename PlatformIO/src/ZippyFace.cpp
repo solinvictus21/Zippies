@@ -3,26 +3,12 @@
 // #include <TinyScreen.h>
 #include "ZippyFace.h"
 
-/*
-#define SCREEN_HEIGHT_PIXELS 64
-#define SCREEN_REFRESH_INTERVAL_MS 250
-
-#define BATTERY_FULLY_CHARGED_VOLTAGE 320.0f
-#define BATTERY_FULLY_DISCHARGED_VOLTAGE 240.0f //it shuts off at 235
-#define BATTERY_DISPLAY_X      74
-#define BATTERY_DISPLAY_Y       3
-#define BATTERY_DISPLAY_WIDTH  20
-#define BATTERY_DISPLAY_HEIGHT  5
-#define COLOR8_WHITE 0xFF
-
-#define MODE_INDICATOR_WIDTH 10
-*/
-
 extern const uint8_t FACE_HAPPY[] PROGMEM;
 
 ZippyFace::ZippyFace()
   : display(TinyScreenPlus)
 {
+  displayFace();
 }
 
 void ZippyFace::displayFace()
@@ -53,18 +39,25 @@ void ZippyFace::clearScreen()
 void ZippyFace::displayText(uint8_t x, uint8_t y, const char* text)
 {
   //label
+  // /*
   display.fontColor(TS_8b_Blue, TS_8b_Black);
   display.setCursor(x, y);
   display.print(text);
+  // */
 }
 
 void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data)
+{
+  displayLabelAndData(x, y, label, data, 1);
+}
+
+void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data, uint8_t digits)
 {
   displayText(x, y, label);
 
   //data
   display.fontColor(TS_8b_White, TS_8b_Black);
-  String s = String(data, 1);
+  String s = String(data, digits);
   uint8_t printWidth = display.getPrintWidth((char*)s.c_str());
   display.setCursor(x+SCREEN_WIDTH_PIXELS_2-printWidth, y);
   display.print(s);

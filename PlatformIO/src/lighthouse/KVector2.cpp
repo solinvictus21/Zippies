@@ -56,7 +56,7 @@ double KVector2::getD2() const
       if (dValid)
           d2 = d*d;
       else
-          d2 = this->x*this->x + this->y*this->y;
+          d2 = sq(x) + sq(y);
       d2Valid = true;
   }
 
@@ -309,7 +309,7 @@ void KVector2::printDebug() const
 
 double distanceBetween(double x1, double y1, double x2, double y2)
 {
-  return sqrt(pow(x2 - x1, 2.0d) + pow(y2 - y1, 2.0d));
+  return sqrt(sq(x2 - x1) + sq(y2 - y1));
 }
 
 double distanceBetween(const KVector2* v1, const KVector2* v2)

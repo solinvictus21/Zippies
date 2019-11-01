@@ -27,11 +27,11 @@ public:
            double ofLength);
 
   void setX(double x);
-  double getX() { return x; }
+  double getX() const { return x; }
   void setY(double y);
-  double getY() { return y; }
+  double getY() const { return y; }
   void setZ(double z);
-  double getZ() { return z; }
+  double getZ() const { return z; }
   void set(double x, double y, double z);
   void set(double x, double y, double z, double ofLength);
 

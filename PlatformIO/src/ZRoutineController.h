@@ -3,45 +3,39 @@
 #define _ZROUTINECONTROLLER_H_
 
 #include "ZController.h"
-#include "lighthouse/Lighthouse.h"
+#include "lighthouse/SensorFusor.h"
 #include "Zippy.h"
 #include "paths/ZPath.h"
 #include "lighthouse/KMatrix2.h"
-
-typedef enum _MovementState
-{
-  MovementStopped,
-  MovementTurning,
-  MovementMoving
-} MovementState;
 
 class ZRoutineController : public ZController
 {
 
 private:
-  Lighthouse* lighthouse;
-  bool lighthouseReady = false;
-
   Zippy* zippy;
-  MovementState currentMovementState = MovementStopped;
 
   // int routineIndex = 0;
   ZippyRoutine routine;
-  Command* currentCommand = NULL;
+  const Command* currentCommand = NULL;
   unsigned long currentCommandStartTime = 0;
   const ZPath* currentCommandPath = NULL;
   KMatrix2 currentTargetPosition;
 
-  void startRoutine(unsigned long startTime, const KMatrix2* startPosition);
-  void planCurrentCommand(unsigned long currentTime);
-  void executeCurrentPath(unsigned long currentTime);
+  void loopRoutine(unsigned long currentTime);
+  bool planNextCommand(unsigned long currentTime);
   unsigned long currentCommandCompleted(unsigned long currentTime);
-  void stopRoutine();
+  void pushCurrentPathPosition(double interpolatedTime);
+  void loopZippy(unsigned long currentTime);
 
 public:
-  ZRoutineController(Lighthouse* lighthouse, Zippy* z);
+  ZRoutineController(Zippy* z);
 
+  void setStartPosition(const KMatrix2* startPosition) { currentTargetPosition.set(startPosition); }
+  void start(unsigned long startTime);
+  void setRoutine(Command* c, int cc, int lc) { routine.setCommands(c, cc, lc); }
   void loop(unsigned long currentTime);
+  bool isRoutineCompleted() { return routine.isCompleted(); }
+  void stop();
 
   ~ZRoutineController() {
     if (currentCommandPath)

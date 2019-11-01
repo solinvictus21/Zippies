@@ -7,30 +7,31 @@
 #include "ZippyConfig.h"
 
 //the minimum PCM value below which the motors do not turn at all; i.e. the "dead zone"
-#define POWER_DEAD_ZONE                      3800.00d
-#define POWER_RAMP_ZONE                       100.00d
+#define POWER_DEAD_ZONE                      3000.00d
+#define POWER_RAMP_ZONE                        20.00d
 
 #define _BV(bit) (1 << (bit))
 
 MotorDriver::MotorDriver()
   : started(false)
 {
+  start();
 }
 
-bool MotorDriver::start()
+void MotorDriver::start()
 {
   //write to the T841 registers directly
   writeByte(COMMAND_SET_MODE, MODE_REGISTER_DEC);
   uint8_t motorFirmwareVersion = read(FIRMWARE_REVISION_REG);
   if (motorFirmwareVersion == 0xFF) {
     //motors not connected
-    return false;
+    return;
   }
   // SerialUSB.println("Retrieved firmware version.");
 
   if (motorFirmwareVersion != EXPECTED_FIRMWARE) {
     //incorrect motor firmware version
-    return false;
+    return;
   }
   // SerialUSB.println("Got correct firmware version.");
 
@@ -58,7 +59,6 @@ bool MotorDriver::start()
   writeCommand(COMMAND_ALL_PWM, 0, 0, 0, 0);
 
   started = true;
-  return true;
 }
 
 void MotorDriver::setMotors(double left, double right)
@@ -83,26 +83,23 @@ void MotorDriver::setMotors(double left, double right)
 
 void MotorDriver::stopMotors()
 {
-  writeCommand(COMMAND_ALL_PWM, 10000, 10000, 10000, 10000);
+  writeCommand(COMMAND_ALL_PWM, 0, 0, 0, 0);
+  // writeCommand(COMMAND_ALL_PWM, 10000, 10000, 10000, 10000);
 }
 
 double MotorDriver::deadZoneRamp(double a)
 {
-  double absA = abs(a);
-
   //bail out early when power output is extremely close to zero
+  double absA = abs(a);
   if (absA < DOUBLE_EPSILON)
     return 0.0d;
 
-  //just use the linear power curve outside of the dead zone
-  double deadZoneDeltaRange = POWER_DEAD_ZONE - POWER_RAMP_ZONE;
-  if (absA >= POWER_RAMP_ZONE)
-    return (a < 0.0d ? -deadZoneDeltaRange : deadZoneDeltaRange) + a;
+  double rampedValue = POWER_DEAD_ZONE + absA;
+  if (absA < POWER_RAMP_ZONE) {
+    double t = absA / POWER_RAMP_ZONE;
+    rampedValue *= (-t * (t - 2.0d));
+  }
 
-  //the real magic of ramping smoothly through the dead zone
-  double t = absA / POWER_RAMP_ZONE;
-  double easing = -t * (t - 2.0d);
-  double rampedValue = absA + (deadZoneDeltaRange * easing);
   return a < 0.0d ? -rampedValue : rampedValue;
 }
 

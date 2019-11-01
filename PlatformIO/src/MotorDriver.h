@@ -11,6 +11,7 @@ private:
   bool started;
   int32_t direction = 0;
 
+  void start();
   void writeByte(uint8_t);
   void writeByte(uint8_t, uint8_t);
   void writeCommand(uint8_t, uint16_t);
@@ -20,7 +21,6 @@ private:
 
 public:
   MotorDriver();
-  bool start();
   void setFailsafe(uint16_t ms);
 
   void setMotors(double left, double right);

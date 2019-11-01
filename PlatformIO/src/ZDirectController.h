@@ -4,14 +4,15 @@
 
 #include "ZController.h"
 #include "MotorDriver.h"
-#include "lighthouse/Lighthouse.h"
+#include "lighthouse/SensorFusor.h"
 
 class ZDirectController : public ZController
 {
 
 private:
-  Lighthouse* lighthouse;
+  SensorFusor* lighthouse;
   bool lighthouseReady = false;
+  unsigned long previousPositionTimeStamp = 0;
 
   MotorDriver motors;
 
@@ -25,7 +26,7 @@ private:
   void stopController(unsigned long currentTime);
 
 public:
-  ZDirectController(Lighthouse* lighthouse);
+  ZDirectController(SensorFusor* lighthouse);
   void loop(unsigned long currentTime);
 
 };
