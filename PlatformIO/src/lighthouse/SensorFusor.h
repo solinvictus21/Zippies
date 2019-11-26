@@ -56,11 +56,11 @@ private:
 
   //then we can use the sensor position to calculate the position; by maintaining the previous position
   //during each iteration, we can use the difference between each position to calculate the velocity
-  KMatrix2 previousPosition;
-  unsigned long previousPositionTimeStamp = 0;
+  // KMatrix2 previousPosition;
+  // unsigned long previousPositionTimeStamp = 0;
   KMatrix2 position;
   unsigned long positionTimeStamp = 0;
-  KMatrix2 positionDelta;
+  // KMatrix2 positionDelta;
 
   //once we have data for the previous position as well as the current position, then we wait a predetermined
   //period of time to let the position data "settle" such as, for example, when the user is still placing
@@ -99,7 +99,7 @@ public:
 
   unsigned long getPositionTimeStamp() const { return positionTimeStamp; }
   const KMatrix2* getPosition() const { return &position; }
-  const KMatrix2* getPositionDelta() const { return &positionDelta; }
+  // const KMatrix2* getPositionDelta() const { return &positionDelta; }
 
   void stop();
 

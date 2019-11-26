@@ -1,12 +1,8 @@
 
 #include "ZTuningController.h"
 
-// #define DEBUG_DISPLAY_POSITION      1
-
-#define KP_START                  120.000d
-#define KI_START                    0.000d
-#define KD_START                    5.000d
-#define TUNING_TOLERANCE            0.200d
+// #define TUNING_TOLERANCE            0.150d
+#define TUNING_TOLERANCE            0.100d
 #define INITIAL_VELOCITY          120.000d
 
 #ifdef ENABLE_SDCARD_LOGGING
@@ -22,79 +18,94 @@
 unsigned long previousDebugDisplayTime = 0;
 #endif
 
+#define START_OFFSET_Y  -120.0d
+
+/*
 Command moveIntoPlaceRoutine[]
 {
   {             4000, CommandMoveTo,  ZIPPY_OFFSET_X,  -120.0d,    0.0d },
 };
+*/
 
+Movement moveIntoPlace[]
+{
+  { MovementType::Turn ,        0.0d               },
+  { MovementType::Move ,        0.0d               },
+  { MovementType::Turn ,        0.0d               },
+};
+
+Command2 moveIntoPlaceRoutine[]
+{
+  {     0, 0.25d, 0.25d, 3, moveIntoPlace, 0 },
+};
+
+Movement figureEightMovement[]
+{
+  { MovementType::Arc ,      -240.0d,      -M_PI_2 },
+  { MovementType::Arc ,      -240.0d,      -M_PI_2 },
+  { MovementType::Arc ,      -240.0d,      -M_PI_2 },
+  { MovementType::Arc ,      -240.0d,      -M_PI_2 },
+  { MovementType::Arc ,       240.0d,       M_PI_2 },
+  { MovementType::Arc ,       240.0d,       M_PI_2 },
+  { MovementType::Arc ,       240.0d,       M_PI_2 },
+  { MovementType::Arc ,       240.0d,       M_PI_2 },
+};
+
+Command2 tuningRoutine2[]
+{
+  { 60000, 0.25d, 0.25d, 8, figureEightMovement, 3 },
+};
+
+/*
 Command tuningRoutine[]
 {
-  // {            10000, CommandPause                                      },
-// /*
   //do a figure eight, first left then right
-  {             2800, CommandArc,            -250.0d,      -M_PI_2      },
-  {             2300, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1800, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1600, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1400, CommandArc,             250.0d,       M_PI_2      },
-  {             1300, CommandArc,             250.0d,       M_PI_2      },
-  {             1200, CommandArc,             250.0d,       M_PI_2      },
-  {             1100, CommandArc,             250.0d,       M_PI_2      },
-// */
-/*
+  {             2800, CommandArc,            -240.0d,      -M_PI_2      },
+  {             2300, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1800, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1600, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1400, CommandArc,             240.0d,       M_PI_2      },
+  {             1300, CommandArc,             240.0d,       M_PI_2      },
+  {             1200, CommandArc,             240.0d,       M_PI_2      },
+  {             1100, CommandArc,             240.0d,       M_PI_2      },
   //2nd
-  {             1000, CommandArc,            -250.0d,      -M_PI_2      },
-  {              930, CommandArc,            -250.0d,      -M_PI_2      },
-  {              870, CommandArc,            -250.0d,      -M_PI_2      },
-  {              820, CommandArc,            -250.0d,      -M_PI_2      },
-  {              780, CommandArc,             250.0d,       M_PI_2      },
-  {              750, CommandArc,             250.0d,       M_PI_2      },
-  {              730, CommandArc,             250.0d,       M_PI_2      },
-  {              720, CommandArc,             250.0d,       M_PI_2      },
-// */
-/*
+  {             1060, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1020, CommandArc,            -240.0d,      -M_PI_2      },
+  {              980, CommandArc,            -240.0d,      -M_PI_2      },
+  {              940, CommandArc,            -240.0d,      -M_PI_2      },
+  {              920, CommandArc,             240.0d,       M_PI_2      },
+  {              890, CommandArc,             240.0d,       M_PI_2      },
+  {              880, CommandArc,             240.0d,       M_PI_2      },
+  {              870, CommandArc,             240.0d,       M_PI_2      },
   //3rd
-  {              715, CommandArc,            -250.0d,      -M_PI_2      },
-  {              710, CommandArc,            -250.0d,      -M_PI_2      },
-  {              705, CommandArc,            -250.0d,      -M_PI_2      },
-  {              700, CommandArc,            -250.0d,      -M_PI_2      },
-  {              700, CommandArc,             250.0d,       M_PI_2      },
-  {              705, CommandArc,             250.0d,       M_PI_2      },
-  {              710, CommandArc,             250.0d,       M_PI_2      },
-  {              715, CommandArc,             250.0d,       M_PI_2      },
-// */
-/*
+  {              870, CommandArc,            -240.0d,      -M_PI_2      },
+  {              880, CommandArc,            -240.0d,      -M_PI_2      },
+  {              890, CommandArc,            -240.0d,      -M_PI_2      },
+  {              920, CommandArc,            -240.0d,      -M_PI_2      },
+  {              940, CommandArc,             240.0d,       M_PI_2      },
+  {              980, CommandArc,             240.0d,       M_PI_2      },
+  {             1020, CommandArc,             240.0d,       M_PI_2      },
+  {             1060, CommandArc,             240.0d,       M_PI_2      },
   //4th
-  {              720, CommandArc,            -250.0d,      -M_PI_2      },
-  {              730, CommandArc,            -250.0d,      -M_PI_2      },
-  {              750, CommandArc,            -250.0d,      -M_PI_2      },
-  {              780, CommandArc,            -250.0d,      -M_PI_2      },
-  {              820, CommandArc,             250.0d,       M_PI_2      },
-  {              870, CommandArc,             250.0d,       M_PI_2      },
-  {              930, CommandArc,             250.0d,       M_PI_2      },
-  {             1000, CommandArc,             250.0d,       M_PI_2      },
-// */
-// /*
-  //5th
-  {             1100, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1200, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1400, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1600, CommandArc,            -250.0d,      -M_PI_2      },
-  {             1900, CommandArc,             250.0d,       M_PI_2      },
-  {             2100, CommandArc,             250.0d,       M_PI_2      },
-  {             2500, CommandArc,             250.0d,       M_PI_2      },
-  {             2800, CommandArc,             250.0d,       M_PI_2      },
-// */
+  {             1100, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1200, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1400, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1600, CommandArc,            -240.0d,      -M_PI_2      },
+  {             1800, CommandArc,             240.0d,       M_PI_2      },
+  {             2100, CommandArc,             240.0d,       M_PI_2      },
+  {             2500, CommandArc,             240.0d,       M_PI_2      },
+  {             2800, CommandArc,             240.0d,       M_PI_2      },
 };
+// */
 
 ZTuningController::ZTuningController(SensorFusor* s, Zippy* z)
   : sensors(s),
     zippy(z),
     routineController(z)
 {
-  // setupTuning(TuningVariable::Proportional);
+  setupTuning(TuningVariable::Proportional);
   // setupTuning(TuningVariable::Integral);
-  setupTuning(TuningVariable::Derivative);
+  // setupTuning(TuningVariable::Derivative);
 }
 
 void ZTuningController::start(unsigned long currentTime)
@@ -102,12 +113,24 @@ void ZTuningController::start(unsigned long currentTime)
   currentTestingState = TestingState::MovingIntoPlace;
   zippy->stopErrorCapture();
   const KMatrix2* currentPosition = sensors->getPosition();
+  /*
   double distanceToStartingPoint = sqrt(
       sq(currentPosition->position.getX() - moveIntoPlaceRoutine[0].params.p1) +
       sq(currentPosition->position.getY() - moveIntoPlaceRoutine[0].params.p2));
   moveIntoPlaceRoutine[0].timing = 1000.0d * (distanceToStartingPoint / INITIAL_VELOCITY);
-  routineController.setRoutine(moveIntoPlaceRoutine, (int)(sizeof(moveIntoPlaceRoutine) / sizeof(Command)), 1);
-  routineController.setStartPosition(currentPosition);
+  */
+  double deltaX = ZIPPY_OFFSET_X - currentPosition->position.getX();
+  double deltaY = START_OFFSET_Y - currentPosition->position.getY();
+  double deltaO = atan2(deltaX, deltaY);
+  double distanceToStartingPoint = sqrt(sq(deltaX) + sq(deltaY));
+  moveIntoPlaceRoutine[0].timing = 1000.0d * (distanceToStartingPoint / INITIAL_VELOCITY);
+  // if (deltaO < 0.0d)
+    // distanceToStartingPoint = -distanceToStartingPoint;
+  moveIntoPlace[0].params.p1 = subtractAngles(deltaO, currentPosition->orientation.get());
+  moveIntoPlace[1].params.p1 = distanceToStartingPoint;
+  moveIntoPlace[2].params.p1 = -deltaO;
+  routineController.setRoutine(moveIntoPlaceRoutine, (int)(sizeof(moveIntoPlaceRoutine) / sizeof(Command2)));
+  routineController.setAnchorPosition(currentPosition);
   routineController.start(currentTime);
 
 #ifdef DEBUG_DISPLAY_POSITION
@@ -117,29 +140,23 @@ void ZTuningController::start(unsigned long currentTime)
 
 void ZTuningController::setupTuning(TuningVariable tuningVariable)
 {
-  currentTestRun.Kp = KP_START;
-  currentTestRun.Ki = KI_START;
-  currentTestRun.Kd = KD_START;
-  bestTestRun.error = 1000000.0d;
-  bestTestRun.range = 1000000.0d;
-
   currentTuningVariable = tuningVariable;
   switch (currentTuningVariable) {
     default:
     case TuningVariable::Proportional:
       currentTestValue = &currentTestRun.Kp;
-      currentBestTestValue = &bestTestRun.Kp;
+      bestTestValue = &bestTestRun.Kp;
       break;
     case TuningVariable::Integral:
       currentTestValue = &currentTestRun.Ki;
-      currentBestTestValue = &bestTestRun.Ki;
+      bestTestValue = &bestTestRun.Ki;
       break;
     case TuningVariable::Derivative:
       currentTestValue = &currentTestRun.Kd;
-      currentBestTestValue = &bestTestRun.Kd;
+      bestTestValue = &bestTestRun.Kd;
       break;
   }
-  currentTestIncrement = 0.1d * (*currentTestValue);
+  currentTestIncrement = (*currentTestValue) * 0.05d;
 
   zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
 }
@@ -166,17 +183,19 @@ void ZTuningController::loop(unsigned long currentTime)
         openLogFile(currentTime);
 #endif
         zippy->startErrorCapture();
-        routineController.setRoutine(tuningRoutine, (int)(sizeof(tuningRoutine) / sizeof(Command)), 1);
+        // routineController.setRoutine(tuningRoutine, (int)(sizeof(tuningRoutine) / sizeof(Command)), 1);
+        routineController.setRoutine(tuningRoutine2, (int)(sizeof(tuningRoutine2) / sizeof(Command2)));
+        routineController.setAnchorPosition(ZIPPY_OFFSET_X, START_OFFSET_Y, 0.0d);
         routineController.start(currentTime);
         currentTestingState = TestingState::Testing;
       }
       break;
 
     case TestingState::Testing:
-      routineController.loop(currentTime);
 #ifdef ENABLE_SDCARD_LOGGING
       writeLogData(currentTime);
 #endif
+      routineController.loop(currentTime);
       if (routineController.isRoutineCompleted()) {
         //evaluate the performance of the current PID values
         zippy->stopErrorCapture();
@@ -184,7 +203,7 @@ void ZTuningController::loop(unsigned long currentTime)
 
         //move back into place to prepare to restart the test
         sensors->clearPreambleFlag();
-        currentTestingState = TestingState::WaitingForFullStop;
+        currentTestingState = TestingState::SyncingWithPreamble;
       }
       break;
   }
@@ -222,37 +241,58 @@ void ZTuningController::loop(unsigned long currentTime)
 #endif
 }
 
+bool willMoveAwayFromIdeal(double ideal, double previous, double increment)
+{
+  if (previous > ideal)
+    return increment > 0.0d;
+  else
+    return increment < 0.0d;
+}
+
 void ZTuningController::evaluateTuning()
 {
-  currentTestRun.error = zippy->getErrorAverage();
-  currentTestRun.range = zippy->getErrorRange();
-  double deltaError = abs((currentTestRun.range - bestTestRun.range) / bestTestRun.range);
-  if (deltaError > TUNING_TOLERANCE) {
-    if (abs(currentTestRun.range) < abs(bestTestRun.range)) {
+  // currentTestRun.error = zippy->getErrorAverage();
+  currentTestRun.error = zippy->getStandardDeviation();
+  // currentTestRun.range = zippy->getErrorRange();
+  // double deltaError = abs((currentTestRun.range - bestTestRun.range) / bestTestRun.range);
+  double deltaErrorPercentage = (currentTestRun.error - bestTestRun.error) / bestTestRun.error;
+  if (abs(deltaErrorPercentage) > TUNING_TOLERANCE) {
+    if (abs(currentTestRun.error) < abs(bestTestRun.error)) {
       //movement accuracy has improved, so just keep moving the test value in the same direction
       memcpy(&bestTestRun, &currentTestRun, sizeof(AutoTuneTest));
-      // (*currentBestTestValue) = (*currentTestValue);
-      // bestTestRun.error = currentTestRun.error;
-      // bestTestRun.range = currentTestRun.range;
     }
-    else if (((*currentTestValue) - (*currentBestTestValue)) * currentTestIncrement > 0.0d) {
-      //movement accuracy has become worse; if the increment is moving away from the best measured value, then move
-      //the test value in the opposite direction
-      currentTestIncrement = -currentTestIncrement*2.0d/3.0d;
-    }
+    else if (willMoveAwayFromIdeal((*bestTestValue), (*currentTestValue), currentTestIncrement))
+      currentTestIncrement = -currentTestIncrement * 0.7d;
   }
 
   ZippyFace* face = zippy->getFace();
   face->clearScreen();
-  face->displayLabelAndData(SCREEN_WIDTH_PIXELS_2, 0, "P", (*currentTestValue), 2);
-  face->displayLabelAndData(SCREEN_WIDTH_PIXELS_2, face->getFontHeight(), "PE", currentTestRun.error, 3);
-  face->displayLabelAndData(SCREEN_WIDTH_PIXELS_2, 2 * face->getFontHeight(), "PR", currentTestRun.range, 3);
+  displayTestData(
+      0,
+      "PP", currentTestRun.Kp, "PI", currentTestRun.Ki,
+      "PD", currentTestRun.Kd);
+  face->displayLabelAndData(
+      SCREEN_WIDTH_PIXELS_2, face->getFontHeight(),
+      "PE", currentTestRun.error, 2);
 
   (*currentTestValue) += currentTestIncrement;
-  zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
 
-  face->displayLabelAndData(0, 0, "C", (*currentTestValue), 2);
-  displayTestData(0, bestTestRun.Kp, bestTestRun.Ki, bestTestRun.Kd, bestTestRun.error, bestTestRun.range);
+  displayTestData(
+      2 * face->getFontHeight(),
+      "CP", currentTestRun.Kp, "CI", currentTestRun.Ki,
+      "CD", currentTestRun.Kd);
+  face->displayLabelAndData(
+      SCREEN_WIDTH_PIXELS_2, 3 * face->getFontHeight(),
+      "I", currentTestIncrement, 2);
+  displayTestData(
+      4 * face->getFontHeight(),
+      "BP", bestTestRun.Kp, "BI", bestTestRun.Ki,
+      "BD", bestTestRun.Kd);
+  face->displayLabelAndData(
+      SCREEN_WIDTH_PIXELS_2, 5 * face->getFontHeight(),
+      "CE", bestTestRun.error, 2);
+
+  zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
 }
 
 void ZTuningController::stop()
@@ -264,45 +304,33 @@ void ZTuningController::stop()
   zippy->stopErrorCapture();
 }
 
-void ZTuningController::displayTestData(uint8_t x, double p, double i, double d, double e, double r)
+void ZTuningController::displayTestData(
+    uint8_t y,
+    const char* pl, double p,
+    const char* il, double i,
+    const char* dl, double d)
 {
   ZippyFace* face = zippy->getFace();
   uint8_t fontHeight = face->getFontHeight();
-  uint8_t currentRow = fontHeight;
   face->displayLabelAndData(
-      x,
-      currentRow,
-      "P",
+      0,
+      y,
+      pl,
       p,
       2);
-  currentRow += fontHeight;
   face->displayLabelAndData(
-      x,
-      currentRow,
-      "I",
+      SCREEN_WIDTH_PIXELS_2,
+      y,
+      il,
       i,
       2);
-  currentRow += fontHeight;
+  y += fontHeight;
   face->displayLabelAndData(
-      x,
-      currentRow,
-      "D",
+      0,
+      y,
+      dl,
       d,
       2);
-  currentRow += fontHeight;
-  face->displayLabelAndData(
-      x,
-      currentRow,
-      "E",
-      e,
-      3);
-  currentRow += fontHeight;
-  face->displayLabelAndData(
-      x,
-      currentRow,
-      "R",
-      r,
-      3);
 }
 
 #ifdef ENABLE_SDCARD_LOGGING

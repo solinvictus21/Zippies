@@ -2,7 +2,7 @@
 #include "LighthouseOOTX.h"
 
 // #define DEBUG_OOTX        1
-// #define DEBUG_OOTX_ERRPRS 1
+// #define DEBUG_OOTX_ERRORS 1
 
 #define BASE_STATION_INFO_BLOCK_SIZE 33
 
@@ -13,12 +13,18 @@ LighthouseOOTX::LighthouseOOTX()
 
 void LighthouseOOTX::restart()
 {
-  //cancel any packet we were previously reading
-  readInfoBlockMask = 0;
+  /*
+#ifdef DEBUG_OOTX_ERRORS
+  SerialUSB.println("OOTX parsing restarted.");
+#endif
+  // */
   zeroCount = 0;
-  syncBitCounter = 0;
-  payloadReadMask = 0;
-  // preambleFound = false;
+  currentParsingState = LighthouseOOTXParsingState::SyncingWithPreamble;
+}
+
+uint16_t swapBytes(uint16_t bytes)
+{
+  return ((bytes & 0x00FF) << 8) | ((bytes & 0xFF00) >> 8);
 }
 
 void LighthouseOOTX::processOOTXBit(unsigned int syncDelta)
@@ -26,60 +32,72 @@ void LighthouseOOTX::processOOTXBit(unsigned int syncDelta)
   if (baseStationInfoBlockReceived)
     return;
 
-  // bool value = syncDelta >= SYNC_PULSE_J1_MIN;
-  bool value = ((syncDelta - SYNC_PULSE_MIN) / SYNC_PULSE_OOTX_BIT_WINDOW) & 0x1;
-/*
-#ifdef DEBUG_OOTX
-  SerialUSB.print(debugNumber);
-  SerialUSB.print(" Received an OOTX bit. Ticks: ");
-  SerialUSB.print(syncDelta);
-  SerialUSB.print("   Bit: ");
-  SerialUSB.println(value ? 1 : 0);
+  bool bitValue = SYNC_PULSE_BIT(syncDelta);
+  if (currentParsingState > LighthouseOOTXParsingState::SyncingWithPreamble) {
+    syncBitCounter++;
+    if (syncBitCounter == 17) {
+      if (!bitValue) {
+#ifdef DEBUG_OOTX_ERRORS
+        SerialUSB.print("WARNING: Missed a sync bit: ");
+        SerialUSB.print(readInfoBlockIndex);
+        SerialUSB.print(" - ");
+        SerialUSB.println(syncDelta);
 #endif
-*/
-
-  syncBitCounter++;
-  if (!value) {
-    zeroCount++;
-
-    if (zeroCount == 17) {
-      //found start of OOTX frame
-      // preambleFound = true;
-#ifdef DEBUG_OOTX
-      SerialUSB.println("Found the start of the OOTX frame.");
-#endif
-
-#ifdef DEBUG_OOTX_ERRPRS
-      if (payloadReadMask || readInfoBlockMask)
-        SerialUSB.println("WARNING: OOTX frame restarted unexpectedly.");
-#endif
-      //cancel any packet we were previously reading
-      readInfoBlockMask = 0;
-
-      zeroCount = 0;
-      syncBitCounter = 16;
-      payloadReadMask = 0x0080;
-      return;
-    }
-    else if (syncBitCounter == 17 && (payloadReadMask || readInfoBlockMask)) {
-      //expecting a sync bit and didn't get it; start over
-#ifdef DEBUG_OOTX_ERRPRS
-      SerialUSB.print("WARNING: Missed a sync bit: ");
-      SerialUSB.println(syncDelta);
-#endif
-      restart();
+        zeroCount = 0;
+        currentParsingState = LighthouseOOTXParsingState::SyncingWithPreamble;
+      }
+      syncBitCounter = 0;
       return;
     }
   }
+  /*
   else {
-    zeroCount = 0;
-    if (syncBitCounter == 17) {
-      //excellent; got a sync bit right where we expected it
-      syncBitCounter = 0;
-      //now is this the end of the info block
-      if (readInfoBlockIndex == BASE_STATION_INFO_BLOCK_SIZE) {
-        readInfoBlockIndex = 0;
+    SerialUSB.print("OOTX Bit: ");
+    SerialUSB.print(syncDelta);
+    SerialUSB.print(" - ");
+    SerialUSB.println(bitValue ? "1" : "0");
+  }
+  // */
 
+  switch (currentParsingState) {
+
+    case LighthouseOOTXParsingState::SyncingWithPreamble:
+      if (syncWithPreamble(bitValue)) {
+#ifdef DEBUG_OOTX
+        SerialUSB.println("Found the start of the OOTX frame.");
+#endif
+        syncBitCounter = 16;
+        payloadLength = 0;
+        payloadReadMask = 0x8000;
+        currentParsingState = LighthouseOOTXParsingState::AcquiringOOTXPacketSize;
+      }
+      break;
+
+    case LighthouseOOTXParsingState::AcquiringOOTXPacketSize:
+      if (acquirePacketSize(bitValue)) {
+        payloadLength = swapBytes(payloadLength);
+        if (payloadLength != BASE_STATION_INFO_BLOCK_SIZE) {
+#ifdef DEBUG_OOTX_ERRORS
+          SerialUSB.print("WARNING: Received an OOTX header for a packet that is NOT the base station info block of size: ");
+          SerialUSB.print(payloadLength);
+          SerialUSB.print(" - ");
+          SerialUSB.println(payloadLength, BIN);
+#endif
+          restart();
+        }
+        else {
+#ifdef DEBUG_OOTX
+          SerialUSB.println("Starting to read base station info block.");
+#endif
+          readInfoBlockMask = 0x80;
+          readInfoBlockIndex = 0;
+          currentParsingState = LighthouseOOTXParsingState::ReceivingBaseStationInfoBlock;
+        }
+      }
+      break;
+
+    case LighthouseOOTXParsingState::ReceivingBaseStationInfoBlock:
+      if (acquireInfoBlock(bitValue)) {
 #ifdef DEBUG_OOTX
         SerialUSB.println("Got the base station info block.");
         SerialUSB.println();
@@ -114,55 +132,48 @@ void LighthouseOOTX::processOOTXBit(unsigned int syncDelta)
         SerialUSB.println(")");
 #endif
 
-        //now calculate the position and orientation of the lighthouse
         baseStationInfoBlockReceived = true;
       }
-      return;
-    }
+      break;
+  }
+}
+
+bool LighthouseOOTX::syncWithPreamble(bool bitValue)
+{
+  if (bitValue) {
+    zeroCount = 0;
+    return false;
   }
 
-  if (payloadReadMask) {
-    if (value)
-      payloadLength |= payloadReadMask;
-    else
-      payloadLength &= ~payloadReadMask;
+  zeroCount++;
+  return zeroCount == 17;
+}
 
-    payloadReadMask >>= 1;
-    if (payloadReadMask == 0) {
-      payloadReadMask = 0x8000;
-    }
-    else if (payloadReadMask == 0x0080) {
-      payloadReadMask = 0;
-      if (payloadLength == BASE_STATION_INFO_BLOCK_SIZE) {
-#ifdef DEBUG_OOTX
-        SerialUSB.println("Starting to read base station info block.");
-#endif
-        readInfoBlockIndex = 0;
-        readInfoBlockMask = 0x80;
-      }
-#ifdef DEBUG_OOTX_ERRPRS
-      else {
-        SerialUSB.print("WARNING: Receiving an OOTX frame that is NOT the base station info block of size: ");
-        SerialUSB.print(payloadLength);
-        SerialUSB.print(" - ");
-        SerialUSB.println(payloadLength, BIN);
-      }
-#endif
-    }
-  }
-  else if (readInfoBlockMask) {
-    if (value)
-      ((uint8_t*)&baseStationInfoBlock)[readInfoBlockIndex] |= readInfoBlockMask;
-    else
-      ((uint8_t*)&baseStationInfoBlock)[readInfoBlockIndex] &= ~readInfoBlockMask;
+bool LighthouseOOTX::acquirePacketSize(bool bitValue)
+{
+  if (bitValue)
+    payloadLength |= payloadReadMask;
+  else
+    payloadLength &= ~payloadReadMask;
 
-    readInfoBlockMask >>= 1;
-    if (readInfoBlockMask == 0) {
-      readInfoBlockIndex++;
-      if (readInfoBlockIndex < BASE_STATION_INFO_BLOCK_SIZE)
-        readInfoBlockMask = 0x80;
-    }
+  payloadReadMask >>= 1;
+  return payloadReadMask == 0;
+}
+
+bool LighthouseOOTX::acquireInfoBlock(bool bitValue)
+{
+  if (bitValue)
+    ((uint8_t*)&baseStationInfoBlock)[readInfoBlockIndex] |= readInfoBlockMask;
+  else
+    ((uint8_t*)&baseStationInfoBlock)[readInfoBlockIndex] &= ~readInfoBlockMask;
+
+  readInfoBlockMask >>= 1;
+  if (!readInfoBlockMask) {
+    readInfoBlockIndex++;
+    readInfoBlockMask = 0x80;
   }
+
+  return readInfoBlockIndex == BASE_STATION_INFO_BLOCK_SIZE;
 }
 
 /**

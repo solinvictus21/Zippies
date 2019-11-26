@@ -2,16 +2,9 @@
 #include <Arduino.h>
 #include "ZippyRoutine.h"
 
-#define M2_PI 6.283185307179586d
+// #define M2_PI 6.283185307179586d
 
-Command ROUTINE[] = {
-  //sync with lighthouse
-  // /*
-  // {             6000, CommandMoveTo,            0.0d,     0.0d,    0.0d },
-  {             4400, CommandArc,            -300.0d,      -M_PI        },
-  {             4400, CommandArc,            -300.0d,      -M_PI        },
-  {             4400, CommandArc,             300.0d,       M_PI        },
-  {             4400, CommandArc,             300.0d,       M_PI        },
+// Command ROUTINE[] = {
   /*
   {             3400, CommandArc,            -300.0d,      -M_PI        },
   {             3400, CommandArc,            -300.0d,      -M_PI        },
@@ -205,6 +198,6 @@ Command ROUTINE[] = {
 
   {             2000, CommandPause                                      },
   // */
-};
+// };
 
-int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));
+// int ROUTINE_POSITION_COUNT = (int)(sizeof(ROUTINE) / sizeof(Command));

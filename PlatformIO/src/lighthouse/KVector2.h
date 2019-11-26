@@ -20,8 +20,6 @@ protected:
   mutable double _arctan2;
   mutable bool arctan2Valid;
 
-  void setD(double newD, KVector2* unitVector);
-
 public:
   KVector2();
   KVector2(const KVector2* v);
@@ -44,11 +42,11 @@ public:
   void unrotate(const KRotation2* rotation);
 
   double getD() const;
-  void setD(double newD);
+  // void setD(double newD);
   double getD2() const;
   double atan() const;
   double atan2() const;
-  void normalize() { this->setD(1.0f); }
+  void normalize() { this->set(this->x, this->y, 1.0d); }
 
   bool equalsVector(const KVector2* v) const;
   double dotVector(const KVector2* v) const;

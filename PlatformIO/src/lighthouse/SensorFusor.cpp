@@ -2,6 +2,8 @@
 #include <SPI.h>
 #include "SensorFusor.h"
 
+// #define DEBUG_LIGHTHOUSE_SENSOR_SYNC              1
+
 #define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
 // #define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      200
 #define SENSOR_OFFSET_X  10.8d
@@ -10,30 +12,28 @@
 //mounted on surface of entertainment center
 #define LIGHTHOUSE_HEIGHT            908.0d
 
-SensorFusor* currentLighthouse = NULL;
+SensorFusor* currentSensorFusor = NULL;
 LighthouseSensorInput leftSensorInput;
 LighthouseSensorInput rightSensorInput;
 
 SensorFusor::SensorFusor()
-  // : sensors[0](&leftSensorInput, 0),
-    // sensors[1](&rightSensorInput, 1)
 {
   sensors[0].debugNumber = 0;
   sensors[0].sensorInput = &leftSensorInput;
-  sensors[1].debugNumber = 0;
+  sensors[1].debugNumber = 1;
   sensors[1].sensorInput = &rightSensorInput;
 }
 
 void SensorFusor::start()
 {
-  if (currentLighthouse != NULL)
-    currentLighthouse->stop();
-  currentLighthouse = this;
+  if (currentSensorFusor != NULL)
+    currentSensorFusor->stop();
+  currentSensorFusor = this;
 
   sensors[0].restart();
   sensors[1].restart();
 
-  previousPositionTimeStamp = 0;
+  // previousPositionTimeStamp = 0;
   positionTimeStamp = 0;
   positionLockedTimeStamp = 0;
 
@@ -146,7 +146,9 @@ void SensorFusor::connectPortPinsToInterrupts()
   PM->APBBMASK.bit.PORT_ = 1;
 
   //set port A (group 0), pin 21 (PA21, Tinyduino proto board pin IO7) as an input
-  PORT->Group[0].DIRCLR.reg = PORT_PA21;
+  PORT->Group[0].DIRCLR.reg = PORT_PA21;      //set port to input direction
+  PORT->Group[0].OUTCLR.reg = PORT_PA21;      //pull-down when pull is enabled
+  PORT->Group[0].CTRL.reg |= PORT_PA21;       //enable input sampling
 
   //configure PA21
   PORT->Group[0].PINCFG[21].reg =
@@ -158,11 +160,13 @@ void SensorFusor::connectPortPinsToInterrupts()
   PORT->Group[0].PMUX[10].reg = PORT_PMUX_PMUXO(PORT_PMUX_PMUXE_A_Val);
 
   //set port A (group 0), pin 9 (PA09, Tinyduino proto board pin IO3) as an input
-  PORT->Group[0].DIRCLR.reg = PORT_PA09;
+  PORT->Group[0].DIRCLR.reg = PORT_PA09;      //set port to input direction
+  PORT->Group[0].OUTCLR.reg = PORT_PA09;      //pull-down when pull is enabled
+  PORT->Group[0].CTRL.reg |= PORT_PA09;       //enable input sampling
 
   //configure PA09
   PORT->Group[0].PINCFG[9].reg =
-    PORT_PINCFG_PULLEN |         //enable pull-down
+    PORT_PINCFG_PULLEN |         //enable pull resistor
     PORT_PINCFG_INEN |           //enable input buffering
     PORT_PINCFG_PMUXEN;          //enable pin muxing
 
@@ -225,7 +229,7 @@ void SensorFusor::connectInterruptsToTimer()
   //output config for right diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(2) |                                //attach output from channel 1 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC0_MC_1);              //to user (recipient) TCC0, MC1
-  while (!EVSYS->CHSTATUS.bit.USRRDY0);
+  while (!EVSYS->CHSTATUS.bit.USRRDY1);
 
   //input config for left diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(1) |                           //detect rising edge
@@ -236,6 +240,7 @@ void SensorFusor::connectInterruptsToTimer()
   //output config for left diode
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(3) |                                //attach output from channel 2 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_0);              //to user (recipient) TCC1, MC0
+  while (!EVSYS->CHSTATUS.bit.USRRDY2);
 
   //input config for left diode
   REG_EVSYS_CHANNEL = EVSYS_CHANNEL_EDGSEL(2) |                           //detect falling edge
@@ -247,7 +252,7 @@ void SensorFusor::connectInterruptsToTimer()
   REG_EVSYS_USER = EVSYS_USER_CHANNEL(4) |                                //attach output from channel 3 (n+1)
                    EVSYS_USER_USER(EVSYS_ID_USER_TCC1_MC_1);              //to user (recipient) TCC1, MC1
 
-  while (!EVSYS->CHSTATUS.bit.USRRDY0);
+  while (!EVSYS->CHSTATUS.bit.USRRDY3);
 }
 
 void SensorFusor::setupTimer()
@@ -288,7 +293,7 @@ void SensorFusor::setupTimer()
 
   //setup our desired interrupts
   REG_TCC0_INTENSET =
-//    TCC_INTENSET_MC0 |              //enable interrupts when a capture occurs on MC0
+    // TCC_INTENSET_MC0 |              //enable interrupts when a capture occurs on MC0
     TCC_INTENSET_MC1;               //enable interrupts when a capture occurs on MC1
 //    TCC_INTENSET_MC3 |            //enable interrupts when a capture occurs on MC3
 //    TCC_INTENSET_MC2 |            //enable interrupts when a capture occurs on MC2
@@ -323,7 +328,7 @@ void SensorFusor::setupTimer()
     TCC_EVCTRL_MCEI1;               //when MC1 events occur, capture COUNT to CC1
 
   REG_TCC1_INTENSET =
-//    TCC_INTENSET_MC0 |              //enable interrupts when a capture occurs on TCC1/MC0
+    // TCC_INTENSET_MC0 |              //enable interrupts when a capture occurs on TCC1/MC0
     TCC_INTENSET_MC1;               //enable interrupts when a capture occurs on TCC1/MC1
 
   //connect the interrupt handler for TCC1
@@ -342,15 +347,7 @@ void TCC0_Handler()
   if (TCC0->INTFLAG.bit.MC0) {
     //capture CC0; required regardless of whether we actually use the value in order to reset the interrupt flag
     unsigned int cc0 = REG_TCC0_CC0;
-//  SerialUSB.print("Start: ");
-//  SerialUSB.println(cc0);
 
-#ifdef DEBUG_SIGNAL_EDGES
-    //keep track of the falling edge counts
-    rightSensorInput.risingEdgeCount++;
-#endif
-
-//    /*
     //make sure the buffer is not full
     if (rightSensorInput.hitTickWritePtr != rightSensorInput.hitTickReadPtr) {
       *rightSensorInput.hitTickWritePtr = cc0;
@@ -361,26 +358,15 @@ void TCC0_Handler()
       else
         rightSensorInput.hitTickWritePtr++;
     }
-//    */
   }
 
   if (TCC0->INTFLAG.bit.MC1) {
-    //capture counter; required regardless of whether we actually use the value in order to reset the interrupt flag
-    unsigned int cc0 = REG_TCC0_CC1;
-//  SerialUSB.print("End: ");
-//  SerialUSB.println(cc0);
+    //capture CC1; required regardless of whether we actually use the value in order to reset the interrupt flag
+    unsigned int cc1 = REG_TCC0_CC1;
 
-#ifdef DEBUG_SIGNAL_EDGES
-    //keep track of the falling edge counts
-    rightSensorInput.fallingEdgeCount++;
-#endif
-
-// SerialUSB.println("Got right sensor pulse.");
-//    /*
-// SerialUSB.println("Got right sensor edge.");
     //make sure the buffer is not full
     if (rightSensorInput.hitTickWritePtr != rightSensorInput.hitTickReadPtr) {
-      *rightSensorInput.hitTickWritePtr = cc0;
+      *rightSensorInput.hitTickWritePtr = cc1;
 
       //updating this must be atomic, so check if we're at the end first
       if (rightSensorInput.hitTickWritePtr == rightSensorInput.hitTickEndPtr)
@@ -388,7 +374,6 @@ void TCC0_Handler()
       else
         rightSensorInput.hitTickWritePtr++;
     }
-//    */
   }
 }
 
@@ -397,11 +382,6 @@ void TCC1_Handler()
   if (TCC1->INTFLAG.bit.MC0) {
     //capture CC0; required regardless of whether we actually use the value in order to reset the interrupt flag
     unsigned int cc0 = REG_TCC1_CC0;
-
-#ifdef DEBUG_SIGNAL_EDGES
-    //keep track of the falling edge counts
-    leftSensorInput.risingEdgeCount++;
-#endif
 
     //make sure the buffer is not full
     if (leftSensorInput.hitTickWritePtr != leftSensorInput.hitTickReadPtr) {
@@ -417,17 +397,11 @@ void TCC1_Handler()
 
   if (TCC1->INTFLAG.bit.MC1) {
     //capture CC1; required regardless of whether we actually use the value in order to reset the interrupt flag
-    unsigned int cc0 = REG_TCC1_CC1;
+    unsigned int cc1 = REG_TCC1_CC1;
 
-#ifdef DEBUG_SIGNAL_EDGES
-    //keep track of the falling edge counts
-    leftSensorInput.fallingEdgeCount++;
-#endif
-
-// SerialUSB.println("Got left sensor pulse.");
     //make sure the buffer is not full
     if (leftSensorInput.hitTickWritePtr != leftSensorInput.hitTickReadPtr) {
-      *leftSensorInput.hitTickWritePtr = cc0;
+      *leftSensorInput.hitTickWritePtr = cc1;
 
       //updating this must be atomic, so check if we're at the end first
       if (leftSensorInput.hitTickWritePtr == leftSensorInput.hitTickEndPtr)
@@ -463,7 +437,6 @@ bool SensorFusor::loop(unsigned long currentTime)
 void SensorFusor::processLighthouseData(unsigned long currentTime)
 {
   if (!sensors[0].completedCycleTimeStamp || !sensors[1].completedCycleTimeStamp) {
-    //signal lock was Lost
     ootxParser.restart();
     return;
   }
@@ -475,6 +448,9 @@ void SensorFusor::processLighthouseData(unsigned long currentTime)
   if (SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[0].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[0].syncTicks) ||
       SYNC_PULSE_NUMBER(sensors[0].completedHitCycles[1].syncTicks) != SYNC_PULSE_NUMBER(sensors[1].completedHitCycles[1].syncTicks))
   {
+#ifdef DEBUG_LIGHTHOUSE_SENSOR_SYNC
+    SerialUSB.println("Lighthouse sensor syncs did not match.");
+#endif
     //sensors did not see the same sync pairs; that's a problem; restart the OOTX parsing process
     ootxParser.restart();
     return;
@@ -491,7 +467,7 @@ void SensorFusor::processLighthouseData(unsigned long currentTime)
 
 void SensorFusor::resetPositionLock()
 {
-  previousPositionTimeStamp = 0;
+  // previousPositionTimeStamp = 0;
   positionTimeStamp = 0;
   positionLockedTimeStamp = 0;
   if (!preambleFound)
@@ -503,7 +479,7 @@ void SensorFusor::acquirePosition(unsigned long currentTime)
 {
   if (!sensors[0].completedCycleTimeStamp || !sensors[1].completedCycleTimeStamp) {
     //signal lock was Lost
-    // SerialUSB.println("Lost cycle signal lock.");
+    //signal lock was Lost
     resetPositionLock();
     return;
   }
@@ -550,7 +526,7 @@ void SensorFusor::acquirePosition(unsigned long currentTime)
   // position.printDebug();
   positionTimeStamp = currentTime;
   if (!positionLockedTimeStamp) {
-    if (previousPositionTimeStamp)
+    // if (previousPositionTimeStamp)
       positionLockedTimeStamp = currentTime;
   }
   else if (currentSignalState != LighthouseSignalState::SignalLocked &&
@@ -674,12 +650,11 @@ void SensorFusor::calculateLighthouseData()
 
 void SensorFusor::calculatePosition()
 {
+  /*
   //capture the previous position to allow us to later calculate the velocity
-  previousPosition.position.set(&position.position);
-  previousPosition.orientation.set(position.orientation.get());
-  // previousPositionDelta.position.set(&positionDelta.position);
-  // previousPositionDelta.orientation.get() = positionDelta.orientation;
+  previousPosition.set(&position);
   previousPositionTimeStamp = positionTimeStamp;
+  */
 
   //the orientation is calculated by crossing the vector between the sensors with the vector (0, 0, 1), which
   //simplifies to (y, -x); then take the atan2 of that resulting vector to obtain the orientation
@@ -690,19 +665,24 @@ void SensorFusor::calculatePosition()
       (SENSOR_OFFSET_Y * position.orientation.sin()) + ((sensorPositions[0].getX() + sensorPositions[1].getX()) / 2.0d),
       (SENSOR_OFFSET_Y * position.orientation.cos()) + ((sensorPositions[0].getY() + sensorPositions[1].getY()) / 2.0d));
 
+  /*
   //now calculate the change in position and orientation
   positionDelta.set(&position);
   positionDelta.unconcat(&previousPosition);
 
   //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
   //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
+  //note that this is something of a "hack" for now until we can get a real Kalman filter in place, but it does the job for now
   positionDelta.position.projectAlong(positionDelta.orientation.get() / 2.0d);
+  */
 
+/*
 #ifdef VELOCITY_UNITS_PER_SEC
   double velocityFactor = 1000.0d / ((double)positionTimeStamp - previousPositionTimeStamp);
   positionDelta.position.multiply(velocityFactor);
   positionDelta.orientation.set(velocityFactor * positionDelta.orientation.get());
 #endif
+*/
 }
 
 /*

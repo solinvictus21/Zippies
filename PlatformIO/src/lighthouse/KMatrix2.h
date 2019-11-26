@@ -59,6 +59,11 @@ public:
       position.rotate(&m->orientation);
   }
 
+  void reset() {
+    position.reset();
+    orientation.reset();
+  }
+
   void printDebug()
   {
     SerialUSB.print("(");

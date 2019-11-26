@@ -4,6 +4,9 @@
 #include "ZRoutineController.h"
 #include "ZTuningController.h"
 
+#include "paths/Arc.h"
+#include "lighthouse/KMatrix2.h"
+
 ZPrimaryController::ZPrimaryController()
 {
   // subController = new ZRoutineController(&sensors, &zippy);
@@ -24,6 +27,10 @@ void ZPrimaryController::start(unsigned long currentTime)
   bluetooth.start();
 #endif
 }
+
+// unsigned long previousLoopTime = 0;
+// unsigned long loopTimer = 0;
+// unsigned long loopCounter = 0;
 
 void ZPrimaryController::loop(unsigned long currentTime)
 {
@@ -56,7 +63,7 @@ void ZPrimaryController::loop(unsigned long currentTime)
     return;
   }
 
-  zippy.setInputs(sensors.getPosition(), sensors.getPositionDelta());
+  zippy.setCurrentPosition(sensors.getPosition());
   subController->loop(currentTime);
   zippy.loop();
 

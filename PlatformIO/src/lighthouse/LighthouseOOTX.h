@@ -29,7 +29,7 @@
 
 #define SYNC_PULSE_NUMBER(a)        (a - SYNC_PULSE_MIN) / SYNC_PULSE_AXIS_WINDOW
 #define SYNC_PULSE_AXIS(a)          (SYNC_PULSE_NUMBER(a)) & 0x1
-#define SYNC_PULSE_BIT(a)           (a - SYNC_PULSE_MIN) / SYNC_PULSE_OOTX_BIT_WINDOW
+#define SYNC_PULSE_BIT(a)           ((a - SYNC_PULSE_MIN) / SYNC_PULSE_OOTX_BIT_WINDOW) & 0x1
 
 float float16ToFloat32(uint16_t half);
 
@@ -75,11 +75,20 @@ typedef struct _BaseStationInfoBlock {
 } BaseStationInfoBlock;
 #pragma pack(pop)
 
+typedef enum class _LighthouseOOTXParsingState
+{
+  SyncingWithPreamble,
+  AcquiringOOTXPacketSize,
+  ReceivingBaseStationInfoBlock,
+} LighthouseOOTXParsingState;
+
 class LighthouseOOTX
 {
 
 private:
   //data and code required to process the OOTX frame, for the purpose of extracting the lighthouse orientation
+  LighthouseOOTXParsingState currentParsingState = LighthouseOOTXParsingState::SyncingWithPreamble;
+
   int zeroCount = 0;
   int syncBitCounter = 0;
   unsigned short payloadLength = 0;
@@ -89,6 +98,10 @@ private:
 
   BaseStationInfoBlock baseStationInfoBlock;
   bool baseStationInfoBlockReceived = false;
+
+  bool syncWithPreamble(bool bitValue);
+  bool acquirePacketSize(bool bitValue);
+  bool acquireInfoBlock(bool bitValue);
 
 public:
   LighthouseOOTX();

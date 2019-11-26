@@ -26,11 +26,10 @@ typedef enum class _TestingState
 
 typedef struct _AutoTuneTest
 {
-  double Kp = 0.0d;
-  double Ki = 0.0d;
-  double Kd = 0.0d;
-  double error = 0.0d;
-  double range = 0.0d;
+  double Kp = DEFAULT_KP;
+  double Ki = DEFAULT_KI;
+  double Kd = DEFAULT_KD;
+  double error = 1000.0d;
 } AutoTuneTest;
 
 class ZTuningController : public ZController
@@ -43,12 +42,12 @@ private:
   ZRoutineController routineController;
 
   TuningVariable currentTuningVariable = TuningVariable::Proportional;
+  double* currentTestValue;
+  double* bestTestValue;
   double currentTestIncrement = 0.0d;
 
   TestingState currentTestingState = TestingState::MovingIntoPlace;
-  double* currentTestValue = NULL;
   AutoTuneTest currentTestRun;
-  double* currentBestTestValue = NULL;
   AutoTuneTest bestTestRun;
 
   double errorAccumulator = 0.0d;
@@ -66,7 +65,11 @@ private:
 
   void setupTuning(TuningVariable tuningVariable);
   void evaluateTuning();
-  void displayTestData(uint8_t x, double p, double i, double d, double e, double r);
+  void displayTestData(
+      uint8_t y,
+      const char* pl, double p,
+      const char* il, double i,
+      const char* dl, double d);
 
 public:
   ZTuningController(SensorFusor* s, Zippy* z);

@@ -38,6 +38,9 @@ void ZippyFace::clearScreen()
 
 void ZippyFace::displayText(uint8_t x, uint8_t y, const char* text)
 {
+  if (text == NULL)
+    return;
+
   //label
   // /*
   display.fontColor(TS_8b_Blue, TS_8b_Black);

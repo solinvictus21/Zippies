@@ -28,8 +28,7 @@ private:
   ZippyFace face;
 #endif
   KMatrix2 currentPosition;
-  KMatrix2 currentVelocity;
-  // double currentLinearVelocity;
+  // KMatrix2 currentVelocity;
   MovementState currentMovementState = MovementState::Stopped;
 
   KMatrix2 targetPosition;
@@ -42,19 +41,20 @@ private:
   MotorDriver motors;
 
   bool errorCaptureEnabled = false;
-  double errorMin = 0.0d;
-  double errorAccumulator = 0.0d;
-  double errorMax = 0.0d;
+  double errorM = 0.0d;
+  double errorS = 0.0d;
   unsigned long errorCounter = 0;
 
   friend class ZPrimaryController;
 
   void start();
-  void setInputs(const KMatrix2* cp, const KMatrix2* cv);
+  // void setInputs(const KMatrix2* cp, const KMatrix2* cv);
+  void setCurrentPosition(const KMatrix2* p);
   void loop();
-  void processInputs();
+  // void processInputs();
   void captureError();
   void executeMove();
+  void executeLinearMove();
   void executeTurn();
   void stop();
 
@@ -74,8 +74,7 @@ public:
   ZippyFace* getFace() { return &face; }
   void startErrorCapture();
   void stopErrorCapture();
-  double getErrorAverage() const { return errorAccumulator / ((double)errorCounter); }
-  double getErrorRange() const { return errorMax - errorMin; }
+  double getStandardDeviation() const;
 
 };
 

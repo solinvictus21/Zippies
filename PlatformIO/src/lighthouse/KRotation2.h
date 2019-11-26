@@ -92,6 +92,14 @@ public:
     return sinT;
   }
 
+  void reset() {
+    _theta = 0.0d;
+    cosT = 1.0d;
+    cosTValid = true;
+    sinT = 0.0d;
+    sinTValid = true;
+  }
+
 };
 
 #endif

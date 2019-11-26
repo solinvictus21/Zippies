@@ -7,8 +7,8 @@
 #include "ZippyConfig.h"
 
 //the minimum PCM value below which the motors do not turn at all; i.e. the "dead zone"
-#define POWER_DEAD_ZONE                      3000.00d
-#define POWER_RAMP_ZONE                        20.00d
+#define POWER_DEAD_ZONE                      3060.00d
+#define POWER_RAMP_ZONE                        10.00d
 
 #define _BV(bit) (1 << (bit))
 

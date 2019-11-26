@@ -62,18 +62,15 @@ private:
   bool processSyncPulse(unsigned int deltaTickCount);
   bool checkForHit(unsigned int deltaTickCount);
   bool processHitPulseEnd(unsigned int deltaTickCount);
-  void processSweepEnd(unsigned int deltaTickCount);
+  bool processSweepEnd(unsigned int deltaTickCount);
 
   void restart();
 
   friend class SensorFusor;
 
   LighthouseSensor() {}
-  // LighthouseSensor(LighthouseSensorInput* sensorInput, int debugNumber);
 
 public:
-  unsigned int getNextPulse();
-
   void loop(unsigned long currentTime);
 
   const LighthouseSensorHitCycle* getXHitCycle() const { return &completedHitCycles[0]; }
