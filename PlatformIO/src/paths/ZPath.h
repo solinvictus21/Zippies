@@ -2,7 +2,7 @@
 #ifndef _ZPATH_H_
 #define _ZPATH_H_
 
-#include "../lighthouse/KMatrix2.h"
+#include "zippies/ZippyMath.h"
 
 class ZPath
 {
@@ -12,7 +12,7 @@ protected:
 
 public:
   virtual bool updatesPosition() const { return false; }
-  virtual double getLength() const = 0;
+  // virtual double getLength() const = 0;
 
   virtual void interpolate(
     double interpolatedTime,

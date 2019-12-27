@@ -36,7 +36,7 @@ func planTestDrawable() -> ZDrawable
         Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
         Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
         Double.random(in: -Double.pi..<Double.pi))
-    let target = generateTarget(start)
+    let target = generateRandomTarget(start)
     return planPathDrawable(start, target)
 }
 
@@ -140,7 +140,7 @@ func createTestDrawable() -> ZDrawable
     let startpointDrawable = ZDrawableArrow(UIColor.green,
                                             startPosition,
                                             ZIPPY_POINT_INDICATOR_RADIUS)
-    let targetPosition = generateTarget(startPosition)
+    let targetPosition = generateRandomTarget(startPosition)
 //    let targetPosition = KMatrix2(
 //        Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
 //        Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
@@ -346,6 +346,35 @@ fileprivate func calculateBiArcKnotAbsolute(_ startPosition: KMatrix2,
         ( startPosition.position.getY() + endPosition.position.getY() + (d * (t1y - t2y)) ) / 2.0)
 }
 
+func calculateBiArcD(_ startPosition: KMatrix2,
+                     _ endPosition: KMatrix2) -> Double
+{
+    let deltaX = endPosition.position.getX() - startPosition.position.getX()
+    let deltaY = endPosition.position.getY() - startPosition.position.getY()
+    let t1x = sin(startPosition.orientation.rotation)
+    let t1y = cos(startPosition.orientation.rotation)
+    let t2x = sin(endPosition.orientation.rotation)
+    let t2y = cos(endPosition.orientation.rotation)
+    
+    //t = t1 + t2
+    //  = (sin(p1.o) + sin(p2.o), cos(p1.o) + cos(p2.o))
+    let tx = t1x + t2x
+    let ty = t1y + t2y
+    
+    //v dot v = (v.x * v.x) + (v.y * v.y)
+    //v dot t = (v.x * t.x)                               + (v.y * t.y)
+    //        = ((p2.x - p1.x) * (t1.x + t2.x))           + ((p2.y - p1.y) * (t1.y + t2.y))
+    //        = ((p2.x - p1.x) * (sin(p1.o) + sin(p2.o))) + ((p2.y - p1.y) * (cos(p1.o) + cos(p2.o)))
+    //t1 dot t2 = (t1.x * t2.x)           + (t1.y * t2.y)
+    //          = (sin(p1.o) * sin(p2.o)) + (cos(p1.o) * cos(p2.o))
+    
+    //use these calculations to find the appropriate d value for the bi-arc
+    return calculateBiArcD(
+        pow(deltaX, 2.0) + pow(deltaY, 2.0),
+        (deltaX * tx) + (deltaY * ty),
+        (t1x * t2x) + (t1y * t2y))
+}
+
 fileprivate func calculateBiArcD(_ vDotV: Double,
                                  _ vDotT: Double,
                                  _ t1DotT2: Double) -> Double
@@ -363,7 +392,7 @@ fileprivate func calculateBiArcD(_ vDotV: Double,
     return d / t1DotT2Inv2
 }
 
-fileprivate func generateTarget(_ startPosition: KMatrix2) -> KMatrix2
+func generateRandomTarget(_ startPosition: KMatrix2) -> KMatrix2
 {
     let randomPlan = Int.random(in: 0...10)
 //    let randomPlan = 4

@@ -2,10 +2,8 @@
 #ifndef _ARC_H_
 #define _ARC_H_
 
-// #include "../lighthouse/KVector2.h"
-#include "../lighthouse/KMatrix2.h"
 #include "ZPath.h"
-#include "../ZippyConfig.h"
+#include "zippies/ZippyMath.h"
 
 class Arc : public ZPath
 {
@@ -41,17 +39,24 @@ public:
 
   bool updatesPosition() const { return true; }
 
-  double getLength() const { return (abs(radius) + WHEEL_OFFSET_X) * abs(deltaAngle); }
+  double getLength() const {
+    return abs(radius * deltaAngle);
+  }
 
   void interpolate(
     double normalizedTime,
     KMatrix2* position) const
   {
+    //determine the angle at the requested time
     double currentAngle = deltaAngle * normalizedTime;
-    // double angleOnArc = addAngles(startAngle, currentAngle);
+
+    //calculate the target position
     double angleOnArc = addAngles(center.orientation.get(), currentAngle);
-    position->position.set(center.position.getX() + (radius * sin(angleOnArc)),
-      center.position.getY() + (radius * cos(angleOnArc)));
+    position->position.set(
+        center.position.getX() + (radius * sin(angleOnArc)),
+        center.position.getY() + (radius * cos(angleOnArc)));
+
+    //calculate the orientation at the target position
     position->orientation.set(addAngles(startOrientation, currentAngle));
   }
 

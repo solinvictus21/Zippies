@@ -1,6 +1,21 @@
 
 #include <Arduino.h>
-#include "ZippyRoutine.h"
+#include "zippies/controllers/Routine.h"
+
+Movement MOVEMENT[]
+{
+  { MovementType::Arc  ,       -50.0d, -M_PI_2       },
+  { MovementType::Arc  ,       -50.0d,  M_PI         },
+  { MovementType::Arc  ,       -50.0d, -M_PI_2       },
+  { MovementType::Arc  ,        50.0d,  M_PI_2       },
+  { MovementType::Arc  ,        50.0d, -M_PI         },
+  { MovementType::Arc  ,        50.0d,  M_PI_2       },
+};
+
+PathSegment DEFAULT_ROUTINE[]
+{
+  { 20000, 0.25d, 0.25d, sizeof(MOVEMENT) / sizeof(Movement), MOVEMENT, 0 },
+};
 
 // #define M2_PI 6.283185307179586d
 

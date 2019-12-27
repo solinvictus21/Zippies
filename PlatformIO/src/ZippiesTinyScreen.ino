@@ -1,13 +1,19 @@
 
 #include <Wire.h>
-#include "ZPrimaryController.h"
+#include "Zippies.h"
 
-ZPrimaryController* controller;
+ZippyController* controller;
 
 void setup()
 {
   Wire.begin();
-  controller = new ZPrimaryController();
+
+  // while (!SerialUSB);
+  // SerialUSB.println("Started serial port.");
+
+  // controller = new DirectController();
+  controller = new LighthouseController();
+
   controller->start(micros() / 1000);
 }
 

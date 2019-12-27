@@ -3,8 +3,9 @@
 #include "Turn.h"
 #include "Move.h"
 #include "Arc.h"
-#include "CompositePath.h"
+// #include "CompositePath.h"
 
+/*
 const ZPath* planPath(
   const KMatrix2* start,
   double endX, double endY, double endO)
@@ -38,18 +39,22 @@ const ZPath* planPath(const KMatrix2* start, const KMatrix2* toPosition)
 
   return new CompositePath(firstSegment, secondSegment);
 }
+*/
 
 const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget)
 {
-  if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
+  // if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
+  if (relativeTarget->position.getD2() == 0.0d) {
     double deltaAngle = relativeTarget->orientation.get();
-    if (abs(deltaAngle) < DOUBLE_EPSILON)
+    // if (abs(deltaAngle) < DOUBLE_EPSILON)
+    if (abs(deltaAngle) == 0.0d)
       return NULL;
 
     return new Turn(start->orientation.get(), deltaAngle);
   }
 
-  if (abs(relativeTarget->position.atan()) < DOUBLE_EPSILON)
+  // if (abs(relativeTarget->position.atan()) < DOUBLE_EPSILON)
+  if (abs(relativeTarget->position.atan()) == 0.0d)
     return new Move(start, relativeTarget->position.getY());
 
   return new Arc(start, relativeTarget);
@@ -67,11 +72,18 @@ void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition)
 void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
                                 KMatrix2* knotPosition)
 {
-  if (abs(relativeTargetPosition->orientation.get()) < DOUBLE_EPSILON) {
+  // if (abs(relativeTargetPosition->orientation.get()) < DOUBLE_EPSILON) {
+  if (abs(relativeTargetPosition->orientation.get()) == 0.0d) {
+    /*
     knotPosition->position.set(
       relativeTargetPosition->position.getX() / 2.0d,
       relativeTargetPosition->position.getY() / 2.0d);
     knotPosition->orientation.set(2.0d * knotPosition->position.atan());
+    */
+    knotPosition->position.set(
+      0.0d,
+      relativeTargetPosition->position.getY() / 2.0d);
+    knotPosition->orientation.set(0.0d);
     return;
   }
 
@@ -125,19 +137,21 @@ double calculateBiArcD(
 bool requiresBiArcMove(const KMatrix2* relativeTarget)
 {
   //a simple turn in place does not need a bi-arc
-  if (relativeTarget->position.getD2() < DOUBLE_EPSILON)
+  // if (relativeTarget->position.getD2() < DOUBLE_EPSILON)
+  if (relativeTarget->position.getD2() == 0.0d)
     return false;
 
   //a simple linear move forward or backward does not need a bi-arc
   double directionToTarget = relativeTarget->position.atan();
-  if (abs(directionToTarget) < DOUBLE_EPSILON)
+  // if (abs(directionToTarget) < DOUBLE_EPSILON)
+  if (abs(directionToTarget) == 0.0d)
     return false;
 
   //a simple arc move that arrives at the torget position in the correct orientation also
   //does not require a bi-arc move
   double subtendedAngle = 2.0d * directionToTarget;
-  // if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) < ANGULAR_POSITION_EPSILON)
-  if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) < DOUBLE_EPSILON)
+  // if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) < DOUBLE_EPSILON)
+  if (abs(subtractAngles(subtendedAngle, relativeTarget->orientation.get())) == 0.0d)
     return false;
 
   return true;

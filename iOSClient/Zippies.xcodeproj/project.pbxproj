@@ -27,9 +27,11 @@
 		C311A7CF22BAA7FA00838FCB /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7CE22BAA7FA00838FCB /* Move.swift */; };
 		C33485C11F0FE85F000E02E0 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */; };
 		C36A5FFF21750A9800713527 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C36A5FFE21750A9800713527 /* Images.xcassets */; };
+		C373C6A2239827C80098F9CF /* BiArcViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C373C6A1239827C80098F9CF /* BiArcViewer.swift */; };
 		C37AE0E32175112B00CE8E6D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */; };
 		C37AE0E72175376600CE8E6D /* TopDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E62175376600CE8E6D /* TopDownView.swift */; };
 		C37AE0E921753EB900CE8E6D /* Zippy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E821753EB900CE8E6D /* Zippy2.swift */; };
+		C3B042A6239C36A3005CBD9F /* RelativeBiArc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */; };
 		C3E02F6F22EB7E70002F0EAA /* KRotation2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F6E22EB7E70002F0EAA /* KRotation2.swift */; };
 		C3E02F7122F27E58002F0EAA /* CompositePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7022F27E58002F0EAA /* CompositePath.swift */; };
 		C3E02F7322F2832E002F0EAA /* ZippyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */; };
@@ -60,9 +62,11 @@
 		C33485AA1F0FE6FF000E02E0 /* Zippies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zippies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		C36A5FFE21750A9800713527 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		C373C6A1239827C80098F9CF /* BiArcViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiArcViewer.swift; sourceTree = "<group>"; };
 		C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryViewController.swift; sourceTree = "<group>"; };
 		C37AE0E62175376600CE8E6D /* TopDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopDownView.swift; sourceTree = "<group>"; };
 		C37AE0E821753EB900CE8E6D /* Zippy2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zippy2.swift; sourceTree = "<group>"; };
+		C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeBiArc.swift; sourceTree = "<group>"; };
 		C3E02F6E22EB7E70002F0EAA /* KRotation2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KRotation2.swift; sourceTree = "<group>"; };
 		C3E02F7022F27E58002F0EAA /* CompositePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositePath.swift; sourceTree = "<group>"; };
 		C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZippyConfig.swift; sourceTree = "<group>"; };
@@ -148,6 +152,8 @@
 				C31026382048F616004C817B /* UserDriveViewController.swift */,
 				C311A7CA22B9551E00838FCB /* ZDrawable.swift */,
 				C311A7C822B94E3C00838FCB /* ZPathPlanner.swift */,
+				C373C6A1239827C80098F9CF /* BiArcViewer.swift */,
+				C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -257,6 +263,7 @@
 				C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */,
 				C3E02F7122F27E58002F0EAA /* CompositePath.swift in Sources */,
 				C3E02F7322F2832E002F0EAA /* ZippyConfig.swift in Sources */,
+				C3B042A6239C36A3005CBD9F /* RelativeBiArc.swift in Sources */,
 				C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */,
 				C37AE0E32175112B00CE8E6D /* SummaryViewController.swift in Sources */,
 				C311A7CF22BAA7FA00838FCB /* Move.swift in Sources */,
@@ -271,6 +278,7 @@
 				C31026392048F616004C817B /* DebugViewController.swift in Sources */,
 				C310263A2048F616004C817B /* AppDelegate.swift in Sources */,
 				C31026312048F608004C817B /* Zippy.swift in Sources */,
+				C373C6A2239827C80098F9CF /* BiArcViewer.swift in Sources */,
 				C309BC05209CB89300963FDF /* Lighthouse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

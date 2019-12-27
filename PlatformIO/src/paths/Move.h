@@ -23,7 +23,7 @@ public:
   {}
 
   bool updatesPosition() const { return true; }
-  double getLength() const { return abs(distance); }
+  // double getLength() const { return abs(distance); }
 
   void interpolate(
     double normalizedTime,

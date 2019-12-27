@@ -2,8 +2,8 @@
 #ifndef _ZPATHPLANNER_H_
 #define _ZPATHPLANNER_H_
 
-#include "../lighthouse/KMatrix2.h"
 #include "ZPath.h"
+#include "zippies/ZippyMath.h"
 
 const ZPath* planPath(
   const KMatrix2* start,

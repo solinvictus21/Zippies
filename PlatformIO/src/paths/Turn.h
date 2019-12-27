@@ -3,10 +3,10 @@
 #define _TURN_H_
 
 #include "ZPath.h"
-#include "../ZippyConfig.h"
 
 class Turn : public ZPath
 {
+
 private:
   double startO;
   double deltaO;
@@ -16,8 +16,6 @@ public:
     : startO(sto),
       deltaO(dto)
   {}
-
-  double getLength() const { return WHEEL_OFFSET_X * abs(deltaO); }
 
   void interpolate(
     double normalizedTime,
