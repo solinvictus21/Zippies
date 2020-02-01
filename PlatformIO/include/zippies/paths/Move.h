@@ -2,9 +2,9 @@
 #ifndef _MOVE_H_
 #define _MOVE_H_
 
-#include "ZPath.h"
+#include "PathSegment.h"
 
-class Move : public ZPath
+class Move : public PathSegment
 {
 private:
   double startX, startY, startO;
@@ -22,7 +22,7 @@ public:
     : Move(start->position.getX(), start->position.getY(), start->orientation.get(), d)
   {}
 
-  bool updatesPosition() const { return true; }
+  // bool updatesPosition() const { return true; }
   // double getLength() const { return abs(distance); }
 
   void interpolate(

@@ -7,7 +7,7 @@ let TURN_RADIUS = 30.0
 protocol ZDrawable
 {
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     
 }
 
@@ -21,10 +21,10 @@ class ZCompoundDrawable: ZDrawable
         self.drawables = drawables
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         for nextDrawable in drawables {
-            nextDrawable.draw(transform)
+            nextDrawable.draw()
         }
     }
     
@@ -74,13 +74,12 @@ class ZDrawableLine: ZDrawable
         self.init(color, start.getX(), start.getY(), end.getX(), end.getY())
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         color.setStroke()
         let orientationIndicator = UIBezierPath()
         orientationIndicator.move(to: start)
         orientationIndicator.addLine(to: end)
-        orientationIndicator.apply(transform)
         orientationIndicator.stroke()
     }
     
@@ -109,7 +108,7 @@ class ZDrawableArrow: ZDrawable
         self.size = CGFloat(s)
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         color.setStroke()
         let radiusSinO = size * sin(self.orientation)
@@ -128,7 +127,6 @@ class ZDrawableArrow: ZDrawable
             to: CGPoint(
                 x: centerPoint.x + radiusCosO,
                 y: centerPoint.y - radiusSinO))
-        orientationIndicator.apply(transform)
         orientationIndicator.stroke()
     }
     
@@ -165,7 +163,7 @@ class ZDrawableCircle: ZDrawable
         self.init(color, center.getX(), center.getY(), radius, fill)
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         let drawingPath = UIBezierPath(
             ovalIn: CGRect(
@@ -181,7 +179,6 @@ class ZDrawableCircle: ZDrawable
             endAngle: 0,
             clockwise: true)
             */
-        drawingPath.apply(transform)
         
         if fill {
             color.setFill()
@@ -213,7 +210,7 @@ class ZDrawablePath: ZDrawable
         self.paths = paths
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         color.setStroke()
 
@@ -229,8 +226,6 @@ class ZDrawablePath: ZDrawable
                 drawingPath.addLine(to: CGPoint(x: nextPoint.position.getX(), y: nextPoint.position.getY()))
             }
         }
-        
-        drawingPath.apply(transform)
         drawingPath.stroke()
     }
     

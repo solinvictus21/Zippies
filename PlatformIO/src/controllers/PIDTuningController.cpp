@@ -1,11 +1,12 @@
 
 #include "zippies/ZippyControllers.h"
 #include "zippies/config/PathingConfig.h"
+#include "zippies/ZippyPaths.h"
 
-#define TUNING_TOLERANCE            0.090d
-// #define TUNING_DELTA                0.040d
-#define TUNING_DELTA                0.100d
-#define INITIAL_VELOCITY           60.000d
+#define TUNING_TOLERANCE                 0.090d
+#define TUNING_DELTA                     0.100d
+#define INITIAL_MOVE_VELOCITY           80.000d
+#define INITIAL_MOVE_TIMING          12000
 
 #ifdef ENABLE_SDCARD_LOGGING
 #include <SD.h>
@@ -15,104 +16,122 @@
 #define LOG_MAX_FILES              10
 #endif
 
-#ifdef DEBUG_DISPLAY_POSITION
-#define DEBUG_DISPLAY_INTERVAL    100
-unsigned long previousDebugDisplayTime = 0;
-#endif
-
 #define START_OFFSET_Y  -120.0d
 
-Movement moveIntoPlace[]
+PathDefinition moveIntoPlace[]
 {
-  { MovementType::Turn ,        0.0d               },
-  { MovementType::Move ,        0.0d               },
-  { MovementType::Turn ,        0.0d               },
+  { PathDefinitionType::Arc ,        0.0d               },
+  { PathDefinitionType::Arc ,        0.0d               },
 };
 
-PathSegment moveIntoPlaceRoutine[]
+RoutineDefinition moveIntoPlaceRoutine[]
 {
-  {     0, 0.05d, 0.05d, 3, moveIntoPlace, 0 },
+  //bi-arc move into place
+  {     0, 0.05d, 0.05d, sizeof(moveIntoPlace) / sizeof(PathDefinition), moveIntoPlace, 0 },
+  //initial pause
+  {     0, 0.00d, 0.00d, 0,          NULL, 0 },
 };
 
-Movement loopsMovements[]
+PathDefinition loopsPathDefinition[]
 {
-  { MovementType::Move ,        10.0d                },
-  { MovementType::Arc  ,      -240.0d, -M_PI         },
-  { MovementType::Move ,        10.0d                },
-  { MovementType::Arc  ,      -240.0d, -M_PI         },
-  { MovementType::Move ,        10.0d                },
-  { MovementType::Arc  ,       240.0d,  M_PI         },
-  { MovementType::Move ,        10.0d                },
-  { MovementType::Arc  ,       240.0d,  M_PI         },
-  { MovementType::Arc  ,      -120.0d, -M_PI         },
-  { MovementType::Arc  ,       120.0d,  2.0d * M_PI  },
-  { MovementType::Arc  ,      -120.0d, -M_PI         },
-  { MovementType::Arc  ,       120.0d,  M_PI         },
-  { MovementType::Arc  ,      -120.0d, -2.0d * M_PI  },
-  { MovementType::Arc  ,       120.0d,  M_PI         },
-  { MovementType::Arc  ,       -80.0d, -M_PI         },
-  { MovementType::Arc  ,        80.0d,  M_PI         },
-  { MovementType::Arc  ,       -80.0d, -2.0d * M_PI  },
-  { MovementType::Arc  ,        80.0d,  M_PI         },
-  { MovementType::Arc  ,       -80.0d, -M_PI         },
-  { MovementType::Arc  ,        80.0d,  M_PI         },
-  { MovementType::Arc  ,       -80.0d, -M_PI         },
-  { MovementType::Arc  ,        80.0d,  2.0d * M_PI  },
-  { MovementType::Arc  ,       -80.0d, -M_PI         },
-  { MovementType::Arc  ,        80.0d,  M_PI         },
+  { PathDefinitionType::Move ,        10.0d                },
+  { PathDefinitionType::Arc  ,      -240.0d, -M_PI         },
+  { PathDefinitionType::Move ,        10.0d                },
+  { PathDefinitionType::Arc  ,      -240.0d, -M_PI         },
+  { PathDefinitionType::Move ,        10.0d                },
+  { PathDefinitionType::Arc  ,       240.0d,  M_PI         },
+  { PathDefinitionType::Move ,        10.0d                },
+  { PathDefinitionType::Arc  ,       240.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,      -120.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,       120.0d,  2.0d * M_PI  },
+  { PathDefinitionType::Arc  ,      -120.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,       120.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,      -120.0d, -2.0d * M_PI  },
+  { PathDefinitionType::Arc  ,       120.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,       -80.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,        80.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,       -80.0d, -2.0d * M_PI  },
+  { PathDefinitionType::Arc  ,        80.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,       -80.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,        80.0d,  M_PI         },
+  { PathDefinitionType::Arc  ,       -80.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,        80.0d,  2.0d * M_PI  },
+  { PathDefinitionType::Arc  ,       -80.0d, -M_PI         },
+  { PathDefinitionType::Arc  ,        80.0d,  M_PI         },
 };
 
-PathSegment tuningRoutine[]
+RoutineDefinition tuningRoutineDefinition[]
 {
-  { 38000, 0.12d, 0.12d, sizeof(loopsMovements) / sizeof(Movement), loopsMovements, 0 },
+  { 40000, 0.12d, 0.12d, sizeof(loopsPathDefinition) / sizeof(PathDefinition), loopsPathDefinition, 0 },
 };
 
-PIDTuningController::PIDTuningController(SensorFusor* s, Zippy* z)
+PIDTuningController::PIDTuningController(SensorFusor* s)
   : sensors(s),
-    zippy(z),
-    routineController(z)
+    routine(),
+    pathFollowingController()
 {
-  // setupTuning(TuningVariable::Proportional);
+  setupTuning(TuningVariable::Proportional);
   // setupTuning(TuningVariable::Integral);
-  setupTuning(TuningVariable::Derivative);
+  // setupTuning(TuningVariable::Derivative);
+}
+
+void createRelativePathDefinition(const KVector2* relativeMovement, PathDefinition* pathDefinition)
+{
+  double direction = relativeMovement->atan();
+  if (direction == 0.0d) {
+    pathDefinition->type = PathDefinitionType::Move;
+    pathDefinition->params.p1 = relativeMovement->getY();
+  }
+  else if (relativeMovement->getD2() == 0.0d) {
+    pathDefinition->type = PathDefinitionType::Turn;
+    pathDefinition->params.p1 = direction;
+  }
+  else {
+    pathDefinition->type = PathDefinitionType::Arc;
+    pathDefinition->params.p1 = relativeMovement->getD() / (2.0d * sin(relativeMovement->atan2()));
+    pathDefinition->params.p2 = 2.0d * direction;
+  }
 }
 
 void PIDTuningController::start(unsigned long currentTime)
 {
-  //setup our initial move into the starting position for testing
-  currentTestingState = TestingState::MovingIntoPlace;
+  sensors->syncWithPreamble();
+  currentTestingState = TestingState::PreSyncingWithPreamble;
+}
 
-  //ensure that the zippy isn't going to capture errors during the initial move
-  zippy->stopErrorCapture();
+void PIDTuningController::planMoveIntoPlace(const KMatrix2* fromPosition)
+{
+  //calculate our path to the initial starting position
+  KMatrix2 movement2(PATHING_OFFSET_X, PATHING_OFFSET_Y, 0.0d);
+  movement2.unconcat(fromPosition);
+  KMatrix2 movement1;
+  calculateRelativeBiArcKnot(&movement2, &movement1);
+  movement2.unconcat(&movement1);
+  createRelativePathDefinition(&movement1.position, &moveIntoPlace[0]);
+  createRelativePathDefinition(&movement2.position, &moveIntoPlace[1]);
 
+  double pathDistance =
+      getPathSegmentLength(&moveIntoPlace[0]) +
+      getPathSegmentLength(&moveIntoPlace[1]);
+  moveIntoPlaceRoutine[0].timing = min(1000.0d * (pathDistance / INITIAL_MOVE_VELOCITY), INITIAL_MOVE_TIMING);
+  moveIntoPlaceRoutine[1].timing = INITIAL_MOVE_TIMING - moveIntoPlaceRoutine[0].timing;
+}
+
+void PIDTuningController::startMoveIntoPlace(unsigned long currentTime)
+{
   //calculate our path to the initial starting position
   const KMatrix2* currentPosition = sensors->getPosition();
-  double deltaX = PATHING_OFFSET_X - currentPosition->position.getX();
-  double deltaY = PATHING_OFFSET_Y - currentPosition->position.getY();
-  double deltaO = atan2(deltaX, deltaY);
-  double distanceToStartingPoint = sqrt(sq(deltaX) + sq(deltaY));
-
-  //setup the three moves to arrive at the starting position
-  //turn toward the starting position
-  moveIntoPlace[0].params.p1 = subtractAngles(deltaO, currentPosition->orientation.get());
-  //follow a straight light toward the starting position
-  moveIntoPlace[1].params.p1 = distanceToStartingPoint;
-  //face forward
-  moveIntoPlace[2].params.p1 = -deltaO;
-
-  //calculate the timing for the three moves based on the distance we'll need to move
-  moveIntoPlaceRoutine[0].timing = 1000.0d * (distanceToStartingPoint / INITIAL_VELOCITY);
+  planMoveIntoPlace(currentPosition);
 
   //provide the move-into-place routine to our routing controller
-  routineController.setRoutine(moveIntoPlaceRoutine, (int)(sizeof(moveIntoPlaceRoutine) / sizeof(PathSegment)));
-  routineController.setAnchorPosition(currentPosition);
+  previousTargetPosition.set(currentPosition);
+  routine.setRoutineSegments(
+      &previousTargetPosition,
+      moveIntoPlaceRoutine,
+      (int)(sizeof(moveIntoPlaceRoutine) / sizeof(RoutineDefinition)));
 
   //start the routine controller
-  routineController.start(currentTime);
-
-#ifdef DEBUG_DISPLAY_POSITION
-  previousDebugDisplayTime = currentTime;
-#endif
+  routine.start(currentTime);
 }
 
 void PIDTuningController::setupTuning(TuningVariable tuningVariable)
@@ -135,35 +154,49 @@ void PIDTuningController::setupTuning(TuningVariable tuningVariable)
   }
   currentTestIncrement = (*currentTestValue) * TUNING_DELTA;
 
-  zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
+  pathFollowingController.getZippy()->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
+}
+
+void PIDTuningController::captureError()
+{
+  //TODO: capture error
+  /*
+  //only capture error statistics while moving
+  if (errorCaptureEnabled && currentMovementState == MovementState::Moving) {
+    //calculate error based on how close we came to our target position
+    double error = sqrt(
+        sq(currentPosition.position.getX() - targetPosition.position.getX()) +
+        sq(currentPosition.position.getY() - targetPosition.position.getY()));
+    statisticsAccumulator.accumulate(error);
+  }
+  */
 }
 
 void PIDTuningController::loop(unsigned long currentTime)
 {
   switch (currentTestingState) {
-    case TestingState::MovingIntoPlace:
-      routineController.loop(currentTime);
-      if (routineController.isRoutineCompleted())
-        currentTestingState = TestingState::WaitingForFullStop;
-      break;
 
-    case TestingState::WaitingForFullStop:
-      if (zippy->isStopped()) {
-        sensors->clearPreambleFlag();
-        currentTestingState = TestingState::SyncingWithPreamble;
+    case TestingState::PreSyncingWithPreamble:
+      if (sensors->foundPreamble()) {
+        // SerialUSB.println("Found preamble. Moving into position.");
+        startMoveIntoPlace(currentTime);
+        currentTestingState = TestingState::MovingIntoPlace;
       }
       break;
 
-    case TestingState::SyncingWithPreamble:
-      if (sensors->foundPreamble()) {
-#ifdef ENABLE_SDCARD_LOGGING
-        openLogFile(currentTime);
-#endif
-        zippy->startErrorCapture();
-        // routineController.setRoutine(tuningRoutine, (int)(sizeof(tuningRoutine) / sizeof(Command)), 1);
-        routineController.setRoutine(tuningRoutine, (int)(sizeof(tuningRoutine) / sizeof(PathSegment)));
-        routineController.setAnchorPosition(PATHING_OFFSET_X, PATHING_OFFSET_Y, 0.0d);
-        routineController.start(currentTime);
+    case TestingState::MovingIntoPlace:
+      routine.loop(currentTime);
+      pathFollowingController.followPath(
+          sensors->getPosition(),
+          routine.getTargetPosition(),
+          routine.getTargetMovementState());
+
+      if (routine.isRoutineCompleted()) {
+        // SerialUSB.println("In position. Starting test.");
+        statisticsAccumulator.reset();
+        previousTargetPosition.set(PATHING_OFFSET_X, PATHING_OFFSET_Y, 0.0d);
+        routine.setRoutineSegments(&previousTargetPosition, tuningRoutineDefinition, (int)(sizeof(tuningRoutineDefinition) / sizeof(RoutineDefinition)));
+        routine.start(currentTime);
         currentTestingState = TestingState::Testing;
       }
       break;
@@ -172,50 +205,37 @@ void PIDTuningController::loop(unsigned long currentTime)
 #ifdef ENABLE_SDCARD_LOGGING
       writeLogData(currentTime);
 #endif
-      routineController.loop(currentTime);
-      if (routineController.isRoutineCompleted()) {
+      captureError();
+      routine.loop(currentTime);
+      pathFollowingController.followPath(
+          sensors->getPosition(),
+          routine.getTargetPosition(),
+          routine.getTargetMovementState());
+
+      if (routine.isRoutineCompleted()) {
         //evaluate the performance of the current PID values
-        zippy->stopErrorCapture();
-        evaluateTuning();
+        // evaluateTuning();
 
         //move back into place to prepare to restart the test
-        sensors->clearPreambleFlag();
-        currentTestingState = TestingState::SyncingWithPreamble;
+        sensors->syncWithPreamble();
+        currentTestingState = TestingState::PostSyncingWithPreamble;
+      }
+      break;
+
+    case TestingState::PostSyncingWithPreamble:
+      pathFollowingController.followPath(
+          sensors->getPosition(),
+          routine.getTargetPosition(),
+          routine.getTargetMovementState());
+
+      if (sensors->foundPreamble()) {
+        statisticsAccumulator.reset();
+        previousTargetPosition.set(PATHING_OFFSET_X, PATHING_OFFSET_Y, 0.0d);
+        routine.start(currentTime);
+        currentTestingState = TestingState::Testing;
       }
       break;
   }
-
-#ifdef DEBUG_DISPLAY_POSITION
-  if (currentTime - previousDebugDisplayTime >= DEBUG_DISPLAY_INTERVAL) {
-    previousDebugDisplayTime += DEBUG_DISPLAY_INTERVAL;
-
-    ZippyFace* face = zippy->getFace();
-    face->clearScreen();
-    uint8_t fontHeight = face->getFontHeight();
-    uint8_t currentRow = fontHeight;
-    const KMatrix2* currentPosition = sensors->getPosition();
-    face->displayLabelAndData(
-        0,
-        currentRow,
-        "X",
-        currentPosition->position.getX(),
-        2);
-    currentRow += fontHeight;
-    face->displayLabelAndData(
-        0,
-        currentRow,
-        "Y",
-        currentPosition->position.getY(),
-        2);
-    currentRow += fontHeight;
-    face->displayLabelAndData(
-        0,
-        currentRow,
-        "O",
-        currentPosition->orientation.get(),
-        2);
-  }
-#endif
 }
 
 bool willMoveAwayFromIdeal(double ideal, double previous, double increment)
@@ -229,7 +249,7 @@ bool willMoveAwayFromIdeal(double ideal, double previous, double increment)
 void PIDTuningController::evaluateTuning()
 {
   // currentTestRun.error = zippy->getErrorAverage();
-  currentTestRun.error = zippy->getStandardDeviation();
+  currentTestRun.error = statisticsAccumulator.getStandardDeviation();
   // currentTestRun.range = zippy->getErrorRange();
   // double deltaError = abs((currentTestRun.range - bestTestRun.range) / bestTestRun.range);
   double deltaErrorPercentage = (currentTestRun.error - bestTestRun.error) / bestTestRun.error;
@@ -242,7 +262,7 @@ void PIDTuningController::evaluateTuning()
       currentTestIncrement = -currentTestIncrement * 0.7d;
   }
 
-  ZippyFace* face = zippy->getFace();
+  ZippyFace* face = pathFollowingController.getZippy()->getFace();
   face->clearScreen();
   displayTestData(
       0,
@@ -269,7 +289,7 @@ void PIDTuningController::evaluateTuning()
       SCREEN_WIDTH_PIXELS_2, 5 * face->getFontHeight(),
       "CE", bestTestRun.error, 2);
 
-  zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
+  // zippy->setTunings(currentTestRun.Kp, currentTestRun.Ki, currentTestRun.Kd);
 }
 
 void PIDTuningController::stop()
@@ -277,8 +297,7 @@ void PIDTuningController::stop()
 #ifdef ENABLE_SDCARD_LOGGING
   closeLogFile();
 #endif
-  routineController.stop();
-  zippy->stopErrorCapture();
+  pathFollowingController.stop();
 }
 
 void PIDTuningController::displayTestData(
@@ -287,7 +306,7 @@ void PIDTuningController::displayTestData(
     const char* il, double i,
     const char* dl, double d)
 {
-  ZippyFace* face = zippy->getFace();
+  ZippyFace* face = pathFollowingController.getZippy()->getFace();
   uint8_t fontHeight = face->getFontHeight();
   face->displayLabelAndData(
       0,

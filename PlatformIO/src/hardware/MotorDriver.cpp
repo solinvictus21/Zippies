@@ -7,11 +7,12 @@
 #include "zippies/config/MotorConfig.h"
 
 #define _BV(bit) (1 << (bit))
+#define MOTOR_DEAD_ZONE_RAMP_FACTOR   0.95d
 
 MotorDriver::MotorDriver(double deadZone)
   : started(false),
-    deadZoneRamp(0.75d * deadZone),
-    deadZoneRange(0.25d * deadZone)
+    deadZoneRamp(MOTOR_DEAD_ZONE_RAMP_FACTOR * deadZone),
+    deadZoneRange((1.0d - MOTOR_DEAD_ZONE_RAMP_FACTOR) * deadZone)
 {
   start();
 }

@@ -172,15 +172,15 @@ void KVector2::set(double newX,
   arctan2Valid = false;
 }
 
-/*
+// /*
 void KVector2::setD(double newD)
 {
-  set(this->x, this->y, newD);
-  // double lengthRatio = newD / getD();
-  // this->x *= lengthRatio;
-  // this->y *= lengthRatio;
+  // set(this->x, this->y, newD);
+  double lengthRatio = newD / getD();
+  this->x *= lengthRatio;
+  this->y *= lengthRatio;
 }
-*/
+// */
 
 void KVector2::addVector(const KVector2* v)
 {

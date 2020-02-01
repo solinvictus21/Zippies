@@ -25,19 +25,6 @@ public:
         &wheelInput, &wheelOutput, &wheelSetPoint,
         PID_KP, PID_KI, PID_KD, P_ON_E, DIRECT)
   {
-    /*
-    SerialUSB.print("PID: ");
-    SerialUSB.print(PID_KP, 2);
-    SerialUSB.print(", ");
-    SerialUSB.print(PID_KI, 2);
-    SerialUSB.print(", ");
-    SerialUSB.print(PID_KD, 2);
-    SerialUSB.print(", ");
-    SerialUSB.print(PID_UPDATE_INTERVAL);
-    SerialUSB.print(", ");
-    SerialUSB.print(PID_OUTPUT_LIMIT, 2);
-    SerialUSB.println();
-    */
     wheelPID.SetSampleTime(PID_UPDATE_INTERVAL);
     wheelPID.SetOutputLimits(-PID_OUTPUT_LIMIT, PID_OUTPUT_LIMIT);
   }

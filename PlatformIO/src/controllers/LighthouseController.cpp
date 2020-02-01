@@ -1,20 +1,21 @@
 
 #include "zippies/controllers/LighthouseController.h"
 #include "zippies/controllers/DebugDisplayController.h"
-#include "zippies/controllers/TargetController.h"
 #include "zippies/controllers/MotorTuningController.h"
+#include "zippies/controllers/PIDTuningController.h"
 
 LighthouseController::LighthouseController()
 {
   // subController = new DebugDisplayController(&sensors);
-  subController = new TargetController(&sensors);
   // subController = new MotorTuningController(&sensors);
-  // subController = new PIDTuningController(&sensors);
+  subController = new PIDTuningController(&sensors);
 }
 
 void LighthouseController::start(unsigned long currentTime)
 {
   SerialUSB.begin(115200);
+  // while (!SerialUSB);
+  SerialUSB.println("Serial port started.");
 
   sensorsReady = false;
   previousPositionTimeStamp = 0;
@@ -33,18 +34,17 @@ void LighthouseController::loop(unsigned long currentTime)
     }
     return;
   }
-
-  //check if we have a position update
-  if (sensors.getPositionTimeStamp() <= previousPositionTimeStamp)
-    return;
-  previousPositionTimeStamp = sensors.getPositionTimeStamp();
-
-  if (!sensorsReady) {
-    // SerialUSB.println("Lighthouse signal locked.");
+  else if (!sensorsReady) {
+    // SerialUSB.println("Starting subcontroller.");
     sensorsReady = true;
     subController->start(currentTime);
-    return;
   }
+
+  //check if we have a position update
+  unsigned long currentPositionTimeStamp = sensors.getPositionTimeStamp();
+  if (currentPositionTimeStamp <= previousPositionTimeStamp)
+    return;
+  previousPositionTimeStamp = currentPositionTimeStamp;
 
   subController->loop(currentTime);
 }

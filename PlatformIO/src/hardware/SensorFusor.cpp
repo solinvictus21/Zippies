@@ -422,30 +422,43 @@ void TCC1_Handler()
 
 bool SensorFusor::loop(unsigned long currentTime)
 {
+  //process all the sensors
   int sensorsReceivingSyncSignal = 0;
   int sensorsWithUpdate = 0;
   int sensorsReceivingSweepHit = 0;
   for (int i = 0; i < SENSOR_COUNT; i++) {
     sensors[i].loop(currentTime);
     if (sensors[i].completedCycleTimeStamp) {
+      //sensor is still locked onto the Lighthouse sync signals
       sensorsReceivingSyncSignal++;
       if (sensors[i].completedCycleTimeStamp > cycleProcessedTime) {
+        //sensor has received a new sweep cycle (combination of X and Z axis sweeps) to be processed
         sensorsWithUpdate++;
-        if (sensors[i].completedHitCycles[0].sweepHitStartTicks && sensors[i].completedHitCycles[1].sweepHitStartTicks)
+        if (sensors[i].completedHitCycles[0].sweepHitStartTicks && sensors[i].completedHitCycles[1].sweepHitStartTicks) {
+          //sensor received sweep hits on both the X and Z axes during the most recent sweep cycle; this must be confirmed
+          //because it's entirely possible for the sensor to receive sync pulses, which are infrared flashes from flood
+          //LEDs, without ever actually seeing the laser sweep across the sensor during the cycle
           sensorsReceivingSweepHit++;
+        }
       }
     }
   }
 
   if (sensorsReceivingSyncSignal != SENSOR_COUNT) {
+    //one or more sensors missed the sync pulses for the X and/or Z axes; wait for a sync pulse signal lock again
     // SerialUSB.println("WARNING: Some sensors not receiving signal.");
     currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
     return false;
   }
 
-  if (sensorsWithUpdate != SENSOR_COUNT)
+  if (sensorsWithUpdate != SENSOR_COUNT) {
+    //one or more sensors did not yet receive an updated sweep cycle; this is not an error condition; the Lighthouse may
+    //just not have completed their sweep cycles by the time we completed this processing loop
     return currentSignalState == LighthouseSignalState::SignalLocked;
+  }
 
+  //all sensors have at least received sync pulses for both the X and Z axes; try to fuse the sync pulses together
+  //by averaging the pulse widths together
   if (!fuseSyncPulses()) {
     // SerialUSB.println("WARNING: Sensors receiving differing sync pulse numbers.");
     currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
@@ -453,11 +466,21 @@ bool SensorFusor::loop(unsigned long currentTime)
   }
   cycleProcessedTime = currentTime;
 
+  //count the number of zero bits received from the sync pulses; used to sync with the preamble upon request via
+  //a call to syncWithPreable()
   if (preambleBitCount < 17) {
     processPreambleBit(fusedSyncPulses[0]);
     if (preambleBitCount < 17)
       processPreambleBit(fusedSyncPulses[1]);
   }
+
+  /*
+  if (preambleBitCount == 17) {
+    SerialUSB.print("Found preamble at: ");
+    SerialUSB.println(currentTime);
+    preambleBitCount = 0;
+  }
+ */
 
   //by the time we reach this point, we know that all sensors have an update on the same sync signal
   //check for the need to transition to a new state
@@ -470,10 +493,9 @@ bool SensorFusor::loop(unsigned long currentTime)
       }
       else {
         //transition to acquiring position
-        positionTimeStamp = 0;
-        positionLockedTimeStamp = 0;
         // SerialUSB.println("Starting acquisition of position lock.");
-        currentSignalState = LighthouseSignalState::AcquiringPositionLock;
+        positionLockedTimeStamp = 0;
+        currentSignalState = LighthouseSignalState::AcquiringSensorHits;
       }
       break;
 
@@ -481,28 +503,39 @@ bool SensorFusor::loop(unsigned long currentTime)
       if (ootxParser.receivedBaseStationInfoBlock()) {
         calculateLighthouseData();
 
-        //transition to acquiring position
-        positionTimeStamp = 0;
-        positionLockedTimeStamp = 0;
+        //transition to waiting for sensor hits
         // SerialUSB.println("Starting acquisition of position lock.");
-        currentSignalState = LighthouseSignalState::AcquiringPositionLock;
+        positionLockedTimeStamp = 0;
+        currentSignalState = LighthouseSignalState::AcquiringSensorHits;
       }
       break;
 
-    case LighthouseSignalState::AcquiringPositionLock:
+    case LighthouseSignalState::AcquiringSensorHits:
       if (sensorsReceivingSweepHit == SENSOR_COUNT) {
-        if (!positionLockedTimeStamp)
+          //we received sweep hits on all sensors for both the X and Z axes during the most recent sweep cycle
+          //transition to the initial pause after receiving the first set of sweep hits to allow the signal to
+          //"settle" such as, for instance, when the user is in the process of setting the Zippy on the ground
           positionLockedTimeStamp = currentTime;
-        else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE)
-          currentSignalState = LighthouseSignalState::SignalLocked;
+          currentSignalState = LighthouseSignalState::AwaitingPositionLock;
       }
-      else
+      break;
+
+    case LighthouseSignalState::AwaitingPositionLock:
+      if (sensorsReceivingSweepHit != SENSOR_COUNT) {
+        //we're no long receiving sweep hits for both axes on all sensors
         positionLockedTimeStamp = 0;
+        currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+      }
+      else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE)
+        currentSignalState = LighthouseSignalState::SignalLocked;
       break;
 
     case LighthouseSignalState::SignalLocked:
-      if (sensorsReceivingSweepHit != SENSOR_COUNT)
-        currentSignalState = LighthouseSignalState::AcquiringPositionLock;
+      if (sensorsReceivingSweepHit != SENSOR_COUNT) {
+        //we're no long receiving sweep hits for both axes on all sensors
+        positionLockedTimeStamp = 0;
+        currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+      }
       break;
   }
 
@@ -513,9 +546,10 @@ bool SensorFusor::loop(unsigned long currentTime)
       ootxParser.processOOTXBit(fusedSyncPulses[1]);
       break;
 
-    case LighthouseSignalState::AcquiringPositionLock:
+    case LighthouseSignalState::AwaitingPositionLock:
     case LighthouseSignalState::SignalLocked:
       recalculatePosition(currentTime);
+      positionTimeStamp = currentTime;
       break;
   }
 
@@ -565,21 +599,14 @@ void SensorFusor::recalculatePosition(unsigned long currentTime)
   }
 
   calculatePosition();
-  positionTimeStamp = currentTime;
 }
 
 void SensorFusor::processPreambleBit(unsigned long syncTickCount)
 {
-  if (SYNC_PULSE_BIT(syncTickCount)) {
+  if (SYNC_PULSE_BIT(syncTickCount))
     preambleBitCount = 0;
-    return;
-  }
-
-  preambleBitCount++;
-  /*
-  if (preambleBitCount >= 17)
-    preambleFound = true;
-  */
+  else
+    preambleBitCount++;
 }
 
 void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, KVector2* out)

@@ -73,6 +73,12 @@ void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, int
   display.print(s);
 }
 
+void ZippyFace::displayData(uint8_t x, uint8_t y, int data)
+{
+  display.setCursor(x, y);
+  display.print(data);
+}
+
 /*
 void ZippyFace::loop()
 {

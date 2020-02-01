@@ -1,7 +1,54 @@
 
 #include <Arduino.h>
-#include "zippies/controllers/Routine.h"
+#include "zippies/paths/Routine.h"
 
+
+/*
+#if ZIPPY_ID == 0
+Movement MOVEMENT0[]
+{
+  { MovementType::Arc  ,        30.0d,  M_PI         },
+  { MovementType::Arc  ,        30.0d,  M_PI         },
+  { MovementType::Arc  ,      -150.0d, -M_PI         },
+  { MovementType::Arc  ,      -150.0d, -M_PI         },
+};
+#elif ZIPPY_ID == 1
+Movement MOVEMENT0[]
+{
+  { MovementType::Arc  ,        90.0d,  M_PI         },
+  { MovementType::Arc  ,        90.0d,  M_PI         },
+  { MovementType::Arc  ,       -90.0d, -M_PI         },
+  { MovementType::Arc  ,       -90.0d, -M_PI         },
+};
+#else
+Movement MOVEMENT0[]
+{
+  { MovementType::Arc  ,       150.0d,  M_PI         },
+  { MovementType::Arc  ,       150.0d,  M_PI         },
+  { MovementType::Arc  ,       -30.0d, -M_PI         },
+  { MovementType::Arc  ,       -30.0d, -M_PI         },
+};
+#endif
+
+PathSegment ROUTINE0[]
+{
+  { 20000, 0.25d, 0.25d, sizeof(MOVEMENT0) / sizeof(Movement), MOVEMENT0, 0 },
+};
+*/
+
+/*
+Movement MOVEMENT[]
+{
+  { MovementType::Arc  ,       -50.0d, -M_PI_2       },
+  { MovementType::Arc  ,       -50.0d,  M_PI         },
+  { MovementType::Arc  ,       -50.0d, -M_PI_2       },
+  { MovementType::Arc  ,        50.0d,  M_PI_2       },
+  { MovementType::Arc  ,        50.0d, -M_PI         },
+  { MovementType::Arc  ,        50.0d,  M_PI_2       },
+};
+*/
+
+/*
 Movement MOVEMENT[]
 {
   { MovementType::Arc  ,       -50.0d, -M_PI_2       },
@@ -16,6 +63,7 @@ PathSegment DEFAULT_ROUTINE[]
 {
   { 20000, 0.25d, 0.25d, sizeof(MOVEMENT) / sizeof(Movement), MOVEMENT, 0 },
 };
+*/
 
 // #define M2_PI 6.283185307179586d
 

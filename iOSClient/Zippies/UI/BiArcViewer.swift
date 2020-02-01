@@ -55,15 +55,15 @@ class BiArcViewer: ZDrawable
         recalculate()
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         UIColor.green.setStroke()
-        drawArrow(_start, transform)
+        drawArrow(_start)
         UIColor.red.setStroke()
-        drawArrow(_start, transform)
+        drawArrow(_start)
     }
     
-    fileprivate func drawArrow(_ p: KMatrix2, _ transform: CGAffineTransform)
+    fileprivate func drawArrow(_ p: KMatrix2)
     {
         let radiusSinO = ZIPPY_ARROW_RADIUS * p.orientation.sin
         let centerPointX = p.position.getX() - radiusSinO
@@ -83,7 +83,6 @@ class BiArcViewer: ZDrawable
             to: CGPoint(
                 x: centerPointX + radiusCosO,
                 y: centerPointY - radiusSinO))
-        orientationIndicator.apply(transform)
         orientationIndicator.stroke()
     }
 

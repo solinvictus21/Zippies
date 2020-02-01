@@ -2,9 +2,9 @@
 #ifndef _TURN_H_
 #define _TURN_H_
 
-#include "ZPath.h"
+#include "PathSegment.h"
 
-class Turn : public ZPath
+class Turn : public PathSegment
 {
 
 private:

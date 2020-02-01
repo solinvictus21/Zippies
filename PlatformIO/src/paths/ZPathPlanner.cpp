@@ -1,11 +1,10 @@
 
 #include "ZPathPlanner.h"
+/*
 #include "Turn.h"
 #include "Move.h"
 #include "Arc.h"
-// #include "CompositePath.h"
 
-/*
 const ZPath* planPath(
   const KMatrix2* start,
   double endX, double endY, double endO)
@@ -40,7 +39,7 @@ const ZPath* planPath(const KMatrix2* start, const KMatrix2* toPosition)
   return new CompositePath(firstSegment, secondSegment);
 }
 */
-
+/*
 const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget)
 {
   // if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
@@ -74,12 +73,6 @@ void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
 {
   // if (abs(relativeTargetPosition->orientation.get()) < DOUBLE_EPSILON) {
   if (abs(relativeTargetPosition->orientation.get()) == 0.0d) {
-    /*
-    knotPosition->position.set(
-      relativeTargetPosition->position.getX() / 2.0d,
-      relativeTargetPosition->position.getY() / 2.0d);
-    knotPosition->orientation.set(2.0d * knotPosition->position.atan());
-    */
     knotPosition->position.set(
       0.0d,
       relativeTargetPosition->position.getY() / 2.0d);
@@ -156,3 +149,4 @@ bool requiresBiArcMove(const KMatrix2* relativeTarget)
 
   return true;
 }
+*/

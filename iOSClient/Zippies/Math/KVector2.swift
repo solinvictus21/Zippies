@@ -1,5 +1,6 @@
 
 import Foundation
+import UIKit
 
 let EPSILON: Double = 0.0001
 
@@ -381,4 +382,36 @@ func distanceBetween(_ v1: KVector2, _ v2: KVector2) -> Double
 {
     return distanceBetween(v1.getX(), v1.getY(), v2.getX(), v2.getY())
 }
+
+func snapAngle(_ angle: CGFloat) -> CGFloat
+{
+    if (angle <= -CGFloat.pi) {
+        return angle + (2.0 * CGFloat.pi)
+    }
+    else if (angle > CGFloat.pi) {
+        return angle - (2.0 * CGFloat.pi)
+    }
+    return angle
+}
+
+func subtractAngles(_ a1: CGFloat, _ a2: CGFloat) -> CGFloat
+{
+    return snapAngle(a1 - a2)
+}
+
+func addAngles(_ a1: CGFloat, _ a2: CGFloat) -> CGFloat
+{
+    return snapAngle(a1 + a2)
+}
+
+func distanceBetween(_ x1: CGFloat, _ y1: CGFloat, _ x2: CGFloat, _ y2: CGFloat) -> CGFloat
+{
+    return sqrt(pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0))
+}
+
+func distanceBetween(_ v1: KVector2, _ v2: KVector2) -> CGFloat
+{
+    return distanceBetween(CGFloat(v1.getX()), CGFloat(v1.getY()), CGFloat(v2.getX()), CGFloat(v2.getY()))
+}
+
 

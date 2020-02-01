@@ -16,7 +16,8 @@ typedef enum class _LighthouseSignalState
 {
   AcquiringSyncSignal,
   ReceivingLighthouseData,
-  AcquiringPositionLock,
+  AcquiringSensorHits,
+  AwaitingPositionLock,
   SignalLocked
 } LighthouseSignalState;
 
@@ -34,7 +35,6 @@ typedef struct _RotorFactoryCalibrationData
   double gibbousPhase = 0.0d;
   double gibbousMagnitude = 0.0d;
 } RotorFactoryCalibrationData;
-
 
 class SensorFusor
 {
@@ -93,7 +93,7 @@ public:
 
   void start();
   bool loop(unsigned long currentTime);
-  void clearPreambleFlag() { preambleBitCount = 0; /*preambleFound = false;*/ }
+  void syncWithPreamble() { preambleBitCount = 0; }
   bool foundPreamble() const { return preambleBitCount == 17; }
 
   const LighthouseSensor* getLeftSensor() const { return &sensors[0]; }

@@ -34,6 +34,7 @@ public:
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data);
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data, uint8_t digits);
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, int data);
+  void displayData(uint8_t x, uint8_t y, int data);
   void end();
 
 };

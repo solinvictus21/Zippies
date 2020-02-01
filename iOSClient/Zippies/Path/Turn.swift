@@ -44,7 +44,7 @@ class ZDrawableTurn: ZDrawable
         self.turn = turn
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         color.setStroke()
         let drawingPath = UIBezierPath(
@@ -53,7 +53,6 @@ class ZDrawableTurn: ZDrawable
                 y: startPosition.getY() - TURN_RADIUS,
                 width: 2 * TURN_RADIUS,
                 height: 2 * TURN_RADIUS))
-        drawingPath.apply(transform)
         drawingPath.stroke()
     }
     
@@ -73,7 +72,7 @@ class ZDrawableTurn2: ZDrawable
         self.deltaO = deltaO
     }
     
-    func draw(_ transform: CGAffineTransform)
+    func draw()
     {
         color.setStroke()
         let drawingPath = UIBezierPath(
@@ -82,7 +81,6 @@ class ZDrawableTurn2: ZDrawable
                 y: start.position.getY() - TURN_RADIUS,
                 width: 2 * TURN_RADIUS,
                 height: 2 * TURN_RADIUS))
-        drawingPath.apply(transform)
         drawingPath.stroke()
     }
     

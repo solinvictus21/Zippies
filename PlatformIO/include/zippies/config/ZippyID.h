@@ -6,6 +6,6 @@
 //0 - red
 //1 - green
 //2 - blue
-#define ZIPPY_ID                                   1
+#define ZIPPY_ID                                   0
 
 #endif

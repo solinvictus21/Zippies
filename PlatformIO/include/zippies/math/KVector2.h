@@ -42,7 +42,7 @@ public:
   void unrotate(const KRotation2* rotation);
 
   double getD() const;
-  // void setD(double newD);
+  void setD(double newD);
   double getD2() const;
   double atan() const;
   double atan2() const;

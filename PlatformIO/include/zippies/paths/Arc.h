@@ -2,11 +2,12 @@
 #ifndef _ARC_H_
 #define _ARC_H_
 
-#include "ZPath.h"
+#include "PathSegment.h"
 #include "zippies/ZippyMath.h"
 
-class Arc : public ZPath
+class Arc : public PathSegment
 {
+
 private:
   double startOrientation;
   double deltaAngle;
@@ -37,7 +38,7 @@ public:
     this->center.concat(startPosition);
   }
 
-  bool updatesPosition() const { return true; }
+  // bool updatesPosition() const { return true; }
 
   double getLength() const {
     return abs(radius * deltaAngle);

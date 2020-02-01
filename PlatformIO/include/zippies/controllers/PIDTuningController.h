@@ -3,8 +3,11 @@
 #define _TUNINGCONTROLLER_H_
 
 #include "ZippyController.h"
-#include "RoutineController.h"
+// #include "RoutineController.h"
+#include "zippies/paths/Routine.h"
+#include "PathFollowingController.h"
 #include "zippies/config/PIDConfig.h"
+#include "zippies/math/StatisticsAccumulator.h"
 
 #ifdef ENABLE_SDCARD_LOGGING
 #include <SD.h>
@@ -20,10 +23,12 @@ typedef enum class _TuningVariable
 
 typedef enum class _TestingState
 {
+  PreSyncingWithPreamble,
   MovingIntoPlace,
-  WaitingForFullStop,
-  SyncingWithPreamble,
+  // WaitingForFullStop,
+  // SyncingWithPreamble,
   Testing,
+  PostSyncingWithPreamble,
 } TestingState;
 
 typedef struct _AutoTuneTest
@@ -39,21 +44,20 @@ class PIDTuningController : public ZippyController
 
 private:
   SensorFusor* sensors;
-  Zippy* zippy;
+  Routine routine;
+  PathFollowingController pathFollowingController;
+  KMatrix2 previousTargetPosition;
 
-  RoutineController routineController;
+  StatisticsAccumulator statisticsAccumulator;
 
   TuningVariable currentTuningVariable = TuningVariable::Proportional;
   double* currentTestValue;
   double* bestTestValue;
   double currentTestIncrement = 0.0d;
 
-  TestingState currentTestingState = TestingState::MovingIntoPlace;
+  TestingState currentTestingState = TestingState::PreSyncingWithPreamble;
   AutoTuneTest currentTestRun;
   AutoTuneTest bestTestRun;
-
-  double errorAccumulator = 0.0d;
-  unsigned long errorCounter = 0;
 
 #ifdef ENABLE_SDCARD_LOGGING
   bool sdCardInserted = false;
@@ -65,7 +69,12 @@ private:
   void closeLogFile();
 #endif
 
+  void planMoveIntoPlace(const KMatrix2* fromPosition);
+  void startMoveIntoPlace(unsigned long currentTime);
   void setupTuning(TuningVariable tuningVariable);
+  void startErrorCapture();
+  void captureError();
+  void stopErrorCapture();
   void evaluateTuning();
   void displayTestData(
       uint8_t y,
@@ -74,7 +83,8 @@ private:
       const char* dl, double d);
 
 public:
-  PIDTuningController(SensorFusor* s, Zippy* z);
+  // PIDTuningController(SensorFusor* s, Zippy* z);
+  PIDTuningController(SensorFusor* s);
 
   void start(unsigned long startTime);
   void loop(unsigned long currentTime);

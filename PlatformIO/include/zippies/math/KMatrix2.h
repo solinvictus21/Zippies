@@ -64,7 +64,7 @@ public:
     orientation.reset();
   }
 
-  void printDebug()
+  void printDebug() const
   {
     SerialUSB.print("(");
     SerialUSB.print(position.getX(), 2);
@@ -76,5 +76,8 @@ public:
   }
 
 };
+
+void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition);
+void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition, KMatrix2* knot);
 
 #endif
