@@ -4,16 +4,20 @@
 #include "zippies/hardware/T841Defs.h"
 #include "zippies/hardware/MotorDriver.h"
 #include "zippies/hardware/MotorDriverConstants.h"
-#include "zippies/config/MotorConfig.h"
+#include "zippies/config/ZippyConfig.h"
 
 #define _BV(bit) (1 << (bit))
-#define MOTOR_DEAD_ZONE_RAMP_FACTOR   0.95d
 
-MotorDriver::MotorDriver(double deadZone)
+//the range of outputs from the PID over which to ramp through the motor dead zones
+#define DEAD_ZONE_RANGE 10.0d
+
+MotorDriver::MotorDriver()
   : started(false),
-    deadZoneRamp(MOTOR_DEAD_ZONE_RAMP_FACTOR * deadZone),
-    deadZoneRange((1.0d - MOTOR_DEAD_ZONE_RAMP_FACTOR) * deadZone)
+    leftDeadZoneRamp(MOTOR_DEAD_ZONE_LEFT),
+    rightDeadZoneRamp(MOTOR_DEAD_ZONE_RIGHT)
 {
+  // SerialUSB.println(MOTOR_DEAD_ZONE_LEFT, 1);
+  // SerialUSB.println(MOTOR_DEAD_ZONE_RIGHT, 1);
   start();
 }
 
@@ -62,14 +66,18 @@ void MotorDriver::start()
 
 void MotorDriver::setMotors(double left, double right)
 {
-  left = rampThroughDeadZone(left);
-  right = rampThroughDeadZone(right);
+  left = rampThroughDeadZone(left, leftDeadZoneRamp);
+  right = rampThroughDeadZone(right, rightDeadZoneRamp);
 
   writeCommand(COMMAND_ALL_PWM,
       left > 0 ? left : 0,
       left < 0 ? -left : 0,
       right > 0 ? right : 0,
       right < 0 ? -right : 0);
+      // left < 0 ? -left : 0,
+      // left > 0 ? left : 0,
+      // right < 0 ? -right : 0,
+      // right > 0 ? right : 0);
 }
 
 void MotorDriver::setMotorsDirect(double left, double right)
@@ -84,12 +92,11 @@ void MotorDriver::setMotorsDirect(double left, double right)
 void MotorDriver::stopMotors()
 {
   writeCommand(COMMAND_ALL_PWM, 0, 0, 0, 0);
-  // writeCommand(COMMAND_ALL_PWM, 10000, 10000, 10000, 10000);
 }
 
-double MotorDriver::rampThroughDeadZone(double a)
+double MotorDriver::rampThroughDeadZone(double a, double deadZoneRamp)
 {
-  //bail out early when power output is extremely close to zero
+  //bail out early when power output is zero
   if (a == 0.0d)
     return 0.0d;
 
@@ -100,9 +107,13 @@ double MotorDriver::rampThroughDeadZone(double a)
     double t = absA / MOTOR_RAMP_ZONE;
   */
   double rampedValue = deadZoneRamp + absA;
-  if (absA < deadZoneRange) {
-    double t = absA / deadZoneRange;
-    rampedValue *= (-t * (t - 2.0d));
+  if (absA < DEAD_ZONE_RANGE) {
+    double t = absA / DEAD_ZONE_RANGE;
+    //quadratic ramp
+    // rampedValue *= (-t * (t - 2.0d));
+    // rampedValue *= t * (2.0d - t);
+    //cubic ramp
+    rampedValue *= 1.0d + pow(t, 3.0d);
   }
 
   return a < 0.0d ? -rampedValue : rampedValue;

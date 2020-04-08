@@ -5,13 +5,6 @@
 #include "zippies/ZippyMath.h"
 #include "PathSegment.h"
 
-typedef enum class _MovementState
-{
-  Stopped,
-  Turning,
-  Moving,
-} MovementState;
-
 typedef enum class _PathDefinitionType
 {
   //all commands below this point are relative to the current position and orientation
@@ -29,33 +22,38 @@ typedef struct _PathDefinition
 } PathDefinition;
 
 double getPathSegmentLength(const PathDefinition* pathSegment);
+double getPathLength(const PathDefinition* path, int pathSegmentCount);
 
 class Path
 {
 
 private:
+  KMatrix2 pathAnchorPosition;
   PathDefinition* pathSegments;
   int pathSegmentCount = 0;
+  double pathLength = 0.0d;
+
   int currentPathSegmentIndex = 0;
   double currentPathSegmentStartPosition = 0.0d;
-  double pathLength = 0.0d;
 
   KMatrix2 currentPathSegmentAnchorPosition;
   PathSegment* currentPathSegment = NULL;
   double currentPathSegmentLength = 0.0d;
-  MovementState currentPathSegmentMovementState = MovementState::Stopped;
 
+  void reset();
   void planCurrentPathSegment();
   void endCurrentSegment();
 
 public:
   Path() {}
 
-  void setPathSegments(const KMatrix2* anchorPosition, PathDefinition* ps, int psc);
+  void setPathSegments(
+      const KMatrix2* anchorPosition,
+      PathDefinition* pathDefinition,
+      int pathDefinitionCount);
   double getLength() const { return pathLength; }
-  MovementState getMovementState() const { return currentPathSegmentMovementState; }
 
-  void interpolate(
+  bool interpolate(
     double interpolatedTime,
     KMatrix2* targetPosition);
 

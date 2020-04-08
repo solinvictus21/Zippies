@@ -38,12 +38,6 @@ public:
     this->center.concat(startPosition);
   }
 
-  // bool updatesPosition() const { return true; }
-
-  double getLength() const {
-    return abs(radius * deltaAngle);
-  }
-
   void interpolate(
     double normalizedTime,
     KMatrix2* position) const

@@ -49,8 +49,10 @@ public:
   void normalize() { this->set(this->x, this->y, 1.0d); }
 
   bool equalsVector(const KVector2* v) const;
+  double dotVector(double x2, double y2) const;
   double dotVector(const KVector2* v) const;
   double dotOrientation(double orientation) const;
+  double dotOrientation(const KRotation2* orientation) const;
   double crossProduct(const KVector2* v) const;
 
   void addVector(const KVector2* v);

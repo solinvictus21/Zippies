@@ -10,6 +10,7 @@ void setup()
 
   // while (!SerialUSB);
   // SerialUSB.println("Started serial port.");
+  initZippyConfiguration();
 
   // controller = new DirectController();
   controller = new LighthouseController();

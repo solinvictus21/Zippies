@@ -27,7 +27,6 @@ public:
 
   uint8_t getFontHeight() { return display.getFontHeight(); }
 
-  void begin();
   void displayFace();
   void clearScreen();
   void displayText(uint8_t x, uint8_t y, const char* text);
@@ -35,7 +34,7 @@ public:
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data, uint8_t digits);
   void displayLabelAndData(uint8_t x, uint8_t y, const char* label, int data);
   void displayData(uint8_t x, uint8_t y, int data);
-  void end();
+  void displayTextCentered(const char* text);
 
 };
 

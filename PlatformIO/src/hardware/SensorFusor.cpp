@@ -4,6 +4,9 @@
 #include "zippies/hardware/SensorFusor.h"
 #include "zippies/config/BodyConfig.h"
 
+#define LIGHTHOUSE_STATUS_SEARCHING          "Searching"
+#define LIGHTHOUSE_STATUS_DOWNLOADING        "Downloading"
+
 // #define DEBUG_LIGHTHOUSE_SENSOR_SYNC              1
 
 #define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
@@ -43,14 +46,15 @@ void SensorFusor::start()
   positionTimeStamp = 0;
   positionLockedTimeStamp = 0;
 
+  display.clearScreen();
   if (!receivedLighthouseData) {
     preambleBitCount = 0;
-    // preambleFound = false;
     ootxParser.restart();
-    currentSignalState = LighthouseSignalState::ReceivingLighthouseData;
+    display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
   }
   else
-    currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
+    display.displayFace();
+  currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
 
   //configure the timing clock we'll use for counting cycles between IR pules
   setupClock();
@@ -423,14 +427,14 @@ void TCC1_Handler()
 bool SensorFusor::loop(unsigned long currentTime)
 {
   //process all the sensors
-  int sensorsReceivingSyncSignal = 0;
+  int sensorsWithSyncLock = 0;
   int sensorsWithUpdate = 0;
   int sensorsReceivingSweepHit = 0;
   for (int i = 0; i < SENSOR_COUNT; i++) {
     sensors[i].loop(currentTime);
     if (sensors[i].completedCycleTimeStamp) {
       //sensor is still locked onto the Lighthouse sync signals
-      sensorsReceivingSyncSignal++;
+      sensorsWithSyncLock++;
       if (sensors[i].completedCycleTimeStamp > cycleProcessedTime) {
         //sensor has received a new sweep cycle (combination of X and Z axis sweeps) to be processed
         sensorsWithUpdate++;
@@ -444,9 +448,13 @@ bool SensorFusor::loop(unsigned long currentTime)
     }
   }
 
-  if (sensorsReceivingSyncSignal != SENSOR_COUNT) {
+  if (sensorsWithSyncLock != SENSOR_COUNT) {
     //one or more sensors missed the sync pulses for the X and/or Z axes; wait for a sync pulse signal lock again
     // SerialUSB.println("WARNING: Some sensors not receiving signal.");
+    if (!receivedLighthouseData && currentSignalState != LighthouseSignalState::AcquiringSyncSignal) {
+      display.clearScreen();
+      display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
+    }
     currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
     return false;
   }
@@ -461,6 +469,10 @@ bool SensorFusor::loop(unsigned long currentTime)
   //by averaging the pulse widths together
   if (!fuseSyncPulses()) {
     // SerialUSB.println("WARNING: Sensors receiving differing sync pulse numbers.");
+    if (!receivedLighthouseData && currentSignalState != LighthouseSignalState::AcquiringSyncSignal) {
+      display.clearScreen();
+      display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
+    }
     currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
     return false;
   }
@@ -490,12 +502,16 @@ bool SensorFusor::loop(unsigned long currentTime)
         // SerialUSB.println("Starting receipt of lighthouse data.");
         ootxParser.restart();
         currentSignalState = LighthouseSignalState::ReceivingLighthouseData;
+        display.clearScreen();
+        display.displayTextCentered(LIGHTHOUSE_STATUS_DOWNLOADING);
       }
       else {
         //transition to acquiring position
         // SerialUSB.println("Starting acquisition of position lock.");
         positionLockedTimeStamp = 0;
         currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+        // display.clearScreen();
+        // display.displayTextCentered("Ready");
       }
       break;
 
@@ -507,6 +523,9 @@ bool SensorFusor::loop(unsigned long currentTime)
         // SerialUSB.println("Starting acquisition of position lock.");
         positionLockedTimeStamp = 0;
         currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+        display.displayFace();
+        // display.clearScreen();
+        // display.displayTextCentered("Ready");
       }
       break;
 
@@ -517,6 +536,8 @@ bool SensorFusor::loop(unsigned long currentTime)
           //"settle" such as, for instance, when the user is in the process of setting the Zippy on the ground
           positionLockedTimeStamp = currentTime;
           currentSignalState = LighthouseSignalState::AwaitingPositionLock;
+          // display.clearScreen();
+          // display.displayTextCentered("Locking");
       }
       break;
 
@@ -525,9 +546,13 @@ bool SensorFusor::loop(unsigned long currentTime)
         //we're no long receiving sweep hits for both axes on all sensors
         positionLockedTimeStamp = 0;
         currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+        // display.clearScreen();
+        // display.displayTextCentered("Ready");
       }
-      else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE)
+      else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
         currentSignalState = LighthouseSignalState::SignalLocked;
+        // display.displayFace();
+      }
       break;
 
     case LighthouseSignalState::SignalLocked:
@@ -535,6 +560,8 @@ bool SensorFusor::loop(unsigned long currentTime)
         //we're no long receiving sweep hits for both axes on all sensors
         positionLockedTimeStamp = 0;
         currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+        // display.clearScreen();
+        // display.displayTextCentered("Ready");
       }
       break;
   }

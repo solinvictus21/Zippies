@@ -5,16 +5,19 @@
 #include "zippies/paths/Move.h"
 #include "zippies/paths/Arc.h"
 
-void Path::setPathSegments(const KMatrix2* ap, PathDefinition* ps, int psc)
+void Path::setPathSegments(
+    const KMatrix2* ap,
+    PathDefinition* ps,
+    int psc)
 {
+  pathAnchorPosition.set(ap);
   pathSegments = ps;
   pathSegmentCount = psc;
-  currentPathSegmentIndex = 0;
-  currentPathSegmentStartPosition = 0.0d;
   pathLength = 0.0d;
-  currentPathSegmentAnchorPosition.set(ap);
 
-  if (pathSegmentCount == 0) {
+  reset();
+
+  if (!pathSegmentCount) {
     endCurrentSegment();
     return;
   }
@@ -22,8 +25,15 @@ void Path::setPathSegments(const KMatrix2* ap, PathDefinition* ps, int psc)
   //calculate the total path length
   for (int i = 0; i < pathSegmentCount; i++)
     pathLength += getPathSegmentLength(&pathSegments[i]);
-
   planCurrentPathSegment();
+}
+
+void Path::reset()
+{
+  currentPathSegmentIndex = 0;
+  currentPathSegmentStartPosition = 0.0d;
+  currentPathSegmentAnchorPosition.set(&pathAnchorPosition);
+  currentPathSegmentLength = 0.0d;
 }
 
 void Path::endCurrentSegment()
@@ -34,7 +44,6 @@ void Path::endCurrentSegment()
   delete currentPathSegment;
   currentPathSegment = NULL;
   currentPathSegmentLength = 0.0d;
-  currentPathSegmentMovementState = MovementState::Stopped;
 }
 
 void Path::planCurrentPathSegment()
@@ -53,7 +62,6 @@ void Path::planCurrentPathSegment()
           &currentPathSegmentAnchorPosition,
           nextPathSegment->params.p1);
       currentPathSegmentLength = abs(nextPathSegment->params.p1);
-      currentPathSegmentMovementState = MovementState::Moving;
       break;
 
     case PathDefinitionType::Arc:
@@ -62,7 +70,6 @@ void Path::planCurrentPathSegment()
           nextPathSegment->params.p1,
           nextPathSegment->params.p2);
       currentPathSegmentLength = abs(nextPathSegment->params.p1 * nextPathSegment->params.p2);
-      currentPathSegmentMovementState = MovementState::Moving;
       break;
 
     case PathDefinitionType::Turn:
@@ -70,48 +77,50 @@ void Path::planCurrentPathSegment()
           currentPathSegmentAnchorPosition.orientation.get(),
           nextPathSegment->params.p1);
       currentPathSegmentLength = WHEEL_CENTER_BODY_CENTER_OFFSET_X * abs(nextPathSegment->params.p1);
-      currentPathSegmentMovementState = MovementState::Turning;
       break;
 
     default:
       currentPathSegment = NULL;
       currentPathSegmentLength = 0.0d;
-      currentPathSegmentMovementState = MovementState::Stopped;
       break;
-
   }
 }
 
-void Path::interpolate(
+bool Path::interpolate(
   double interpolatedTime,
   KMatrix2* targetPosition)
 {
-  if (currentPathSegmentIndex >= pathSegmentCount)
-    return;
+  if (!pathSegmentCount)
+    return false;
+
+  /*
+  SerialUSB.print("Interpolating path segment: ");
+  SerialUSB.print(currentPathSegmentIndex);
+  SerialUSB.print(" - ");
+  SerialUSB.println(interpolatedTime);
+  */
 
   double positionAlongPath = pathLength * interpolatedTime;
-  while (positionAlongPath - currentPathSegmentStartPosition > currentPathSegmentLength) {
-    // SerialUSB.print("Completed path segment: ");
-    // SerialUSB.println(currentPathSegmentIndex);
-    currentPathSegment->interpolate(1.0d, &currentPathSegmentAnchorPosition);
-    currentPathSegmentIndex++;
-    if (currentPathSegmentIndex >= pathSegmentCount) {
-      // SerialUSB.println("Path completed.");
-      targetPosition->set(&currentPathSegmentAnchorPosition);
-      endCurrentSegment();
-      return;
-    }
-
-    currentPathSegmentStartPosition += currentPathSegmentLength;
+  if (positionAlongPath < currentPathSegmentStartPosition) {
+    reset();
     planCurrentPathSegment();
   }
 
-  if (currentPathSegment) {
-    double interpolatedPathSegmentPosition = constrain(
-        (positionAlongPath - currentPathSegmentStartPosition) / currentPathSegmentLength,
-        0.0d, 1.0d);
-    currentPathSegment->interpolate(interpolatedPathSegmentPosition, targetPosition);
+  while (currentPathSegmentIndex < pathSegmentCount && positionAlongPath > currentPathSegmentStartPosition + currentPathSegmentLength) {
+    currentPathSegment->interpolate(1.0d, &currentPathSegmentAnchorPosition);
+    currentPathSegmentStartPosition += currentPathSegmentLength;
+    currentPathSegmentIndex++;
+    planCurrentPathSegment();
   }
+
+  double interpolatedPathSegmentPosition = min((positionAlongPath - currentPathSegmentStartPosition) / currentPathSegmentLength, 1.0d);
+  currentPathSegment->interpolate(interpolatedPathSegmentPosition, targetPosition);
+
+  /*
+  SerialUSB.print("Path segment interpolation complete: ");
+  SerialUSB.println(currentPathSegmentIndex);
+  */
+  return pathSegments[currentPathSegmentIndex].type != PathDefinitionType::Turn;
 }
 
 double getPathSegmentLength(const PathDefinition* pathSegment)
@@ -126,4 +135,12 @@ double getPathSegmentLength(const PathDefinition* pathSegment)
   }
 
   return 0.0d;
+}
+
+double getPathLength(const PathDefinition* path, int pathSegmentCount)
+{
+  double totalLength = 0.0d;
+  for (int i = 0; i < pathSegmentCount; i++)
+    totalLength += getPathSegmentLength(&path[i]);
+  return totalLength;
 }

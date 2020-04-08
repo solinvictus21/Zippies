@@ -1,21 +1,25 @@
 
+#include <Arduino.h>
+#include <SPI.h>
+
 #include "zippies/controllers/LighthouseController.h"
 #include "zippies/controllers/DebugDisplayController.h"
 #include "zippies/controllers/MotorTuningController.h"
-#include "zippies/controllers/PIDTuningController.h"
+#include "zippies/controllers/RoutineController.h"
 
 LighthouseController::LighthouseController()
 {
   // subController = new DebugDisplayController(&sensors);
   // subController = new MotorTuningController(&sensors);
-  subController = new PIDTuningController(&sensors);
+  // subController = new PIDTuningController(&sensors);
+  subController = new RoutineController(&sensors);
 }
 
 void LighthouseController::start(unsigned long currentTime)
 {
   SerialUSB.begin(115200);
   // while (!SerialUSB);
-  SerialUSB.println("Serial port started.");
+  // SerialUSB.println("Serial port started.");
 
   sensorsReady = false;
   previousPositionTimeStamp = 0;

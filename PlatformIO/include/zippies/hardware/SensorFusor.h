@@ -7,6 +7,7 @@
 #include "LighthouseSensor.h"
 #include "LighthouseOOTX.h"
 #include "zippies/ZippyMath.h"
+#include "zippies/hardware/ZippyFace.h"
 
 //#define DEBUG_SIGNAL_EDGES 1
 // #define SENSOR_COUNT      1
@@ -40,6 +41,8 @@ class SensorFusor
 {
 
 private:
+  ZippyFace display;
+
   //sensors
   LighthouseSensor sensors[SENSOR_COUNT];
   unsigned long fusedSyncPulses[2];

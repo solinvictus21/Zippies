@@ -78,9 +78,19 @@ double KVector2::dotVector(const KVector2* v) const
   return (x*v->x) + (y*v->y);
 }
 
+double KVector2::dotVector(double x2, double y2) const
+{
+  return (x*x2) + (y*y2);
+}
+
 double KVector2::dotOrientation(double o) const
 {
   return (x * sin(o)) + (y * cos(o));
+}
+
+double KVector2::dotOrientation(const KRotation2* orientation) const
+{
+  return (x * orientation->sin()) + (y * orientation->cos());
 }
 
 double KVector2::crossProduct(const KVector2* v) const
@@ -247,7 +257,7 @@ double KVector2::atan() const
       if (this->x == 0.0d)
         _arctan = 0.0d;
       else
-        _arctan = -M_PI_2;
+        _arctan = this->x < 0.0d ? -M_PI_2 : M_PI_2;
     }
     else
       _arctan = ::atan(this->x / this->y);

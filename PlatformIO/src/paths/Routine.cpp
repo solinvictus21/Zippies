@@ -5,21 +5,22 @@
 #include "zippies/paths/Turn.h"
 #include "zippies/paths/Move.h"
 #include "zippies/paths/Arc.h"
-// #include "paths/ZPathPlanner.h"
 
-#define EASING_RATIO                             0.25d
-
-double bezierEaseInOut(double t, double a, double b, double c, double d);
 double bezierEaseInOut(double t, double a, double b);
+/*
+double bezierEaseInOut(double t, double a, double b, double c, double d);
 double quadEaseInOut(double t, double b, double c, double d);
 double cubicEaseInOut(double t, double b, double c, double d);
 double easeInOut(double t, double c1, double c2);
+*/
 
 void Routine::setRoutineSegments(const KMatrix2* ap, RoutineDefinition* rs, int rsc)
 {
   currentTargetPosition.set(ap);
   routineSegments = rs;
   routineSegmentCount = rsc;
+
+  currentRoutineSegmentIndex = 0;
 }
 
 void Routine::start(unsigned long startTime)
@@ -37,6 +38,9 @@ void Routine::planCurrentRoutineSegment(unsigned long currentTime)
       routineSegments[currentRoutineSegmentIndex].pathSegments,
       routineSegments[currentRoutineSegmentIndex].pathSegmentCount);
   currentRoutineSegmentStartTime = currentTime;
+
+  if (!routineSegments[currentRoutineSegmentIndex].pathSegmentCount)
+    currentMovementState = MovementState::Stopped;
 }
 
 void Routine::loop(unsigned long currentTime)
@@ -48,60 +52,42 @@ void Routine::loop(unsigned long currentTime)
   while (unsigned long completionTime = currentRoutineSegmentCompleted(currentTime)) {
     // SerialUSB.print("Completed routine segment: ");
     // SerialUSB.println(currentRoutineSegmentIndex);
-    path.interpolate(1.0d, &currentTargetPosition);
+    if (routineSegments[currentRoutineSegmentIndex].pathSegmentCount) {
+      if (path.interpolate(1.0d, &currentTargetPosition))
+        currentMovementState = MovementState::Moving;
+      else
+        currentMovementState = MovementState::Turning;
+    }
+
     currentRoutineSegmentIndex++;
     if (currentRoutineSegmentIndex >= routineSegmentCount) {
       // SerialUSB.println("Routine completed.");
+      currentMovementState = MovementState::Stopped;
       return;
     }
 
     planCurrentRoutineSegment(completionTime);
   }
 
-  double currentRoutineSegmentInterpolatedTime =
-      ((double)(currentTime - currentRoutineSegmentStartTime)) /
-      ((double)routineSegments[currentRoutineSegmentIndex].timing);
-  currentRoutineSegmentInterpolatedTime = bezierEaseInOut(
-      currentRoutineSegmentInterpolatedTime,
-      routineSegments[currentRoutineSegmentIndex].easeInFactor,
-      1.0d - routineSegments[currentRoutineSegmentIndex].easeOutFactor);
-  path.interpolate(currentRoutineSegmentInterpolatedTime, &currentTargetPosition);
-}
+  if (routineSegments[currentRoutineSegmentIndex].pathSegmentCount) {
+    unsigned long repeatedTime = ((currentTime - currentRoutineSegmentStartTime) * (routineSegments[currentRoutineSegmentIndex].pathRepeatCount+1)) %
+        routineSegments[currentRoutineSegmentIndex].timing;
+    double currentRoutineSegmentInterpolatedTime =
+        ((double)repeatedTime) /
+        ((double)routineSegments[currentRoutineSegmentIndex].timing);
+    // /*
+    currentRoutineSegmentInterpolatedTime = bezierEaseInOut(
+        currentRoutineSegmentInterpolatedTime,
+        routineSegments[currentRoutineSegmentIndex].easeInFactor,
+        1.0d - routineSegments[currentRoutineSegmentIndex].easeOutFactor);
+    // */
 
-/*
-void Routine::loopDebug(unsigned long currentTime, ZippyFace* face)
-{
-  // face->displayData(0, 30, currentTime);
-  if (isRoutineCompleted())
-    return;
-
-  //process the next routine segment
-  face->displayData(0, 10, currentTime);
-  while (unsigned long completionTime = currentRoutineSegmentCompleted(currentTime)) {
-    // SerialUSB.print("Completed routine segment: ");
-    // SerialUSB.println(currentRoutineSegmentIndex);
-    // face->displayData(0, 30, currentTime);
-    path.interpolate(1.0d, &currentTargetPosition);
-    currentRoutineSegmentIndex++;
-    if (currentRoutineSegmentIndex >= routineSegmentCount) {
-      // SerialUSB.println("Routine completed.");
-      return;
-    }
-
-    face->displayData(0, 20, currentTime);
-    face->displayData(SCREEN_WIDTH_PIXELS_2, 20, currentRoutineSegmentIndex);
-    face->displayData(SCREEN_WIDTH_PIXELS_2, 30, routineSegmentCount);
-    planCurrentRoutineSegment(completionTime);
-    face->displayData(0, 30, currentTime);
+    if (path.interpolate(currentRoutineSegmentInterpolatedTime, &currentTargetPosition))
+      currentMovementState = MovementState::Moving;
+    else
+      currentMovementState = MovementState::Turning;
   }
-
-  // face->displayData(0, 30, currentTime);
-  double currentRoutineSegmentInterpolatedTime =
-      ((double)(currentTime - currentRoutineSegmentStartTime)) /
-      ((double)routineSegments[currentRoutineSegmentIndex].timing);
-  path.interpolate(currentRoutineSegmentInterpolatedTime, &currentTargetPosition);
 }
-*/
 
 unsigned long Routine::currentRoutineSegmentCompleted(unsigned long currentTime)
 {
@@ -110,6 +96,14 @@ unsigned long Routine::currentRoutineSegmentCompleted(unsigned long currentTime)
     return currentRoutineSegmentEndTime;
 
   return 0;
+}
+
+double getRoutineLength(const RoutineDefinition* routine, int routineSegmentCount)
+{
+  double totalLength = 0.0d;
+  for (int i = 0; i < routineSegmentCount; i++)
+    totalLength += getPathLength(routine[i].pathSegments, routine[i].pathSegmentCount);
+  return totalLength;
 }
 
 double bezierEaseInOut(double t, double a, double b, double c, double d)
@@ -127,14 +121,18 @@ double bezierEaseInOut(double t, double a, double b, double c, double d)
 
 double bezierEaseInOut(double t, double a, double b)
 {
-  double u = 1.0d - t;
-  double u2 = u * u;
   double t2 = t * t;
   double t3 = t2 * t;
+  double mt = 1.0d - t;
+  double mt2 = mt * mt;
+  return (a * 3.0 * mt2 * t) + (b * 3.0d * mt * t2) + t3;
+}
 
-  double u2t3 = 3.0d * u2 * t;
-  double ut23 = 3.0d * u * t2;
-  return (u2t3 * a) + (ut23 * b) + t3;
+double quadBezierEaseInOut2(double t, double a)
+{
+  double t2 = t * t;
+  double mt = 1.0d - t;
+  return (a * 2.0d * mt * t) + t2;
 }
 
 double quadEaseInOut(double t, double b, double c, double d)
@@ -155,4 +153,20 @@ double cubicEaseInOut(double t, double b, double c, double d)
 
   t -= 2.0d;
   return c/2.0d * (t*t*t + 2.0d) + b;
+}
+
+void reversePath(
+  PathDefinition* pathSegments,
+  int pathSegmentCount)
+{
+  for (int i = 0; i < pathSegmentCount; i++)
+    pathSegments[i].params.p1 = -pathSegments[i].params.p1;
+}
+
+void reverseRoutine(
+  RoutineDefinition* routine,
+  int routineCount)
+{
+  for (int i = 0; i < routineCount; i++)
+    reversePath(routine[i].pathSegments, routine[i].pathSegmentCount);
 }

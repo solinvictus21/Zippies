@@ -6,7 +6,7 @@
 #include "zippies/hardware/SensorFusor.h"
 #include "zippies/hardware/Zippy.h"
 #include "zippies/hardware/ZippyWheel.h"
-#include "zippies/ZippyPaths.h"
+#include "zippies/ZippyRoutine.h"
 
 class PathFollowingController
 {
@@ -15,7 +15,11 @@ private:
   Zippy zippy;
 
   MovementState currentMovementState = MovementState::Stopped;
+  unsigned long stateDowngradeIterationCount = 0;
   KMatrix2 currentMovement;
+
+  void move();
+  void moveDirect();
 
 public:
   PathFollowingController() {}

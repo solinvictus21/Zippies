@@ -58,9 +58,9 @@ private:
   unsigned long completedCycleTimeStamp = 0;
 
   void resetSync();
-  bool reacquireSync(unsigned int deltaTickCount);
-  bool processSyncPulse(unsigned int deltaTickCount);
-  bool checkForHit(unsigned int deltaTickCount);
+  void reacquireSync(unsigned int deltaTickCount);
+  void processSyncPulseEnd(unsigned int deltaTickCount);
+  bool processHitPulseStart(unsigned int deltaTickCount);
   bool processHitPulseEnd(unsigned int deltaTickCount);
   bool processSweepEnd(unsigned int deltaTickCount);
 

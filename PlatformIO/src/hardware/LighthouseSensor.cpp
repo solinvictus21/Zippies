@@ -84,13 +84,12 @@ void LighthouseSensor::loop(unsigned long currentTime)
     switch (currentCaptureState) {
       case HitCycleState::Unknown:
         // SerialUSB.println("Sensor in unknown state.");
-        if (reacquireSync(deltaTickCount))
-          currentCaptureState = HitCycleState::SyncPulseReceived;
+        reacquireSync(deltaTickCount);
         break;
 
       case HitCycleState::SyncPulseReceived:
         // SerialUSB.println("Sensor sync pulse received.");
-        if (checkForHit(deltaTickCount)) {
+        if (processHitPulseStart(deltaTickCount)) {
           memcpy(&completedHitCycles, &currentHitCycles, sizeof(currentHitCycles));
           completedCycleTimeStamp = currentTime;
         }
@@ -104,14 +103,14 @@ void LighthouseSensor::loop(unsigned long currentTime)
         break;
 
       case HitCycleState::HitPulseReceived:
-        processSweepEnd(deltaTickCount);
+        if (processSweepEnd(deltaTickCount)) {
+          memcpy(&completedHitCycles, &currentHitCycles, sizeof(currentHitCycles));
+          completedCycleTimeStamp = currentTime;
+        }
         break;
 
       case HitCycleState::SweepCycleEnded:
-        if (processSyncPulse(deltaTickCount))
-          currentCaptureState = HitCycleState::SyncPulseReceived;
-        else
-          currentCaptureState = HitCycleState::Unknown;
+        processSyncPulseEnd(deltaTickCount);
         break;
     }
   } while (true);
@@ -143,24 +142,22 @@ void LighthouseSensor::resetSync()
   currentCaptureState = HitCycleState::Unknown;
 }
 
-bool LighthouseSensor::reacquireSync(unsigned int deltaTickCount)
+void LighthouseSensor::reacquireSync(unsigned int deltaTickCount)
 {
   // SerialUSB.print(debugNumber);
   // SerialUSB.print(" Attempting to reacquire on pulse length: ");
   // SerialUSB.println(deltaTickCount);
   if (deltaTickCount < SYNC_PULSE_MIN || deltaTickCount >= SYNC_PULSE_MAX)
-    return false;
+    return;
 
   //begin sync on X axis (0)
   if (SYNC_PULSE_AXIS(deltaTickCount))
-    return false;
+    return;
 
-// /*
 #ifdef DEBUG_LIGHTHOUSE_SYNC
     SerialUSB.print(debugNumber);
     SerialUSB.println(" Acquired sync lock.");
 #endif
-// */
 
   //found a sync signal; capture the sync data and go back to lock-step tracking
   currentAxis = 0;
@@ -168,10 +165,10 @@ bool LighthouseSensor::reacquireSync(unsigned int deltaTickCount)
   // SerialUSB.print(deltaTickCount);
   // SerialUSB.print(" ");
   currentHitCycles[currentAxis].syncTicks = deltaTickCount;
-  return true;
+  currentCaptureState = HitCycleState::SyncPulseReceived;
 }
 
-bool LighthouseSensor::processSyncPulse(unsigned int deltaTickCount)
+void LighthouseSensor::processSyncPulseEnd(unsigned int deltaTickCount)
 {
   if (deltaTickCount < SYNC_PULSE_MIN || deltaTickCount >= SYNC_PULSE_MAX) {
     //we missed an expected sync signal
@@ -183,7 +180,7 @@ bool LighthouseSensor::processSyncPulse(unsigned int deltaTickCount)
 
     //start over
     resetSync();
-    return false;
+    return;
   }
 
   //sanity check to ensure we're receiving the sync signal for the axis that we're expecting
@@ -199,36 +196,21 @@ bool LighthouseSensor::processSyncPulse(unsigned int deltaTickCount)
 
     //start over
     resetSync();
-    return false;
+    return;
   }
 
   // SerialUSB.print("sync pulse length: ");
   // SerialUSB.print(deltaTickCount);
   // SerialUSB.print(" ");
   currentHitCycles[currentAxis].syncTicks = deltaTickCount;
-  return true;
+  currentCaptureState = HitCycleState::SyncPulseReceived;
 }
 
-bool LighthouseSensor::checkForHit(unsigned int deltaTickCount)
+bool LighthouseSensor::processHitPulseStart(unsigned int deltaTickCount)
 {
   //this should be the rising edge of the sweep hit
   // unsigned long totalSweepLength = cycleData[currentAxis].pendingSyncTicks + deltaTickCount;
   unsigned long totalCycleLength = currentHitCycles[currentAxis].syncTicks + deltaTickCount;
-  // /*
-  if (totalCycleLength >= SWEEP_DURATION_TICK_COUNT + SWEEP_DURATION_EPSILON) {
-#ifdef DEBUG_LIGHTHOUSE_ERRORS
-    SerialUSB.print(debugNumber);
-    SerialUSB.print(" Missed sweep hit and start of next sync: ");
-    SerialUSB.println(totalCycleLength);
-#endif
-
-    //we missed the sweep hit for this axis, and the total sweep length is long enough that we now
-    //have no idea which signal we'll receive next
-    resetSync();
-    return false;
-  }
-  // */
-
   if (totalCycleLength >= SWEEP_DURATION_TICK_COUNT - SWEEP_DURATION_EPSILON) {
     //we missed the sweep hit
 #ifdef DEBUG_LIGHTHOUSE_MISSES
@@ -241,9 +223,7 @@ bool LighthouseSensor::checkForHit(unsigned int deltaTickCount)
 
     currentHitCycles[currentAxis].sweepHitStartTicks = 0;
     currentHitCycles[currentAxis].sweepHitEndTicks = 0;
-    currentAxis = (currentAxis + 1) & 0x1;
-    currentCaptureState = HitCycleState::SweepCycleEnded;
-    return !currentAxis;
+    return processSweepEnd(totalCycleLength);
   }
 
   //this sweep hit is hitting within the expected sweep window; wait for the falling edge
@@ -262,26 +242,26 @@ bool LighthouseSensor::processHitPulseEnd(unsigned int deltaTickCount)
     SerialUSB.print(" Missed sweep hit falling edge: ");
     SerialUSB.println(deltaTickCount);
 #endif
-    // cycleData[currentAxis].pendingSweepHitTicks = 0;
+
     currentHitCycles[currentAxis].sweepHitEndTicks = 0;
-    return processSweepEnd(deltaTickCount);
+    return processSweepEnd(
+        currentHitCycles[currentAxis].syncTicks +
+        currentHitCycles[currentAxis].sweepHitStartTicks +
+        deltaTickCount);
   }
   // */
 
   currentHitCycles[currentAxis].sweepHitEndTicks = deltaTickCount;
   currentCaptureState = HitCycleState::HitPulseReceived;
-  return currentAxis;
+  return false;
 }
 
-bool LighthouseSensor::processSweepEnd(unsigned int deltaTickCount)
+bool LighthouseSensor::processSweepEnd(unsigned int totalSweepTickCount)
 {
-// SerialUSB.print("Sweep end: ");
-// SerialUSB.println(deltaTickCount);
-  unsigned long totalCycleLength = currentHitCycles[currentAxis].syncTicks +
-      currentHitCycles[currentAxis].sweepHitStartTicks +
-      currentHitCycles[currentAxis].sweepHitEndTicks +
-      deltaTickCount;
-  if (totalCycleLength < SWEEP_DURATION_TICK_COUNT - SWEEP_DURATION_EPSILON) {
+  // SerialUSB.print("Sweep end: ");
+  // SerialUSB.println(deltaTickCount);
+  /*
+  if (totalSweepTickCount < SWEEP_DURATION_TICK_COUNT - SWEEP_DURATION_EPSILON) {
     //the next rising pulse edge was detected before it should have been due to what appear to be shortcomings in the
     //current build of the lighthouse circuit; reject these pulses as "echoes"
     //in this particular case, the 2.2pF capacitors during transimpedance amplification appear to be generating the pulse
@@ -302,7 +282,9 @@ bool LighthouseSensor::processSweepEnd(unsigned int deltaTickCount)
 #endif
     return false;
   }
-  else if (totalCycleLength >= SWEEP_DURATION_TICK_COUNT + SWEEP_DURATION_EPSILON) {
+  else
+  */
+  if (totalSweepTickCount >= SWEEP_DURATION_TICK_COUNT + SWEEP_DURATION_EPSILON) {
 #ifdef DEBUG_LIGHTHOUSE_ERRORS
     SerialUSB.print(debugNumber);
     SerialUSB.print(" Total sweep length too long: ");

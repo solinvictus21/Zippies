@@ -2,6 +2,8 @@
 #ifndef _ZIPPYMATH_H_
 #define _ZIPPYMATH_H_
 
+#define M2_PI    6.283185307179586d
+
 //2D math objects
 #include "zippies/math/KMatrix2.h"
 #include "zippies/math/KRotation2.h"

@@ -1,6 +1,5 @@
 
 #include "zippies/ZippyControllers.h"
-#include "zippies/config/MotorConfig.h"
 
 #ifdef ENABLE_SDCARD_LOGGING
 #include <SD.h>
@@ -29,7 +28,6 @@ DirectMove movements[] = {
 int movementCount = (int)(sizeof(movements) / sizeof(DirectMove));
 
 DirectController::DirectController()
-  : motors(MOTOR_DEAD_ZONE_ABS)
 {
 #ifdef ENABLE_SDCARD_LOGGING
   if (SD.begin(CHIP_SELECT_PIN))

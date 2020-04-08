@@ -4,7 +4,13 @@
 
 #include "Path.h"
 #include "zippies/ZippyMath.h"
-#include "zippies/hardware/ZippyFace.h"
+
+typedef enum class _MovementState
+{
+  Stopped,
+  Turning,
+  Moving,
+} MovementState;
 
 typedef struct _RoutineDefinition
 {
@@ -16,6 +22,8 @@ typedef struct _RoutineDefinition
   int pathRepeatCount;
 } RoutineDefinition;
 
+double getRoutineLength(const RoutineDefinition* routine, int routineSegmentCount);
+
 class Routine
 {
 
@@ -23,6 +31,7 @@ private:
   const RoutineDefinition* routineSegments;
   int routineSegmentCount = 0;
   int currentRoutineSegmentIndex = 0;
+  MovementState currentMovementState = MovementState::Stopped;
 
   unsigned long currentRoutineSegmentStartTime = 0;
   int currentRoutineSegmentLoopCount = 0;
@@ -46,8 +55,12 @@ public:
   bool isRoutineCompleted() { return currentRoutineSegmentIndex >= routineSegmentCount; }
 
   const KMatrix2* getTargetPosition() const { return &currentTargetPosition; };
-  MovementState getTargetMovementState() const { return path.getMovementState(); }
+  MovementState getTargetMovementState() { return currentMovementState; }
 
 };
+
+void reverseRoutine(
+  RoutineDefinition* routine,
+  int routineCount);
 
 #endif

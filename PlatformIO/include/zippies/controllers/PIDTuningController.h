@@ -15,21 +15,10 @@
 
 typedef enum class _TuningVariable
 {
-  DeadZones,
   Proportional,
   Integral,
   Derivative,
 } TuningVariable;
-
-typedef enum class _TestingState
-{
-  PreSyncingWithPreamble,
-  MovingIntoPlace,
-  // WaitingForFullStop,
-  // SyncingWithPreamble,
-  Testing,
-  PostSyncingWithPreamble,
-} TestingState;
 
 typedef struct _AutoTuneTest
 {
@@ -43,11 +32,6 @@ class PIDTuningController : public ZippyController
 {
 
 private:
-  SensorFusor* sensors;
-  Routine routine;
-  PathFollowingController pathFollowingController;
-  KMatrix2 previousTargetPosition;
-
   StatisticsAccumulator statisticsAccumulator;
 
   TuningVariable currentTuningVariable = TuningVariable::Proportional;
@@ -55,7 +39,6 @@ private:
   double* bestTestValue;
   double currentTestIncrement = 0.0d;
 
-  TestingState currentTestingState = TestingState::PreSyncingWithPreamble;
   AutoTuneTest currentTestRun;
   AutoTuneTest bestTestRun;
 
@@ -69,8 +52,6 @@ private:
   void closeLogFile();
 #endif
 
-  void planMoveIntoPlace(const KMatrix2* fromPosition);
-  void startMoveIntoPlace(unsigned long currentTime);
   void setupTuning(TuningVariable tuningVariable);
   void startErrorCapture();
   void captureError();
@@ -83,8 +64,7 @@ private:
       const char* dl, double d);
 
 public:
-  // PIDTuningController(SensorFusor* s, Zippy* z);
-  PIDTuningController(SensorFusor* s);
+  PIDTuningController();
 
   void start(unsigned long startTime);
   void loop(unsigned long currentTime);
