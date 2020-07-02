@@ -1,0 +1,613 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "ZippyManagerDelegate"
+- "ZippyManager"
+provides-nominal:
+- "7Zippies20ZippyManagerDelegateP"
+- "7Zippies12ZippyManagerC"
+provides-member:
+- ["7Zippies20ZippyManagerDelegateP", ""]
+- ["7Zippies12ZippyManagerC", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "+"
+- !private "<<"
+- "AnyObject"
+- "AssignmentPrecedence"
+- !private "CBAdvertisementDataManufacturerDataKey"
+- "CBCharacteristic"
+- "CBPeripheral"
+- "CBService"
+- "CBUUID"
+- "CastingPrecedence"
+- !private "Data"
+- !private "DispatchQueue"
+- "Double"
+- !private "Float32"
+- !private "FloatLiteralType"
+- "Int"
+- !private "IntegerLiteralType"
+- "NSObject"
+- "PeripheralFinder"
+- "PeripheralFinderDelegate"
+- "String"
+- !private "StringLiteralType"
+- !private "UInt32"
+- "UInt8"
+- "UUID"
+- "Zippy2"
+- !private "ZippyBroadcastUUID"
+- !private "ZippyComputedDataRxUUID"
+- "ZippyManager"
+- "ZippyManagerDelegate"
+- !private "ZippySensorLeftRxUUID"
+- !private "ZippySensorRightRxUUID"
+- !private "ZippyServiceUUID"
+- !private "ZippyTxUUID"
+- !private "print"
+- !private "|="
+depends-member:
+- !private ["s18AdditiveArithmeticP", "init"]
+- !private ["Sa", "init"]
+- !private ["Sa", "subscript"]
+- !private ["SK", "init"]
+- !private ["SK", "subscript"]
+- !private ["SB", "init"]
+- !private ["Sz", "init"]
+- !private ["So24CBCentralManagerDelegateP", "delegate"]
+- ["So24CBCentralManagerDelegateP", "init"]
+- !private ["So24CBCentralManagerDelegateP", "startDiscovery"]
+- !private ["So24CBCentralManagerDelegateP", "startObserving"]
+- !private ["So24CBCentralManagerDelegateP", "stopDiscovery"]
+- !private ["So6CBPeerC", "identifier"]
+- !private ["So12CBPeripheralC", "identifier"]
+- !private ["So20CBPeripheralDelegateP", "delegate"]
+- ["So20CBPeripheralDelegateP", "init"]
+- !private ["So20CBPeripheralDelegateP", "startDiscovery"]
+- !private ["So20CBPeripheralDelegateP", "startObserving"]
+- !private ["So20CBPeripheralDelegateP", "stopDiscovery"]
+- !private ["s7CVarArgP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["s7CVarArgP", "DispatchQueue"]
+- !private ["s7CVarArgP", "Double"]
+- !private ["s7CVarArgP", "Float32"]
+- ["s7CVarArgP", "PeripheralFinder"]
+- !private ["s7CVarArgP", "UInt32"]
+- !private ["s7CVarArgP", "UInt8"]
+- ["s7CVarArgP", "UUID"]
+- ["s7CVarArgP", "Zippy2"]
+- !private ["s7CVarArgP", "ZippyBroadcastUUID"]
+- !private ["s7CVarArgP", "ZippyComputedDataRxUUID"]
+- !private ["s7CVarArgP", "ZippySensorLeftRxUUID"]
+- !private ["s7CVarArgP", "ZippySensorRightRxUUID"]
+- !private ["s7CVarArgP", "ZippyServiceUUID"]
+- !private ["s7CVarArgP", "ZippyTxUUID"]
+- ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "_zippies"]
+- !private ["s7CVarArgP", "async"]
+- !private ["s7CVarArgP", "delegate"]
+- !private ["s7CVarArgP", "discoverZippies"]
+- !private ["s7CVarArgP", "extractFloat32"]
+- !private ["s7CVarArgP", "identifier"]
+- ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "main"]
+- ["s7CVarArgP", "peripheral"]
+- !private ["s7CVarArgP", "peripheralFinder"]
+- !private ["s7CVarArgP", "print"]
+- !private ["s7CVarArgP", "setPosition"]
+- !private ["s7CVarArgP", "startDiscovery"]
+- !private ["s7CVarArgP", "startObserving"]
+- !private ["s7CVarArgP", "stopDiscovery"]
+- !private ["s7CVarArgP", "subscript"]
+- ["Sl", "init"]
+- !private ["Sl", "subscript"]
+- !private ["SL", "init"]
+- !private ["10Foundation15ContiguousBytesP", "init"]
+- !private ["10Foundation15ContiguousBytesP", "subscript"]
+- !private ["s28CustomDebugStringConvertibleP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["s28CustomDebugStringConvertibleP", "DispatchQueue"]
+- !private ["s28CustomDebugStringConvertibleP", "Double"]
+- !private ["s28CustomDebugStringConvertibleP", "Float32"]
+- ["s28CustomDebugStringConvertibleP", "PeripheralFinder"]
+- !private ["s28CustomDebugStringConvertibleP", "UInt32"]
+- !private ["s28CustomDebugStringConvertibleP", "UInt8"]
+- ["s28CustomDebugStringConvertibleP", "UUID"]
+- ["s28CustomDebugStringConvertibleP", "Zippy2"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippyBroadcastUUID"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippyComputedDataRxUUID"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippySensorLeftRxUUID"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippySensorRightRxUUID"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippyServiceUUID"]
+- !private ["s28CustomDebugStringConvertibleP", "ZippyTxUUID"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "_zippies"]
+- !private ["s28CustomDebugStringConvertibleP", "async"]
+- !private ["s28CustomDebugStringConvertibleP", "delegate"]
+- !private ["s28CustomDebugStringConvertibleP", "discoverZippies"]
+- !private ["s28CustomDebugStringConvertibleP", "extractFloat32"]
+- !private ["s28CustomDebugStringConvertibleP", "identifier"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "main"]
+- ["s28CustomDebugStringConvertibleP", "peripheral"]
+- !private ["s28CustomDebugStringConvertibleP", "peripheralFinder"]
+- !private ["s28CustomDebugStringConvertibleP", "print"]
+- !private ["s28CustomDebugStringConvertibleP", "setPosition"]
+- !private ["s28CustomDebugStringConvertibleP", "startDiscovery"]
+- !private ["s28CustomDebugStringConvertibleP", "startObserving"]
+- !private ["s28CustomDebugStringConvertibleP", "stopDiscovery"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["s23CustomStringConvertibleP", "DispatchQueue"]
+- !private ["s23CustomStringConvertibleP", "Double"]
+- !private ["s23CustomStringConvertibleP", "Float32"]
+- ["s23CustomStringConvertibleP", "PeripheralFinder"]
+- !private ["s23CustomStringConvertibleP", "UInt32"]
+- !private ["s23CustomStringConvertibleP", "UInt8"]
+- ["s23CustomStringConvertibleP", "UUID"]
+- ["s23CustomStringConvertibleP", "Zippy2"]
+- !private ["s23CustomStringConvertibleP", "ZippyBroadcastUUID"]
+- !private ["s23CustomStringConvertibleP", "ZippyComputedDataRxUUID"]
+- !private ["s23CustomStringConvertibleP", "ZippySensorLeftRxUUID"]
+- !private ["s23CustomStringConvertibleP", "ZippySensorRightRxUUID"]
+- !private ["s23CustomStringConvertibleP", "ZippyServiceUUID"]
+- !private ["s23CustomStringConvertibleP", "ZippyTxUUID"]
+- ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "_zippies"]
+- !private ["s23CustomStringConvertibleP", "async"]
+- !private ["s23CustomStringConvertibleP", "delegate"]
+- !private ["s23CustomStringConvertibleP", "discoverZippies"]
+- !private ["s23CustomStringConvertibleP", "extractFloat32"]
+- !private ["s23CustomStringConvertibleP", "identifier"]
+- ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "main"]
+- ["s23CustomStringConvertibleP", "peripheral"]
+- !private ["s23CustomStringConvertibleP", "peripheralFinder"]
+- !private ["s23CustomStringConvertibleP", "print"]
+- !private ["s23CustomStringConvertibleP", "setPosition"]
+- !private ["s23CustomStringConvertibleP", "startDiscovery"]
+- !private ["s23CustomStringConvertibleP", "startObserving"]
+- !private ["s23CustomStringConvertibleP", "stopDiscovery"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["10Foundation12DataProtocolP", "init"]
+- !private ["10Foundation12DataProtocolP", "subscript"]
+- ["Se", "init"]
+- !private ["Se", "subscript"]
+- ["SD", "init"]
+- !private ["SD", "subscript"]
+- !private ["So18OS_dispatch_objectC", "async"]
+- !private ["So18OS_dispatch_objectC", "main"]
+- !private ["So17OS_dispatch_queueC", "async"]
+- !private ["So17OS_dispatch_queueC", "main"]
+- !private ["Sd", "init"]
+- ["SE", "init"]
+- !private ["SE", "subscript"]
+- !private ["SQ", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["SQ", "DispatchQueue"]
+- !private ["SQ", "Double"]
+- !private ["SQ", "Float32"]
+- ["SQ", "PeripheralFinder"]
+- !private ["SQ", "UInt32"]
+- !private ["SQ", "UInt8"]
+- ["SQ", "UUID"]
+- ["SQ", "Zippy2"]
+- !private ["SQ", "ZippyBroadcastUUID"]
+- !private ["SQ", "ZippyComputedDataRxUUID"]
+- !private ["SQ", "ZippySensorLeftRxUUID"]
+- !private ["SQ", "ZippySensorRightRxUUID"]
+- !private ["SQ", "ZippyServiceUUID"]
+- !private ["SQ", "ZippyTxUUID"]
+- ["SQ", ""]
+- !private ["SQ", "_zippies"]
+- !private ["SQ", "async"]
+- !private ["SQ", "delegate"]
+- !private ["SQ", "discoverZippies"]
+- !private ["SQ", "extractFloat32"]
+- !private ["SQ", "identifier"]
+- ["SQ", "init"]
+- !private ["SQ", "main"]
+- ["SQ", "peripheral"]
+- !private ["SQ", "peripheralFinder"]
+- !private ["SQ", "print"]
+- !private ["SQ", "setPosition"]
+- !private ["SQ", "startDiscovery"]
+- !private ["SQ", "startObserving"]
+- !private ["SQ", "stopDiscovery"]
+- !private ["SQ", "subscript"]
+- !private ["s25ExpressibleByArrayLiteralP", "init"]
+- !private ["s25ExpressibleByArrayLiteralP", "subscript"]
+- ["s30ExpressibleByDictionaryLiteralP", "init"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "subscript"]
+- !private ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s17FixedWidthIntegerP", "init"]
+- !private ["Sf", "init"]
+- !private ["SF", "init"]
+- !private ["SH", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["SH", "DispatchQueue"]
+- !private ["SH", "Double"]
+- !private ["SH", "Float32"]
+- ["SH", "PeripheralFinder"]
+- !private ["SH", "UInt32"]
+- !private ["SH", "UInt8"]
+- ["SH", "UUID"]
+- ["SH", "Zippy2"]
+- !private ["SH", "ZippyBroadcastUUID"]
+- !private ["SH", "ZippyComputedDataRxUUID"]
+- !private ["SH", "ZippySensorLeftRxUUID"]
+- !private ["SH", "ZippySensorRightRxUUID"]
+- !private ["SH", "ZippyServiceUUID"]
+- !private ["SH", "ZippyTxUUID"]
+- ["SH", ""]
+- !private ["SH", "_zippies"]
+- !private ["SH", "async"]
+- !private ["SH", "delegate"]
+- !private ["SH", "discoverZippies"]
+- !private ["SH", "extractFloat32"]
+- !private ["SH", "identifier"]
+- ["SH", "init"]
+- !private ["SH", "main"]
+- ["SH", "peripheral"]
+- !private ["SH", "peripheralFinder"]
+- !private ["SH", "print"]
+- !private ["SH", "setPosition"]
+- !private ["SH", "startDiscovery"]
+- !private ["SH", "startObserving"]
+- !private ["SH", "stopDiscovery"]
+- !private ["SH", "subscript"]
+- !private ["s25LosslessStringConvertibleP", "init"]
+- !private ["SM", "init"]
+- !private ["SM", "subscript"]
+- !private ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "subscript"]
+- !private ["So9NSCopyingP", "identifier"]
+- !private ["So8NSObjectC", "CBAdvertisementDataManufacturerDataKey"]
+- ["So8NSObjectC", "CBCharacteristic"]
+- ["So8NSObjectC", "CBPeripheral"]
+- ["So8NSObjectC", "CBService"]
+- ["So8NSObjectC", "CBUUID"]
+- !private ["So8NSObjectC", "Data"]
+- !private ["So8NSObjectC", "DispatchQueue"]
+- ["So8NSObjectC", "Double"]
+- !private ["So8NSObjectC", "Float32"]
+- ["So8NSObjectC", "Int"]
+- ["So8NSObjectC", "PeripheralFinder"]
+- ["So8NSObjectC", "String"]
+- !private ["So8NSObjectC", "UInt32"]
+- ["So8NSObjectC", "UInt8"]
+- ["So8NSObjectC", "UUID"]
+- ["So8NSObjectC", "Zippy2"]
+- !private ["So8NSObjectC", "ZippyBroadcastUUID"]
+- !private ["So8NSObjectC", "ZippyComputedDataRxUUID"]
+- ["So8NSObjectC", "ZippyManagerDelegate"]
+- !private ["So8NSObjectC", "ZippySensorLeftRxUUID"]
+- !private ["So8NSObjectC", "ZippySensorRightRxUUID"]
+- !private ["So8NSObjectC", "ZippyServiceUUID"]
+- !private ["So8NSObjectC", "ZippyTxUUID"]
+- ["So8NSObjectC", ""]
+- ["So8NSObjectC", "_zippies"]
+- !private ["So8NSObjectC", "async"]
+- ["So8NSObjectC", "clearDevices"]
+- ["So8NSObjectC", "delegate"]
+- ["So8NSObjectC", "discoverLighthouse"]
+- ["So8NSObjectC", "discoverZippies"]
+- ["So8NSObjectC", "extractFloat32"]
+- !private ["So8NSObjectC", "identifier"]
+- ["So8NSObjectC", "init"]
+- !private ["So8NSObjectC", "main"]
+- ["So8NSObjectC", "peripheral"]
+- ["So8NSObjectC", "peripheralFinder"]
+- !private ["So8NSObjectC", "print"]
+- !private ["So8NSObjectC", "setPosition"]
+- ["So8NSObjectC", "startDiscovery"]
+- ["So8NSObjectC", "startObserving"]
+- ["So8NSObjectC", "stopDiscovery"]
+- ["So8NSObjectC", "zippies"]
+- !private ["So8NSObjectP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["So8NSObjectP", "DispatchQueue"]
+- !private ["So8NSObjectP", "Double"]
+- !private ["So8NSObjectP", "Float32"]
+- ["So8NSObjectP", "PeripheralFinder"]
+- !private ["So8NSObjectP", "UInt32"]
+- !private ["So8NSObjectP", "UInt8"]
+- ["So8NSObjectP", "UUID"]
+- ["So8NSObjectP", "Zippy2"]
+- !private ["So8NSObjectP", "ZippyBroadcastUUID"]
+- !private ["So8NSObjectP", "ZippyComputedDataRxUUID"]
+- !private ["So8NSObjectP", "ZippySensorLeftRxUUID"]
+- !private ["So8NSObjectP", "ZippySensorRightRxUUID"]
+- !private ["So8NSObjectP", "ZippyServiceUUID"]
+- !private ["So8NSObjectP", "ZippyTxUUID"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "_zippies"]
+- !private ["So8NSObjectP", "async"]
+- !private ["So8NSObjectP", "delegate"]
+- !private ["So8NSObjectP", "discoverZippies"]
+- !private ["So8NSObjectP", "extractFloat32"]
+- !private ["So8NSObjectP", "identifier"]
+- ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "main"]
+- ["So8NSObjectP", "peripheral"]
+- !private ["So8NSObjectP", "peripheralFinder"]
+- !private ["So8NSObjectP", "print"]
+- !private ["So8NSObjectP", "setPosition"]
+- !private ["So8NSObjectP", "startDiscovery"]
+- !private ["So8NSObjectP", "startObserving"]
+- !private ["So8NSObjectP", "stopDiscovery"]
+- !private ["Sj", "init"]
+- !private ["So9OS_objectC", "async"]
+- !private ["So9OS_objectC", "main"]
+- !private ["7Zippies16PeripheralFinderC", "delegate"]
+- ["7Zippies16PeripheralFinderC", "init"]
+- !private ["7Zippies16PeripheralFinderC", "startDiscovery"]
+- !private ["7Zippies16PeripheralFinderC", "startObserving"]
+- !private ["7Zippies16PeripheralFinderC", "stopDiscovery"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "DispatchQueue"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "Double"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "Float32"]
+- ["7Zippies24PeripheralFinderDelegateP", "PeripheralFinder"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "UInt32"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "UInt8"]
+- ["7Zippies24PeripheralFinderDelegateP", "UUID"]
+- ["7Zippies24PeripheralFinderDelegateP", "Zippy2"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippyBroadcastUUID"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippyComputedDataRxUUID"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippySensorLeftRxUUID"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippySensorRightRxUUID"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippyServiceUUID"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "ZippyTxUUID"]
+- ["7Zippies24PeripheralFinderDelegateP", ""]
+- !private ["7Zippies24PeripheralFinderDelegateP", "_zippies"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "delegate"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "discoverZippies"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "extractFloat32"]
+- ["7Zippies24PeripheralFinderDelegateP", "peripheral"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "peripheralFinder"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "print"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "stopDiscovery"]
+- !private ["Sk", "init"]
+- !private ["Sk", "subscript"]
+- !private ["Sm", "init"]
+- !private ["Sm", "subscript"]
+- !private ["s10SIMDScalarP", "init"]
+- !private ["7Combine9SchedulerP", "async"]
+- !private ["7Combine9SchedulerP", "main"]
+- ["ST", "init"]
+- !private ["ST", "subscript"]
+- !private ["s13SignedNumericP", "init"]
+- !private ["Sx", "init"]
+- !private ["s20TextOutputStreamableP", "init"]
+- !private ["s6UInt32V", "init"]
+- !private ["SU", "init"]
+- !private ["7Zippies6Zippy2C", "init"]
+- !private ["7Zippies6Zippy2C", "setPosition"]
+- !private ["7Zippies12ZippyManagerC", "CBAdvertisementDataManufacturerDataKey"]
+- ["7Zippies12ZippyManagerC", "CBCharacteristic"]
+- ["7Zippies12ZippyManagerC", "CBPeripheral"]
+- ["7Zippies12ZippyManagerC", "CBService"]
+- ["7Zippies12ZippyManagerC", "CBUUID"]
+- !private ["7Zippies12ZippyManagerC", "Data"]
+- !private ["7Zippies12ZippyManagerC", "DispatchQueue"]
+- ["7Zippies12ZippyManagerC", "Double"]
+- !private ["7Zippies12ZippyManagerC", "Float32"]
+- ["7Zippies12ZippyManagerC", "Int"]
+- ["7Zippies12ZippyManagerC", "PeripheralFinder"]
+- ["7Zippies12ZippyManagerC", "String"]
+- !private ["7Zippies12ZippyManagerC", "UInt32"]
+- ["7Zippies12ZippyManagerC", "UInt8"]
+- ["7Zippies12ZippyManagerC", "UUID"]
+- ["7Zippies12ZippyManagerC", "Zippy2"]
+- !private ["7Zippies12ZippyManagerC", "ZippyBroadcastUUID"]
+- !private ["7Zippies12ZippyManagerC", "ZippyComputedDataRxUUID"]
+- ["7Zippies12ZippyManagerC", "ZippyManagerDelegate"]
+- !private ["7Zippies12ZippyManagerC", "ZippySensorLeftRxUUID"]
+- !private ["7Zippies12ZippyManagerC", "ZippySensorRightRxUUID"]
+- !private ["7Zippies12ZippyManagerC", "ZippyServiceUUID"]
+- !private ["7Zippies12ZippyManagerC", "ZippyTxUUID"]
+- !private ["7Zippies12ZippyManagerC", "_zippies"]
+- ["7Zippies12ZippyManagerC", "clearDevices"]
+- ["7Zippies12ZippyManagerC", "deinit"]
+- ["7Zippies12ZippyManagerC", "delegate"]
+- !private ["7Zippies12ZippyManagerC", "discoverLighthouse"]
+- !private ["7Zippies12ZippyManagerC", "discoverZippies"]
+- ["7Zippies12ZippyManagerC", "extractFloat32"]
+- ["7Zippies12ZippyManagerC", "init"]
+- ["7Zippies12ZippyManagerC", "peripheral"]
+- !private ["7Zippies12ZippyManagerC", "peripheralFinder"]
+- !private ["7Zippies12ZippyManagerC", "print"]
+- ["7Zippies12ZippyManagerC", "startDiscovery"]
+- ["7Zippies12ZippyManagerC", "startObserving"]
+- ["7Zippies12ZippyManagerC", "stopDiscovery"]
+- ["7Zippies12ZippyManagerC", "zippies"]
+- ["7Zippies20ZippyManagerDelegateP", "Zippy2"]
+- ["7Zippies20ZippyManagerDelegateP", "zippyConnected"]
+- ["7Zippies20ZippyManagerDelegateP", "zippyDisconnected"]
+- ["7Zippies20ZippyManagerDelegateP", "zippyDiscovered"]
+- !private ["s14_ArrayProtocolP", "init"]
+- !private ["s14_ArrayProtocolP", "subscript"]
+- !private ["s15_CVarArgAlignedP", "init"]
+- !private ["s22_CVarArgPassedAsDoubleP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s24_DestructorSafeContainerP", "init"]
+- !private ["s24_DestructorSafeContainerP", "subscript"]
+- !private ["s33_ExpressibleByBuiltinFloatLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s19_HasContiguousBytesP", "init"]
+- !private ["s19_HasContiguousBytesP", "subscript"]
+- ["s35_HasCustomAnyHashableRepresentationP", "init"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "DispatchQueue"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Double"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Float32"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "PeripheralFinder"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "UInt32"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "UInt8"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "UUID"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "Zippy2"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippyBroadcastUUID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippyComputedDataRxUUID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippySensorLeftRxUUID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippySensorRightRxUUID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippyServiceUUID"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "ZippyTxUUID"]
+- ["10Foundation27_KeyValueCodingAndObservingP", ""]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_zippies"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "async"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "delegate"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "discoverZippies"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "extractFloat32"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "identifier"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "main"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheral"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "peripheralFinder"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "print"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "setPosition"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "startDiscovery"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "startObserving"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "stopDiscovery"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "CBAdvertisementDataManufacturerDataKey"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "DispatchQueue"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Double"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Float32"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "PeripheralFinder"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "UInt32"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "UInt8"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "UUID"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Zippy2"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippyBroadcastUUID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippyComputedDataRxUUID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippySensorLeftRxUUID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippySensorRightRxUUID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippyServiceUUID"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "ZippyTxUUID"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", ""]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_zippies"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "async"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "delegate"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "discoverZippies"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "extractFloat32"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "identifier"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "main"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheral"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheralFinder"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "print"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "setPosition"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "startDiscovery"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "startObserving"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "stopDiscovery"]
+- ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+depends-nominal:
+- !private "s18AdditiveArithmeticP"
+- !private "Sa"
+- !private "SK"
+- !private "SB"
+- !private "Sz"
+- "So24CBCentralManagerDelegateP"
+- !private "So6CBPeerC"
+- !private "So12CBPeripheralC"
+- "So20CBPeripheralDelegateP"
+- "s7CVarArgP"
+- "Sl"
+- !private "SL"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- "s17CustomReflectableP"
+- "s23CustomStringConvertibleP"
+- !private "10Foundation12DataProtocolP"
+- "Se"
+- "SD"
+- !private "So18OS_dispatch_objectC"
+- !private "So17OS_dispatch_queueC"
+- !private "Sd"
+- "SE"
+- "SQ"
+- !private "s25ExpressibleByArrayLiteralP"
+- "s30ExpressibleByDictionaryLiteralP"
+- !private "s25ExpressibleByFloatLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "s17FixedWidthIntegerP"
+- !private "Sf"
+- !private "SF"
+- "SH"
+- !private "s25LosslessStringConvertibleP"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- !private "So9NSCopyingP"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "Sj"
+- !private "So9OS_objectC"
+- "7Zippies16PeripheralFinderC"
+- "7Zippies24PeripheralFinderDelegateP"
+- !private "Sk"
+- !private "Sm"
+- !private "s10SIMDScalarP"
+- !private "7Combine9SchedulerP"
+- "ST"
+- !private "s13SignedNumericP"
+- !private "Sx"
+- !private "s20TextOutputStreamableP"
+- !private "s6UInt32V"
+- !private "SU"
+- !private "7Zippies6Zippy2C"
+- "7Zippies12ZippyManagerC"
+- "7Zippies20ZippyManagerDelegateP"
+- !private "s14_ArrayProtocolP"
+- !private "s15_CVarArgAlignedP"
+- !private "s22_CVarArgPassedAsDoubleP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s24_DestructorSafeContainerP"
+- !private "s33_ExpressibleByBuiltinFloatLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s19_HasContiguousBytesP"
+- "s35_HasCustomAnyHashableRepresentationP"
+- "10Foundation27_KeyValueCodingAndObservingP"
+- "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "4715fa89bee7bc75d84b28c0b2c6156f"

@@ -2,7 +2,7 @@
 #ifndef _PATHSEGMENT_H_
 #define _PATHSEGMENT_H_
 
-#include "zippies/math/KMatrix2.h"
+#include "zippies/math/ZMatrix2.h"
 
 class PathSegment
 {
@@ -16,7 +16,7 @@ public:
 
   virtual void interpolate(
     double interpolatedTime,
-    KMatrix2* targetPosition) const = 0;
+    ZMatrix2* targetPosition) const = 0;
 
   virtual ~PathSegment() {}
 

@@ -19,7 +19,7 @@ public:
 
   void interpolate(
     double normalizedTime,
-    KMatrix2* position) const
+    ZMatrix2* position) const
   {
     position->orientation.set(addAngles(startO, deltaO * normalizedTime));
   }

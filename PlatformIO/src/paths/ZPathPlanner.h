@@ -7,14 +7,14 @@
 
 /*
 const ZPath* planPath(
-  const KMatrix2* start,
+  const ZMatrix2* start,
   double endX, double endY, double endO);
-const ZPath* planPath(const KMatrix2* fromPosition, const KMatrix2* toPosition);
-const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget);
-void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition);
-void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
-                                KMatrix2* knotPosition);
-bool requiresBiArcMove(const KMatrix2* relativeTarget);
+const ZPath* planPath(const ZMatrix2* fromPosition, const ZMatrix2* toPosition);
+const ZPath* planRelativePath(const ZMatrix2* start, const ZMatrix2* relativeTarget);
+void calculateRelativeBiArcKnot(ZMatrix2* relativeTargetPosition);
+void calculateRelativeBiArcKnot(const ZMatrix2* relativeTargetPosition,
+                                ZMatrix2* knotPosition);
+bool requiresBiArcMove(const ZMatrix2* relativeTarget);
 */
 
 #endif

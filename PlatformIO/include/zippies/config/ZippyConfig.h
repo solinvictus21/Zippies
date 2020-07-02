@@ -4,6 +4,8 @@
 
 #include <Arduino.h>
 
+void readMCUID(uint32_t* outID);
+
 typedef struct _ZippyConfig
 {
   double pidProportional;

@@ -2,7 +2,8 @@
 #ifndef _PATHFOLLOWINGCONTROLLER_H_
 #define _PATHFOLLOWINGCONTROLLER_H_
 
-#include "zippies/math/KMatrix2.h"
+#include "zippies/math/ZVector2.h"
+#include "zippies/math/ZMatrix2.h"
 #include "zippies/hardware/SensorFusor.h"
 #include "zippies/hardware/Zippy.h"
 #include "zippies/hardware/ZippyWheel.h"
@@ -12,26 +13,37 @@ class PathFollowingController
 {
 
 private:
-  Zippy zippy;
+    Zippy zippy;
 
-  MovementState currentMovementState = MovementState::Stopped;
-  unsigned long stateDowngradeIterationCount = 0;
-  KMatrix2 currentMovement;
+    MovementState currentMovementState = MovementState::Stopped;
+    unsigned long stateDowngradeCounter = 0;
+    ZMatrix2 currentMovement;
 
-  void move();
-  void moveDirect();
+    void executeMove();
+    void executeTurn();
+    void executeStop();
+
+    void moveDirect();
 
 public:
-  PathFollowingController() {}
+    PathFollowingController() {}
 
-  Zippy* getZippy() { return &zippy; }
-  void followPath(
-      const KMatrix2* currentPosition,
-      const KMatrix2* targetPosition,
-      MovementState targetMovementState);
-  void stop();
+    Zippy* getZippy() { return &zippy; }
+    void followPath(
+        const ZMatrix2* currentPosition,
+        const ZMatrix2* targetPosition,
+        MovementState targetMovementState);
+    void followPath(
+        const ZMatrix2* currentPosition,
+        const ZVector2* targetPosition,
+        const ZVector2* targetVelocity);
+    void stopPath(
+        const ZMatrix2* currentPosition,
+        const ZVector2* targetPosition,
+        const ZVector2* targetVelocity);
 
-  bool isStopped() { return currentMovementState == MovementState::Stopped; }
+    void stop();
+    bool isStopped() { return currentMovementState == MovementState::Stopped; }
 
 };
 

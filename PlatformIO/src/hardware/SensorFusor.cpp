@@ -636,7 +636,7 @@ void SensorFusor::processPreambleBit(unsigned long syncTickCount)
     preambleBitCount++;
 }
 
-void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, KVector2* out)
+void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, ZVector2* out)
 {
   //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode by normalizing the angle on each axis
   //from the lighthouse to +/- M_PI_2
@@ -680,7 +680,7 @@ void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zT
   // y = zx - xz = zx - 0z = zx
   // z = xy - yx = 00 - yx = -yx
   // (yz, zx, -yx)
-  KVector3 directionFromLighthouse(
+  ZVector3 directionFromLighthouse(
       horizontalNormalY * verticalNormalZ,
       horizontalNormalZ * verticalNormalX,
       -(horizontalNormalY * verticalNormalX),
@@ -692,7 +692,7 @@ void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zT
   // y = zx - xz = z0 - xz = -xz
   // z = xy - yx = xy - 00 = xy
   // (-zy, -xz, xy)
-  KVector3 directionFromLighthouse(
+  ZVector3 directionFromLighthouse(
       -(verticalNormalZ * horizontalNormalY),
       -(verticalNormalX * horizontalNormalZ),
       verticalNormalX * horizontalNormalY,
@@ -738,8 +738,8 @@ void SensorFusor::calculateLighthouseData()
   //  X axis = -right to +left
   //  Y axis = -down to +up
   //  Z axis = -bock to +front
-  // KVector3 rotationUnitVector(-ootxParser.getAccelDirX(), ootxParser.getAccelDirZ(), ootxParser.getAccelDirY(), 1.0d);
-  KVector3 rotationUnitVector(ootxParser.getAccelDirX(), ootxParser.getAccelDirY(), ootxParser.getAccelDirZ(), 1.0d);
+  // ZVector3 rotationUnitVector(-ootxParser.getAccelDirX(), ootxParser.getAccelDirZ(), ootxParser.getAccelDirY(), 1.0d);
+  ZVector3 rotationUnitVector(ootxParser.getAccelDirX(), ootxParser.getAccelDirY(), ootxParser.getAccelDirZ(), 1.0d);
 
   //now calculate the angle of rotation from the "up" normal (0,1,0) to the rotation unit vector
   //this calculation ultimately reduces to the inverse cosine of the Y axis of the rotation unit vector
@@ -821,7 +821,7 @@ void SensorFusor::estimatePosition(unsigned long currentTime)
   double deltaOrientation = (subtractAngles(position.orientation.get(), previousPosition.orientation.get()) * scale) / divide;
 
   //calculate the previous change in position
-  KVector2 deltaPosition(position.position.getX() - previousPosition.position.getX(),
+  ZVector2 deltaPosition(position.position.getX() - previousPosition.position.getX(),
       position.position.getY() - previousPosition.position.getY());
   //rotate it by the change in orientation
   deltaPosition.rotate(deltaOrientation);

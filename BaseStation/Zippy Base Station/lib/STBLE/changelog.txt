@@ -1,0 +1,22 @@
+STBLE 0.1.2, 28 October 2017
+
+* Change HCI_READ_PACKET_NUM_MAX in hci.c from (5) to (2), lowering memory requirements. Does not seem to affect any tested applications.
+* Add sm.h to included files
+
+STBLE 0.1.0, 2 March 2016
+
+STMicroelectronics provides BlueNRG-MS code in the X-CUBE-BLE1 software package for the STM32Cube platform. This software is easily portable to the Arduino build environment, which is achieved through the following steps:
+
+1. Copy the files inside hci, includes, utils folders from STM32CubeExpansion_BLE1_V2.8.0/Middlewares/ST/STM32_BlueNRG/SimpleBlueNRG_HCI to STBLE/src/STBlueNRG except for hc_dma_lp.c and bluenrg_utils_small.c
+
+2. Create arduino_bluenrg_ble, arduino_hal files for hardware abstraction following example of STM32 files
+
+3. Create STBLE.h as a general header to include all files and future simplified API
+
+3. Change instances of include brackets (#include <hal.h>) to double quotes (#include "hal.h")
+
+4. In ble_clock.h, ble_list.c:  change #include "bluenrg_itf.h" to #include "../arduino_hal.h"
+
+5. In bluenrg_utils.c, hci.c: change #include "stm32_bluenrg_ble.h" to #include "../arduino_bluenrg_ble.h"
+
+6. Examples are modified into an Arduino-style format compatible with Nordic UART Service for initial release state.

@@ -26,7 +26,7 @@ void DebugDisplayController::loop(unsigned long currentTime)
   uint8_t x = 0;
   uint8_t y = 0;
   uint8_t fontHeight = face.getFontHeight();
-  const KMatrix2* currentPosition = sensors->getPosition();
+  const ZMatrix2* currentPosition = sensors->getPosition();
   face.displayLabelAndData(x, y, "X", currentPosition->position.getX());
   y += fontHeight;
   face.displayLabelAndData(x, y, "Y", currentPosition->position.getY());

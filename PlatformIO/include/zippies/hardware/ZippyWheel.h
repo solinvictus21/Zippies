@@ -2,7 +2,7 @@
 #define _ZIPPYWHEEL_H_
 
 // #include <PID_v1.h>
-#include "zippies/math/PID_v2.h"
+#include "zippies/math/ZPID.h"
 #include "zippies/ZippyMath.h"
 #include "zippies/config/PIDConfig.h"
 
@@ -10,10 +10,10 @@ class ZippyWheel
 {
 
 private:
-  KVector2 wheelOffset;
+  ZVector2 wheelOffset;
   double directTurnFactor;
 
-  PID_v2 wheelPID;
+  ZPID wheelPID;
 
 public:
   ZippyWheel(double wox, double woy)

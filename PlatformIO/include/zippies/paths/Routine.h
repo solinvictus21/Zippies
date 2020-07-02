@@ -40,13 +40,13 @@ private:
   unsigned long currentRoutineSegmentCompleted(unsigned long currentTime);
   Path path;
 
-  KMatrix2 currentTargetPosition;
+  ZMatrix2 currentTargetPosition;
 
 public:
   Routine() {}
 
   void setRoutineSegments(
-      const KMatrix2* anchorPosition,
+      const ZMatrix2* anchorPosition,
       RoutineDefinition* routineSegments,
       int routineSegmentCount);
   void reset();
@@ -54,7 +54,7 @@ public:
   void loop(unsigned long currentTime);
   bool isRoutineCompleted() { return currentRoutineSegmentIndex >= routineSegmentCount; }
 
-  const KMatrix2* getTargetPosition() const { return &currentTargetPosition; };
+  const ZMatrix2* getTargetPosition() const { return &currentTargetPosition; };
   MovementState getTargetMovementState() { return currentMovementState; }
 
 };

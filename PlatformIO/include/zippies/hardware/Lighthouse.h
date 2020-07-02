@@ -25,7 +25,7 @@ private:
   LighthouseAxis axes[2];
   int currentAxis;
 
-  KQuaternion3 orientation;
+  ZQuaternion3 orientation;
   bool receivedOrientation = false;
 
 public:

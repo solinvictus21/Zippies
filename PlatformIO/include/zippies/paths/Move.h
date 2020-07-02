@@ -18,7 +18,7 @@ public:
       distance(d)
   {}
 
-  Move(const KMatrix2* start, double d)
+  Move(const ZMatrix2* start, double d)
     : Move(start->position.getX(), start->position.getY(), start->orientation.get(), d)
   {}
 
@@ -27,7 +27,7 @@ public:
 
   void interpolate(
     double normalizedTime,
-    KMatrix2* position) const
+    ZMatrix2* position) const
   {
     double currentDistance = distance * normalizedTime;
     position->position.set(

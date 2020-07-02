@@ -14,7 +14,7 @@ double cubicEaseInOut(double t, double b, double c, double d);
 double easeInOut(double t, double c1, double c2);
 */
 
-void Routine::setRoutineSegments(const KMatrix2* ap, RoutineDefinition* rs, int rsc)
+void Routine::setRoutineSegments(const ZMatrix2* ap, RoutineDefinition* rs, int rsc)
 {
   currentTargetPosition.set(ap);
   routineSegments = rs;
@@ -53,7 +53,7 @@ void Routine::loop(unsigned long currentTime)
     // SerialUSB.print("Completed routine segment: ");
     // SerialUSB.println(currentRoutineSegmentIndex);
     if (routineSegments[currentRoutineSegmentIndex].pathSegmentCount) {
-      if (path.interpolate(1.0d, &currentTargetPosition))
+      if (path.interpolate(1.0, &currentTargetPosition))
         currentMovementState = MovementState::Moving;
       else
         currentMovementState = MovementState::Turning;
@@ -100,7 +100,7 @@ unsigned long Routine::currentRoutineSegmentCompleted(unsigned long currentTime)
 
 double getRoutineLength(const RoutineDefinition* routine, int routineSegmentCount)
 {
-  double totalLength = 0.0d;
+  double totalLength = 0.0;
   for (int i = 0; i < routineSegmentCount; i++)
     totalLength += getPathLength(routine[i].pathSegments, routine[i].pathSegmentCount);
   return totalLength;
@@ -108,14 +108,14 @@ double getRoutineLength(const RoutineDefinition* routine, int routineSegmentCoun
 
 double bezierEaseInOut(double t, double a, double b, double c, double d)
 {
-  double u = 1.0d - t;
+  double u = 1.0 - t;
   double u2 = u * u;
   double u3 = u2 * u;
   double t2 = t * t;
   double t3 = t2 * t;
 
-  double u2t3 = 3.0d * u2 * t;
-  double ut23 = 3.0d * u * t2;
+  double u2t3 = 3.0 * u2 * t;
+  double ut23 = 3.0 * u * t2;
   return (u3 * a) + (u2t3 * b) + (ut23 * c) + (t3 * d);
 }
 
@@ -123,36 +123,36 @@ double bezierEaseInOut(double t, double a, double b)
 {
   double t2 = t * t;
   double t3 = t2 * t;
-  double mt = 1.0d - t;
+  double mt = 1.0 - t;
   double mt2 = mt * mt;
-  return (a * 3.0 * mt2 * t) + (b * 3.0d * mt * t2) + t3;
+  return (a * 3.0 * mt2 * t) + (b * 3.0 * mt * t2) + t3;
 }
 
 double quadBezierEaseInOut2(double t, double a)
 {
   double t2 = t * t;
-  double mt = 1.0d - t;
-  return (a * 2.0d * mt * t) + t2;
+  double mt = 1.0 - t;
+  return (a * 2.0 * mt * t) + t2;
 }
 
 double quadEaseInOut(double t, double b, double c, double d)
 {
-  t /= d/2.0d;
-  if (t < 1.0d)
-      return c/2.0d*t*t + b;
+  t /= d/2.0;
+  if (t < 1.0)
+      return c/2.0*t*t + b;
 
   t--;
-  return -c/2.0d * (((t-2.0d)*t) - 1.0d) + b;
+  return -c/2.0 * (((t-2.0)*t) - 1.0) + b;
 }
 
 double cubicEaseInOut(double t, double b, double c, double d)
 {
-  t /= d/2.0d;
-  if (t < 1.0d)
-      return c/2.0d*t*t*t + b;
+  t /= d/2.0;
+  if (t < 1.0)
+      return c/2.0*t*t*t + b;
 
-  t -= 2.0d;
-  return c/2.0d * (t*t*t + 2.0d) + b;
+  t -= 2.0;
+  return c/2.0 * (t*t*t + 2.0) + b;
 }
 
 void reversePath(

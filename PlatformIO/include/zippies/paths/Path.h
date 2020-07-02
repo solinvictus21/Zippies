@@ -28,7 +28,7 @@ class Path
 {
 
 private:
-  KMatrix2 pathAnchorPosition;
+  ZMatrix2 pathAnchorPosition;
   PathDefinition* pathSegments;
   int pathSegmentCount = 0;
   double pathLength = 0.0d;
@@ -36,7 +36,7 @@ private:
   int currentPathSegmentIndex = 0;
   double currentPathSegmentStartPosition = 0.0d;
 
-  KMatrix2 currentPathSegmentAnchorPosition;
+  ZMatrix2 currentPathSegmentAnchorPosition;
   PathSegment* currentPathSegment = NULL;
   double currentPathSegmentLength = 0.0d;
 
@@ -48,14 +48,14 @@ public:
   Path() {}
 
   void setPathSegments(
-      const KMatrix2* anchorPosition,
+      const ZMatrix2* anchorPosition,
       PathDefinition* pathDefinition,
       int pathDefinitionCount);
   double getLength() const { return pathLength; }
 
   bool interpolate(
     double interpolatedTime,
-    KMatrix2* targetPosition);
+    ZMatrix2* targetPosition);
 
   ~Path() {
     if (currentPathSegment)

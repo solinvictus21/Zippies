@@ -206,7 +206,7 @@ void PIDTuningController::writeLogData(unsigned long currentTime)
 
   logFile.print(",");
 
-  const KMatrix2* velocity = lighthouse->getPositionDelta();
+  const ZMatrix2* velocity = lighthouse->getPositionDelta();
   logFile.print(velocity->position.getX(), 10);
   logFile.print(",");
   logFile.print(velocity->position.getY(), 10);
@@ -223,7 +223,7 @@ void PIDTuningController::writeLogData(unsigned long currentTime)
 
   logFile.println();
   */
-  const KVector3* directionToLighthouse = sensors->getLeftSensor()->getDirectionFromLighthouse();
+  const ZVector3* directionToLighthouse = sensors->getLeftSensor()->getDirectionFromLighthouse();
   logFile.print(directionToLighthouse->getX(), 10);
   logFile.print(",");
   logFile.print(directionToLighthouse->getY(), 10);

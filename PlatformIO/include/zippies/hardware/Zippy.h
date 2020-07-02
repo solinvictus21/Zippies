@@ -16,6 +16,7 @@ private:
 // #ifdef PLATFORM_TINYSCREEN
   // ZippyFace face;
 // #endif
+  bool inReverse = false;
   ZippyWheel leftWheel;
   ZippyWheel rightWheel;
   MotorDriver motors;
@@ -30,25 +31,28 @@ private:
   void setTargetVelocities(double targetLinearVelocity, double targetAngularVelocity);
 #endif
 
+    void moveReverse(const ZMatrix2* relativeTarget);
+
 public:
-  Zippy();
+    Zippy();
 
-  //for auto-tuning; only call this while the Zippy is stopped
-  void setTunings(double p, double i, double d) {
-    leftWheel.setTunings(p, i, d);
-    rightWheel.setTunings(p, i, d);
-  }
+    //for auto-tuning; only call this while the Zippy is stopped
+    void setTunings(double p, double i, double d) {
+        leftWheel.setTunings(p, i, d);
+        rightWheel.setTunings(p, i, d);
+    }
 
-  void start();
-  void move(const KMatrix2* relativeTarget);
-  void moveLinear(double relativeVelocity);
-  void moveArc(double radius, double theta);
-  void turn(double radius, double relativeOrientation);
-  void turn(double relativeOrientation);
+    void start();
+    void setReverseMotion(bool r) { this->inReverse = r; }
+    void move(const ZMatrix2* relativeTarget);
+    void moveLinear(double relativeVelocity);
+    void moveArc(double radius, double theta);
+    void turn(double radius, double relativeOrientation);
+    void turn(double relativeOrientation);
 
-  void stop();
+    void stop();
 
-  // ZippyFace* getFace() { return &face; }
+    // ZippyFace* getFace() { return &face; }
 
 };
 

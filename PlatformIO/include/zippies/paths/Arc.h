@@ -13,12 +13,12 @@ private:
   double deltaAngle;
   double radius;
 
-  KMatrix2 center;
+  ZMatrix2 center;
 
 public:
   Arc(
-    const KMatrix2* startPosition,
-    const KMatrix2* relativeTargetPosition)
+    const ZMatrix2* startPosition,
+    const ZMatrix2* relativeTargetPosition)
   {
     this->startOrientation = startPosition->orientation.get();
     this->radius = relativeTargetPosition->position.getD() / (2.0 * sin(relativeTargetPosition->position.atan2()));
@@ -28,7 +28,7 @@ public:
   }
 
   Arc(
-    const KMatrix2* startPosition,
+    const ZMatrix2* startPosition,
     double radius, double subtendedAngle)
   {
     this->startOrientation = startPosition->orientation.get();
@@ -40,7 +40,7 @@ public:
 
   void interpolate(
     double normalizedTime,
-    KMatrix2* position) const
+    ZMatrix2* position) const
   {
     //determine the angle at the requested time
     double currentAngle = deltaAngle * normalizedTime;

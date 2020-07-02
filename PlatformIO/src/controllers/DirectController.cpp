@@ -112,7 +112,7 @@ void DirectController::loopController(unsigned long currentTime)
 
     directLogFile.print(",");
 
-    const KMatrix2* currentPosition = sensors.getPosition();
+    const ZMatrix2* currentPosition = sensors.getPosition();
     directLogFile.print(currentPosition->position.getX(), 10);
     directLogFile.print(",");
     directLogFile.print(currentPosition->position.getY(), 10);
@@ -121,7 +121,7 @@ void DirectController::loopController(unsigned long currentTime)
 
     directLogFile.print(",");
 
-    const KMatrix2* velocity = sensors.getPositionDelta();
+    const ZMatrix2* velocity = sensors.getPositionDelta();
     directLogFile.print(velocity->position.getX(), 10);
     directLogFile.print(",");
     directLogFile.print(velocity->position.getY(), 10);

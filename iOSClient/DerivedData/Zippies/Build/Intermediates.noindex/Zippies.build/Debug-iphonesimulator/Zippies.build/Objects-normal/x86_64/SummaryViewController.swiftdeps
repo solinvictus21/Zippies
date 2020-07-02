@@ -1,0 +1,442 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "SummaryViewController"
+provides-nominal:
+- "7Zippies21SummaryViewControllerC"
+provides-member:
+- ["7Zippies21SummaryViewControllerC", ""]
+provides-dynamic-lookup:
+- "viewDidLoad"
+- "zippyView"
+depends-top-level:
+- !private "AppDelegate"
+- "AssignmentPrecedence"
+- "CastingPrecedence"
+- "Int32"
+- "SummaryViewController"
+- "TopDownView"
+- !private "UIApplication"
+- "UIViewController"
+- "Zippy2"
+- "ZippyManager"
+- "ZippyManagerDelegate"
+depends-member:
+- !private ["7Zippies11AppDelegateC", "zippyManager"]
+- !private ["So15CALayerDelegateP", "setNeedsDisplay"]
+- !private ["So15CALayerDelegateP", "zippyManager"]
+- !private ["s7CVarArgP", "UIApplication"]
+- ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "delegate"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "setNeedsDisplay"]
+- !private ["s7CVarArgP", "shared"]
+- !private ["s7CVarArgP", "viewDidLoad"]
+- ["s7CVarArgP", "zippyConnected"]
+- ["s7CVarArgP", "zippyDisconnected"]
+- ["s7CVarArgP", "zippyDiscovered"]
+- !private ["s7CVarArgP", "zippyManager"]
+- !private ["s7CVarArgP", "zippyView"]
+- !private ["s28CustomDebugStringConvertibleP", "UIApplication"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "delegate"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "setNeedsDisplay"]
+- !private ["s28CustomDebugStringConvertibleP", "shared"]
+- !private ["s28CustomDebugStringConvertibleP", "viewDidLoad"]
+- ["s28CustomDebugStringConvertibleP", "zippyConnected"]
+- ["s28CustomDebugStringConvertibleP", "zippyDisconnected"]
+- ["s28CustomDebugStringConvertibleP", "zippyDiscovered"]
+- !private ["s28CustomDebugStringConvertibleP", "zippyManager"]
+- !private ["s28CustomDebugStringConvertibleP", "zippyView"]
+- !private ["s17CustomReflectableP", "setNeedsDisplay"]
+- !private ["s17CustomReflectableP", "zippyManager"]
+- !private ["s23CustomStringConvertibleP", "UIApplication"]
+- ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "delegate"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "setNeedsDisplay"]
+- !private ["s23CustomStringConvertibleP", "shared"]
+- !private ["s23CustomStringConvertibleP", "viewDidLoad"]
+- ["s23CustomStringConvertibleP", "zippyConnected"]
+- ["s23CustomStringConvertibleP", "zippyDisconnected"]
+- ["s23CustomStringConvertibleP", "zippyDiscovered"]
+- !private ["s23CustomStringConvertibleP", "zippyManager"]
+- !private ["s23CustomStringConvertibleP", "zippyView"]
+- !private ["Se", "setNeedsDisplay"]
+- !private ["Se", "zippyManager"]
+- !private ["SE", "setNeedsDisplay"]
+- !private ["SE", "zippyManager"]
+- !private ["SQ", "UIApplication"]
+- ["SQ", ""]
+- !private ["SQ", "delegate"]
+- !private ["SQ", "init"]
+- !private ["SQ", "init"]
+- !private ["SQ", "setNeedsDisplay"]
+- !private ["SQ", "shared"]
+- !private ["SQ", "viewDidLoad"]
+- ["SQ", "zippyConnected"]
+- ["SQ", "zippyDisconnected"]
+- ["SQ", "zippyDiscovered"]
+- !private ["SQ", "zippyManager"]
+- !private ["SQ", "zippyView"]
+- !private ["s23ExpressibleByNilLiteralP", "setNeedsDisplay"]
+- !private ["s23ExpressibleByNilLiteralP", "zippyManager"]
+- !private ["SH", "UIApplication"]
+- ["SH", ""]
+- !private ["SH", "delegate"]
+- !private ["SH", "init"]
+- !private ["SH", "init"]
+- !private ["SH", "setNeedsDisplay"]
+- !private ["SH", "shared"]
+- !private ["SH", "viewDidLoad"]
+- ["SH", "zippyConnected"]
+- ["SH", "zippyDisconnected"]
+- ["SH", "zippyDiscovered"]
+- !private ["SH", "zippyManager"]
+- !private ["SH", "zippyView"]
+- !private ["So8NSCodingP", "UIApplication"]
+- ["So8NSCodingP", ""]
+- !private ["So8NSCodingP", "init"]
+- !private ["So8NSCodingP", "init"]
+- !private ["So8NSCodingP", "setNeedsDisplay"]
+- !private ["So8NSCodingP", "viewDidLoad"]
+- ["So8NSCodingP", "zippyConnected"]
+- ["So8NSCodingP", "zippyDisconnected"]
+- ["So8NSCodingP", "zippyDiscovered"]
+- !private ["So8NSCodingP", "zippyManager"]
+- !private ["So8NSCodingP", "zippyView"]
+- !private ["So26NSExtensionRequestHandlingP", "UIApplication"]
+- ["So26NSExtensionRequestHandlingP", ""]
+- !private ["So26NSExtensionRequestHandlingP", "init"]
+- !private ["So26NSExtensionRequestHandlingP", "init"]
+- !private ["So26NSExtensionRequestHandlingP", "viewDidLoad"]
+- ["So26NSExtensionRequestHandlingP", "zippyConnected"]
+- ["So26NSExtensionRequestHandlingP", "zippyDisconnected"]
+- ["So26NSExtensionRequestHandlingP", "zippyDiscovered"]
+- !private ["So26NSExtensionRequestHandlingP", "zippyManager"]
+- !private ["So26NSExtensionRequestHandlingP", "zippyView"]
+- !private ["So8NSObjectC", "AppDelegate"]
+- ["So8NSObjectC", "Int32"]
+- ["So8NSObjectC", "TopDownView"]
+- !private ["So8NSObjectC", "UIApplication"]
+- ["So8NSObjectC", "Zippy2"]
+- ["So8NSObjectC", "ZippyManager"]
+- ["So8NSObjectC", "compassUpdated"]
+- !private ["So8NSObjectC", "delegate"]
+- ["So8NSObjectC", "init"]
+- !private ["So8NSObjectC", "init"]
+- !private ["So8NSObjectC", "setNeedsDisplay"]
+- !private ["So8NSObjectC", "shared"]
+- ["So8NSObjectC", "viewDidLoad"]
+- ["So8NSObjectC", "zippyConnected"]
+- ["So8NSObjectC", "zippyDisconnected"]
+- ["So8NSObjectC", "zippyDiscovered"]
+- ["So8NSObjectC", "zippyManager"]
+- ["So8NSObjectC", "zippyView"]
+- !private ["So8NSObjectP", "UIApplication"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "delegate"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "setNeedsDisplay"]
+- !private ["So8NSObjectP", "shared"]
+- !private ["So8NSObjectP", "viewDidLoad"]
+- ["So8NSObjectP", "zippyConnected"]
+- ["So8NSObjectP", "zippyDisconnected"]
+- ["So8NSObjectP", "zippyDiscovered"]
+- !private ["So8NSObjectP", "zippyManager"]
+- !private ["So8NSObjectP", "zippyView"]
+- !private ["Sq", "setNeedsDisplay"]
+- !private ["Sq", "zippyManager"]
+- !private ["7Zippies24PeripheralFinderDelegateP", "delegate"]
+- !private ["7Zippies21SummaryViewControllerC", "AppDelegate"]
+- ["7Zippies21SummaryViewControllerC", "Int32"]
+- ["7Zippies21SummaryViewControllerC", "TopDownView"]
+- !private ["7Zippies21SummaryViewControllerC", "UIApplication"]
+- ["7Zippies21SummaryViewControllerC", "Zippy2"]
+- ["7Zippies21SummaryViewControllerC", "ZippyManager"]
+- ["7Zippies21SummaryViewControllerC", "compassUpdated"]
+- ["7Zippies21SummaryViewControllerC", "deinit"]
+- ["7Zippies21SummaryViewControllerC", "init"]
+- ["7Zippies21SummaryViewControllerC", "viewDidLoad"]
+- ["7Zippies21SummaryViewControllerC", "zippyConnected"]
+- ["7Zippies21SummaryViewControllerC", "zippyDisconnected"]
+- ["7Zippies21SummaryViewControllerC", "zippyDiscovered"]
+- ["7Zippies21SummaryViewControllerC", "zippyManager"]
+- ["7Zippies21SummaryViewControllerC", "zippyView"]
+- !private ["7Zippies11TopDownViewC", "setNeedsDisplay"]
+- !private ["7Zippies11TopDownViewC", "zippyManager"]
+- !private ["So29UIAccessibilityIdentificationP", "setNeedsDisplay"]
+- !private ["So29UIAccessibilityIdentificationP", "zippyManager"]
+- !private ["So12UIAppearanceP", "setNeedsDisplay"]
+- !private ["So12UIAppearanceP", "zippyManager"]
+- !private ["So21UIAppearanceContainerP", "UIApplication"]
+- ["So21UIAppearanceContainerP", ""]
+- !private ["So21UIAppearanceContainerP", "init"]
+- !private ["So21UIAppearanceContainerP", "init"]
+- !private ["So21UIAppearanceContainerP", "setNeedsDisplay"]
+- !private ["So21UIAppearanceContainerP", "viewDidLoad"]
+- ["So21UIAppearanceContainerP", "zippyConnected"]
+- ["So21UIAppearanceContainerP", "zippyDisconnected"]
+- ["So21UIAppearanceContainerP", "zippyDiscovered"]
+- !private ["So21UIAppearanceContainerP", "zippyManager"]
+- !private ["So21UIAppearanceContainerP", "zippyView"]
+- !private ["So13UIApplicationC", "delegate"]
+- !private ["So13UIApplicationC", "shared"]
+- !private ["So21UIApplicationDelegateP", "zippyManager"]
+- !private ["So18UIContentContainerP", "UIApplication"]
+- ["So18UIContentContainerP", ""]
+- !private ["So18UIContentContainerP", "init"]
+- !private ["So18UIContentContainerP", "init"]
+- !private ["So18UIContentContainerP", "viewDidLoad"]
+- ["So18UIContentContainerP", "zippyConnected"]
+- ["So18UIContentContainerP", "zippyDisconnected"]
+- ["So18UIContentContainerP", "zippyDiscovered"]
+- !private ["So18UIContentContainerP", "zippyManager"]
+- !private ["So18UIContentContainerP", "zippyView"]
+- !private ["So17UICoordinateSpaceP", "setNeedsDisplay"]
+- !private ["So17UICoordinateSpaceP", "zippyManager"]
+- !private ["So13UIDynamicItemP", "setNeedsDisplay"]
+- !private ["So13UIDynamicItemP", "zippyManager"]
+- !private ["So18UIFocusEnvironmentP", "UIApplication"]
+- ["So18UIFocusEnvironmentP", ""]
+- !private ["So18UIFocusEnvironmentP", "init"]
+- !private ["So18UIFocusEnvironmentP", "init"]
+- !private ["So18UIFocusEnvironmentP", "setNeedsDisplay"]
+- !private ["So18UIFocusEnvironmentP", "viewDidLoad"]
+- ["So18UIFocusEnvironmentP", "zippyConnected"]
+- ["So18UIFocusEnvironmentP", "zippyDisconnected"]
+- ["So18UIFocusEnvironmentP", "zippyDiscovered"]
+- !private ["So18UIFocusEnvironmentP", "zippyManager"]
+- !private ["So18UIFocusEnvironmentP", "zippyView"]
+- !private ["So11UIFocusItemP", "setNeedsDisplay"]
+- !private ["So11UIFocusItemP", "zippyManager"]
+- !private ["So20UIFocusItemContainerP", "setNeedsDisplay"]
+- !private ["So20UIFocusItemContainerP", "zippyManager"]
+- !private ["So24UILargeContentViewerItemP", "setNeedsDisplay"]
+- !private ["So24UILargeContentViewerItemP", "zippyManager"]
+- !private ["So30UIPasteConfigurationSupportingP", "UIApplication"]
+- ["So30UIPasteConfigurationSupportingP", ""]
+- !private ["So30UIPasteConfigurationSupportingP", "delegate"]
+- !private ["So30UIPasteConfigurationSupportingP", "init"]
+- !private ["So30UIPasteConfigurationSupportingP", "init"]
+- !private ["So30UIPasteConfigurationSupportingP", "setNeedsDisplay"]
+- !private ["So30UIPasteConfigurationSupportingP", "shared"]
+- !private ["So30UIPasteConfigurationSupportingP", "viewDidLoad"]
+- ["So30UIPasteConfigurationSupportingP", "zippyConnected"]
+- ["So30UIPasteConfigurationSupportingP", "zippyDisconnected"]
+- ["So30UIPasteConfigurationSupportingP", "zippyDiscovered"]
+- !private ["So30UIPasteConfigurationSupportingP", "zippyManager"]
+- !private ["So30UIPasteConfigurationSupportingP", "zippyView"]
+- !private ["So11UIResponderC", "AppDelegate"]
+- ["So11UIResponderC", "Int32"]
+- ["So11UIResponderC", "TopDownView"]
+- !private ["So11UIResponderC", "UIApplication"]
+- ["So11UIResponderC", "Zippy2"]
+- ["So11UIResponderC", "ZippyManager"]
+- ["So11UIResponderC", "compassUpdated"]
+- !private ["So11UIResponderC", "delegate"]
+- ["So11UIResponderC", "init"]
+- !private ["So11UIResponderC", "init"]
+- !private ["So11UIResponderC", "setNeedsDisplay"]
+- !private ["So11UIResponderC", "shared"]
+- ["So11UIResponderC", "viewDidLoad"]
+- ["So11UIResponderC", "zippyConnected"]
+- ["So11UIResponderC", "zippyDisconnected"]
+- ["So11UIResponderC", "zippyDiscovered"]
+- ["So11UIResponderC", "zippyManager"]
+- ["So11UIResponderC", "zippyView"]
+- !private ["So30UIResponderStandardEditActionsP", "UIApplication"]
+- ["So30UIResponderStandardEditActionsP", ""]
+- !private ["So30UIResponderStandardEditActionsP", "delegate"]
+- !private ["So30UIResponderStandardEditActionsP", "init"]
+- !private ["So30UIResponderStandardEditActionsP", "init"]
+- !private ["So30UIResponderStandardEditActionsP", "setNeedsDisplay"]
+- !private ["So30UIResponderStandardEditActionsP", "shared"]
+- !private ["So30UIResponderStandardEditActionsP", "viewDidLoad"]
+- ["So30UIResponderStandardEditActionsP", "zippyConnected"]
+- ["So30UIResponderStandardEditActionsP", "zippyDisconnected"]
+- ["So30UIResponderStandardEditActionsP", "zippyDiscovered"]
+- !private ["So30UIResponderStandardEditActionsP", "zippyManager"]
+- !private ["So30UIResponderStandardEditActionsP", "zippyView"]
+- !private ["So16UIStateRestoringP", "UIApplication"]
+- ["So16UIStateRestoringP", ""]
+- !private ["So16UIStateRestoringP", "init"]
+- !private ["So16UIStateRestoringP", "init"]
+- !private ["So16UIStateRestoringP", "viewDidLoad"]
+- ["So16UIStateRestoringP", "zippyConnected"]
+- ["So16UIStateRestoringP", "zippyDisconnected"]
+- ["So16UIStateRestoringP", "zippyDiscovered"]
+- !private ["So16UIStateRestoringP", "zippyManager"]
+- !private ["So16UIStateRestoringP", "zippyView"]
+- !private ["So18UITraitEnvironmentP", "UIApplication"]
+- ["So18UITraitEnvironmentP", ""]
+- !private ["So18UITraitEnvironmentP", "init"]
+- !private ["So18UITraitEnvironmentP", "init"]
+- !private ["So18UITraitEnvironmentP", "setNeedsDisplay"]
+- !private ["So18UITraitEnvironmentP", "viewDidLoad"]
+- ["So18UITraitEnvironmentP", "zippyConnected"]
+- ["So18UITraitEnvironmentP", "zippyDisconnected"]
+- ["So18UITraitEnvironmentP", "zippyDiscovered"]
+- !private ["So18UITraitEnvironmentP", "zippyManager"]
+- !private ["So18UITraitEnvironmentP", "zippyView"]
+- !private ["So23UIUserActivityRestoringP", "UIApplication"]
+- ["So23UIUserActivityRestoringP", ""]
+- !private ["So23UIUserActivityRestoringP", "delegate"]
+- !private ["So23UIUserActivityRestoringP", "init"]
+- !private ["So23UIUserActivityRestoringP", "init"]
+- !private ["So23UIUserActivityRestoringP", "setNeedsDisplay"]
+- !private ["So23UIUserActivityRestoringP", "shared"]
+- !private ["So23UIUserActivityRestoringP", "viewDidLoad"]
+- ["So23UIUserActivityRestoringP", "zippyConnected"]
+- ["So23UIUserActivityRestoringP", "zippyDisconnected"]
+- ["So23UIUserActivityRestoringP", "zippyDiscovered"]
+- !private ["So23UIUserActivityRestoringP", "zippyManager"]
+- !private ["So23UIUserActivityRestoringP", "zippyView"]
+- !private ["So6UIViewC", "setNeedsDisplay"]
+- !private ["So6UIViewC", "zippyManager"]
+- !private ["So16UIViewControllerC", "AppDelegate"]
+- ["So16UIViewControllerC", "Int32"]
+- ["So16UIViewControllerC", "TopDownView"]
+- !private ["So16UIViewControllerC", "UIApplication"]
+- ["So16UIViewControllerC", "Zippy2"]
+- ["So16UIViewControllerC", "ZippyManager"]
+- ["So16UIViewControllerC", ""]
+- ["So16UIViewControllerC", "compassUpdated"]
+- ["So16UIViewControllerC", "init"]
+- !private ["So16UIViewControllerC", "init"]
+- ["So16UIViewControllerC", "viewDidLoad"]
+- ["So16UIViewControllerC", "zippyConnected"]
+- ["So16UIViewControllerC", "zippyDisconnected"]
+- ["So16UIViewControllerC", "zippyDiscovered"]
+- ["So16UIViewControllerC", "zippyManager"]
+- ["So16UIViewControllerC", "zippyView"]
+- !private ["7Zippies12ZippyManagerC", "delegate"]
+- !private ["7Zippies20ZippyManagerDelegateP", "UIApplication"]
+- ["7Zippies20ZippyManagerDelegateP", ""]
+- ["7Zippies20ZippyManagerDelegateP", "zippyConnected"]
+- ["7Zippies20ZippyManagerDelegateP", "zippyDisconnected"]
+- ["7Zippies20ZippyManagerDelegateP", "zippyDiscovered"]
+- !private ["7Zippies20ZippyManagerDelegateP", "zippyManager"]
+- !private ["7Zippies20ZippyManagerDelegateP", "zippyView"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "UIApplication"]
+- ["10Foundation27_KeyValueCodingAndObservingP", ""]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "delegate"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "setNeedsDisplay"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "shared"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "viewDidLoad"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "zippyConnected"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "zippyDisconnected"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "zippyDiscovered"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "zippyManager"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "zippyView"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "UIApplication"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", ""]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "delegate"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "setNeedsDisplay"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "shared"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "viewDidLoad"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "zippyConnected"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "zippyDisconnected"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "zippyDiscovered"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "zippyManager"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "zippyView"]
+- !private ["s21_ObjectiveCBridgeableP", "setNeedsDisplay"]
+- !private ["s21_ObjectiveCBridgeableP", "zippyManager"]
+- !private ["s38__DefaultCustomPlaygroundQuickLookableP", "setNeedsDisplay"]
+- !private ["s38__DefaultCustomPlaygroundQuickLookableP", "zippyManager"]
+depends-nominal:
+- !private "7Zippies11AppDelegateC"
+- !private "So15CALayerDelegateP"
+- "s7CVarArgP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- "s23CustomStringConvertibleP"
+- !private "Se"
+- !private "SE"
+- "SQ"
+- !private "s23ExpressibleByNilLiteralP"
+- "SH"
+- "So8NSCodingP"
+- "So26NSExtensionRequestHandlingP"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "Sq"
+- !private "7Zippies24PeripheralFinderDelegateP"
+- "7Zippies21SummaryViewControllerC"
+- !private "7Zippies11TopDownViewC"
+- !private "So29UIAccessibilityIdentificationP"
+- !private "So12UIAppearanceP"
+- "So21UIAppearanceContainerP"
+- !private "So13UIApplicationC"
+- !private "So21UIApplicationDelegateP"
+- "So18UIContentContainerP"
+- !private "So17UICoordinateSpaceP"
+- !private "So13UIDynamicItemP"
+- "So18UIFocusEnvironmentP"
+- !private "So11UIFocusItemP"
+- !private "So20UIFocusItemContainerP"
+- !private "So24UILargeContentViewerItemP"
+- "So30UIPasteConfigurationSupportingP"
+- "So11UIResponderC"
+- "So30UIResponderStandardEditActionsP"
+- "So16UIStateRestoringP"
+- "So18UITraitEnvironmentP"
+- "So23UIUserActivityRestoringP"
+- !private "So6UIViewC"
+- "So16UIViewControllerC"
+- !private "7Zippies12ZippyManagerC"
+- "7Zippies20ZippyManagerDelegateP"
+- "10Foundation27_KeyValueCodingAndObservingP"
+- "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- !private "s21_ObjectiveCBridgeableP"
+- !private "s38__DefaultCustomPlaygroundQuickLookableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "0103f1194e8051dcd36a7a8997de3e3d"

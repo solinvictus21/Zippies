@@ -6,7 +6,7 @@
 #include "zippies/paths/Arc.h"
 
 void Path::setPathSegments(
-    const KMatrix2* ap,
+    const ZMatrix2* ap,
     PathDefinition* ps,
     int psc)
 {
@@ -88,7 +88,7 @@ void Path::planCurrentPathSegment()
 
 bool Path::interpolate(
   double interpolatedTime,
-  KMatrix2* targetPosition)
+  ZMatrix2* targetPosition)
 {
   if (!pathSegmentCount)
     return false;

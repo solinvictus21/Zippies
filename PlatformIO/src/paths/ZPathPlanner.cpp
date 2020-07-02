@@ -6,23 +6,23 @@
 #include "Arc.h"
 
 const ZPath* planPath(
-  const KMatrix2* start,
+  const ZMatrix2* start,
   double endX, double endY, double endO)
 {
-  KMatrix2 end(endX, endY, endO);
+  ZMatrix2 end(endX, endY, endO);
   return planPath(start, &end);
 }
 
-const ZPath* planPath(const KMatrix2* start, const KMatrix2* toPosition)
+const ZPath* planPath(const ZMatrix2* start, const ZMatrix2* toPosition)
 {
   //determine if we need to plan a bi-arc move first
-  KMatrix2 relativeTarget(toPosition);
+  ZMatrix2 relativeTarget(toPosition);
   relativeTarget.unconcat(start);
   if (!requiresBiArcMove(&relativeTarget))
     return planRelativePath(start, &relativeTarget);
 
   //plan a bi-arc path move
-  KMatrix2 knot;
+  ZMatrix2 knot;
   calculateRelativeBiArcKnot(&relativeTarget, &knot);
 
   const ZPath* firstSegment = planRelativePath(start, &knot);
@@ -40,7 +40,7 @@ const ZPath* planPath(const KMatrix2* start, const KMatrix2* toPosition)
 }
 */
 /*
-const ZPath* planRelativePath(const KMatrix2* start, const KMatrix2* relativeTarget)
+const ZPath* planRelativePath(const ZMatrix2* start, const ZMatrix2* relativeTarget)
 {
   // if (relativeTarget->position.getD2() < DOUBLE_EPSILON) {
   if (relativeTarget->position.getD2() == 0.0d) {
@@ -63,13 +63,13 @@ double calculateBiArcD(double vDotV,
                        double vDotT,
                        double t1DotT2);
 
-void calculateRelativeBiArcKnot(KMatrix2* relativeTargetPosition)
+void calculateRelativeBiArcKnot(ZMatrix2* relativeTargetPosition)
 {
   calculateRelativeBiArcKnot(relativeTargetPosition, relativeTargetPosition);
 }
 
-void calculateRelativeBiArcKnot(const KMatrix2* relativeTargetPosition,
-                                KMatrix2* knotPosition)
+void calculateRelativeBiArcKnot(const ZMatrix2* relativeTargetPosition,
+                                ZMatrix2* knotPosition)
 {
   // if (abs(relativeTargetPosition->orientation.get()) < DOUBLE_EPSILON) {
   if (abs(relativeTargetPosition->orientation.get()) == 0.0d) {
@@ -127,7 +127,7 @@ double calculateBiArcD(
     return d / t1DotT2Inv2;
 }
 
-bool requiresBiArcMove(const KMatrix2* relativeTarget)
+bool requiresBiArcMove(const ZMatrix2* relativeTarget)
 {
   //a simple turn in place does not need a bi-arc
   // if (relativeTarget->position.getD2() < DOUBLE_EPSILON)

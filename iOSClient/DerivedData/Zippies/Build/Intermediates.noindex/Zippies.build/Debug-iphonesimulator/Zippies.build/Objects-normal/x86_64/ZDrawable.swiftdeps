@@ -1,0 +1,423 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "TURN_RADIUS"
+- "ZDrawable"
+- "ZCompoundDrawable"
+- "ZDrawableLine"
+- "ZDrawableArrow"
+- "ZDrawableCircle"
+- "ZDrawablePath"
+provides-nominal:
+- "7Zippies9ZDrawableP"
+- "7Zippies17ZCompoundDrawableC"
+- "7Zippies13ZDrawableLineC"
+- "7Zippies14ZDrawableArrowC"
+- "7Zippies15ZDrawableCircleC"
+- "7Zippies13ZDrawablePathC"
+provides-member:
+- ["7Zippies9ZDrawableP", ""]
+- ["7Zippies17ZCompoundDrawableC", ""]
+- ["7Zippies13ZDrawableLineC", ""]
+- ["7Zippies14ZDrawableArrowC", ""]
+- ["7Zippies15ZDrawableCircleC", ""]
+- ["7Zippies13ZDrawablePathC", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "*"
+- !private "+"
+- !private "-"
+- !private "..."
+- !private "/"
+- "AssignmentPrecedence"
+- "Bool"
+- !private "BooleanLiteralType"
+- "CGFloat"
+- "CGPoint"
+- !private "CGRect"
+- "Double"
+- "FloatLiteralType"
+- !private "IntegerLiteralType"
+- "KMatrix2"
+- "KVector2"
+- !private "SEGMENTS_PER_PATH"
+- "TURN_RADIUS"
+- !private "UIBezierPath"
+- "UIColor"
+- "ZCompoundDrawable"
+- "ZDrawable"
+- "ZDrawableArrow"
+- "ZDrawableCircle"
+- "ZDrawableLine"
+- "ZDrawablePath"
+- "ZPath"
+- !private "cos"
+- !private "sin"
+depends-member:
+- !private ["s18AdditiveArithmeticP", "init"]
+- !private ["SB", "init"]
+- !private ["12CoreGraphics7CGFloatV", "init"]
+- !private ["So7CGPointV", "init"]
+- !private ["So7CGPointV", "x"]
+- !private ["So7CGPointV", "y"]
+- !private ["So6CGRectV", "init"]
+- !private ["s7CVarArgP", "addLine"]
+- !private ["s7CVarArgP", "fill"]
+- !private ["s7CVarArgP", "getX"]
+- !private ["s7CVarArgP", "getY"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "move"]
+- !private ["s7CVarArgP", "orientation"]
+- !private ["s7CVarArgP", "position"]
+- !private ["s7CVarArgP", "rotation"]
+- !private ["s7CVarArgP", "setFill"]
+- !private ["s7CVarArgP", "setStroke"]
+- !private ["s7CVarArgP", "stroke"]
+- !private ["SL", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "addLine"]
+- !private ["s28CustomDebugStringConvertibleP", "fill"]
+- !private ["s28CustomDebugStringConvertibleP", "getX"]
+- !private ["s28CustomDebugStringConvertibleP", "getY"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "move"]
+- !private ["s28CustomDebugStringConvertibleP", "orientation"]
+- !private ["s28CustomDebugStringConvertibleP", "position"]
+- !private ["s28CustomDebugStringConvertibleP", "rotation"]
+- !private ["s28CustomDebugStringConvertibleP", "setFill"]
+- !private ["s28CustomDebugStringConvertibleP", "setStroke"]
+- !private ["s28CustomDebugStringConvertibleP", "stroke"]
+- !private ["s28CustomDebugStringConvertibleP", "x"]
+- !private ["s28CustomDebugStringConvertibleP", "y"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "x"]
+- !private ["s17CustomReflectableP", "y"]
+- !private ["s23CustomStringConvertibleP", "addLine"]
+- !private ["s23CustomStringConvertibleP", "fill"]
+- !private ["s23CustomStringConvertibleP", "getX"]
+- !private ["s23CustomStringConvertibleP", "getY"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "move"]
+- !private ["s23CustomStringConvertibleP", "orientation"]
+- !private ["s23CustomStringConvertibleP", "position"]
+- !private ["s23CustomStringConvertibleP", "rotation"]
+- !private ["s23CustomStringConvertibleP", "setFill"]
+- !private ["s23CustomStringConvertibleP", "setStroke"]
+- !private ["s23CustomStringConvertibleP", "stroke"]
+- !private ["Se", "init"]
+- !private ["Se", "x"]
+- !private ["Se", "y"]
+- !private ["Sd", "init"]
+- !private ["SE", "init"]
+- !private ["SE", "x"]
+- !private ["SE", "y"]
+- !private ["SQ", "addLine"]
+- !private ["SQ", "fill"]
+- !private ["SQ", "getX"]
+- !private ["SQ", "getY"]
+- !private ["SQ", "init"]
+- !private ["SQ", "move"]
+- !private ["SQ", "orientation"]
+- !private ["SQ", "position"]
+- !private ["SQ", "rotation"]
+- !private ["SQ", "setFill"]
+- !private ["SQ", "setStroke"]
+- !private ["SQ", "stroke"]
+- !private ["SQ", "x"]
+- !private ["SQ", "y"]
+- !private ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["SF", "init"]
+- !private ["SH", "addLine"]
+- !private ["SH", "fill"]
+- !private ["SH", "getX"]
+- !private ["SH", "getY"]
+- !private ["SH", "init"]
+- !private ["SH", "move"]
+- !private ["SH", "orientation"]
+- !private ["SH", "position"]
+- !private ["SH", "rotation"]
+- !private ["SH", "setFill"]
+- !private ["SH", "setStroke"]
+- !private ["SH", "stroke"]
+- !private ["7Zippies8KMatrix2C", "init"]
+- !private ["7Zippies8KMatrix2C", "orientation"]
+- !private ["7Zippies8KMatrix2C", "position"]
+- !private ["7Zippies10KRotation2C", "rotation"]
+- !private ["7Zippies8KVector2C", "getX"]
+- !private ["7Zippies8KVector2C", "getY"]
+- !private ["s25LosslessStringConvertibleP", "init"]
+- !private ["So8NSCodingP", "addLine"]
+- !private ["So8NSCodingP", "fill"]
+- !private ["So8NSCodingP", "init"]
+- !private ["So8NSCodingP", "move"]
+- !private ["So8NSCodingP", "setFill"]
+- !private ["So8NSCodingP", "setStroke"]
+- !private ["So8NSCodingP", "stroke"]
+- !private ["So9NSCopyingP", "addLine"]
+- !private ["So9NSCopyingP", "fill"]
+- !private ["So9NSCopyingP", "init"]
+- !private ["So9NSCopyingP", "move"]
+- !private ["So9NSCopyingP", "setFill"]
+- !private ["So9NSCopyingP", "setStroke"]
+- !private ["So9NSCopyingP", "stroke"]
+- !private ["So21NSItemProviderReadingP", "setFill"]
+- !private ["So21NSItemProviderReadingP", "setStroke"]
+- !private ["So21NSItemProviderWritingP", "setFill"]
+- !private ["So21NSItemProviderWritingP", "setStroke"]
+- !private ["So8NSObjectC", "addLine"]
+- !private ["So8NSObjectC", "fill"]
+- !private ["So8NSObjectC", "getX"]
+- !private ["So8NSObjectC", "getY"]
+- !private ["So8NSObjectC", "init"]
+- !private ["So8NSObjectC", "move"]
+- !private ["So8NSObjectC", "orientation"]
+- !private ["So8NSObjectC", "position"]
+- !private ["So8NSObjectC", "rotation"]
+- !private ["So8NSObjectC", "setFill"]
+- !private ["So8NSObjectC", "setStroke"]
+- !private ["So8NSObjectC", "stroke"]
+- !private ["So8NSObjectP", "addLine"]
+- !private ["So8NSObjectP", "fill"]
+- !private ["So8NSObjectP", "getX"]
+- !private ["So8NSObjectP", "getY"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "move"]
+- !private ["So8NSObjectP", "orientation"]
+- !private ["So8NSObjectP", "position"]
+- !private ["So8NSObjectP", "rotation"]
+- !private ["So8NSObjectP", "setFill"]
+- !private ["So8NSObjectP", "setStroke"]
+- !private ["So8NSObjectP", "stroke"]
+- !private ["So14NSSecureCodingP", "addLine"]
+- !private ["So14NSSecureCodingP", "fill"]
+- !private ["So14NSSecureCodingP", "init"]
+- !private ["So14NSSecureCodingP", "move"]
+- !private ["So14NSSecureCodingP", "setFill"]
+- !private ["So14NSSecureCodingP", "setStroke"]
+- !private ["So14NSSecureCodingP", "stroke"]
+- !private ["Sj", "init"]
+- !private ["s10SIMDScalarP", "init"]
+- !private ["s13SignedNumericP", "init"]
+- !private ["Sx", "init"]
+- !private ["s20TextOutputStreamableP", "init"]
+- !private ["So12UIBezierPathC", "addLine"]
+- !private ["So12UIBezierPathC", "fill"]
+- !private ["So12UIBezierPathC", "init"]
+- !private ["So12UIBezierPathC", "move"]
+- !private ["So12UIBezierPathC", "stroke"]
+- !private ["So7UIColorC", "setFill"]
+- !private ["So7UIColorC", "setStroke"]
+- ["7Zippies17ZCompoundDrawableC", "ZDrawable"]
+- ["7Zippies17ZCompoundDrawableC", "deinit"]
+- ["7Zippies17ZCompoundDrawableC", "draw"]
+- !private ["7Zippies17ZCompoundDrawableC", "drawables"]
+- ["7Zippies17ZCompoundDrawableC", "init"]
+- !private ["7Zippies9ZDrawableP", "CGFloat"]
+- !private ["7Zippies9ZDrawableP", "CGPoint"]
+- !private ["7Zippies9ZDrawableP", "CGRect"]
+- !private ["7Zippies9ZDrawableP", "Double"]
+- !private ["7Zippies9ZDrawableP", "KMatrix2"]
+- !private ["7Zippies9ZDrawableP", "SEGMENTS_PER_PATH"]
+- !private ["7Zippies9ZDrawableP", "UIBezierPath"]
+- ["7Zippies9ZDrawableP", ""]
+- !private ["7Zippies9ZDrawableP", "center"]
+- !private ["7Zippies9ZDrawableP", "color"]
+- !private ["7Zippies9ZDrawableP", "cos"]
+- ["7Zippies9ZDrawableP", "draw"]
+- !private ["7Zippies9ZDrawableP", "drawables"]
+- !private ["7Zippies9ZDrawableP", "end"]
+- !private ["7Zippies9ZDrawableP", "fill"]
+- !private ["7Zippies9ZDrawableP", "init"]
+- !private ["7Zippies9ZDrawableP", "orientation"]
+- !private ["7Zippies9ZDrawableP", "paths"]
+- !private ["7Zippies9ZDrawableP", "position"]
+- !private ["7Zippies9ZDrawableP", "radius"]
+- !private ["7Zippies9ZDrawableP", "sin"]
+- !private ["7Zippies9ZDrawableP", "size"]
+- !private ["7Zippies9ZDrawableP", "start"]
+- ["7Zippies14ZDrawableArrowC", "CGFloat"]
+- ["7Zippies14ZDrawableArrowC", "CGPoint"]
+- ["7Zippies14ZDrawableArrowC", "Double"]
+- ["7Zippies14ZDrawableArrowC", "KMatrix2"]
+- !private ["7Zippies14ZDrawableArrowC", "UIBezierPath"]
+- ["7Zippies14ZDrawableArrowC", "UIColor"]
+- !private ["7Zippies14ZDrawableArrowC", "color"]
+- !private ["7Zippies14ZDrawableArrowC", "cos"]
+- ["7Zippies14ZDrawableArrowC", "deinit"]
+- ["7Zippies14ZDrawableArrowC", "draw"]
+- ["7Zippies14ZDrawableArrowC", "init"]
+- !private ["7Zippies14ZDrawableArrowC", "orientation"]
+- !private ["7Zippies14ZDrawableArrowC", "position"]
+- !private ["7Zippies14ZDrawableArrowC", "sin"]
+- !private ["7Zippies14ZDrawableArrowC", "size"]
+- ["7Zippies15ZDrawableCircleC", "Bool"]
+- ["7Zippies15ZDrawableCircleC", "CGFloat"]
+- ["7Zippies15ZDrawableCircleC", "CGPoint"]
+- !private ["7Zippies15ZDrawableCircleC", "CGRect"]
+- ["7Zippies15ZDrawableCircleC", "Double"]
+- ["7Zippies15ZDrawableCircleC", "KVector2"]
+- !private ["7Zippies15ZDrawableCircleC", "UIBezierPath"]
+- ["7Zippies15ZDrawableCircleC", "UIColor"]
+- !private ["7Zippies15ZDrawableCircleC", "center"]
+- !private ["7Zippies15ZDrawableCircleC", "color"]
+- ["7Zippies15ZDrawableCircleC", "deinit"]
+- ["7Zippies15ZDrawableCircleC", "draw"]
+- !private ["7Zippies15ZDrawableCircleC", "fill"]
+- ["7Zippies15ZDrawableCircleC", "init"]
+- !private ["7Zippies15ZDrawableCircleC", "radius"]
+- ["7Zippies13ZDrawableLineC", "CGPoint"]
+- ["7Zippies13ZDrawableLineC", "Double"]
+- ["7Zippies13ZDrawableLineC", "KVector2"]
+- !private ["7Zippies13ZDrawableLineC", "UIBezierPath"]
+- ["7Zippies13ZDrawableLineC", "UIColor"]
+- !private ["7Zippies13ZDrawableLineC", "color"]
+- ["7Zippies13ZDrawableLineC", "deinit"]
+- ["7Zippies13ZDrawableLineC", "draw"]
+- !private ["7Zippies13ZDrawableLineC", "end"]
+- ["7Zippies13ZDrawableLineC", "init"]
+- !private ["7Zippies13ZDrawableLineC", "start"]
+- !private ["7Zippies13ZDrawablePathC", "CGPoint"]
+- !private ["7Zippies13ZDrawablePathC", "Double"]
+- !private ["7Zippies13ZDrawablePathC", "KMatrix2"]
+- !private ["7Zippies13ZDrawablePathC", "SEGMENTS_PER_PATH"]
+- !private ["7Zippies13ZDrawablePathC", "UIBezierPath"]
+- ["7Zippies13ZDrawablePathC", "UIColor"]
+- ["7Zippies13ZDrawablePathC", "ZPath"]
+- !private ["7Zippies13ZDrawablePathC", "color"]
+- ["7Zippies13ZDrawablePathC", "deinit"]
+- ["7Zippies13ZDrawablePathC", "draw"]
+- ["7Zippies13ZDrawablePathC", "init"]
+- !private ["7Zippies13ZDrawablePathC", "paths"]
+- !private ["7Zippies5ZPathP", "interpolate"]
+- !private ["s15_CVarArgAlignedP", "init"]
+- !private ["s22_CVarArgPassedAsDoubleP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "init"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "x"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "y"]
+- !private ["s33_ExpressibleByBuiltinFloatLiteralP", "init"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "init"]
+- !private ["s26_ExpressibleByColorLiteralP", "setFill"]
+- !private ["s26_ExpressibleByColorLiteralP", "setStroke"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "addLine"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "fill"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getX"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getY"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "move"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "orientation"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "position"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "rotation"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "setFill"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "setStroke"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "stroke"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "addLine"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "fill"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getX"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getY"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "move"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "orientation"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "position"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "rotation"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "setFill"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "setStroke"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "stroke"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "x"]
+- !private ["s21_ObjectiveCBridgeableP", "y"]
+depends-nominal:
+- !private "s18AdditiveArithmeticP"
+- !private "SB"
+- !private "12CoreGraphics7CGFloatV"
+- !private "So7CGPointV"
+- !private "So6CGRectV"
+- !private "s7CVarArgP"
+- !private "SL"
+- !private "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- !private "s23CustomStringConvertibleP"
+- !private "Se"
+- !private "Sd"
+- !private "SE"
+- !private "SQ"
+- !private "s25ExpressibleByFloatLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "SF"
+- !private "SH"
+- !private "7Zippies8KMatrix2C"
+- !private "7Zippies10KRotation2C"
+- !private "7Zippies8KVector2C"
+- !private "s25LosslessStringConvertibleP"
+- !private "So8NSCodingP"
+- !private "So9NSCopyingP"
+- !private "So21NSItemProviderReadingP"
+- !private "So21NSItemProviderWritingP"
+- !private "So8NSObjectC"
+- !private "So8NSObjectP"
+- !private "So14NSSecureCodingP"
+- !private "Sj"
+- !private "s10SIMDScalarP"
+- !private "s13SignedNumericP"
+- !private "Sx"
+- !private "s20TextOutputStreamableP"
+- !private "So12UIBezierPathC"
+- !private "So7UIColorC"
+- "7Zippies17ZCompoundDrawableC"
+- "7Zippies9ZDrawableP"
+- "7Zippies14ZDrawableArrowC"
+- "7Zippies15ZDrawableCircleC"
+- "7Zippies13ZDrawableLineC"
+- "7Zippies13ZDrawablePathC"
+- !private "7Zippies5ZPathP"
+- !private "s15_CVarArgAlignedP"
+- !private "s22_CVarArgPassedAsDoubleP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s33_ExpressibleByBuiltinFloatLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s26_ExpressibleByColorLiteralP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- !private "10Foundation27_KeyValueCodingAndObservingP"
+- !private "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "5f5015d1ea3ac34803706b580fd8aa97"

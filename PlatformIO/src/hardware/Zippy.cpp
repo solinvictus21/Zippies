@@ -29,51 +29,64 @@ void Zippy::start()
   rightWheel.start();
 }
 
+void Zippy::moveReverse(const ZMatrix2* relativeTarget)
+{
+
+}
+
+
 //calculations below derived from the following source
 //    http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
 //it should be noted that the signs of the radius and the angle herein use the following conventions
 //    when the radius is negative, the robot moves around the circle defined by a center to the left of the front of the Zippy
-//    the sign of the angle indicates the direction the Zippy will turn; thus...
-//        when the radius is positive, a positive angle will move around the circle clockwise
-//        when the radius is negative, a positive angle will move around the circle clockwise
-//    this leads to the following behaviors with respect to the combination of the signs of the radius and the angle
+//    the sign of the angle indicates the direction the Zippy will turn such that a positive angle will always move around the
+//    circle in a clockwise direction; this leads to the following behaviors with respect to the combination of the signs of
+//    the radius and the angle
 //        +/+ moving forward to the right
 //        +/- moving backward to the right while the front of the Zippy is turning left
 //        -/- moving forward to the left
 //        -/+ moving backward to the left while the front of the Zippy is turning right
-void Zippy::move(const KMatrix2* target)
+void Zippy::move(const ZMatrix2* target)
 {
 #ifdef LIMIT_ACCELERATION
-  double newTargetLinearVelocity = target->position.getD();
-  double newTargetAngularVelocity;
-  if (newTargetLinearVelocity != 0.0d) {
-    newTargetAngularVelocity = target->position.atan();
-    if (newTargetAngularVelocity != 0.0d)
-      newTargetLinearVelocity *= newTargetAngularVelocity / sin(newTargetAngularVelocity);
-    newTargetAngularVelocity *= 2.0d;
-  }
-  else
-    newTargetAngularVelocity = target->orientation.get();
-  setTargetVelocities(newTargetLinearVelocity, newTargetAngularVelocity);
-#else
-  if (target->position.getX() == 0.0d) {
-    double targetY = target->position.getY();
-    if (targetY == 0.0d)
-      turn(target->orientation.get());
+    double newTargetLinearVelocity = target->position.getD();
+    double newTargetAngularVelocity;
+    if (newTargetLinearVelocity != 0.0d) {
+        newTargetAngularVelocity = target->position.atan();
+        if (newTargetAngularVelocity != 0.0d)
+            newTargetLinearVelocity *= newTargetAngularVelocity / sin(newTargetAngularVelocity);
+        newTargetAngularVelocity *= 2.0d;
+    }
     else
-      moveLinear(targetY);
-    return;
-  }
+        newTargetAngularVelocity = target->orientation.get();
+    setTargetVelocities(newTargetLinearVelocity, newTargetAngularVelocity);
+#else
+    /*
+    if (inReverse ) {
+        moveReverse(target);
+        return;
+    }
+    */
 
-  // double rC = target->position.getD() / (2.0d * sin(target->position.atan2()));
-  double rC = target->position.getD2() / (2.0d * target->position.getX());
-  double theta = 2.0d * target->position.atan();
-  // leftWheel.moveArc(rC, theta);
-  // rightWheel.moveArc(rC, theta);
-  // motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
-  motors.setMotors(
-    leftWheel.moveArc(rC, theta),
-    rightWheel.moveArc(rC, theta));
+    if (target->position.getX() == 0.0) {
+        double targetY = target->position.getY();
+        if (targetY == 0.0)
+            turn(target->orientation.get());
+        else
+            moveLinear(targetY);
+        return;
+    }
+
+    /*
+    double dotOrientation =
+        (target->position.getX() * target->orientation.sin()) +
+        (target->position.getY() * target->orientation.cos());
+    */
+    double rC = target->position.getD2() / (2.0 * target->position.getX());
+    double theta = 2.0 * target->position.atan();
+    motors.setMotors(
+        leftWheel.moveArc(rC, theta),
+        rightWheel.moveArc(rC, theta));
 #endif
 }
 

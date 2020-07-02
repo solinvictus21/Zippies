@@ -1,0 +1,376 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "LighthouseAdvertisedUUID"
+- "LighthouseServiceUUID"
+- "LighthouseReadWriteUUID"
+- "LighthouseBaseStationID"
+- "LighthouseDelegate"
+- "Lighthouse"
+provides-nominal:
+- "7Zippies18LighthouseDelegateP"
+- "7Zippies10LighthouseC"
+provides-member:
+- ["7Zippies18LighthouseDelegateP", ""]
+- ["7Zippies10LighthouseC", ""]
+provides-dynamic-lookup:
+- "peripheral"
+depends-top-level:
+- !private "=="
+- "AnyObject"
+- "AssignmentPrecedence"
+- "BluetoothPeripheral"
+- !private "BooleanLiteralType"
+- "CBCharacteristic"
+- !private "CBCharacteristicWriteType"
+- "CBPeripheral"
+- "CBPeripheralDelegate"
+- "CBService"
+- "CBUUID"
+- !private "Data"
+- "Error"
+- "FloatLiteralType"
+- "IntegerLiteralType"
+- "Lighthouse"
+- "LighthouseAdvertisedUUID"
+- "LighthouseBaseStationID"
+- "LighthouseDelegate"
+- "LighthouseReadWriteUUID"
+- "LighthouseServiceUUID"
+- "StringLiteralType"
+- "UInt32"
+- "ZippyDelegate"
+- !private "print"
+- !private "~="
+depends-member:
+- !private ["SK", "init"]
+- ["7Zippies19BluetoothPeripheralC", "CBCharacteristic"]
+- !private ["7Zippies19BluetoothPeripheralC", "CBCharacteristicWriteType"]
+- ["7Zippies19BluetoothPeripheralC", "CBPeripheral"]
+- ["7Zippies19BluetoothPeripheralC", "CBService"]
+- ["7Zippies19BluetoothPeripheralC", "CBUUID"]
+- !private ["7Zippies19BluetoothPeripheralC", "Data"]
+- ["7Zippies19BluetoothPeripheralC", "Error"]
+- !private ["7Zippies19BluetoothPeripheralC", "LighthouseReadWriteUUID"]
+- ["7Zippies19BluetoothPeripheralC", "ZippyDelegate"]
+- ["7Zippies19BluetoothPeripheralC", ""]
+- ["7Zippies19BluetoothPeripheralC", "delegate"]
+- ["7Zippies19BluetoothPeripheralC", "init"]
+- ["7Zippies19BluetoothPeripheralC", "peripheral"]
+- ["7Zippies19BluetoothPeripheralC", "peripheralDidUpdateName"]
+- ["7Zippies19BluetoothPeripheralC", "peripheralDidUpdateRSSI"]
+- ["7Zippies19BluetoothPeripheralC", "peripheralIsReady"]
+- ["7Zippies19BluetoothPeripheralC", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["7Zippies19BluetoothPeripheralC", "print"]
+- ["7Zippies19BluetoothPeripheralC", "requestFirmwareVersion"]
+- ["7Zippies19BluetoothPeripheralC", "sendCharacteristic"]
+- ["7Zippies19BluetoothPeripheralC", "sendLighthouseTimeout"]
+- ["7Zippies19BluetoothPeripheralC", "wakeLighthouse"]
+- !private ["So25CBCharacteristicWriteTypeV", "withResponse"]
+- !private ["So6CBPeerC", "delegate"]
+- !private ["So6CBPeerC", "setNotifyValue"]
+- !private ["So6CBPeerC", "writeValue"]
+- !private ["So12CBPeripheralC", "delegate"]
+- !private ["So12CBPeripheralC", "setNotifyValue"]
+- !private ["So12CBPeripheralC", "writeValue"]
+- !private ["So20CBPeripheralDelegateP", "CBCharacteristicWriteType"]
+- !private ["So20CBPeripheralDelegateP", "Data"]
+- !private ["So20CBPeripheralDelegateP", "LighthouseReadWriteUUID"]
+- ["So20CBPeripheralDelegateP", ""]
+- ["So20CBPeripheralDelegateP", "peripheral"]
+- ["So20CBPeripheralDelegateP", "peripheralDidUpdateName"]
+- ["So20CBPeripheralDelegateP", "peripheralDidUpdateRSSI"]
+- ["So20CBPeripheralDelegateP", "peripheralIsReady"]
+- ["So20CBPeripheralDelegateP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["So20CBPeripheralDelegateP", "print"]
+- !private ["So20CBPeripheralDelegateP", "sendCharacteristic"]
+- !private ["So20CBPeripheralDelegateP", "sendLighthouseTimeout"]
+- ["So6CBUUIDC", "init"]
+- !private ["s7CVarArgP", "CBCharacteristicWriteType"]
+- !private ["s7CVarArgP", "Data"]
+- !private ["s7CVarArgP", "LighthouseReadWriteUUID"]
+- ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "delegate"]
+- ["s7CVarArgP", "init"]
+- ["s7CVarArgP", "peripheral"]
+- ["s7CVarArgP", "peripheralDidUpdateName"]
+- ["s7CVarArgP", "peripheralDidUpdateRSSI"]
+- ["s7CVarArgP", "peripheralIsReady"]
+- ["s7CVarArgP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["s7CVarArgP", "print"]
+- !private ["s7CVarArgP", "sendCharacteristic"]
+- !private ["s7CVarArgP", "sendLighthouseTimeout"]
+- !private ["s7CVarArgP", "setNotifyValue"]
+- !private ["s7CVarArgP", "subscript"]
+- !private ["s7CVarArgP", "writeValue"]
+- !private ["Sl", "init"]
+- !private ["Sl", "subscript"]
+- !private ["10Foundation15ContiguousBytesP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "CBCharacteristicWriteType"]
+- !private ["s28CustomDebugStringConvertibleP", "Data"]
+- !private ["s28CustomDebugStringConvertibleP", "LighthouseReadWriteUUID"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "delegate"]
+- ["s28CustomDebugStringConvertibleP", "init"]
+- ["s28CustomDebugStringConvertibleP", "peripheral"]
+- ["s28CustomDebugStringConvertibleP", "peripheralDidUpdateName"]
+- ["s28CustomDebugStringConvertibleP", "peripheralDidUpdateRSSI"]
+- ["s28CustomDebugStringConvertibleP", "peripheralIsReady"]
+- ["s28CustomDebugStringConvertibleP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["s28CustomDebugStringConvertibleP", "print"]
+- !private ["s28CustomDebugStringConvertibleP", "sendCharacteristic"]
+- !private ["s28CustomDebugStringConvertibleP", "sendLighthouseTimeout"]
+- !private ["s28CustomDebugStringConvertibleP", "setNotifyValue"]
+- !private ["s28CustomDebugStringConvertibleP", "subscript"]
+- !private ["s28CustomDebugStringConvertibleP", "writeValue"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "CBCharacteristicWriteType"]
+- !private ["s23CustomStringConvertibleP", "Data"]
+- !private ["s23CustomStringConvertibleP", "LighthouseReadWriteUUID"]
+- ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "delegate"]
+- ["s23CustomStringConvertibleP", "init"]
+- ["s23CustomStringConvertibleP", "peripheral"]
+- ["s23CustomStringConvertibleP", "peripheralDidUpdateName"]
+- ["s23CustomStringConvertibleP", "peripheralDidUpdateRSSI"]
+- ["s23CustomStringConvertibleP", "peripheralIsReady"]
+- ["s23CustomStringConvertibleP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["s23CustomStringConvertibleP", "print"]
+- !private ["s23CustomStringConvertibleP", "sendCharacteristic"]
+- !private ["s23CustomStringConvertibleP", "sendLighthouseTimeout"]
+- !private ["s23CustomStringConvertibleP", "setNotifyValue"]
+- !private ["s23CustomStringConvertibleP", "subscript"]
+- !private ["s23CustomStringConvertibleP", "writeValue"]
+- !private ["10Foundation4DataV", "init"]
+- !private ["10Foundation12DataProtocolP", "init"]
+- !private ["Se", "init"]
+- !private ["Se", "subscript"]
+- !private ["SD", "subscript"]
+- !private ["SE", "init"]
+- !private ["SE", "subscript"]
+- !private ["SQ", "CBCharacteristicWriteType"]
+- !private ["SQ", "Data"]
+- !private ["SQ", "LighthouseReadWriteUUID"]
+- ["SQ", ""]
+- !private ["SQ", "delegate"]
+- ["SQ", "init"]
+- ["SQ", "peripheral"]
+- ["SQ", "peripheralDidUpdateName"]
+- ["SQ", "peripheralDidUpdateRSSI"]
+- ["SQ", "peripheralIsReady"]
+- ["SQ", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["SQ", "print"]
+- !private ["SQ", "sendCharacteristic"]
+- !private ["SQ", "sendLighthouseTimeout"]
+- !private ["SQ", "setNotifyValue"]
+- !private ["SQ", "subscript"]
+- !private ["SQ", "withResponse"]
+- !private ["SQ", "writeValue"]
+- !private ["s5ErrorP", "localizedDescription"]
+- !private ["s30ExpressibleByDictionaryLiteralP", "subscript"]
+- !private ["SH", "CBCharacteristicWriteType"]
+- !private ["SH", "Data"]
+- !private ["SH", "LighthouseReadWriteUUID"]
+- ["SH", ""]
+- !private ["SH", "delegate"]
+- ["SH", "init"]
+- ["SH", "peripheral"]
+- ["SH", "peripheralDidUpdateName"]
+- ["SH", "peripheralDidUpdateRSSI"]
+- ["SH", "peripheralIsReady"]
+- ["SH", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["SH", "print"]
+- !private ["SH", "sendCharacteristic"]
+- !private ["SH", "sendLighthouseTimeout"]
+- !private ["SH", "setNotifyValue"]
+- !private ["SH", "subscript"]
+- !private ["SH", "withResponse"]
+- !private ["SH", "writeValue"]
+- ["7Zippies10LighthouseC", "CBCharacteristic"]
+- !private ["7Zippies10LighthouseC", "CBCharacteristicWriteType"]
+- ["7Zippies10LighthouseC", "CBPeripheral"]
+- ["7Zippies10LighthouseC", "CBService"]
+- ["7Zippies10LighthouseC", "CBUUID"]
+- !private ["7Zippies10LighthouseC", "Data"]
+- ["7Zippies10LighthouseC", "Error"]
+- !private ["7Zippies10LighthouseC", "LighthouseReadWriteUUID"]
+- ["7Zippies10LighthouseC", "ZippyDelegate"]
+- ["7Zippies10LighthouseC", "deinit"]
+- ["7Zippies10LighthouseC", "delegate"]
+- ["7Zippies10LighthouseC", "init"]
+- ["7Zippies10LighthouseC", "peripheral"]
+- ["7Zippies10LighthouseC", "peripheralDidUpdateName"]
+- ["7Zippies10LighthouseC", "peripheralDidUpdateRSSI"]
+- ["7Zippies10LighthouseC", "peripheralIsReady"]
+- ["7Zippies10LighthouseC", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["7Zippies10LighthouseC", "print"]
+- ["7Zippies10LighthouseC", "requestFirmwareVersion"]
+- ["7Zippies10LighthouseC", "sendCharacteristic"]
+- ["7Zippies10LighthouseC", "sendLighthouseTimeout"]
+- ["7Zippies10LighthouseC", "wakeLighthouse"]
+- !private ["SM", "init"]
+- !private ["10Foundation19MutableDataProtocolP", "init"]
+- !private ["So9NSCopyingP", "delegate"]
+- ["So9NSCopyingP", "init"]
+- !private ["So9NSCopyingP", "setNotifyValue"]
+- !private ["So9NSCopyingP", "writeValue"]
+- ["So8NSObjectC", "CBCharacteristic"]
+- !private ["So8NSObjectC", "CBCharacteristicWriteType"]
+- ["So8NSObjectC", "CBPeripheral"]
+- ["So8NSObjectC", "CBService"]
+- ["So8NSObjectC", "CBUUID"]
+- !private ["So8NSObjectC", "Data"]
+- ["So8NSObjectC", "Error"]
+- !private ["So8NSObjectC", "LighthouseReadWriteUUID"]
+- ["So8NSObjectC", "ZippyDelegate"]
+- ["So8NSObjectC", "delegate"]
+- ["So8NSObjectC", "init"]
+- ["So8NSObjectC", "peripheral"]
+- ["So8NSObjectC", "peripheralDidUpdateName"]
+- ["So8NSObjectC", "peripheralDidUpdateRSSI"]
+- ["So8NSObjectC", "peripheralIsReady"]
+- ["So8NSObjectC", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["So8NSObjectC", "print"]
+- ["So8NSObjectC", "requestFirmwareVersion"]
+- ["So8NSObjectC", "sendCharacteristic"]
+- ["So8NSObjectC", "sendLighthouseTimeout"]
+- !private ["So8NSObjectC", "setNotifyValue"]
+- ["So8NSObjectC", "wakeLighthouse"]
+- !private ["So8NSObjectC", "writeValue"]
+- !private ["So8NSObjectP", "CBCharacteristicWriteType"]
+- !private ["So8NSObjectP", "Data"]
+- !private ["So8NSObjectP", "LighthouseReadWriteUUID"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "delegate"]
+- ["So8NSObjectP", "init"]
+- ["So8NSObjectP", "peripheral"]
+- ["So8NSObjectP", "peripheralDidUpdateName"]
+- ["So8NSObjectP", "peripheralDidUpdateRSSI"]
+- ["So8NSObjectP", "peripheralIsReady"]
+- ["So8NSObjectP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["So8NSObjectP", "print"]
+- !private ["So8NSObjectP", "sendCharacteristic"]
+- !private ["So8NSObjectP", "sendLighthouseTimeout"]
+- !private ["So8NSObjectP", "setNotifyValue"]
+- !private ["So8NSObjectP", "writeValue"]
+- !private ["Sk", "init"]
+- !private ["Sm", "init"]
+- !private ["SY", "withResponse"]
+- !private ["10Foundation20ReferenceConvertibleP", "init"]
+- !private ["ST", "init"]
+- !private ["ST", "subscript"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "subscript"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "CBCharacteristicWriteType"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Data"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "LighthouseReadWriteUUID"]
+- ["10Foundation27_KeyValueCodingAndObservingP", ""]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "delegate"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheral"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheralDidUpdateName"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheralDidUpdateRSSI"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheralIsReady"]
+- ["10Foundation27_KeyValueCodingAndObservingP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "print"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "sendCharacteristic"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "sendLighthouseTimeout"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "setNotifyValue"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "writeValue"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "CBCharacteristicWriteType"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Data"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "LighthouseReadWriteUUID"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", ""]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "delegate"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheral"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheralDidUpdateName"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheralDidUpdateRSSI"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheralIsReady"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", "peripheralIsReadyToSendWriteWithoutResponse"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "print"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "sendCharacteristic"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "sendLighthouseTimeout"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "setNotifyValue"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "writeValue"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "subscript"]
+depends-nominal:
+- !private "SK"
+- "7Zippies19BluetoothPeripheralC"
+- !private "So25CBCharacteristicWriteTypeV"
+- !private "So6CBPeerC"
+- !private "So12CBPeripheralC"
+- "So20CBPeripheralDelegateP"
+- "So6CBUUIDC"
+- "s7CVarArgP"
+- !private "Sl"
+- !private "10Foundation15ContiguousBytesP"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- "s23CustomStringConvertibleP"
+- !private "10Foundation4DataV"
+- !private "10Foundation12DataProtocolP"
+- !private "Se"
+- !private "SD"
+- !private "SE"
+- "SQ"
+- !private "s5ErrorP"
+- !private "s30ExpressibleByDictionaryLiteralP"
+- "SH"
+- "7Zippies10LighthouseC"
+- !private "SM"
+- !private "10Foundation19MutableDataProtocolP"
+- "So9NSCopyingP"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "Sk"
+- !private "Sm"
+- !private "SY"
+- !private "10Foundation20ReferenceConvertibleP"
+- !private "ST"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- "10Foundation27_KeyValueCodingAndObservingP"
+- "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "6db7bc43809fc45591b0a285c3ac7c37"

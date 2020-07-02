@@ -1,0 +1,170 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "KRotation2"
+provides-nominal:
+- "7Zippies10KRotation2C"
+provides-member:
+- ["7Zippies10KRotation2C", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "=="
+- "AssignmentPrecedence"
+- "Double"
+- !private "FloatLiteralType"
+- !private "Foundation"
+- "KRotation2"
+- "NSObject"
+- !private "addAngles"
+- !private "subtractAngles"
+depends-member:
+- !private ["s7CVarArgP", "Foundation"]
+- ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "_cos"]
+- !private ["s7CVarArgP", "_rotation"]
+- !private ["s7CVarArgP", "_sin"]
+- !private ["s7CVarArgP", "addAngles"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "subtractAngles"]
+- !private ["s28CustomDebugStringConvertibleP", "Foundation"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "_cos"]
+- !private ["s28CustomDebugStringConvertibleP", "_rotation"]
+- !private ["s28CustomDebugStringConvertibleP", "_sin"]
+- !private ["s28CustomDebugStringConvertibleP", "addAngles"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "subtractAngles"]
+- !private ["s23CustomStringConvertibleP", "Foundation"]
+- ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "_cos"]
+- !private ["s23CustomStringConvertibleP", "_rotation"]
+- !private ["s23CustomStringConvertibleP", "_sin"]
+- !private ["s23CustomStringConvertibleP", "addAngles"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "subtractAngles"]
+- !private ["SQ", "Foundation"]
+- ["SQ", ""]
+- !private ["SQ", "_cos"]
+- !private ["SQ", "_rotation"]
+- !private ["SQ", "_sin"]
+- !private ["SQ", "addAngles"]
+- !private ["SQ", "init"]
+- !private ["SQ", "subtractAngles"]
+- !private ["SH", "Foundation"]
+- ["SH", ""]
+- !private ["SH", "_cos"]
+- !private ["SH", "_rotation"]
+- !private ["SH", "_sin"]
+- !private ["SH", "addAngles"]
+- !private ["SH", "init"]
+- !private ["SH", "subtractAngles"]
+- ["7Zippies10KRotation2C", "Double"]
+- !private ["7Zippies10KRotation2C", "Foundation"]
+- ["7Zippies10KRotation2C", "KRotation2"]
+- !private ["7Zippies10KRotation2C", "_cos"]
+- !private ["7Zippies10KRotation2C", "_rotation"]
+- !private ["7Zippies10KRotation2C", "_sin"]
+- ["7Zippies10KRotation2C", "add"]
+- !private ["7Zippies10KRotation2C", "addAngles"]
+- ["7Zippies10KRotation2C", "cos"]
+- ["7Zippies10KRotation2C", "deinit"]
+- ["7Zippies10KRotation2C", "get"]
+- ["7Zippies10KRotation2C", "init"]
+- ["7Zippies10KRotation2C", "rotation"]
+- ["7Zippies10KRotation2C", "set"]
+- ["7Zippies10KRotation2C", "sin"]
+- ["7Zippies10KRotation2C", "subtract"]
+- !private ["7Zippies10KRotation2C", "subtractAngles"]
+- ["So8NSObjectC", "Double"]
+- !private ["So8NSObjectC", "Foundation"]
+- ["So8NSObjectC", "KRotation2"]
+- ["So8NSObjectC", ""]
+- ["So8NSObjectC", "_cos"]
+- ["So8NSObjectC", "_rotation"]
+- ["So8NSObjectC", "_sin"]
+- ["So8NSObjectC", "add"]
+- !private ["So8NSObjectC", "addAngles"]
+- ["So8NSObjectC", "cos"]
+- ["So8NSObjectC", "get"]
+- ["So8NSObjectC", "init"]
+- ["So8NSObjectC", "rotation"]
+- ["So8NSObjectC", "set"]
+- ["So8NSObjectC", "sin"]
+- ["So8NSObjectC", "subtract"]
+- !private ["So8NSObjectC", "subtractAngles"]
+- !private ["So8NSObjectP", "Foundation"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "_cos"]
+- !private ["So8NSObjectP", "_rotation"]
+- !private ["So8NSObjectP", "_sin"]
+- !private ["So8NSObjectP", "addAngles"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "subtractAngles"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Foundation"]
+- ["10Foundation27_KeyValueCodingAndObservingP", ""]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_cos"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_rotation"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_sin"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "addAngles"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "subtractAngles"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Foundation"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", ""]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_cos"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_rotation"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_sin"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "addAngles"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "subtractAngles"]
+depends-nominal:
+- "s7CVarArgP"
+- "s28CustomDebugStringConvertibleP"
+- "s23CustomStringConvertibleP"
+- "SQ"
+- "SH"
+- "7Zippies10KRotation2C"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- "10Foundation27_KeyValueCodingAndObservingP"
+- "10Foundation37_KeyValueCodingAndObservingPublishingP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "c49a5e05561747e9d3d718ed074e6d35"

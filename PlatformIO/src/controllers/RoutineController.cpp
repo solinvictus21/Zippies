@@ -3,31 +3,46 @@
 #include "zippies/ZippyRoutine.h"
 #include "zippies/config/ZippyDefaultRoutine.h"
 
-#define INITIAL_MOVE_VELOCITY          200.0d
-#define INITIAL_MOVE_TIMING           8000
+#define INITIAL_MOVE_VELOCITY           200.0
+#define INITIAL_MOVE_TIMING            8000
 
 PathDefinition moveIntoPlace[]
 {
-  { PathDefinitionType::Arc ,        0.0d               },
-  { PathDefinitionType::Arc ,        0.0d               },
+  { PathDefinitionType::Arc ,        0.0               },
+  { PathDefinitionType::Arc ,        0.0               },
 };
 
 RoutineDefinition moveIntoPlaceRoutine[]
 {
   //bi-arc move into place
-  {     0, 0.20d, 0.10d, sizeof(moveIntoPlace) / sizeof(PathDefinition), moveIntoPlace, 0 },
+  {     0, 0.20, 0.10, sizeof(moveIntoPlace) / sizeof(PathDefinition), moveIntoPlace, 0 },
   //initial pause
-  {     0, 0.00d, 0.00d, 0,          NULL, 0 },
+  {     0, 0.00, 0.00, 0,          NULL, 0 },
 };
 const int moveIntoPlaceRoutineLength = sizeof(moveIntoPlaceRoutine) / sizeof(RoutineDefinition);
 
 RoutineController::RoutineController(SensorFusor* s)
-  : sensors(s)
+  : sensors(s),
+    path(zippyPath, zippyPathCount)
 {
-  getZippyDefaultRoutines(
-      &defaultRoutinesStartPosition,
-      &defaultRoutines,
-      &defaultRoutinesCount);
+    getZippyDefaultRoutines(
+        &defaultRoutinesStartPosition,
+        &defaultRoutines,
+        &defaultRoutinesCount);
+    
+    /*
+    SerialUSB.println("Constructed routine controller.");
+    path.start(0);
+    for (unsigned long i = 0; i <= 16000; i += 1000)
+    {
+        path.interpolate(i);
+        SerialUSB.print("positions/tangents ");
+        SerialUSB.println(i);
+        path.getTargetPosition()->printDebug();
+        path.getTargetVelocity()->printDebug();
+        SerialUSB.println(180.0 * path.getTargetVelocity()->atan2() / M_PI, 2);
+    }
+    */
 }
 
 void RoutineController::start(unsigned long currentTime)
@@ -37,30 +52,30 @@ void RoutineController::start(unsigned long currentTime)
   executionState = RoutineExecutionState::PreSyncingWithPreamble;
 }
 
-void RoutineController::createRelativePathDefinition(const KVector2* relativeMovement, PathDefinition* pathDefinition)
+void RoutineController::createRelativePathDefinition(const ZVector2* relativeMovement, PathDefinition* pathDefinition)
 {
   double direction = relativeMovement->atan();
-  if (direction == 0.0d) {
+  if (direction == 0.0) {
     pathDefinition->type = PathDefinitionType::Move;
     pathDefinition->params.p1 = relativeMovement->getY();
   }
-  else if (relativeMovement->getD2() == 0.0d) {
+  else if (relativeMovement->getD2() == 0.0) {
     pathDefinition->type = PathDefinitionType::Turn;
     pathDefinition->params.p1 = direction;
   }
   else {
     pathDefinition->type = PathDefinitionType::Arc;
-    pathDefinition->params.p1 = relativeMovement->getD() / (2.0d * sin(relativeMovement->atan2()));
-    pathDefinition->params.p2 = 2.0d * direction;
+    pathDefinition->params.p1 = relativeMovement->getD() / (2.0 * sin(relativeMovement->atan2()));
+    pathDefinition->params.p2 = 2.0 * direction;
   }
 }
 
-void RoutineController::planMoveIntoPlace(const KMatrix2* currentPosition, const KMatrix2* startPosition)
+void RoutineController::planMoveIntoPlace(const ZMatrix2* currentPosition, const ZMatrix2* startPosition)
 {
   //calculate our path to the initial starting position
-  KMatrix2 movement2(startPosition);
+  ZMatrix2 movement2(startPosition);
   movement2.unconcat(currentPosition);
-  KMatrix2 movement1;
+  ZMatrix2 movement1;
   calculateRelativeBiArcKnot(&movement2, &movement1);
   movement2.unconcat(&movement1);
   createRelativePathDefinition(&movement1.position, &moveIntoPlace[0]);
@@ -69,7 +84,7 @@ void RoutineController::planMoveIntoPlace(const KMatrix2* currentPosition, const
   double pathDistance =
       getPathSegmentLength(&moveIntoPlace[0]) +
       getPathSegmentLength(&moveIntoPlace[1]);
-  moveIntoPlaceRoutine[0].timing = min(1000.0d * (pathDistance / INITIAL_MOVE_VELOCITY), INITIAL_MOVE_TIMING);
+  moveIntoPlaceRoutine[0].timing = min(1000.0 * (pathDistance / INITIAL_MOVE_VELOCITY), INITIAL_MOVE_TIMING);
   moveIntoPlaceRoutine[1].timing = INITIAL_MOVE_TIMING - moveIntoPlaceRoutine[0].timing;
 }
 
@@ -79,7 +94,7 @@ void RoutineController::loop(unsigned long currentTime)
 
     case RoutineExecutionState::PreSyncingWithPreamble:
       if (sensors->foundPreamble()) {
-        const KMatrix2* currentPosition = sensors->getPosition();
+        const ZMatrix2* currentPosition = sensors->getPosition();
         // SerialUSB.println("Found preamble. Moving into position.");
         // planMoveIntoPlace(currentPosition, &DEFAULT_START_POSITION);
         planMoveIntoPlace(currentPosition, &defaultRoutinesStartPosition);
@@ -98,20 +113,19 @@ void RoutineController::loop(unsigned long currentTime)
           routine.getTargetMovementState());
 
       if (routine.isRoutineCompleted()) {
-        routine.setRoutineSegments(&defaultRoutinesStartPosition, defaultRoutines, defaultRoutinesCount);
-        routine.start(currentTime);
+        path.start(currentTime);
         executionState = RoutineExecutionState::Executing;
       }
       break;
 
     case RoutineExecutionState::Executing:
-      routine.loop(currentTime);
+      path.interpolate(currentTime);
       pathFollowingController.followPath(
-          sensors->getPosition(),
-          routine.getTargetPosition(),
-          routine.getTargetMovementState());
-
-      if (routine.isRoutineCompleted()) {
+        sensors->getPosition(),
+        path.getTargetPosition(),
+        path.getTargetVelocity());
+      
+      if (path.isCompleted()) {
         //sync with preamble again before start of each routine execution
         sensors->syncWithPreamble();
         executionState = RoutineExecutionState::PostSyncingWithPreamble;
@@ -119,14 +133,13 @@ void RoutineController::loop(unsigned long currentTime)
       break;
 
     case RoutineExecutionState::PostSyncingWithPreamble:
-      pathFollowingController.followPath(
-          sensors->getPosition(),
-          routine.getTargetPosition(),
-          routine.getTargetMovementState());
+      pathFollowingController.stopPath(
+        sensors->getPosition(),
+        path.getTargetPosition(),
+        path.getTargetVelocity());
 
       if (sensors->foundPreamble()) {
-        // reverseRoutine(defaultRoutines, defaultRoutinesCount);
-        routine.start(currentTime);
+        path.start(currentTime);
         executionState = RoutineExecutionState::Executing;
       }
       break;

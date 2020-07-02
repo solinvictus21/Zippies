@@ -1,0 +1,488 @@
+### Swift dependencies file v0 ###
+provides-top-level:
+- "EPSILON"
+- "KVector2"
+- "snapAngle"
+- "subtractAngles"
+- "addAngles"
+- "distanceBetween"
+- "distanceBetween"
+- "snapAngle"
+- "subtractAngles"
+- "addAngles"
+- "distanceBetween"
+- "distanceBetween"
+provides-nominal:
+- "7Zippies8KVector2C"
+provides-member:
+- ["7Zippies8KVector2C", ""]
+provides-dynamic-lookup:
+depends-top-level:
+- !private "!"
+- !private "&&"
+- !private "*"
+- !private "*="
+- !private "+"
+- !private "+="
+- !private "-"
+- !private "-="
+- !private "/"
+- !private "<"
+- !private "<="
+- !private "=="
+- !private ">"
+- !private ">="
+- "AssignmentPrecedence"
+- "Bool"
+- !private "BooleanLiteralType"
+- "CGFloat"
+- "Double"
+- "EPSILON"
+- "FloatLiteralType"
+- !private "Foundation"
+- "KRotation2"
+- "KVector2"
+- "NSObject"
+- "TernaryPrecedence"
+- !private "abs"
+- "addAngles"
+- !private "cos"
+- "distanceBetween"
+- !private "pow"
+- !private "sin"
+- "snapAngle"
+- !private "sqrt"
+- "subtractAngles"
+- !private "||"
+depends-member:
+- !private ["s18AdditiveArithmeticP", "init"]
+- !private ["s18AdditiveArithmeticP", "pi"]
+- !private ["SB", "init"]
+- !private ["SB", "pi"]
+- !private ["12CoreGraphics7CGFloatV", "init"]
+- !private ["12CoreGraphics7CGFloatV", "pi"]
+- !private ["s7CVarArgP", "Double"]
+- !private ["s7CVarArgP", "EPSILON"]
+- !private ["s7CVarArgP", "Foundation"]
+- ["s7CVarArgP", ""]
+- !private ["s7CVarArgP", "_atan"]
+- !private ["s7CVarArgP", "_atan2"]
+- !private ["s7CVarArgP", "abs"]
+- !private ["s7CVarArgP", "addAngles"]
+- !private ["s7CVarArgP", "atan2"]
+- !private ["s7CVarArgP", "atan2Valid"]
+- !private ["s7CVarArgP", "atanValid"]
+- !private ["s7CVarArgP", "cos"]
+- !private ["s7CVarArgP", "d"]
+- !private ["s7CVarArgP", "d2"]
+- !private ["s7CVarArgP", "d2Valid"]
+- !private ["s7CVarArgP", "dValid"]
+- !private ["s7CVarArgP", "getD"]
+- !private ["s7CVarArgP", "getD2"]
+- !private ["s7CVarArgP", "getOrientation"]
+- !private ["s7CVarArgP", "getX"]
+- !private ["s7CVarArgP", "getY"]
+- !private ["s7CVarArgP", "init"]
+- !private ["s7CVarArgP", "pi"]
+- !private ["s7CVarArgP", "set"]
+- !private ["s7CVarArgP", "sin"]
+- !private ["s7CVarArgP", "sqrt"]
+- !private ["s7CVarArgP", "x"]
+- !private ["s7CVarArgP", "y"]
+- !private ["SL", "init"]
+- !private ["SL", "pi"]
+- !private ["s28CustomDebugStringConvertibleP", "Double"]
+- !private ["s28CustomDebugStringConvertibleP", "EPSILON"]
+- !private ["s28CustomDebugStringConvertibleP", "Foundation"]
+- ["s28CustomDebugStringConvertibleP", ""]
+- !private ["s28CustomDebugStringConvertibleP", "_atan"]
+- !private ["s28CustomDebugStringConvertibleP", "_atan2"]
+- !private ["s28CustomDebugStringConvertibleP", "abs"]
+- !private ["s28CustomDebugStringConvertibleP", "addAngles"]
+- !private ["s28CustomDebugStringConvertibleP", "atan2"]
+- !private ["s28CustomDebugStringConvertibleP", "atan2Valid"]
+- !private ["s28CustomDebugStringConvertibleP", "atanValid"]
+- !private ["s28CustomDebugStringConvertibleP", "cos"]
+- !private ["s28CustomDebugStringConvertibleP", "d"]
+- !private ["s28CustomDebugStringConvertibleP", "d2"]
+- !private ["s28CustomDebugStringConvertibleP", "d2Valid"]
+- !private ["s28CustomDebugStringConvertibleP", "dValid"]
+- !private ["s28CustomDebugStringConvertibleP", "getD"]
+- !private ["s28CustomDebugStringConvertibleP", "getD2"]
+- !private ["s28CustomDebugStringConvertibleP", "getOrientation"]
+- !private ["s28CustomDebugStringConvertibleP", "getX"]
+- !private ["s28CustomDebugStringConvertibleP", "getY"]
+- !private ["s28CustomDebugStringConvertibleP", "init"]
+- !private ["s28CustomDebugStringConvertibleP", "pi"]
+- !private ["s28CustomDebugStringConvertibleP", "set"]
+- !private ["s28CustomDebugStringConvertibleP", "sin"]
+- !private ["s28CustomDebugStringConvertibleP", "sqrt"]
+- !private ["s28CustomDebugStringConvertibleP", "x"]
+- !private ["s28CustomDebugStringConvertibleP", "y"]
+- !private ["s17CustomReflectableP", "init"]
+- !private ["s17CustomReflectableP", "pi"]
+- !private ["s23CustomStringConvertibleP", "Double"]
+- !private ["s23CustomStringConvertibleP", "EPSILON"]
+- !private ["s23CustomStringConvertibleP", "Foundation"]
+- ["s23CustomStringConvertibleP", ""]
+- !private ["s23CustomStringConvertibleP", "_atan"]
+- !private ["s23CustomStringConvertibleP", "_atan2"]
+- !private ["s23CustomStringConvertibleP", "abs"]
+- !private ["s23CustomStringConvertibleP", "addAngles"]
+- !private ["s23CustomStringConvertibleP", "atan2"]
+- !private ["s23CustomStringConvertibleP", "atan2Valid"]
+- !private ["s23CustomStringConvertibleP", "atanValid"]
+- !private ["s23CustomStringConvertibleP", "cos"]
+- !private ["s23CustomStringConvertibleP", "d"]
+- !private ["s23CustomStringConvertibleP", "d2"]
+- !private ["s23CustomStringConvertibleP", "d2Valid"]
+- !private ["s23CustomStringConvertibleP", "dValid"]
+- !private ["s23CustomStringConvertibleP", "getD"]
+- !private ["s23CustomStringConvertibleP", "getD2"]
+- !private ["s23CustomStringConvertibleP", "getOrientation"]
+- !private ["s23CustomStringConvertibleP", "getX"]
+- !private ["s23CustomStringConvertibleP", "getY"]
+- !private ["s23CustomStringConvertibleP", "init"]
+- !private ["s23CustomStringConvertibleP", "pi"]
+- !private ["s23CustomStringConvertibleP", "set"]
+- !private ["s23CustomStringConvertibleP", "sin"]
+- !private ["s23CustomStringConvertibleP", "sqrt"]
+- !private ["s23CustomStringConvertibleP", "x"]
+- !private ["s23CustomStringConvertibleP", "y"]
+- !private ["Se", "init"]
+- !private ["Se", "pi"]
+- !private ["Sd", "pi"]
+- !private ["SE", "init"]
+- !private ["SE", "pi"]
+- !private ["SQ", "Double"]
+- !private ["SQ", "EPSILON"]
+- !private ["SQ", "Foundation"]
+- ["SQ", ""]
+- !private ["SQ", "_atan"]
+- !private ["SQ", "_atan2"]
+- !private ["SQ", "abs"]
+- !private ["SQ", "addAngles"]
+- !private ["SQ", "atan2"]
+- !private ["SQ", "atan2Valid"]
+- !private ["SQ", "atanValid"]
+- !private ["SQ", "cos"]
+- !private ["SQ", "d"]
+- !private ["SQ", "d2"]
+- !private ["SQ", "d2Valid"]
+- !private ["SQ", "dValid"]
+- !private ["SQ", "getD"]
+- !private ["SQ", "getD2"]
+- !private ["SQ", "getOrientation"]
+- !private ["SQ", "getX"]
+- !private ["SQ", "getY"]
+- !private ["SQ", "init"]
+- !private ["SQ", "pi"]
+- !private ["SQ", "set"]
+- !private ["SQ", "sin"]
+- !private ["SQ", "sqrt"]
+- !private ["SQ", "x"]
+- !private ["SQ", "y"]
+- !private ["s25ExpressibleByFloatLiteralP", "init"]
+- !private ["s25ExpressibleByFloatLiteralP", "pi"]
+- !private ["s27ExpressibleByIntegerLiteralP", "init"]
+- !private ["s27ExpressibleByIntegerLiteralP", "pi"]
+- !private ["SF", "init"]
+- !private ["SF", "pi"]
+- !private ["SH", "Double"]
+- !private ["SH", "EPSILON"]
+- !private ["SH", "Foundation"]
+- ["SH", ""]
+- !private ["SH", "_atan"]
+- !private ["SH", "_atan2"]
+- !private ["SH", "abs"]
+- !private ["SH", "addAngles"]
+- !private ["SH", "atan2"]
+- !private ["SH", "atan2Valid"]
+- !private ["SH", "atanValid"]
+- !private ["SH", "cos"]
+- !private ["SH", "d"]
+- !private ["SH", "d2"]
+- !private ["SH", "d2Valid"]
+- !private ["SH", "dValid"]
+- !private ["SH", "getD"]
+- !private ["SH", "getD2"]
+- !private ["SH", "getOrientation"]
+- !private ["SH", "getX"]
+- !private ["SH", "getY"]
+- !private ["SH", "init"]
+- !private ["SH", "pi"]
+- !private ["SH", "set"]
+- !private ["SH", "sin"]
+- !private ["SH", "sqrt"]
+- !private ["SH", "x"]
+- !private ["SH", "y"]
+- !private ["7Zippies10KRotation2C", "cos"]
+- !private ["7Zippies10KRotation2C", "sin"]
+- ["7Zippies8KVector2C", "Bool"]
+- ["7Zippies8KVector2C", "Double"]
+- !private ["7Zippies8KVector2C", "EPSILON"]
+- !private ["7Zippies8KVector2C", "Foundation"]
+- ["7Zippies8KVector2C", "KRotation2"]
+- ["7Zippies8KVector2C", "KVector2"]
+- !private ["7Zippies8KVector2C", "_atan"]
+- !private ["7Zippies8KVector2C", "_atan2"]
+- !private ["7Zippies8KVector2C", "abs"]
+- !private ["7Zippies8KVector2C", "addAngles"]
+- ["7Zippies8KVector2C", "addVector"]
+- ["7Zippies8KVector2C", "atan"]
+- ["7Zippies8KVector2C", "atan2"]
+- !private ["7Zippies8KVector2C", "atan2Valid"]
+- !private ["7Zippies8KVector2C", "atanValid"]
+- !private ["7Zippies8KVector2C", "cos"]
+- !private ["7Zippies8KVector2C", "d"]
+- !private ["7Zippies8KVector2C", "d2"]
+- !private ["7Zippies8KVector2C", "d2Valid"]
+- !private ["7Zippies8KVector2C", "dValid"]
+- ["7Zippies8KVector2C", "deinit"]
+- ["7Zippies8KVector2C", "dotOrientation"]
+- ["7Zippies8KVector2C", "dotVector"]
+- ["7Zippies8KVector2C", "equalsVector"]
+- ["7Zippies8KVector2C", "getD"]
+- ["7Zippies8KVector2C", "getD2"]
+- ["7Zippies8KVector2C", "getOrientation"]
+- ["7Zippies8KVector2C", "getX"]
+- ["7Zippies8KVector2C", "getY"]
+- ["7Zippies8KVector2C", "init"]
+- ["7Zippies8KVector2C", "multiply"]
+- ["7Zippies8KVector2C", "projectAlong"]
+- ["7Zippies8KVector2C", "projectToward"]
+- ["7Zippies8KVector2C", "reset"]
+- ["7Zippies8KVector2C", "rotate"]
+- ["7Zippies8KVector2C", "set"]
+- ["7Zippies8KVector2C", "setD"]
+- ["7Zippies8KVector2C", "setX"]
+- ["7Zippies8KVector2C", "setY"]
+- !private ["7Zippies8KVector2C", "sin"]
+- !private ["7Zippies8KVector2C", "sqrt"]
+- ["7Zippies8KVector2C", "subtractVector"]
+- ["7Zippies8KVector2C", "unrotate"]
+- !private ["7Zippies8KVector2C", "x"]
+- !private ["7Zippies8KVector2C", "y"]
+- !private ["s25LosslessStringConvertibleP", "pi"]
+- ["So8NSObjectC", "Bool"]
+- ["So8NSObjectC", "Double"]
+- !private ["So8NSObjectC", "EPSILON"]
+- !private ["So8NSObjectC", "Foundation"]
+- ["So8NSObjectC", "KRotation2"]
+- ["So8NSObjectC", "KVector2"]
+- ["So8NSObjectC", ""]
+- ["So8NSObjectC", "_atan"]
+- ["So8NSObjectC", "_atan2"]
+- !private ["So8NSObjectC", "abs"]
+- !private ["So8NSObjectC", "addAngles"]
+- ["So8NSObjectC", "addVector"]
+- ["So8NSObjectC", "atan"]
+- ["So8NSObjectC", "atan2"]
+- ["So8NSObjectC", "atan2Valid"]
+- ["So8NSObjectC", "atanValid"]
+- !private ["So8NSObjectC", "cos"]
+- ["So8NSObjectC", "d"]
+- ["So8NSObjectC", "d2"]
+- ["So8NSObjectC", "d2Valid"]
+- ["So8NSObjectC", "dValid"]
+- ["So8NSObjectC", "dotOrientation"]
+- ["So8NSObjectC", "dotVector"]
+- ["So8NSObjectC", "equalsVector"]
+- ["So8NSObjectC", "getD"]
+- ["So8NSObjectC", "getD2"]
+- ["So8NSObjectC", "getOrientation"]
+- ["So8NSObjectC", "getX"]
+- ["So8NSObjectC", "getY"]
+- ["So8NSObjectC", "init"]
+- ["So8NSObjectC", "multiply"]
+- ["So8NSObjectC", "projectAlong"]
+- ["So8NSObjectC", "projectToward"]
+- ["So8NSObjectC", "reset"]
+- ["So8NSObjectC", "rotate"]
+- ["So8NSObjectC", "set"]
+- ["So8NSObjectC", "setD"]
+- ["So8NSObjectC", "setX"]
+- ["So8NSObjectC", "setY"]
+- !private ["So8NSObjectC", "sin"]
+- !private ["So8NSObjectC", "sqrt"]
+- ["So8NSObjectC", "subtractVector"]
+- ["So8NSObjectC", "unrotate"]
+- ["So8NSObjectC", "x"]
+- ["So8NSObjectC", "y"]
+- !private ["So8NSObjectP", "Double"]
+- !private ["So8NSObjectP", "EPSILON"]
+- !private ["So8NSObjectP", "Foundation"]
+- ["So8NSObjectP", ""]
+- !private ["So8NSObjectP", "_atan"]
+- !private ["So8NSObjectP", "_atan2"]
+- !private ["So8NSObjectP", "abs"]
+- !private ["So8NSObjectP", "addAngles"]
+- !private ["So8NSObjectP", "atan2"]
+- !private ["So8NSObjectP", "atan2Valid"]
+- !private ["So8NSObjectP", "atanValid"]
+- !private ["So8NSObjectP", "cos"]
+- !private ["So8NSObjectP", "d"]
+- !private ["So8NSObjectP", "d2"]
+- !private ["So8NSObjectP", "d2Valid"]
+- !private ["So8NSObjectP", "dValid"]
+- !private ["So8NSObjectP", "getD"]
+- !private ["So8NSObjectP", "getD2"]
+- !private ["So8NSObjectP", "getOrientation"]
+- !private ["So8NSObjectP", "getX"]
+- !private ["So8NSObjectP", "getY"]
+- !private ["So8NSObjectP", "init"]
+- !private ["So8NSObjectP", "set"]
+- !private ["So8NSObjectP", "sin"]
+- !private ["So8NSObjectP", "sqrt"]
+- !private ["So8NSObjectP", "x"]
+- !private ["So8NSObjectP", "y"]
+- !private ["Sj", "init"]
+- !private ["Sj", "pi"]
+- !private ["s10SIMDScalarP", "pi"]
+- !private ["s13SignedNumericP", "init"]
+- !private ["s13SignedNumericP", "pi"]
+- !private ["Sx", "init"]
+- !private ["Sx", "pi"]
+- !private ["s20TextOutputStreamableP", "pi"]
+- !private ["s15_CVarArgAlignedP", "init"]
+- !private ["s15_CVarArgAlignedP", "pi"]
+- !private ["s22_CVarArgPassedAsDoubleP", "init"]
+- !private ["s22_CVarArgPassedAsDoubleP", "pi"]
+- !private ["s30_CustomPlaygroundQuickLookableP", "pi"]
+- !private ["s33_ExpressibleByBuiltinFloatLiteralP", "pi"]
+- !private ["s35_ExpressibleByBuiltinIntegerLiteralP", "pi"]
+- !private ["s35_HasCustomAnyHashableRepresentationP", "pi"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Double"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "EPSILON"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "Foundation"]
+- ["10Foundation27_KeyValueCodingAndObservingP", ""]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_atan"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "_atan2"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "abs"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "addAngles"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "atan2"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "atan2Valid"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "atanValid"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "cos"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "d"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "d2"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "d2Valid"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "dValid"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getD"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getD2"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getOrientation"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getX"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "getY"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "init"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "set"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "sin"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "sqrt"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "x"]
+- !private ["10Foundation27_KeyValueCodingAndObservingP", "y"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Double"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "EPSILON"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "Foundation"]
+- ["10Foundation37_KeyValueCodingAndObservingPublishingP", ""]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_atan"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "_atan2"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "abs"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "addAngles"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "atan2"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "atan2Valid"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "atanValid"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "cos"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "d"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "d2"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "d2Valid"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "dValid"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getD"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getD2"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getOrientation"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getX"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "getY"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "init"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "set"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "sin"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "sqrt"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "x"]
+- !private ["10Foundation37_KeyValueCodingAndObservingPublishingP", "y"]
+- !private ["s21_ObjectiveCBridgeableP", "init"]
+- !private ["s21_ObjectiveCBridgeableP", "pi"]
+depends-nominal:
+- !private "s18AdditiveArithmeticP"
+- !private "SB"
+- !private "12CoreGraphics7CGFloatV"
+- "s7CVarArgP"
+- !private "SL"
+- "s28CustomDebugStringConvertibleP"
+- !private "s17CustomReflectableP"
+- "s23CustomStringConvertibleP"
+- !private "Se"
+- !private "Sd"
+- !private "SE"
+- "SQ"
+- !private "s25ExpressibleByFloatLiteralP"
+- !private "s27ExpressibleByIntegerLiteralP"
+- !private "SF"
+- "SH"
+- !private "7Zippies10KRotation2C"
+- "7Zippies8KVector2C"
+- !private "s25LosslessStringConvertibleP"
+- "So8NSObjectC"
+- "So8NSObjectP"
+- !private "Sj"
+- !private "s10SIMDScalarP"
+- !private "s13SignedNumericP"
+- !private "Sx"
+- !private "s20TextOutputStreamableP"
+- !private "s15_CVarArgAlignedP"
+- !private "s22_CVarArgPassedAsDoubleP"
+- !private "s30_CustomPlaygroundQuickLookableP"
+- !private "s33_ExpressibleByBuiltinFloatLiteralP"
+- !private "s35_ExpressibleByBuiltinIntegerLiteralP"
+- !private "s35_HasCustomAnyHashableRepresentationP"
+- "10Foundation27_KeyValueCodingAndObservingP"
+- "10Foundation37_KeyValueCodingAndObservingPublishingP"
+- !private "s21_ObjectiveCBridgeableP"
+depends-dynamic-lookup:
+depends-external:
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/ObjectiveC.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreImage.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/QuartzCore.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Dispatch.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Metal.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Darwin.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Foundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreFoundation.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/CoreGraphics.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/Swift.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/UIKit.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/lib/swift/SwiftOnoneSupport.swiftmodule/x86_64.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Combine.framework/Modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftinterface"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/ObjectiveC.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreImage.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/QuartzCore.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Dispatch.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Metal.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Darwin.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Foundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreFoundation.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/CoreGraphics.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/UIKit.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/SwiftOnoneSupport.swiftmodule/x86_64.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator/prebuilt-modules/Combine.swiftmodule/x86_64-apple-ios-simulator.swiftmodule"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/objc/ObjectiveC.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/OpenGLES.framework/Headers/OpenGLES.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreImage.framework/Headers/CoreImage.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/QuartzCore.framework/Headers/QuartzCore.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/apinotes/Dispatch.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreBluetooth.framework/Headers/CoreBluetooth.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Metal.framework/Headers/Metal.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/usr/include/Darwin.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreGraphics.framework/Headers/CoreGraphics.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UserNotifications.framework/Headers/UserNotifications.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/UIKit.framework/Headers/UIKit.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/CoreText.framework/Headers/CoreText.apinotes"
+- "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator13.2.sdk/System/Library/Frameworks/Security.framework/Headers/Security.apinotes"
+interface-hash: "6696a943a8ea729cd28d6b49a5a65483"

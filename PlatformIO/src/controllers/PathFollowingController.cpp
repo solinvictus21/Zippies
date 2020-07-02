@@ -2,35 +2,35 @@
 #include "zippies/controllers/PathFollowingController.h"
 #include <Arduino.h>
 
-#define LINEAR_EPSILON                               10.00d  //1cm
-// #define LINEAR_EPSILON                               15.00d  //1.5cm
-// #define LINEAR_EPSILON                               20.00d  //2cm
-// #define LINEAR_EPSILON                               30.00d  //3cm
+// #define LINEAR_EPSILON                               10.00  //1cm
+#define LINEAR_EPSILON                               15.00  //1.5cm
+// #define LINEAR_EPSILON                               20.00  //2cm
+// #define LINEAR_EPSILON                               30.00  //3cm
 
-// #define ANGULAR_EPSILON                               0.052359877559830d  //3 degrees
-#define ANGULAR_EPSILON                               0.069813170079773d  //4 degrees
-// #define ANGULAR_EPSILON                               0.087266462599716d  //5 degrees
-// #define ANGULAR_EPSILON                               0.104719755119660d  //6 degrees
-// #define ANGULAR_EPSILON                               0.139626340159546d  //8 degrees
-// #define ANGULAR_EPSILON                               0.174532925199433d  //10 degrees
-// #define ANGULAR_EPSILON                               0.261799387799149d  //15 degrees
+// #define ANGULAR_EPSILON                               0.052359877559830  //3 degrees
+#define ANGULAR_EPSILON                               0.069813170079773  //4 degrees
+// #define ANGULAR_EPSILON                               0.087266462599716  //5 degrees
+// #define ANGULAR_EPSILON                               0.104719755119660  //6 degrees
+// #define ANGULAR_EPSILON                               0.139626340159546  //8 degrees
+// #define ANGULAR_EPSILON                               0.174532925199433  //10 degrees
+// #define ANGULAR_EPSILON                               0.261799387799149  //15 degrees
 
 #define MAX_STATE_DOWNGRADE_ITERATIONS               30
 // #define MAX_STATE_DOWNGRADE_ITERATIONS              120
 
 double pad(double value, double epsilon)
 {
-  if (value == 0.0d)
-    return 0.0d;
+  if (value == 0.0)
+    return 0.0;
 
-  return value < 0.0d
+  return value < 0.0
     ? min(value, -epsilon)
     : max(value, epsilon);
 }
 
 void PathFollowingController::followPath(
-    const KMatrix2* currentPosition,
-    const KMatrix2* targetPosition,
+    const ZMatrix2* currentPosition,
+    const ZMatrix2* targetPosition,
     MovementState targetMovementState)
 {
   currentMovement.set(targetPosition);
@@ -38,131 +38,159 @@ void PathFollowingController::followPath(
 
   switch (targetMovementState) {
     case MovementState::Moving:
-      if (currentMovementState == MovementState::Stopped)
-        zippy.start();
-
-      stateDowngradeIterationCount = 0;
-      currentMovementState = MovementState::Moving;
+      executeMove();
       break;
 
     case MovementState::Turning:
-      if (currentMovementState == MovementState::Moving) {
-        //state downgrade to turning pending
-        stateDowngradeIterationCount++;
-        if (currentMovement.position.getD() < LINEAR_EPSILON ||
-            stateDowngradeIterationCount >= MAX_STATE_DOWNGRADE_ITERATIONS)
-        {
-          //state downgrade from moving to turning
-          stateDowngradeIterationCount = 0;
-          currentMovementState = MovementState::Turning;
-        }
-      }
-      else if (currentMovementState == MovementState::Stopped) {
-        //state upgrade from stopped to turning
-        zippy.start();
-        stateDowngradeIterationCount = 0;
-        currentMovementState = MovementState::Turning;
-      }
+      executeTurn();
       break;
 
     case MovementState::Stopped:
-      if (currentMovementState == MovementState::Moving) {
-        //state downgrade to stopped pending
-        stateDowngradeIterationCount++;
-        if (currentMovement.position.getD() < LINEAR_EPSILON ||
-            stateDowngradeIterationCount >= MAX_STATE_DOWNGRADE_ITERATIONS)
-        {
-          //state downgrade from moving to turning
-          stateDowngradeIterationCount = 0;
-          currentMovementState = MovementState::Turning;
-        }
-      }
-
-      if (currentMovementState == MovementState::Turning) {
-        stateDowngradeIterationCount++;
-        if (//abs(currentMovement.orientation.get()) < ANGULAR_EPSILON ||
-            stateDowngradeIterationCount >= MAX_STATE_DOWNGRADE_ITERATIONS)
-        {
-          //state downgrade from turning to stopped
-          stateDowngradeIterationCount = 0;
-          zippy.stop();
-          currentMovementState = MovementState::Stopped;
-        }
-      }
-      break;
-  }
-
-  //now execute a move if needed
-  switch (currentMovementState) {
-    case MovementState::Moving:
-      /*
-      if (stateDowngradeIterationCount)
-        currentMovement.position.multiply(0.5d + (0.3d * ((double)stateDowngradeIterationCount) / ((double)MAX_STATE_DOWNGRADE_ITERATIONS)));
-      else
-        currentMovement.position.multiply(0.5d);
-      zippy.move(&currentMovement);
-      */
-      move();
-      break;
-
-    case MovementState::Turning:
-      zippy.turn(pad(currentMovement.orientation.get(), 2.0d * ANGULAR_EPSILON));
+      executeStop();
       break;
   }
 }
 
-void PathFollowingController::moveDirect()
+void PathFollowingController::followPath(
+    const ZMatrix2* currentPosition,
+    const ZVector2* targetPosition,
+    const ZVector2* targetVelocity)
 {
-  if (currentMovement.position.getX() == 0.0d) {
-    zippy.moveLinear(currentMovement.position.getY());
-    return;
-  }
-
-  zippy.moveArc(
-      currentMovement.position.getD2() / (2.0d * currentMovement.position.getX()),
-      2.0d * currentMovement.position.atan());
-}
-
-void PathFollowingController::move()
-{
-  double factor;
-  if (stateDowngradeIterationCount) {
-    factor = 0.4d + (0.4d * ((double)stateDowngradeIterationCount) / ((double)MAX_STATE_DOWNGRADE_ITERATIONS));
-    currentMovement.position.multiply(factor);
-    moveDirect();
-    return;
-    // factor = 0.5d + (0.3d * ((double)stateDowngradeIterationCount) / ((double)MAX_STATE_DOWNGRADE_ITERATIONS));
-  }
-  // else {
-    //adjust the movement depending on how well we will arrive at our target orientation
-    double targetDirection = currentMovement.position.atan();
-    double deltaOrientationAtTarget = subtractAngles(
-        currentMovement.orientation.get(),
-        2.0d * targetDirection);
-    // factor = cos(deltaOrientationAtTarget / 2.0d);
-    factor = 0.1d + (0.5d * cos(deltaOrientationAtTarget / 2.0d));
-  // }
-
-  // double factor = 0.5d;
-  if (currentMovement.position.getX() == 0.0d) {
-    zippy.moveLinear(currentMovement.position.getY() * factor);
-    return;
-  }
-
-  double movementRadius = currentMovement.position.getD2() / (2.0d * currentMovement.position.getX());
-  movementRadius *= factor;
-  KVector2 radiusToTarget = KVector2(
-      currentMovement.position.getY(),
-      movementRadius - currentMovement.position.getX());
-  double completeTurnToTarget = radiusToTarget.atan2();
-  double movementTheta = completeTurnToTarget > 0.0d
-      ? completeTurnToTarget - acos(movementRadius / radiusToTarget.getD())
-      : completeTurnToTarget + acos(movementRadius / radiusToTarget.getD());
-  zippy.moveArc(movementRadius, movementTheta);
+  currentMovement.set(
+    targetPosition->getX(), targetPosition->getY(),
+    targetVelocity->atan2());
+  currentMovement.unconcat(currentPosition);
+  executeMove();
 }
 
 void PathFollowingController::stop()
 {
   zippy.stop();
   currentMovementState = MovementState::Stopped;
+}
+
+void PathFollowingController::executeMove()
+{
+  switch (currentMovementState) {
+    case MovementState::Turning:
+      stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+      currentMovementState = MovementState::Moving;
+      break;
+
+    case MovementState::Stopped:
+      zippy.start();
+      stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+      currentMovementState = MovementState::Moving;
+      break;
+  }
+
+  //adjust the movement depending on how well we will arrive at our target orientation
+  double targetDirection = currentMovement.position.atan();
+  double deltaOrientationAtTarget = subtractAngles(
+      currentMovement.orientation.get(),
+      2.0 * targetDirection);
+  // factor = cos(deltaOrientationAtTarget / 2.0d);
+  double factor = 0.1 + (0.5 * cos(deltaOrientationAtTarget / 2.0));
+
+  // double factor = 0.5d;
+  if (currentMovement.position.getX() == 0.0) {
+    zippy.moveLinear(currentMovement.position.getY() * factor);
+    return;
+  }
+
+  double movementRadius = currentMovement.position.getD2() / (2.0 * currentMovement.position.getX());
+  movementRadius *= factor;
+  ZVector2 radiusToTarget = ZVector2(
+      currentMovement.position.getY(),
+      movementRadius - currentMovement.position.getX());
+  double completeTurnToTarget = radiusToTarget.atan2();
+  double movementTheta = completeTurnToTarget > 0.0
+      ? completeTurnToTarget - acos(movementRadius / radiusToTarget.getD())
+      : completeTurnToTarget + acos(movementRadius / radiusToTarget.getD());
+  zippy.moveArc(movementRadius, movementTheta);
+}
+
+void PathFollowingController::executeTurn()
+{
+  switch (currentMovementState) {
+    case MovementState::Moving:
+      if (currentMovement.position.getD() > LINEAR_EPSILON &&
+          stateDowngradeCounter)
+      {
+        stateDowngradeCounter--;
+        moveDirect();
+        return;
+      }
+
+      stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+      currentMovementState = MovementState::Turning;
+      break;
+
+    case MovementState::Stopped:
+      zippy.start();
+      stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+      currentMovementState = MovementState::Turning;
+      break;
+  }
+
+  zippy.turn(pad(currentMovement.orientation.get(), 2.0 * ANGULAR_EPSILON));
+}
+
+void PathFollowingController::executeStop()
+{
+  switch (currentMovementState) {
+    case MovementState::Moving:
+      if (currentMovement.position.getD() > LINEAR_EPSILON &&
+          stateDowngradeCounter)
+      {
+        stateDowngradeCounter--;
+        moveDirect();
+      }
+      else
+      {
+        stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+        currentMovementState = MovementState::Turning;
+      }
+      return;
+
+    case MovementState::Turning:
+      if (abs(currentMovement.orientation.get()) > ANGULAR_EPSILON &&
+          stateDowngradeCounter)
+      {
+        stateDowngradeCounter--;
+        zippy.turn(pad(currentMovement.orientation.get(), 2.0 * ANGULAR_EPSILON));
+        return;
+      }
+
+      currentMovementState = MovementState::Stopped;
+      break;
+  }
+
+  stop();
+}
+
+void PathFollowingController::moveDirect()
+{
+  double factor = 1.0 - (0.6 * ((double)stateDowngradeCounter) / ((double)MAX_STATE_DOWNGRADE_ITERATIONS));
+  currentMovement.position.multiply(factor);
+  if (currentMovement.position.getX() == 0.0) {
+    zippy.moveLinear(currentMovement.position.getY());
+    return;
+  }
+
+  zippy.moveArc(
+      currentMovement.position.getD2() / (2.0 * currentMovement.position.getX()),
+      2.0 * currentMovement.position.atan());
+}
+
+void PathFollowingController::stopPath(
+    const ZMatrix2* currentPosition,
+    const ZVector2* targetPosition,
+    const ZVector2* targetVelocity)
+{
+  currentMovement.set(
+    targetPosition->getX(), targetPosition->getY(),
+    targetVelocity->atan2());
+  currentMovement.unconcat(currentPosition);
+  executeStop();
 }

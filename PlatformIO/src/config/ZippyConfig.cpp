@@ -1,40 +1,40 @@
 
+#include "zippies/config/ZippyConfig.h"
+
 #include <Arduino.h>
 
 #define DEFAULT_PID_UPDATE_INTERVAL                   17
-#define DEFAULT_PID_OUTPUT_LIMIT                   40000.0d
+#define DEFAULT_PID_OUTPUT_LIMIT                   40000.0
 
 //PID CONFIGURATION
-#define DEFAULT_MOTORS_10_1_PID_KP                    70.0d
-#define DEFAULT_MOTORS_10_1_PID_KI                     0.0d
-#define DEFAULT_MOTORS_10_1_PID_KD                     5.0d
-#define DEFAULT_MOTORS_15_1_PID_KP                   160.0d
-#define DEFAULT_MOTORS_15_1_PID_KI                     0.0d
-#define DEFAULT_MOTORS_15_1_PID_KD                     7.0d
+#define DEFAULT_MOTORS_10_1_PID_KP                    70.0
+#define DEFAULT_MOTORS_10_1_PID_KI                     0.0
+#define DEFAULT_MOTORS_10_1_PID_KD                     5.0
+#define DEFAULT_MOTORS_15_1_PID_KP                   160.0
+#define DEFAULT_MOTORS_15_1_PID_KI                     0.0
+#define DEFAULT_MOTORS_15_1_PID_KD                     7.0
 
 #define UUID_MEMORY_LOCATION_A 0x0080A00C
 #define UUID_MEMORY_LOCATION_B 0x0080A040
 
-uint32_t MCU_ID[4];
-
 int ZIPPY_ID = 0;
-double MOTOR_DEAD_ZONE_LEFT = 3000.0d;
-double MOTOR_DEAD_ZONE_RIGHT = 3000.0d;
+double MOTOR_DEAD_ZONE_LEFT = 3000.0;
+double MOTOR_DEAD_ZONE_RIGHT = 3000.0;
 extern double MOTOR_DEAD_ZONES[][2];
 // extern double MOTOR_DEAD_ZONE_CONFIGS[][2];
 
 extern uint32_t KNOWN_MCU_IDS[][4];
 extern int KNOWN_MCU_ID_COUNT;
 
-void readUniqueID();
-void printUniqueID();
+void printUniqueID(uint32_t* mcuID);
 
 void initZippyConfiguration()
 {
-  readUniqueID();
+  uint32_t mcuID[4];
+  readMCUID(mcuID);
   // printUniqueID();
   for (int i = 0; i < KNOWN_MCU_ID_COUNT; i++) {
-    if (!memcmp(MCU_ID, KNOWN_MCU_IDS[i], 16)) {
+    if (!memcmp(mcuID, KNOWN_MCU_IDS[i], 16)) {
       // SerialUSB.print("Found known Zippy config: ");
       // SerialUSB.println(i);
       ZIPPY_ID = i;
@@ -83,37 +83,37 @@ double MOTOR_DEAD_ZONES[][2]
   //negative balance ratios give stronger turns on the left wheel (turns right harder)
   //positive balance ratios give stronger turns on the right wheel (turns left harder)
   //red
-  // { 2300.0d,  0.2000d },
-  { 2200.0d,  0.0500d },
+  // { 2200.0,  0.0500 },
+  { 4200.0,  0.0000 },
   //orange
-  // { 1650.0d, -0.3200d },
-  { 1800.0d, -0.3200d },
+  // { 1650.0, -0.3200 },
+  { 1800.0, -0.3200 },
   //green
-  { 2800.0d,  0.1800d },
+  { 2800.0,  0.1800 },
   //blue
-  { 2700.0d,  0.2600d },
+  { 2700.0,  0.2600 },
   //purple
-  { 1900.0d,  0.0500d },
+  { 1900.0,  0.0500 },
 };
 
-void readUniqueID()
+void readMCUID(uint32_t* outID)
 {
   volatile uint32_t *ptr = (volatile uint32_t*)UUID_MEMORY_LOCATION_A;
-  MCU_ID[0] = (*ptr);
+  outID[0] = (*ptr);
   ptr = (volatile uint32_t*)UUID_MEMORY_LOCATION_B;
-  MCU_ID[1] = (*(ptr));
-  MCU_ID[2] = (*(ptr+1));
-  MCU_ID[3] = (*(ptr+2));
+  outID[1] = (*(ptr));
+  outID[2] = (*(ptr+1));
+  outID[3] = (*(ptr+2));
 }
 
-void printUniqueID()
+void printUniqueID(uint32_t* mcuID)
 {
   //format the ID into a 128-bit hexadecimal string
   char formattedID[33];
-  sprintf(formattedID, "%08X", (unsigned int)MCU_ID[0]);
-  sprintf(&(formattedID[8]), "%08X", (unsigned int)MCU_ID[1]);
-  sprintf(&(formattedID[16]), "%08X", (unsigned int)MCU_ID[2]);
-  sprintf(&(formattedID[24]), "%08X", (unsigned int)MCU_ID[3]);
+  sprintf(formattedID, "%08X", (unsigned int)mcuID[0]);
+  sprintf(&(formattedID[8]), "%08X", (unsigned int)mcuID[1]);
+  sprintf(&(formattedID[16]), "%08X", (unsigned int)mcuID[2]);
+  sprintf(&(formattedID[24]), "%08X", (unsigned int)mcuID[3]);
 
   SerialUSB.print("Zippy ID: ");
   SerialUSB.println(formattedID);

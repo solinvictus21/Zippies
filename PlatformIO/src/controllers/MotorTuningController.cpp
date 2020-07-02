@@ -79,7 +79,7 @@ void MotorTuningController::loop(unsigned long currentTime)
     return;
   previousUpdateTimeStamp += MEASUREMENT_TIME_DELTA;
 
-  const KMatrix2* currentPosition = sensors->getPosition();
+  const ZMatrix2* currentPosition = sensors->getPosition();
   double deltaOrientation = subtractAngles(currentPosition->orientation.get(), previousPosition.orientation.get());
   previousPosition.set(currentPosition);
 
@@ -137,7 +137,7 @@ void MotorTuningController::loop(unsigned long currentTime)
   }
 
 /*
-  const KMatrix2* currentPosition = sensors->getPosition();
+  const ZMatrix2* currentPosition = sensors->getPosition();
   currentVelocity.set(currentPosition);
   currentVelocity.unconcat(&previousPosition);
   previousPosition.set(currentPosition);

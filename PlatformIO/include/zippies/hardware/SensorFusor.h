@@ -54,19 +54,19 @@ private:
   LighthouseOOTX ootxParser;
   RotorFactoryCalibrationData xRotor;
   RotorFactoryCalibrationData zRotor;
-  KQuaternion3 lighthouseOrientation;
+  ZQuaternion3 lighthouseOrientation;
   bool receivedLighthouseData = false;
 
   //after initialization, we can begin calculating the positions of each sensor
-  KVector2 sensorPositions[2];
+  ZVector2 sensorPositions[2];
 
   //then we can use the sensor position to calculate the position; by maintaining the previous position
   //during each iteration, we can use the difference between each position to calculate the velocity
-  // KMatrix2 previousPosition;
+  // ZMatrix2 previousPosition;
   // unsigned long previousPositionTimeStamp = 0;
-  KMatrix2 position;
+  ZMatrix2 position;
   unsigned long positionTimeStamp = 0;
-  // KMatrix2 positionDelta;
+  // ZMatrix2 positionDelta;
 
   //once we have data for the previous position as well as the current position, then we wait a predetermined
   //period of time to let the position data "settle" such as, for example, when the user is still placing
@@ -86,7 +86,7 @@ private:
   bool fuseSyncPulses();
   void calculateLighthouseData();
   void recalculatePosition(unsigned long currentTime);
-  void calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, KVector2* out);
+  void calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, ZVector2* out);
   void calculatePosition();
   void processPreambleBit(unsigned long syncTickCount);
   // void estimatePosition(unsigned long currentTime);
@@ -103,8 +103,8 @@ public:
   const LighthouseSensor* getRightSensor() const { return &sensors[1]; }
 
   unsigned long getPositionTimeStamp() const { return positionTimeStamp; }
-  const KMatrix2* getPosition() const { return &position; }
-  // const KMatrix2* getPositionDelta() const { return &positionDelta; }
+  const ZMatrix2* getPosition() const { return &position; }
+  // const ZMatrix2* getPositionDelta() const { return &positionDelta; }
 
   void stop();
 

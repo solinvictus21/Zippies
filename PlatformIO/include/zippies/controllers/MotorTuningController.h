@@ -59,8 +59,8 @@ private:
   double velocitySetPoint;
   double velocityOutput;
 
-  KMatrix2 previousPosition;
-  KMatrix2 currentVelocity;
+  ZMatrix2 previousPosition;
+  ZMatrix2 currentVelocity;
   unsigned long previousUpdateTimeStamp;
 
   StatisticsAccumulator inputAccumulator;
