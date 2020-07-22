@@ -69,5 +69,6 @@ public:
 
 double distanceBetween(double x1, double y1, double x2, double y2);
 double distanceBetween(const ZVector2* v1, const ZVector2* v2);
+double atanSafe(double x, double y);
 
 #endif

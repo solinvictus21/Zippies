@@ -29,89 +29,12 @@ void Zippy::start()
   rightWheel.start();
 }
 
-void Zippy::moveReverse(const ZMatrix2* relativeTarget)
-{
-
-}
-
-
-//calculations below derived from the following source
-//    http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
-//it should be noted that the signs of the radius and the angle herein use the following conventions
-//    when the radius is negative, the robot moves around the circle defined by a center to the left of the front of the Zippy
-//    the sign of the angle indicates the direction the Zippy will turn such that a positive angle will always move around the
-//    circle in a clockwise direction; this leads to the following behaviors with respect to the combination of the signs of
-//    the radius and the angle
-//        +/+ moving forward to the right
-//        +/- moving backward to the right while the front of the Zippy is turning left
-//        -/- moving forward to the left
-//        -/+ moving backward to the left while the front of the Zippy is turning right
-void Zippy::move(const ZMatrix2* target)
-{
-#ifdef LIMIT_ACCELERATION
-    double newTargetLinearVelocity = target->position.getD();
-    double newTargetAngularVelocity;
-    if (newTargetLinearVelocity != 0.0d) {
-        newTargetAngularVelocity = target->position.atan();
-        if (newTargetAngularVelocity != 0.0d)
-            newTargetLinearVelocity *= newTargetAngularVelocity / sin(newTargetAngularVelocity);
-        newTargetAngularVelocity *= 2.0d;
-    }
-    else
-        newTargetAngularVelocity = target->orientation.get();
-    setTargetVelocities(newTargetLinearVelocity, newTargetAngularVelocity);
-#else
-    /*
-    if (inReverse ) {
-        moveReverse(target);
-        return;
-    }
-    */
-
-    if (target->position.getX() == 0.0) {
-        double targetY = target->position.getY();
-        if (targetY == 0.0)
-            turn(target->orientation.get());
-        else
-            moveLinear(targetY);
-        return;
-    }
-
-    /*
-    double dotOrientation =
-        (target->position.getX() * target->orientation.sin()) +
-        (target->position.getY() * target->orientation.cos());
-    */
-    double rC = target->position.getD2() / (2.0 * target->position.getX());
-    double theta = 2.0 * target->position.atan();
-    motors.setMotors(
-        leftWheel.moveArc(rC, theta),
-        rightWheel.moveArc(rC, theta));
-#endif
-}
-
 void Zippy::moveLinear(double targetLinearVelocity)
 {
-  // leftWheel.moveStraight(targetLinearVelocity);
-  // rightWheel.moveStraight(targetLinearVelocity);
-  // motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
   motors.setMotors(
     leftWheel.moveStraight(targetLinearVelocity),
     rightWheel.moveStraight(targetLinearVelocity));
 }
-
-/*
-void Zippy::turn(double radius, double orientation)
-{
-#ifdef LIMIT_ACCELERATION
-  setTargetVelocities(0.0d, orientation);
-#else
-  leftWheel.moveArc(radius, orientation);
-  rightWheel.moveArc(radius, orientation);
-  motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
-#endif
-}
-*/
 
 void Zippy::moveArc(double radius, double theta)
 {
@@ -122,86 +45,14 @@ void Zippy::moveArc(double radius, double theta)
 
 void Zippy::turn(double orientation)
 {
-#ifdef LIMIT_ACCELERATION
-  setTargetVelocities(0.0d, orientation);
-#else
-  /*
-  leftWheel.turn(orientation);
-  rightWheel.turn(orientation);
-  motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
-  */
   motors.setMotors(
     leftWheel.turn(orientation),
     rightWheel.turn(orientation));
-#endif
 }
-
-#ifdef LIMIT_ACCELERATION
-void Zippy::setTargetVelocities(double targetLinearVelocity, double targetAngularVelocity)
-{
-  // this->targetLinearVelocity = targetLinearVelocity;
-  // targetLinearVelocity = constrain(targetLinearVelocity, -30.0d, 30.0d);
-  linearAcceleration = constrain(targetLinearVelocity - linearVelocity,
-      -LINEAR_ACCELERATION_MAX, LINEAR_ACCELERATION_MAX);
-  // linearVelocity += linearAcceleration;
-  linearVelocity += linearAcceleration;
-
-  // this->targetAngularVelocity = targetAngularVelocity;
-  targetAngularVelocity = constrain(targetAngularVelocity, -M_PI_2, M_PI_2);
-  // angularAcceleration = targetAngularVelocity - angularVelocity;
-  angularAcceleration = constrain(angularAcceleration + (targetAngularVelocity - angularVelocity),
-      -ANGULAR_ACCELERATION_MAX, ANGULAR_ACCELERATION_MAX);
-  angularVelocity += angularAcceleration;
-  // angularAcceleration += constrain(angularAcceleration + constrain(targetAngularAcceleration - angularAcceleration,
-      // -ANGULAR_ACCELERATION_MAX, ANGULAR_ACCELERATION_MAX),
-      // -0.5d, 0.5d);
-  // angularVelocity = constrain(angularVelocity + angularAcceleration, -1.0d, 1.0d);
-
-  if (angularVelocity == 0.0d) {
-    if (linearVelocity == 0.0d) {
-      // leftWheel.moveStraight(0.0d);
-      // rightWheel.moveStraight(0.0d);
-      motors.setMotors(
-        leftWheel.moveStraight(0.0d),
-        rightWheel.moveStraight(0.0d));
-    }
-    else {
-      // leftWheel.moveStraight(linearVelocity);
-      // rightWheel.moveStraight(linearVelocity);
-      motors.setMotors(
-        leftWheel.moveStraight(linearVelocity),
-        rightWheel.moveStraight(linearVelocity));
-    }
-  }
-  else if (linearVelocity == 0.0d) {
-    // leftWheel.turn(angularVelocity);
-    // rightWheel.turn(angularVelocity);
-    motors.setMotors(
-      leftWheel.turn(angularVelocity),
-      rightWheel.turn(angularVelocity));
-  }
-  else {
-    double rC = abs(linearVelocity) / (2.0d * sin(angularVelocity));
-    // leftWheel.moveArc(rC, angularVelocity);
-    // rightWheel.moveArc(rC, angularVelocity);
-    motors.setMotors(
-      leftWheel.moveArc(rC, angularVelocity),
-      rightWheel.moveArc(rC, angularVelocity));
-  }
-
-  // motors.setMotors(leftWheel.getOutput(), rightWheel.getOutput());
-}
-#endif
 
 //stopped when the signal from the lighthouse is lost
 void Zippy::stop()
 {
-#ifdef LIMIT_ACCELERATION
-  linearVelocity = 0.0d;
-  linearAcceleration = 0.0d;
-  angularVelocity = 0.0d;
-  angularAcceleration = 0.0d;
-#endif
   leftWheel.stop();
   rightWheel.stop();
   motors.stopMotors();

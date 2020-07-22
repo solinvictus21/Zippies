@@ -2,26 +2,67 @@
 #include <Arduino.h>
 #include "zippies/math/ZCubicHermiteSpline.h"
 
+#define DEFAULT_CARDINAL_TIGHTNESS        0.707106781186548
+
+ZCubicHermiteSpline::ZCubicHermiteSpline()
+{
+}
+
 ZCubicHermiteSpline::ZCubicHermiteSpline(const ZippyWaypoint* kfs, int kfc)
     : keyframes(kfs),
       keyframeCount(kfc)
 {
+    generateSpline();
+}
+
+void ZCubicHermiteSpline::setKeyframes(const ZippyWaypoint* kfs, int kfc)
+{
+    deleteSpline();
+
+    this->keyframes = kfs;
+    this->keyframeCount = kfc;
+
+    generateSpline();
+}
+
+void ZCubicHermiteSpline::generateSpline()
+{
+    if (!keyframeCount)
+        return;
+
     positions = new ZVector2*[keyframeCount];
     tangents = new ZVector2*[keyframeCount];
+
+    //calculate the tangents at each point
     const ZippyWaypoint* previousPosition = &keyframes[0];
+    double previousTime = keyframes[0].timing;
     for (int i = 0; i < keyframeCount; i++)
     {
         const ZippyWaypoint* currentPosition = &keyframes[i];
         positions[i] = new ZVector2(currentPosition->x, currentPosition->y);
-        tangents[i] = new ZVector2();
+
         const ZippyWaypoint* nextPosition;
-        if (i < keyframeCount - 1)
+        double currentTime;
+        if (i < keyframeCount - 1) {
+            currentTime = keyframes[i].timing;
             nextPosition = &keyframes[i+1];
-        else
+        }
+        else {
+            currentTime = keyframes[keyframeCount-2].timing;
             nextPosition = currentPosition;
+        }
+
+        tangents[i] = new ZVector2();
         calculateTangent(
-            previousPosition, currentPosition, nextPosition,
+            previousPosition,
+            previousTime,
+            currentPosition,
+            currentTime,
+            nextPosition,
             tangents[i]);
+
+        previousPosition = currentPosition;
+        previousTime = currentTime;
         /*
         SerialUSB.print("positions/tangents ");
         SerialUSB.println(i);
@@ -34,15 +75,47 @@ ZCubicHermiteSpline::ZCubicHermiteSpline(const ZippyWaypoint* kfs, int kfc)
 
 void ZCubicHermiteSpline::calculateTangent(
     const ZippyWaypoint* position0,
+    double time01,
     const ZippyWaypoint* position1,
+    double time12,
     const ZippyWaypoint* position2,
     ZVector2* tangent)
 {
-    double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));// / 2.0;
+    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));
+    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));// *
+        // DEFAULT_CARDINAL_TIGHTNESS;
     double orientationRadians = M_PI * position1->orientation / 180.0;
+    double orientationSin = sin(orientationRadians);
+    double orientationCos = cos(orientationRadians);
+    double tangentX = (2000.0 * (position2->x - position0->x)) / ((double)(time01 + time12));
+    double tangentY = (2000.0 * (position2->y - position0->y)) / ((double)(time01 + time12));
+    double tangentMagnitude = abs((tangentX * orientationSin) + (tangentY * orientationCos));
+    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));// *
+    // tangentMagnitude /= ((double)(time01 + time12)) * 0.5 / 1000.0;
     tangent->set(
-        sin(orientationRadians) * tangentMagnitude,
-        cos(orientationRadians) * tangentMagnitude);
+        orientationSin * tangentMagnitude,
+        orientationCos * tangentMagnitude);
+}
+
+void ZCubicHermiteSpline::deleteSpline()
+{
+    for (int i = 0; i < keyframeCount; i++) {
+        delete positions[i];
+        delete tangents[i];
+    }
+
+    if (positions) {
+        delete[] positions;
+        positions = NULL;
+    }
+
+    if (tangents) {
+        delete[] tangents;
+        tangents = NULL;
+    }
+
+    keyframes = NULL;
+    keyframeCount = 0;
 }
 
 void ZCubicHermiteSpline::start(unsigned long st)
@@ -73,15 +146,18 @@ void ZCubicHermiteSpline::interpolate(unsigned long currentTime)
         deltaTime -= previousDeltaTime;
         currentPointStartTime += previousDeltaTime;
         currentPoint++;
-        if (currentPoint == keyframeCount)
+        if (currentPoint >= keyframeCount - 1)
         {
+            //end of the spline
             currentTargetPosition.set(positions[keyframeCount - 1]);
             currentTargetVelocity.set(tangents[keyframeCount - 1]);
             return;
         }
+
         //scale the hermite tangents so that the velocities animate smoothly across the control points
         //information on how to calculate this scaling described here...
         //    https://www.cubic.org/docs/hermite.htm
+        //
         //note that this documentation does not describe how the first and last tangents should be scaled, but
         //after some experimentation and a little reasoning, I figured out that the scaling calculations for
         //the internal control point tangents are a simplied version of this formula...
@@ -96,9 +172,13 @@ void ZCubicHermiteSpline::interpolate(unsigned long currentTime)
         //it's essentialy the current time weighted over the average between the two times; this lead me to
         //realize and confirm experimentally that the first outbound and last inbound tangents should not be
         //weighted at all, so the value is just 1.0
-        currentOutboundFactor = (2.0 * keyframes[currentPoint].timing) / (previousDeltaTime + keyframes[currentPoint].timing);
+        currentOutboundFactor =
+            ((double)(2.0 * keyframes[currentPoint].timing)) /
+            ((double)(previousDeltaTime + keyframes[currentPoint].timing));
         if (currentPoint < keyframeCount - 2)
-            nextInboundFactor = (2.0 * keyframes[currentPoint].timing) / (keyframes[currentPoint].timing + keyframes[currentPoint + 1].timing);
+            nextInboundFactor =
+                ((double)(2.0 * keyframes[currentPoint].timing)) /
+                ((double)(keyframes[currentPoint].timing + keyframes[currentPoint + 1].timing));
         else
             nextInboundFactor = 1.0;
     }
@@ -123,7 +203,6 @@ void ZCubicHermiteSpline::interpolate(
   double tangent2Factor)
 {
   double tt = t * t;
-
   double uu = sq(1.0 - t);
   double t2 = 2.0 * t;
   double p00 = (1.0 + t2) * uu;
@@ -136,10 +215,10 @@ void ZCubicHermiteSpline::interpolate(
       interpolateCubicHermite(p00, p10, p01, p11,
           position1->getY(), tangent1->getY() * tangent1Factor, position2->getY(), tangent2->getY() * tangent2Factor));
 
-  double v00 = 6.0 * tt - 6.0 * t;
-  double v10 = 3.0 * tt - 4.0 * t + 1;
-  double v01 = -6.0 * tt + 6.0 * t;
-  double v11 = 3.0 * tt - 2 * t;
+  double v00 = (6.0 * tt) - (6.0 * t);
+  double v10 = (3.0 * tt) - (4.0 * t) + 1.0;
+  double v01 = (-6.0 * tt) + (6.0 * t);
+  double v11 = (3.0 * tt) - (2.0 * t);
   currentTargetVelocity.set(
       interpolateCubicHermite(v00, v10, v01, v11,
           position1->getX(), tangent1->getX() * tangent1Factor, position2->getX(), tangent2->getX() * tangent2Factor),
@@ -147,7 +226,7 @@ void ZCubicHermiteSpline::interpolate(
           position1->getY(), tangent1->getY() * tangent1Factor, position2->getY(), tangent2->getY() * tangent2Factor));
 }
 
-double ZCubicHermiteSpline::interpolateCubicHermite(
+double interpolateCubicHermite(
     double c00, double c10, double c01, double c11,
     double p1, double t1, double p2, double t2)
 {

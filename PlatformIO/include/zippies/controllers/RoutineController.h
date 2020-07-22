@@ -24,17 +24,13 @@ class RoutineController : public ZippyController
 private:
   SensorFusor* sensors;
   ZMatrix2 defaultRoutinesStartPosition;
-  RoutineDefinition* defaultRoutines;
+  ZippyWaypoint* defaultRoutines;
   int defaultRoutinesCount;
 
-  Routine routine;
   ZCubicHermiteSpline path;
   PathFollowingController pathFollowingController;
 
   RoutineExecutionState executionState = RoutineExecutionState::PreSyncingWithPreamble;
-
-  void createRelativePathDefinition(const ZVector2* relativeMovement, PathDefinition* pathDefinition);
-  void planMoveIntoPlace(const ZMatrix2* currentPosition, const ZMatrix2* startPosition);
 
 public:
   RoutineController(SensorFusor* s);

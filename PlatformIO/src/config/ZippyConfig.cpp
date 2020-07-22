@@ -84,7 +84,7 @@ double MOTOR_DEAD_ZONES[][2]
   //positive balance ratios give stronger turns on the right wheel (turns left harder)
   //red
   // { 2200.0,  0.0500 },
-  { 4200.0,  0.0000 },
+  { 4000.0,  0.0000 },
   //orange
   // { 1650.0, -0.3200 },
   { 1800.0, -0.3200 },

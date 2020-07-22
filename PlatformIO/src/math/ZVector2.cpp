@@ -253,14 +253,7 @@ double ZVector2::projectToward(double orientation)
 double ZVector2::atan() const
 {
   if (!arctanValid) {
-    if (this->y == 0.0) {
-      if (this->x == 0.0)
-        _arctan = 0.0;
-      else
-        _arctan = this->x < 0.0 ? -M_PI_2 : M_PI_2;
-    }
-    else
-      _arctan = ::atan(this->x / this->y);
+    _arctan = atanSafe(this->x, this->y);
     arctanValid = true;
   }
 
@@ -327,4 +320,15 @@ double distanceBetween(double x1, double y1, double x2, double y2)
 double distanceBetween(const ZVector2* v1, const ZVector2* v2)
 {
   return distanceBetween(v1->getX(), v1->getY(), v2->getX(), v2->getY());
+}
+
+double atanSafe(double x, double y)
+{
+    if (y == 0.0) {
+      if (x == 0.0)
+        return  0.0;
+      return x < 0.0 ? -M_PI_2 : M_PI_2;
+    }
+
+    return ::atan(x / y);
 }

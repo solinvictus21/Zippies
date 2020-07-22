@@ -18,6 +18,7 @@ let TARGET_DISTANCE: CGFloat = 400.0
 
 let TARGET_POSITION_ANGULAR_INCREMENT: CGFloat = 0.004
 let TARGET_ORIENTATION_ANGULAR_INCREMENT: CGFloat = 0.05
+let TARGET_DISTANCE_VELOCITY_INCREMENT: CGFloat = 0.05
 let RADIANS_TO_DEGREES: CGFloat = 57.295779513082321
 
 fileprivate let ZIPPY_ARROW_RADIUS: CGFloat = 20
@@ -30,6 +31,8 @@ class TopDownView : UIView
     var targetUpdateTimer: Timer?
     var targetDirection: CGFloat = 0.0
     var targetOrientation: CGFloat = -0.1
+    var targetVelocity: CGFloat = 154.7
+    var distanceVelocityRatio: CGFloat = 0.5
 
     var zippyManager: ZippyManager?
     
@@ -128,20 +131,113 @@ class TopDownView : UIView
         let target = CGPoint(
             x: TARGET_DISTANCE * sin(targetDirection),
             y: TARGET_DISTANCE * cos(targetDirection))
+        let velocityPoint = CGPoint(
+            x: targetVelocity * sin(targetOrientation),
+            y: targetVelocity * cos(targetOrientation))
 
         //display the path to the target
         drawDirectPath(
             currentPoint,
-            target)
+            target,
+            velocityPoint)
         
 //        drawOriginFrameOfReference(target)
 //        drawTargetFrameOfReference(target, targetOrientation)
 //        drawBiArcMergePath2(
 //            target,
 //            targetOrientation)
+        /*
         drawNewTest(
             target,
             targetOrientation)
+         */
+        let targetPositionVector = KVector2(
+            Double(TARGET_DISTANCE * sin(targetDirection)),
+            Double(TARGET_DISTANCE * cos(targetDirection)))
+        let targetVelocityVector = KVector2(
+            Double(targetVelocity * sin(targetOrientation)),
+            Double(targetVelocity * cos(targetOrientation)))
+        testDotProductTargets(
+            targetPositionVector,
+            targetVelocityVector)
+        /*
+        drawWithVelocity(
+            target,
+            targetOrientation,
+            targetVelocity)
+         */
+    }
+    
+    fileprivate func drawDirectPath(
+        _ fromPoint: CGPoint,
+        _ toPoint: CGPoint,
+        _ velocity: CGPoint)
+    {
+        UIColor.green.setStroke()
+        UIColor.green.setFill()
+
+        //draw the direct line from our current position to the target position
+        drawLine(
+            fromPoint,
+            toPoint,
+            ZIPPY_LINE_WIDTH)
+        drawPoint(fromPoint)
+
+        drawArrow(
+            toPoint,
+            targetOrientation,
+            ZIPPY_LINE_WIDTH)
+
+        UIColor.purple.setStroke()
+        UIColor.purple.setFill()
+        let velocityEndPoint = CGPoint(
+            x: toPoint.x + velocity.x,
+            y: toPoint.y + velocity.y)
+        drawLine(toPoint, velocityEndPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawPoint(velocityEndPoint)
+    }
+    
+    fileprivate func testDotProductTargets(
+        _ targetPosition: KVector2,
+        _ targetVelocity: KVector2)
+    {
+        //unit vector S = targetVelocity sin and cos
+        //S0 = r1 cross S = targetPosition cross S
+        let s0 =
+            (targetPosition.getX() * targetVelocity.cos) -
+            (targetPosition.getY() * targetVelocity.sin)
+        //S0h = S0 + (h * S) = 
+        let dotProduct =
+            (targetPosition.getX() * targetVelocity.getX()) +
+            (targetPosition.getY() * targetVelocity.getY())
+        let crossProductZ =
+            (targetPosition.getX() * targetVelocity.getY()) -
+            (targetPosition.getY() * targetVelocity.getX())
+            
+        let targetPositionPoint = CGPoint(
+            x: targetPosition.getX(),
+            y: targetPosition.getY())
+        //velocity dot position
+        let velocityDotPosition = dotProduct / targetPosition.getD();
+        let positionPoint = CGPoint(
+            x: targetPosition.getX() + (velocityDotPosition * targetPosition.sin),
+            y: targetPosition.getY() + (velocityDotPosition * targetPosition.cos))
+        //position dot velocity
+        let positionDotVelocity = dotProduct / targetVelocity.getD();
+        let velocityPoint = CGPoint(
+            x: targetPosition.getX() - (positionDotVelocity * targetVelocity.sin),
+            y: targetPosition.getY() - (positionDotVelocity * targetVelocity.cos))
+        let velocityEndPoint = CGPoint(
+            x: targetPosition.getX() + targetVelocity.getX(),
+            y: targetPosition.getY() + targetVelocity.getY())
+        
+        drawPoint(velocityEndPoint)
+        drawLine(positionPoint, velocityEndPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawLine(positionPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawPoint(positionPoint)
+        drawLine(velocityPoint, CGPoint(), ZIPPY_THIN_LINE_WIDTH)
+        drawLine(velocityPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawPoint(velocityPoint)
     }
     
     fileprivate func constrain(
@@ -159,10 +255,78 @@ class TopDownView : UIView
         return value
     }
     
+    fileprivate func drawWithVelocity(
+        _ relativeTargetPosition: CGPoint,
+        _ relativeTargetOrientation: CGFloat,
+        _ velocity: CGFloat)
+    {
+        let dotLength = (relativeTargetPosition.x * sin(relativeTargetOrientation)) +
+            (relativeTargetPosition.y * cos(relativeTargetOrientation))
+        let convergencePoint = CGPoint(
+            x: relativeTargetPosition.x + (dotLength * sin(relativeTargetOrientation)),
+            y: relativeTargetPosition.y + (dotLength * cos(relativeTargetOrientation)))
+        let currentVelocityTarget = CGPoint(
+            x: relativeTargetPosition.x + (sin(relativeTargetOrientation) * velocity),
+            y: relativeTargetPosition.y + (cos(relativeTargetOrientation) * velocity))
+        /*
+        let d2 = pow(currentVelocityTarget.x, 2.0) + pow(currentVelocityTarget.y, 2.0)
+        let movementRadius = CGFloat(d2 / (2.0 * currentVelocityTarget.x))
+        let movementTheta = atan2(
+            relativeTargetPosition.y,
+            (movementRadius - relativeTargetPosition.x))
+         */
+        
+        UIColor.purple.setStroke()
+        UIColor.purple.setFill()
+        drawPoint(convergencePoint)
+        drawTurn(convergencePoint)
+        drawLine(
+            relativeTargetPosition,
+            currentVelocityTarget,
+            ZIPPY_THIN_LINE_WIDTH)
+        /*
+        drawLine(
+            CGPoint(),
+            CGPoint(x: movementRadius, y: 0),
+            ZIPPY_THIN_LINE_WIDTH)
+        drawTurn(
+            radius: movementRadius,
+            theta: movementTheta);
+         */
+    }
+    
+    fileprivate func drawTurn(_ relativeTargetPosition: CGPoint)
+    {
+        let d2 = pow(relativeTargetPosition.x, 2.0) + pow(relativeTargetPosition.y, 2.0)
+        let movementRadius = CGFloat(d2 / (2.0 * relativeTargetPosition.x))
+        let movementTheta = 2.0 * atan2(
+            relativeTargetPosition.x,
+            relativeTargetPosition.y)
+        drawTurn(radius: movementRadius, theta: movementTheta)
+    }
+    
+    fileprivate func atanSafe(_ x: CGFloat, _ y: CGFloat) -> CGFloat
+    {
+        if y == 0.0 {
+            if x == 0.0 {
+                return 0.0
+            }
+            else if x < 0.0 {
+                return -CGFloat.pi / 2.0
+            }
+            else {
+                return CGFloat.pi / 2.0
+            }
+        }
+        
+        return atan(x / y)
+    }
+    
     fileprivate func drawNewTest(
         _ relativeTargetPosition2: CGPoint,
         _ relativeTargetOrientation: CGFloat)
     {
+        /*
         let constraint = min(
             abs(relativeTargetPosition2.x),
             abs(relativeTargetPosition2.y))
@@ -181,6 +345,7 @@ class TopDownView : UIView
             relativeTargetPosition: relativeTargetPosition2,
             relativeTargetOrientation: relativeTargetOrientation,
             movementRadius: idealRadius * 0.99999999)
+         */
 
         UIColor.magenta.setStroke()
         UIColor.magenta.setFill()
@@ -203,24 +368,15 @@ class TopDownView : UIView
         relativeTargetOrientation: CGFloat,
         radiusFactor: CGFloat)
     {
-        let rG2 = pow(relativeTargetPosition.x,2)+pow(relativeTargetPosition.y,2)
-        let idealRadius = rG2 / (2.0 * relativeTargetPosition.x)
-        let movementRadius = idealRadius * radiusFactor
-        drawNewTest(
-            relativeTargetPosition: relativeTargetPosition,
-            relativeTargetOrientation: relativeTargetOrientation,
-            movementRadius: movementRadius)
-    }
-    
-    fileprivate func drawNewTest(
-        relativeTargetPosition: CGPoint,
-        relativeTargetOrientation: CGFloat,
-        movementRadius: CGFloat)
-    {
         guard relativeTargetPosition.x != 0.0 else {
             return
         }
         
+        print("radiusFactor: ", radiusFactor)
+        let rG2 = pow(relativeTargetPosition.x,2)+pow(relativeTargetPosition.y,2)
+        let idealRadius = rG2 / (2.0 * relativeTargetPosition.x)
+        let movementRadius = idealRadius * radiusFactor
+
         let targetDirection = directionToTarget(relativeTargetPosition)
 //        let deltaOrientationAtTarget = subtractAngles(
 //            relativeTargetOrientation,
@@ -234,11 +390,14 @@ class TopDownView : UIView
         let radiusToTarget = CGPoint(
             x: relativeTargetPosition.y,
             y: movementRadius - relativeTargetPosition.x)
-        let distance = sqrt(pow(radiusToTarget.x,2.0)+pow(radiusToTarget.y,2.0))
+//        let distance = sqrt(pow(radiusToTarget.x,2.0)+pow(radiusToTarget.y,2.0))
         let completeTurnToTarget = atan2(radiusToTarget.x, radiusToTarget.y)
+        let movementTheta = completeTurnToTarget * radiusFactor
+        /*
         let movementTheta = (completeTurnToTarget > 0.0)
             ? completeTurnToTarget - acos(movementRadius / distance)
             : completeTurnToTarget + acos(movementRadius / distance)
+         */
 //        print(distance, completeTurnToTarget)
         drawTurn(
             radius: movementRadius,
@@ -250,6 +409,8 @@ class TopDownView : UIView
             y: movementRadius * sin(movementTheta))
 //        let idealRadius2 = sqrt(rG2) / (2.0 * sin(targetDirection))
 //        print(idealRadius / distance, movementRadius / distance, movementTheta, intersectionPoint)
+        print("thetaFactor:  ", movementTheta / abs(completeTurnToTarget))
+        print()
 
         drawLine(
             intersectionPoint,
@@ -491,26 +652,6 @@ class TopDownView : UIView
             ZIPPY_THIN_LINE_WIDTH)
     }
 
-    fileprivate func drawDirectPath(
-        _ fromPoint: CGPoint,
-        _ toPoint: CGPoint)
-    {
-        UIColor.green.setStroke()
-        UIColor.green.setFill()
-
-        //draw the direct line from our current position to the target position
-        drawLine(
-            fromPoint,
-            toPoint,
-            ZIPPY_LINE_WIDTH)
-        drawPoint(fromPoint)
-
-        drawArrow(
-            toPoint,
-            targetOrientation,
-            ZIPPY_LINE_WIDTH)
-    }
-    
     /*
     fileprivate func drawDirectArc(
         _ fromPoint: CGPoint,

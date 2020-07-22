@@ -18,21 +18,26 @@ private:
     MovementState currentMovementState = MovementState::Stopped;
     unsigned long stateDowngradeCounter = 0;
     ZMatrix2 currentMovement;
+    ZVector2 currentVelocityTarget;
 
-    void executeMove();
-    void executeTurn();
-    void executeStop();
+    // ZVector2 pluckerS;
+    // ZVector2 pluckerZ;
 
-    void moveDirect();
+    void clipMove();
+
+    void continueMove();
+    bool completeMove();
+    void forward(bool completingMove);
+    void backward();
+    void continueTurn();
+    bool completeTurn();
+    void completeStop();
 
 public:
     PathFollowingController() {}
 
     Zippy* getZippy() { return &zippy; }
-    void followPath(
-        const ZMatrix2* currentPosition,
-        const ZMatrix2* targetPosition,
-        MovementState targetMovementState);
+
     void followPath(
         const ZMatrix2* currentPosition,
         const ZVector2* targetPosition,

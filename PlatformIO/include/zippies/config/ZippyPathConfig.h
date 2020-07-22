@@ -4,7 +4,9 @@
 
 #include "zippies/math/ZCubicHermiteSpline.h"
 
-extern ZippyWaypoint zippyPath[];
-extern const int zippyPathCount;
+void getZippyRoutine(
+    ZMatrix2* startPosition,
+    ZippyWaypoint** keyframes,
+    int* keyframeCount);
 
 #endif

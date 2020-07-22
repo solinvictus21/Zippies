@@ -13,14 +13,18 @@ typedef struct _ZippyWaypoint
     unsigned long timing;
 } ZippyWaypoint;
 
+double interpolateCubicHermite(
+    double c00, double c10, double c01, double c11,
+    double p1, double t1, double p2, double t2);
+
 class ZCubicHermiteSpline
 {
 
 private:
-    const ZippyWaypoint* keyframes;
-    int keyframeCount;
-    ZVector2** positions;
-    ZVector2** tangents;
+    const ZippyWaypoint* keyframes = NULL;
+    int keyframeCount = 0;
+    ZVector2** positions = NULL;
+    ZVector2** tangents = NULL;
 
     unsigned long startTime;
     unsigned long previousDeltaTime;
@@ -30,11 +34,14 @@ private:
     double nextInboundFactor;
     ZVector2 currentTargetPosition;
     ZVector2 currentTargetVelocity;
-    ZMatrix2 currentTargetMatrix;
 
+    void deleteSpline();
+    void generateSpline();
     void calculateTangent(
         const ZippyWaypoint* position0,
+        double time01,
         const ZippyWaypoint* position1,
+        double time12,
         const ZippyWaypoint* position2,
         ZVector2* tangent);
 
@@ -46,23 +53,19 @@ private:
         const ZVector2* position2,
         const ZVector2* tangent2,
         double tangent2Factor);
-    double interpolateCubicHermite(
-        double c00, double c10, double c01, double c11,
-        double p1, double t1, double p2, double t2);
 
 public:
+    ZCubicHermiteSpline();
     ZCubicHermiteSpline(const ZippyWaypoint* keyframes, int keyframeCount);
 
+    void setKeyframes(const ZippyWaypoint* keyframes, int keyframeCount);
     void start(unsigned long st);
     void interpolate(unsigned long currentTime);
 
     const ZVector2* getTargetPosition() const { return &currentTargetPosition; };
     const ZVector2* getTargetVelocity() const { return &currentTargetVelocity; };
-    const ZMatrix2* getTargetMatrix() const { return &currentTargetMatrix; };
 
-    bool isCompleted() {
-        return currentPoint >= keyframeCount;
-    }
+    bool isCompleted() { return currentPoint >= keyframeCount - 1; }
 
     ~ZCubicHermiteSpline() {
         for (int i = 0; i < keyframeCount; i++) {

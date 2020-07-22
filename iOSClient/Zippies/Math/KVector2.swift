@@ -94,6 +94,18 @@ class KVector2: NSObject
             return _atan2
         }
     }
+    
+    var sin: Double {
+        get {
+            return x / getD();
+        }
+    }
+
+    var cos: Double {
+        get {
+            return y / getD();
+        }
+    }
 
     func getD() -> Double
     {
@@ -136,7 +148,7 @@ class KVector2: NSObject
 
     func dotOrientation(_ o: Double) -> Double
     {
-        return (x * sin(o)) + (y * cos(o))
+        return (x * Foundation.sin(o)) + (y * Foundation.cos(o))
     }
 
     func multiply(_ m: Double)
@@ -278,8 +290,8 @@ class KVector2: NSObject
 
     func projectAlong(_ orientation: Double) -> Double
     {
-        let sinTheta = sin(orientation)
-        let cosTheta = cos(orientation)
+        let sinTheta = Foundation.sin(orientation)
+        let cosTheta = Foundation.cos(orientation)
         let dotProduct = (x * sinTheta) + (y * cosTheta)
         self.x = dotProduct * sinTheta
         self.y = dotProduct * cosTheta
@@ -297,8 +309,8 @@ class KVector2: NSObject
 
     func projectToward(_ orientation: Double) -> Double
     {
-        let sinTheta = sin(orientation)
-        let cosTheta = cos(orientation)
+        let sinTheta = Foundation.sin(orientation)
+        let cosTheta = Foundation.cos(orientation)
         let dotProduct = (x * sinTheta) + (y * cosTheta)
         let absDotProduct = abs(dotProduct)
         self.x = absDotProduct * sinTheta
@@ -326,8 +338,8 @@ class KVector2: NSObject
         let currentLength = getD()
         _atan2 = addAngles(getOrientation(), angleRadians)
     
-        self.x = currentLength * sin(_atan2)
-        self.y = currentLength * cos(_atan2)
+        self.x = currentLength * Foundation.sin(_atan2)
+        self.y = currentLength * Foundation.cos(_atan2)
         atanValid = false
         atan2Valid = true
     }
