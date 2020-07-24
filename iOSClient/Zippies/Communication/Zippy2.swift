@@ -1,36 +1,37 @@
 
 import Foundation
+import UIKit
 
 class Zippy2 : NSObject
 {
     
     fileprivate let id : UUID
-    fileprivate var _x : Double = 0
-    fileprivate var _y : Double = 0
-    fileprivate var _o : Double = 0
+    fileprivate var _x : CGFloat = 0
+    fileprivate var _y : CGFloat = 0
+    fileprivate var _o : CGFloat = 0
 
-    var x : Double
+    var x : CGFloat
     {
         get {
             return _x
         }
     }
     
-    var y : Double
+    var y : CGFloat
     {
         get {
             return _y
         }
     }
     
-    var orientation : Double
+    var orientation : CGFloat
     {
         get {
             return _o
         }
     }
     
-    init(_ id: UUID, x: Double, y: Double, o: Double)
+    init(_ id: UUID, x: CGFloat, y: CGFloat, o: CGFloat)
     {
         self.id = id
         self._x = x
@@ -38,7 +39,7 @@ class Zippy2 : NSObject
         self._o = o
     }
     
-    func setPosition(x: Double, y: Double, o: Double)
+    func setPosition(x: CGFloat, y: CGFloat, o: CGFloat)
     {
         self._x = x
         self._y = y

@@ -1,6 +1,7 @@
 
 import Foundation
 import CoreBluetooth
+import UIKit
 
 protocol ZippyManagerDelegate: class
 {
@@ -190,13 +191,13 @@ extension ZippyManager: PeripheralFinderDelegate
     }
     
     func extractFloat32(_ data: [UInt8],
-                        position: Int) -> Double
+                        position: Int) -> CGFloat
     {
         var bitPatternU32 = UInt32(data[position+3]) << 24
         bitPatternU32 |= UInt32(data[position+2]) << 16
         bitPatternU32 |= UInt32(data[position+1]) << 8
         bitPatternU32 |= UInt32(data[position])
-        return Double(Float32(bitPattern: bitPatternU32))
+        return CGFloat(Float32(bitPattern: bitPatternU32))
     }
     
 }

@@ -2,54 +2,54 @@
 import Foundation
 import UIKit
 
-fileprivate let ZIPPY_RANGE_X: Double = 600
-fileprivate let ZIPPY_RANGE_Y: Double = 400
-fileprivate let ZIPPY_ARROW_RADIUS: Double = 10
+fileprivate let ZIPPY_RANGE_X: CGFloat = 600
+fileprivate let ZIPPY_RANGE_Y: CGFloat = 400
+fileprivate let ZIPPY_ARROW_RADIUS: CGFloat = 10
 
 class BiArcViewer: ZDrawable
 {
     
-    fileprivate var _start: KMatrix2
-    fileprivate var _end: KMatrix2
+    fileprivate var _start: ZMatrix2
+    fileprivate var _end: ZMatrix2
 
-    fileprivate var vDotV: Double = 0
-    fileprivate var vDotT1: Double = 0
-    fileprivate var vDotT2: Double = 0
-    fileprivate var t1DotT2: Double = 0
-    fileprivate var _d1: Double = 0
-    fileprivate var _d2: Double = 0
+    fileprivate var vDotV: CGFloat = 0
+    fileprivate var vDotT1: CGFloat = 0
+    fileprivate var vDotT2: CGFloat = 0
+    fileprivate var t1DotT2: CGFloat = 0
+    fileprivate var _d1: CGFloat = 0
+    fileprivate var _d2: CGFloat = 0
     
     fileprivate var path: ZPath? = nil
     
     init()
     {
-        _start = KMatrix2(
-            Double.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
-            Double.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
-            Double.random(in: -Double.pi..<Double.pi))
+        _start = ZMatrix2(
+            CGFloat.random(in: -ZIPPY_RANGE_X...ZIPPY_RANGE_X),
+            CGFloat.random(in: -ZIPPY_RANGE_Y...ZIPPY_RANGE_Y),
+            CGFloat.random(in: -CGFloat.pi..<CGFloat.pi))
         _end = generateRandomTarget(_start)
         recalculate()
     }
     
-    func setStartPosition(_ x: Double, _ y: Double)
+    func setStartPosition(_ x: CGFloat, _ y: CGFloat)
     {
         _start.position.set(x, y)
         recalculate()
     }
     
-    func setStartOrientation(_ o: Double)
+    func setStartOrientation(_ o: CGFloat)
     {
         _start.orientation.rotation = o
         recalculate()
     }
     
-    func setEndPosition(_ x: Double, _ y: Double)
+    func setEndPosition(_ x: CGFloat, _ y: CGFloat)
     {
         _end.position.set(x, y)
         recalculate()
     }
     
-    func setEndOrientation(_ o: Double)
+    func setEndOrientation(_ o: CGFloat)
     {
         _end.orientation.rotation = o
         recalculate()
@@ -63,7 +63,7 @@ class BiArcViewer: ZDrawable
         drawArrow(_start)
     }
     
-    fileprivate func drawArrow(_ p: KMatrix2)
+    fileprivate func drawArrow(_ p: ZMatrix2)
     {
         let radiusSinO = ZIPPY_ARROW_RADIUS * p.orientation.sin
         let centerPointX = p.position.getX() - radiusSinO
@@ -139,7 +139,7 @@ class BiArcViewer: ZDrawable
         _d2 = ((vDotV/2.0) - (_d1*vDotT1)) / (vDotT2 - ((_d1*t1DotT2) - 1.0))
     }
     
-    func planPath(_ fromPosition: KMatrix2, _ toPosition: KMatrix2) -> ZPath?
+    func planPath(_ fromPosition: ZMatrix2, _ toPosition: ZMatrix2) -> ZPath?
     {
         /*
         let knot: KMatrix2

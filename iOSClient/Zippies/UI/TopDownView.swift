@@ -14,7 +14,7 @@ let ZIPPY_AREA_WIDTH: CGFloat = 2000.0
 let ZIPPY_AREA_HEIGHT: CGFloat = 1000.0
 
 let TARGET_UPDATE_TIMER_INTERVAL = 100
-let TARGET_DISTANCE: CGFloat = 400.0
+let TARGET_DISTANCE: CGFloat = 300.0
 
 let TARGET_POSITION_ANGULAR_INCREMENT: CGFloat = 0.004
 let TARGET_ORIENTATION_ANGULAR_INCREMENT: CGFloat = 0.05
@@ -23,22 +23,23 @@ let RADIANS_TO_DEGREES: CGFloat = 57.295779513082321
 
 fileprivate let ZIPPY_ARROW_RADIUS: CGFloat = 20
 fileprivate let ZIPPY_LINE_WIDTH: CGFloat = 3
-fileprivate let ZIPPY_THIN_LINE_WIDTH: CGFloat = 1.0
+fileprivate let ZIPPY_THIN_LINE_WIDTH: CGFloat = 0.8
 fileprivate let ZIPPY_POINT_RADIUS: CGFloat = 5
+fileprivate let ZIPPY_WHEEL_RADIUS: CGFloat = 18.27840255602223
 
 class TopDownView : UIView
 {
     var targetUpdateTimer: Timer?
     var targetDirection: CGFloat = 0.0
     var targetOrientation: CGFloat = -0.1
-    var targetVelocity: CGFloat = 154.7
+    var targetVelocity: CGFloat = 114.7
     var distanceVelocityRatio: CGFloat = 0.5
 
     var zippyManager: ZippyManager?
     
     fileprivate var moveToDisplay: ZDrawable
 
-    let EASING: Double = 1/3
+    let EASING: CGFloat = 1/3
     
     init(s: String, i: Int)
     {
@@ -55,7 +56,7 @@ class TopDownView : UIView
         /*
         for i in 0...INCREMENTS {
             let interpolatedValue = bezierEaseInOut3(
-                Double(i)/Double(INCREMENTS),
+                CGFloat(i)/CGFloat(INCREMENTS),
                 0.5)
             print(interpolatedValue)
         }
@@ -95,9 +96,9 @@ class TopDownView : UIView
     }
 
     fileprivate func bezierEaseInOut2(
-        _ t: Double,
-        _ a: Double,
-        _ b: Double) -> Double
+        _ t: CGFloat,
+        _ a: CGFloat,
+        _ b: CGFloat) -> CGFloat
     {
       let t2 = t * t
       let t3 = t2 * t
@@ -107,8 +108,8 @@ class TopDownView : UIView
     }
 
     fileprivate func bezierEaseInOut3(
-        _ t: Double,
-        _ a: Double) -> Double
+        _ t: CGFloat,
+        _ a: CGFloat) -> CGFloat
     {
       let t2 = t * t
       let mt = 1-t
@@ -151,15 +152,20 @@ class TopDownView : UIView
             target,
             targetOrientation)
          */
-        let targetPositionVector = KVector2(
-            Double(TARGET_DISTANCE * sin(targetDirection)),
-            Double(TARGET_DISTANCE * cos(targetDirection)))
-        let targetVelocityVector = KVector2(
-            Double(targetVelocity * sin(targetOrientation)),
-            Double(targetVelocity * cos(targetOrientation)))
+        let targetPositionVector = ZVector2(
+            CGFloat(TARGET_DISTANCE * sin(targetDirection)),
+            CGFloat(TARGET_DISTANCE * cos(targetDirection)))
+        let targetVelocityVector = ZVector2(
+            CGFloat(targetVelocity * sin(targetOrientation)),
+            CGFloat(targetVelocity * cos(targetOrientation)))
+        testVectorPursuit(
+            targetPositionVector,
+            targetVelocityVector)
+        /*
         testDotProductTargets(
             targetPositionVector,
             targetVelocityVector)
+         */
         /*
         drawWithVelocity(
             target,
@@ -193,51 +199,221 @@ class TopDownView : UIView
         let velocityEndPoint = CGPoint(
             x: toPoint.x + velocity.x,
             y: toPoint.y + velocity.y)
-        drawLine(toPoint, velocityEndPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawLine(toPoint, velocityEndPoint, ZIPPY_LINE_WIDTH)
         drawPoint(velocityEndPoint)
     }
     
-    fileprivate func testDotProductTargets(
-        _ targetPosition: KVector2,
-        _ targetVelocity: KVector2)
+    fileprivate func testVectorPursuit(
+        _ targetPosition: ZVector2,
+        _ targetVelocity: ZVector2)
     {
-        //unit vector S = targetVelocity sin and cos
-        //S0 = r1 cross S = targetPosition cross S
-        let s0 =
-            (targetPosition.getX() * targetVelocity.cos) -
-            (targetPosition.getY() * targetVelocity.sin)
-        //S0h = S0 + (h * S) = 
-        let dotProduct =
-            (targetPosition.getX() * targetVelocity.getX()) +
-            (targetPosition.getY() * targetVelocity.getY())
-        let crossProductZ =
-            (targetPosition.getX() * targetVelocity.getY()) -
-            (targetPosition.getY() * targetVelocity.getX())
-            
-        let targetPositionPoint = CGPoint(
-            x: targetPosition.getX(),
-            y: targetPosition.getY())
-        //velocity dot position
-        let velocityDotPosition = dotProduct / targetPosition.getD();
-        let positionPoint = CGPoint(
-            x: targetPosition.getX() + (velocityDotPosition * targetPosition.sin),
-            y: targetPosition.getY() + (velocityDotPosition * targetPosition.cos))
-        //position dot velocity
-        let positionDotVelocity = dotProduct / targetVelocity.getD();
-        let velocityPoint = CGPoint(
-            x: targetPosition.getX() - (positionDotVelocity * targetVelocity.sin),
-            y: targetPosition.getY() - (positionDotVelocity * targetVelocity.cos))
+        let velocityEndVector = ZVector2(
+            targetPosition.getX() + targetVelocity.getX(),
+            targetPosition.getY() + targetVelocity.getY())
         let velocityEndPoint = CGPoint(
             x: targetPosition.getX() + targetVelocity.getX(),
             y: targetPosition.getY() + targetVelocity.getY())
+        drawLine(CGPoint(), velocityEndPoint, ZIPPY_THIN_LINE_WIDTH);
+        let cross =
+            (targetVelocity.getX() * targetPosition.cos) -
+            (targetVelocity.getY() * targetPosition.sin)
+//            (targetPosition.sin * targetVelocity.getY()) -
+//            (targetPosition.cos * targetVelocity.getX())
+        let intersectionPoint = CGPoint(
+            x: targetPosition.getX() + (cross * targetVelocity.cos),
+            y: targetPosition.getY() - (cross * targetVelocity.sin))
+        drawLine(CGPoint(x: targetPosition.getX(), y: targetPosition.getY()), intersectionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawTurn(intersectionPoint)
+
+        /*
+        let positionDotVelocity =
+            (targetPosition.getX() * targetVelocity.sin) +
+            (targetPosition.getY() * targetVelocity.cos)
+        let positionPoint = CGPoint(
+            x: targetPosition.getX() - (positionDotVelocity * targetVelocity.sin),
+            y: targetPosition.getY() - (positionDotVelocity * targetVelocity.cos))
+        drawPoint(positionPoint)
+        drawLine(CGPoint(), positionPoint, ZIPPY_THIN_LINE_WIDTH)
+        let positionDotEndPoint =
+            (positionPoint.x * velocityEndPoint.sin) +
+            (positionPoint.y * velocityEndPoint.cos)
+        let turnPoint1 = CGPoint(
+            x: positionDotEndPoint * velocityEndPoint.sin,
+            y: positionDotEndPoint * velocityEndPoint.cos)
+        let turnPointDotPosition =
+            (turnPoint1.x * targetPosition.sin) +
+            (turnPoint1.y * targetPosition.cos)
+//        let turnPointDot =
+//            (targetPosition.getX() * targetVelocity.sin) + (targetVelocity.getX() * velocityEndPoint.sin) + (velocityEndPoint.getX() * targetPosition.sin) +
+//            (targetPosition.getY() * targetVelocity.cos) + (targetVelocity.getY() * velocityEndPoint.cos) + (velocityEndPoint.getY() * targetPosition.cos);
+        let turnPoint = CGPoint(
+            x: turnPointDotPosition * targetPosition.sin,
+            y: turnPointDotPosition * targetPosition.cos)
+//        let turnPoint = CGPoint(
+//            x: targetPosition.getX() * velocityEndPoint.sin,
+//            y: targetPosition.getY() * velocityEndPoint.cos)
+        drawTurn(turnPoint)
+         */
+    }
+    
+    /*
+    fileprivate func testVectorPursuit(
+        _ targetPosition: ZVector2,
+        _ targetVelocity: ZVector2)
+    {
+        let deltaOrientation = subtractAngles(targetPosition.atan2, targetVelocity.atan2)
+        let ratioK = ZIPPY_WHEEL_RADIUS
+        let ratioKt = CGFloat(targetPosition.getD())
+        let ratioKr = (targetVelocity.getD() * deltaOrientation) / (ratioK * targetPosition.getD())
+        let translationS = ZPlucker3(
+            0, 0, 0,
+            ratioKt * CGFloat(targetPosition.getX() / targetPosition.getD()),
+            ratioKt * CGFloat(targetPosition.getY() / targetPosition.getD()),
+            0)
+        let rotationS = ZPlucker3(
+            0, 0, ratioKr,
+            0, 0, 0)
+        let pluckerD = ZPlucker3(
+            rotationS.rotation.x + translationS.rotation.x,
+            rotationS.rotation.y + translationS.rotation.y,
+            rotationS.rotation.z + translationS.rotation.z,
+            rotationS.translation.x + translationS.translation.x,
+            rotationS.translation.y + translationS.translation.y,
+            rotationS.translation.z + translationS.translation.z)
+        let centerLineX = -ratioK * CGFloat(targetPosition.getY() / targetVelocity.atan2)
+        let centerLineY = ratioK * CGFloat(targetPosition.getX() / targetVelocity.atan2)
+        var previousPoint = CGPoint()
+        for i in 0...10
+        {
+            let nextPoint = CGPoint(
+                x: (-ratioK * CGFloat(targetPosition.getY())) / CGFloat(targetVelocity.atan2),
+                y: (ratioK * CGFloat(targetPosition.getX())) / CGFloat(targetVelocity.atan2))
+            drawLine(previousPoint, nextPoint, ZIPPY_THIN_LINE_WIDTH)
+            previousPoint = nextPoint
+        }
+    }
+     */
+
+    fileprivate func testDotProductTargets(
+        _ targetPosition: ZVector2,
+        _ targetVelocity: ZVector2)
+    {
+        let targetPositionPoint = CGPoint(
+            x: targetPosition.getX(),
+            y: targetPosition.getY())
+        let velocityEndPoint = CGPoint(
+            x: targetPosition.getX() + targetVelocity.getX(),
+            y: targetPosition.getY() + targetVelocity.getY())
+
+//        let dotProduct =
+//            (targetPosition.getX() * targetVelocity.getX()) +
+//            (targetPosition.getY() * targetVelocity.getY())
         
-        drawPoint(velocityEndPoint)
+        //velocity dot position
+//        let velocityDotPosition = dotProduct / targetPosition.getD()
+        let velocityDotPosition =
+            (targetPosition.sin * targetVelocity.getX()) +
+            (targetPosition.cos * targetVelocity.getY())
+        let positionPoint = CGPoint(
+            x: targetPosition.getX() + (velocityDotPosition * targetPosition.sin),
+            y: targetPosition.getY() + (velocityDotPosition * targetPosition.cos))
+
+        //position dot velocity
+//        let positionDotVelocity = dotProduct / targetVelocity.getD()
+        let positionDotVelocity =
+            (targetPosition.getX() * targetVelocity.sin) +
+            (targetPosition.getY() * targetVelocity.cos)
+        let velocityPoint = CGPoint(
+            x: targetPosition.getX() - (positionDotVelocity * targetVelocity.sin),
+            y: targetPosition.getY() - (positionDotVelocity * targetVelocity.cos))
+        
+        /*
+        //unit vector S = targetVelocity sin and cos
+        //S0 = r1 cross S = targetPosition cross S
+        let s0z =
+            (targetPosition.getX() * targetVelocity.cos) -
+            (targetPosition.getY() * targetVelocity.sin)
+        let angularVelocity = sqrt(
+            pow(positionDotVelocity * targetVelocity.sin, 2.0) +
+            pow(positionDotVelocity * targetVelocity.cos, 2.0) +
+            pow(s0z, 2.0))
+        print(angularVelocity)
+        //S0h = S0 + (h * S) =
+        let crossProductZ =
+            (targetPosition.getX() * targetVelocity.getY()) -
+            (targetPosition.getY() * targetVelocity.getX())
+         */
+        
+        //vector projections
+        UIColor.red.setStroke()
+        UIColor.red.setFill()
         drawLine(positionPoint, velocityEndPoint, ZIPPY_THIN_LINE_WIDTH)
-        drawLine(positionPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+//        drawTurn(positionPoint)
         drawPoint(positionPoint)
         drawLine(velocityPoint, CGPoint(), ZIPPY_THIN_LINE_WIDTH)
-        drawLine(velocityPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+//        drawTurn(velocityPoint)
         drawPoint(velocityPoint)
+        
+        let movementRatio =
+            targetPosition.getD() /
+            (targetPosition.getD() + targetVelocity.getD())
+        let movementRatioInverted = 1.0 - movementRatio
+//        let positionMidPoint = CGPoint(
+//            x: positionPoint.x + (movementRatio * (velocityEndPoint.x - positionPoint.x)),
+//            y: positionPoint.y + (movementRatio * (velocityEndPoint.y - positionPoint.y)))
+        let positionMidPoint = CGPoint(
+            x: positionPoint.x + (movementRatioInverted * (velocityEndPoint.x - positionPoint.x)),
+            y: positionPoint.y + (movementRatioInverted * (velocityEndPoint.y - positionPoint.y)))
+        drawPoint(positionMidPoint)
+        let velocityMidPoint = CGPoint(
+            x: movementRatio * velocityPoint.x,
+            y: movementRatio * velocityPoint.y)
+//        let velocityMidPoint = CGPoint(
+//            x: movementRatioInverted * velocityPoint.x,
+//            y: movementRatioInverted * velocityPoint.y)
+        drawPoint(velocityMidPoint)
+        drawLine(positionMidPoint, velocityMidPoint, ZIPPY_THIN_LINE_WIDTH)
+//        let midPoint = CGPoint(
+//            x: positionMidPoint.x + (movementRatio * (velocityMidPoint.x - positionMidPoint.x)),
+//            y: positionMidPoint.y + (movementRatio * (velocityMidPoint.y - positionMidPoint.y)))
+        let midPoint = CGPoint(
+            x: positionMidPoint.x + (0.5 * (velocityMidPoint.x - positionMidPoint.x)),
+            y: positionMidPoint.y + (0.5 * (velocityMidPoint.y - positionMidPoint.y)))
+        drawTurn(midPoint)
+//        drawPoint(midPoint)
+        drawArrow(midPoint, 2 * atan2(midPoint.x, midPoint.y), ZIPPY_THIN_LINE_WIDTH)
+
+        /*
+        let endPointDistance =
+            sqrt(pow(velocityEndPoint.x, 2) + pow(velocityEndPoint.y, 2))
+//            CGFloat(targetVelocity.getD())
+        let ratio = CGFloat(
+            targetPosition.getD() /
+            (targetPosition.getD() + CGFloat(endPointDistance)))
+        let midPoint = CGPoint(
+            x: ratio * (positionPoint.x + velocityPoint.x),
+            y: ratio * (positionPoint.y + velocityPoint.y))
+        drawTurn(midPoint)
+        drawPoint(midPoint)
+         */
+
+        UIColor.purple.setStroke()
+        UIColor.purple.setFill()
+        drawLine(positionPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawLine(velocityPoint, targetPositionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawPoint(velocityEndPoint)
+
+        /*
+        UIColor.red.setStroke()
+        UIColor.red.setFill()
+        let dotCrossPoint = CGPoint(
+            x: dotProduct,
+            y: crossProductZ)
+        drawLine(dotCrossPoint, CGPoint(), ZIPPY_THIN_LINE_WIDTH)
+        drawLine(dotCrossPoint, velocityEndPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawLine(dotCrossPoint, positionPoint, ZIPPY_THIN_LINE_WIDTH)
+        drawPoint(dotCrossPoint)
+         */
     }
     
     fileprivate func constrain(
@@ -291,7 +467,7 @@ class TopDownView : UIView
             ZIPPY_THIN_LINE_WIDTH)
         drawTurn(
             radius: movementRadius,
-            theta: movementTheta);
+            theta: movementTheta)
          */
     }
     
@@ -383,7 +559,7 @@ class TopDownView : UIView
 //            2.0 * targetDirection)
 //        let factor = cos(deltaOrientationAtTarget / 2.0)
 //        let factor = 0.5 + (cos(deltaOrientationAtTarget) * 0.5)
-        // factor = 0.5d + (factor * 0.25d);
+        // factor = 0.5d + (factor * 0.25d)
 //        let factor = 0.1 + (cos(deltaOrientationAtTarget / 2.0) * 0.7)
 
         //calculate the amount to turn directly toward the target
@@ -498,7 +674,7 @@ class TopDownView : UIView
         let cosO = cos(relativeTargetOrientation)
         let dotO =
             (relativeTargetPosition.x * sinO) +
-            (relativeTargetPosition.y * cosO);
+            (relativeTargetPosition.y * cosO)
         
         UIColor.blue.setStroke()
         let dotOPoint = CGPoint(
@@ -559,7 +735,7 @@ class TopDownView : UIView
         /*
         UIColor.red.setStroke()
         UIColor.red.setFill()
-        drawArc(relativeTargetPosition: weightedTarget);
+        drawArc(relativeTargetPosition: weightedTarget)
         drawPoint(weightedTarget)
          */
     }
@@ -814,7 +990,7 @@ class TopDownView : UIView
         direction: CGFloat,
         distance: CGFloat)
     {
-        let radius = abs(distance) / (2 * sin(direction));
+        let radius = abs(distance) / (2 * sin(direction))
         drawArc(
             centerPoint: CGPoint(x: radius, y: 0),
             radius: -radius,

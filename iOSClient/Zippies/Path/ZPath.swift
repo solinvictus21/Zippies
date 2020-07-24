@@ -8,9 +8,9 @@ protocol ZPath
 {
     
     func updatesPosition() -> Bool
-    func getLength() -> Double
+    func getLength() -> CGFloat
     func getDrawable(_ color: UIColor) -> ZDrawable
     
-    func interpolate(_ t: Double, _ p: KMatrix2)
+    func interpolate(_ t: CGFloat, _ p: ZMatrix2)
 
 }

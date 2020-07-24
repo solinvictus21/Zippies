@@ -13,3 +13,5 @@ Autosave_*.skp
 CMakeLists.txt
 cmake
 xcshareddata
+DerivedData
+iOSClient/DerivedData

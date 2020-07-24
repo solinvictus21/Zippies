@@ -17,8 +17,8 @@
 		C31026392048F616004C817B /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026352048F616004C817B /* DebugViewController.swift */; };
 		C310263A2048F616004C817B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026362048F616004C817B /* AppDelegate.swift */; };
 		C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026382048F616004C817B /* UserDriveViewController.swift */; };
-		C311A7BF22AEC9E100838FCB /* KVector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7BE22AEC9E100838FCB /* KVector2.swift */; };
-		C311A7C122AED33400838FCB /* KMatrix2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C022AED33400838FCB /* KMatrix2.swift */; };
+		C311A7BF22AEC9E100838FCB /* ZVector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7BE22AEC9E100838FCB /* ZVector2.swift */; };
+		C311A7C122AED33400838FCB /* ZMatrix2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C022AED33400838FCB /* ZMatrix2.swift */; };
 		C311A7C522B021E000838FCB /* Arc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C422B021E000838FCB /* Arc.swift */; };
 		C311A7C722B9494B00838FCB /* ZPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C622B9494B00838FCB /* ZPath.swift */; };
 		C311A7C922B94E3C00838FCB /* ZPathPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C822B94E3C00838FCB /* ZPathPlanner.swift */; };
@@ -31,8 +31,10 @@
 		C37AE0E32175112B00CE8E6D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */; };
 		C37AE0E72175376600CE8E6D /* TopDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E62175376600CE8E6D /* TopDownView.swift */; };
 		C37AE0E921753EB900CE8E6D /* Zippy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E821753EB900CE8E6D /* Zippy2.swift */; };
+		C37FCE5524C8F2AA00FB5812 /* ZPlucker3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37FCE5424C8F2AA00FB5812 /* ZPlucker3.swift */; };
+		C37FCE5724C8F2E400FB5812 /* ZVector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37FCE5624C8F2E400FB5812 /* ZVector3.swift */; };
 		C3B042A6239C36A3005CBD9F /* RelativeBiArc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */; };
-		C3E02F6F22EB7E70002F0EAA /* KRotation2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F6E22EB7E70002F0EAA /* KRotation2.swift */; };
+		C3E02F6F22EB7E70002F0EAA /* ZRotation2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F6E22EB7E70002F0EAA /* ZRotation2.swift */; };
 		C3E02F7122F27E58002F0EAA /* CompositePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7022F27E58002F0EAA /* CompositePath.swift */; };
 		C3E02F7322F2832E002F0EAA /* ZippyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */; };
 		C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E36D242049B85F005759AC /* SnappingSlider.swift */; };
@@ -51,8 +53,8 @@
 		C31026362048F616004C817B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Zippies/UI/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
 		C31026372048F616004C817B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		C31026382048F616004C817B /* UserDriveViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserDriveViewController.swift; path = Zippies/UI/UserDriveViewController.swift; sourceTree = SOURCE_ROOT; };
-		C311A7BE22AEC9E100838FCB /* KVector2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KVector2.swift; sourceTree = "<group>"; };
-		C311A7C022AED33400838FCB /* KMatrix2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMatrix2.swift; sourceTree = "<group>"; };
+		C311A7BE22AEC9E100838FCB /* ZVector2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZVector2.swift; sourceTree = "<group>"; };
+		C311A7C022AED33400838FCB /* ZMatrix2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMatrix2.swift; sourceTree = "<group>"; };
 		C311A7C422B021E000838FCB /* Arc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Arc.swift; sourceTree = "<group>"; };
 		C311A7C622B9494B00838FCB /* ZPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPath.swift; sourceTree = "<group>"; };
 		C311A7C822B94E3C00838FCB /* ZPathPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPathPlanner.swift; sourceTree = "<group>"; };
@@ -66,8 +68,10 @@
 		C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryViewController.swift; sourceTree = "<group>"; };
 		C37AE0E62175376600CE8E6D /* TopDownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopDownView.swift; sourceTree = "<group>"; };
 		C37AE0E821753EB900CE8E6D /* Zippy2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zippy2.swift; sourceTree = "<group>"; };
+		C37FCE5424C8F2AA00FB5812 /* ZPlucker3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZPlucker3.swift; sourceTree = "<group>"; };
+		C37FCE5624C8F2E400FB5812 /* ZVector3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZVector3.swift; sourceTree = "<group>"; };
 		C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeBiArc.swift; sourceTree = "<group>"; };
-		C3E02F6E22EB7E70002F0EAA /* KRotation2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KRotation2.swift; sourceTree = "<group>"; };
+		C3E02F6E22EB7E70002F0EAA /* ZRotation2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZRotation2.swift; sourceTree = "<group>"; };
 		C3E02F7022F27E58002F0EAA /* CompositePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositePath.swift; sourceTree = "<group>"; };
 		C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZippyConfig.swift; sourceTree = "<group>"; };
 		C3E36D242049B85F005759AC /* SnappingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnappingSlider.swift; sourceTree = SOURCE_ROOT; };
@@ -173,9 +177,11 @@
 		C3E02F7522F33582002F0EAA /* Math */ = {
 			isa = PBXGroup;
 			children = (
-				C311A7C022AED33400838FCB /* KMatrix2.swift */,
-				C3E02F6E22EB7E70002F0EAA /* KRotation2.swift */,
-				C311A7BE22AEC9E100838FCB /* KVector2.swift */,
+				C311A7C022AED33400838FCB /* ZMatrix2.swift */,
+				C3E02F6E22EB7E70002F0EAA /* ZRotation2.swift */,
+				C311A7BE22AEC9E100838FCB /* ZVector2.swift */,
+				C37FCE5424C8F2AA00FB5812 /* ZPlucker3.swift */,
+				C37FCE5624C8F2E400FB5812 /* ZVector3.swift */,
 			);
 			path = Math;
 			sourceTree = "<group>";
@@ -257,10 +263,12 @@
 				C3E36D252049B85F005759AC /* SnappingSlider.swift in Sources */,
 				C311A7C522B021E000838FCB /* Arc.swift in Sources */,
 				C311A7C922B94E3C00838FCB /* ZPathPlanner.swift in Sources */,
-				C311A7C122AED33400838FCB /* KMatrix2.swift in Sources */,
+				C311A7C122AED33400838FCB /* ZMatrix2.swift in Sources */,
 				C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */,
+				C37FCE5724C8F2E400FB5812 /* ZVector3.swift in Sources */,
 				C37AE0E72175376600CE8E6D /* TopDownView.swift in Sources */,
 				C310263C2048F616004C817B /* UserDriveViewController.swift in Sources */,
+				C37FCE5524C8F2AA00FB5812 /* ZPlucker3.swift in Sources */,
 				C3E02F7122F27E58002F0EAA /* CompositePath.swift in Sources */,
 				C3E02F7322F2832E002F0EAA /* ZippyConfig.swift in Sources */,
 				C3B042A6239C36A3005CBD9F /* RelativeBiArc.swift in Sources */,
@@ -271,8 +279,8 @@
 				C31026342048F608004C817B /* ZippyManager.swift in Sources */,
 				C311A7C722B9494B00838FCB /* ZPath.swift in Sources */,
 				C311A7CD22BAA3C900838FCB /* Turn.swift in Sources */,
-				C3E02F6F22EB7E70002F0EAA /* KRotation2.swift in Sources */,
-				C311A7BF22AEC9E100838FCB /* KVector2.swift in Sources */,
+				C3E02F6F22EB7E70002F0EAA /* ZRotation2.swift in Sources */,
+				C311A7BF22AEC9E100838FCB /* ZVector2.swift in Sources */,
 				C311A7CB22B9551E00838FCB /* ZDrawable.swift in Sources */,
 				C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */,
 				C31026392048F616004C817B /* DebugViewController.swift in Sources */,

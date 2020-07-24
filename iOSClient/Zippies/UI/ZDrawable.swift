@@ -2,7 +2,7 @@
 import Foundation
 import UIKit
 
-let TURN_RADIUS = 30.0
+let TURN_RADIUS: CGFloat = 30.0
 
 protocol ZDrawable
 {
@@ -38,10 +38,10 @@ class ZDrawableLine: ZDrawable
     
     init(
         _ color: UIColor,
-        _ startX: Double,
-        _ startY: Double,
-        _ endX: Double,
-        _ endY: Double)
+        _ startX: CGFloat,
+        _ startY: CGFloat,
+        _ endX: CGFloat,
+        _ endY: CGFloat)
     {
         self.color = color
         self.start = CGPoint(x: startX, y: startY)
@@ -50,26 +50,26 @@ class ZDrawableLine: ZDrawable
     
     convenience init(
         _ color: UIColor,
-        _ start: KVector2,
-        _ endX: Double,
-        _ endY: Double)
+        _ start: ZVector2,
+        _ endX: CGFloat,
+        _ endY: CGFloat)
     {
         self.init(color, start.getX(), start.getY(), endX, endY)
     }
     
     convenience init(
         _ color: UIColor,
-        _ startX: Double,
-        _ startY: Double,
-        _ end: KVector2)
+        _ startX: CGFloat,
+        _ startY: CGFloat,
+        _ end: ZVector2)
     {
         self.init(color, startX, startY, end.getX(), end.getY())
     }
     
     convenience init(
         _ color: UIColor,
-        _ start: KVector2,
-        _ end: KVector2)
+        _ start: ZVector2,
+        _ end: ZVector2)
     {
         self.init(color, start.getX(), start.getY(), end.getX(), end.getY())
     }
@@ -92,7 +92,7 @@ class ZDrawableArrow: ZDrawable
     fileprivate let orientation: CGFloat
     fileprivate let size: CGFloat
     
-    init(_ color: UIColor, _ x: Double, _ y: Double, _ o: Double, _ s: Double)
+    init(_ color: UIColor, _ x: CGFloat, _ y: CGFloat, _ o: CGFloat, _ s: CGFloat)
     {
         self.color = color
         self.position = CGPoint(x: x, y: y)
@@ -100,7 +100,7 @@ class ZDrawableArrow: ZDrawable
         self.size = CGFloat(s)
     }
     
-    init(_ color: UIColor, _ p: KMatrix2, _ s: Double)
+    init(_ color: UIColor, _ p: ZMatrix2, _ s: CGFloat)
     {
         self.color = color
         self.position = CGPoint(x: p.position.getX(), y: p.position.getY())
@@ -140,7 +140,7 @@ class ZDrawableCircle: ZDrawable
     fileprivate let radius: CGFloat
     fileprivate let fill: Bool
     
-    init(_ color: UIColor, _ x: Double, _ y: Double, _ r: Double, _ fill: Bool)
+    init(_ color: UIColor, _ x: CGFloat, _ y: CGFloat, _ r: CGFloat, _ fill: Bool)
     {
         self.color = color
         self.center = CGPoint(x: x, y: y)
@@ -148,17 +148,17 @@ class ZDrawableCircle: ZDrawable
         self.fill = fill
     }
     
-    convenience init(_ color: UIColor, _ x: Double, _ y: Double, _ r: Double)
+    convenience init(_ color: UIColor, _ x: CGFloat, _ y: CGFloat, _ r: CGFloat)
     {
         self.init(color, x, y, r, false)
     }
     
-    convenience init(_ color: UIColor, _ center: KVector2, _ radius: Double)
+    convenience init(_ color: UIColor, _ center: ZVector2, _ radius: CGFloat)
     {
         self.init(color, center.getX(), center.getY(), radius, false)
     }
     
-    convenience init(_ color: UIColor, _ center: KVector2, _ radius: Double, _ fill: Bool)
+    convenience init(_ color: UIColor, _ center: ZVector2, _ radius: CGFloat, _ fill: Bool)
     {
         self.init(color, center.getX(), center.getY(), radius, fill)
     }
@@ -215,13 +215,13 @@ class ZDrawablePath: ZDrawable
         color.setStroke()
 
         //draw the path
-        let nextPoint = KMatrix2()
+        let nextPoint = ZMatrix2()
         let drawingPath = UIBezierPath()
         for nextPath in paths {
             nextPath.interpolate(0, nextPoint)
             drawingPath.move(to: CGPoint(x: nextPoint.position.getX(), y: nextPoint.position.getY()))
             for n in 1...SEGMENTS_PER_PATH {
-                let pointNum = Double(n) / Double(SEGMENTS_PER_PATH)
+                let pointNum = CGFloat(n) / CGFloat(SEGMENTS_PER_PATH)
                 nextPath.interpolate(pointNum, nextPoint)
                 drawingPath.addLine(to: CGPoint(x: nextPoint.position.getX(), y: nextPoint.position.getY()))
             }

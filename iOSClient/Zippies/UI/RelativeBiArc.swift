@@ -1,13 +1,14 @@
 
 import Foundation
+import UIKit
 
 class RelativeBiArc
 {
 
-    private(set) var relativeTargetPosition: KMatrix2
-    private var knotPosition = KVector2()
+    private(set) var relativeTargetPosition: ZMatrix2
+    private var knotPosition = ZVector2()
     
-    init(_ relativeTargetPosition: KMatrix2)
+    init(_ relativeTargetPosition: ZMatrix2)
     {
         self.relativeTargetPosition = relativeTargetPosition
     }
@@ -38,7 +39,7 @@ class RelativeBiArc
             (relativeTargetPosition.position.getY() * (1.0 + t2y))
         //precalc = 2 * (1 - (t1 dot t2))
         let t1DotT2Inv2 = 2.0 * (1.0 - t2y)
-        let discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * relativeTargetPosition.position.getD2() ) )
+        let discrim = sqrt( CGFloat(pow(Double(vDotT), 2.0)) + ( t1DotT2Inv2 * relativeTargetPosition.position.getD2() ) )
         
         //now find the smallest d value of the bi-arc to create the shortest bi-arc to the target
         var d = -vDotT + discrim
