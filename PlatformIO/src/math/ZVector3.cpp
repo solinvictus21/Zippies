@@ -22,9 +22,9 @@ ZVector3::ZVector3(double x,
     this->x = x;
     this->y = y;
     this->z = z;
-    d2 = 0.0d;
+    d2 = 0.0;
     d2Valid = false;
-    d = 0.0d;
+    d = 0.0;
     dValid = false;
 }
 
@@ -55,9 +55,9 @@ void ZVector3::rotate(double w2, double x2, double y2, double z2)
   //    https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication
   //
   // t = 2 * (q.xyz cross v)
-  double tx = 2.0d * ((y2*this->z) - (z2*this->y));
-  double ty = 2.0d * ((z2*this->x) - (x2*this->z));
-  double tz = 2.0d * ((x2*this->y) - (y2*this->x));
+  double tx = 2.0 * ((y2*this->z) - (z2*this->y));
+  double ty = 2.0 * ((z2*this->x) - (x2*this->z));
+  double tz = 2.0 * ((x2*this->y) - (y2*this->x));
   // v' = v + (q.w * t) + (q.xyz cross t)
   this->x += (w2 * tx) + ((y2*tz) - (z2*ty));
   this->y += (w2 * ty) + ((z2*tx) - (x2*tz));

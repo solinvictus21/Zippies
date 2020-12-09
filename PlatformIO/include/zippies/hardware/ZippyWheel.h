@@ -18,8 +18,8 @@ private:
 public:
   ZippyWheel(double wox, double woy)
     : wheelOffset(wox, woy),
-      directTurnFactor(1.0d + sin(atan(woy / wox))),
-      wheelPID(60, 0.0d,
+      directTurnFactor(1.0 + sin(atan(woy / wox))),
+      wheelPID(60, 0.0,
         PID_KP, PID_KI, PID_KD,
         -PID_OUTPUT_LIMIT, PID_OUTPUT_LIMIT,
         false, false)

@@ -2,9 +2,9 @@
 #include "zippies/config/ZippyPathConfig.h"
 #include "zippies/config/ZippyConfig.h"
 
-#define DEFAULT_PATH_SEPARATION_X                           60.0
-#define DEFAULT_PATH_OFFSET_Y                             1060.0
-#define DEFAULT_TIME_FACTOR                                300
+#define DEFAULT_PATH_SEPARATION_X                           80.0
+#define DEFAULT_PATH_OFFSET_Y                              980.0
+#define DEFAULT_TIME_FACTOR                                350
 
 extern ZippyWaypoint zippyPath[];
 extern const int zippyPathCount;

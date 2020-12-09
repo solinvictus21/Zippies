@@ -1,21 +1,20 @@
 
 import Foundation
-import UIKit
 
-let EPSILON: CGFloat = 0.0001
+let EPSILON: Double = 0.0001
 
 class ZVector2: NSObject
 {
     
-    fileprivate var x: CGFloat
-    fileprivate var y: CGFloat
-    fileprivate var d: CGFloat
+    fileprivate var x: Double
+    fileprivate var y: Double
+    fileprivate var d: Double
     fileprivate var dValid: Bool
-    fileprivate var d2: CGFloat
+    fileprivate var d2: Double
     fileprivate var d2Valid: Bool
-    fileprivate var _atan: CGFloat
+    fileprivate var _atan: Double
     fileprivate var atanValid: Bool
-    fileprivate var _atan2: CGFloat
+    fileprivate var _atan2: Double
     fileprivate var atan2Valid: Bool
 
     override init()
@@ -46,7 +45,7 @@ class ZVector2: NSObject
         self.atan2Valid = v.atan2Valid
     }
 
-    init(_ x: CGFloat, _ y: CGFloat)
+    init(_ x: Double, _ y: Double)
     {
         self.x = x
         self.y = y
@@ -60,7 +59,31 @@ class ZVector2: NSObject
         self.atan2Valid = false
     }
     
-    var atan: CGFloat {
+    init(_ x: Double, _ y: Double, _ ofLength: Double)
+    {
+        if ofLength == 0.0 || (x == 0.0 && y == 0.0) {
+            self.x = 0.0
+            self.y = 0.0
+            d = 0.0
+            d2 = 0.0
+        }
+        else {
+            //calculate the actual values from the unit vector
+            let vd = sqrt(x*x+y*y)
+            d = abs(ofLength)
+            self.x = (x*d)/vd
+            self.y = (y*d)/vd
+            d2 = d*d
+        }
+        dValid = true
+        d2Valid = true
+        self._atan = 0.0
+        self.atanValid = false
+        self._atan2 = 0.0
+        self.atan2Valid = false
+    }
+
+    var atan: Double {
         get {
             if !atanValid {
                 if self.y == 0.0 {
@@ -68,14 +91,14 @@ class ZVector2: NSObject
                         _atan = 0.0
                     }
                     else if self.x < 0.0 {
-                        _atan = -CGFloat.pi / 2.0
+                        _atan = -Double.pi / 2.0
                     }
                     else {
-                        _atan = CGFloat.pi / 2.0
+                        _atan = Double.pi / 2.0
                     }
                 }
                 else {
-                    _atan = CGFloat(Foundation.atan(Double(self.x / self.y)))
+                    _atan = Double(Foundation.atan(Double(self.x / self.y)))
                 }
                 self.atanValid = true
             }
@@ -84,10 +107,10 @@ class ZVector2: NSObject
         }
     }
     
-    var atan2: CGFloat {
+    var atan2: Double {
         get {
             if (!atan2Valid) {
-                _atan2 = CGFloat(Foundation.atan2(Double(self.x), Double(self.y)))
+                _atan2 = Double(Foundation.atan2(Double(self.x), Double(self.y)))
                 atan2Valid = true
             }
             
@@ -95,19 +118,27 @@ class ZVector2: NSObject
         }
     }
     
-    var sin: CGFloat {
+    var sin: Double {
         get {
-            return x / getD();
+            guard getD() != 0.0 else {
+                return 0.0
+            }
+            
+            return x / d
         }
     }
 
-    var cos: CGFloat {
+    var cos: Double {
         get {
-            return y / getD();
+            guard getD() != 0.0 else {
+                return 1.0
+            }
+            
+            return y / d
         }
     }
 
-    func getD() -> CGFloat
+    func getD() -> Double
     {
         if (!dValid) {
             d = sqrt(self.getD2())
@@ -116,7 +147,7 @@ class ZVector2: NSObject
         return d
     }
 
-    func getD2() -> CGFloat
+    func getD2() -> Double
     {
         if (!d2Valid) {
             if (dValid) {
@@ -141,17 +172,22 @@ class ZVector2: NSObject
      * the vectors and L1 and L2 are the lengths of each vector. For unit vectors, the
      * result will be just cos(ϴ).
      */
-    func dotVector(_ v: ZVector2) -> CGFloat
+    func dotVector(_ v: ZVector2) -> Double
     {
         return (x*v.x) + (y*v.y)
     }
 
-    func dotOrientation(_ o: CGFloat) -> CGFloat
+    func dotVector(_ x2: Double, _ y2: Double) -> Double
     {
-        return (x * CGFloat(Foundation.sin(Double(o)))) + (y * CGFloat(Foundation.cos(Double(o))))
+        return (x*x2) + (y*y2)
     }
 
-    func multiply(_ m: CGFloat)
+    func dotOrientation(_ o: Double) -> Double
+    {
+        return (x * Double(Foundation.sin(Double(o)))) + (y * Double(Foundation.cos(Double(o))))
+    }
+
+    func multiply(_ m: Double)
     {
         x *= m
         y *= m
@@ -175,7 +211,7 @@ class ZVector2: NSObject
         atan2Valid = true
     }
 
-    func setX(_ newX: CGFloat)
+    func setX(_ newX: Double)
     {
         if (x == newX) {
             return
@@ -188,12 +224,12 @@ class ZVector2: NSObject
         atan2Valid = false
     }
     
-    func getX() -> CGFloat
+    func getX() -> Double
     {
         return x
     }
 
-    func setY(_ newY: CGFloat)
+    func setY(_ newY: Double)
     {
         if (y == newY) {
             return
@@ -206,7 +242,7 @@ class ZVector2: NSObject
         atan2Valid = false
     }
 
-    func getY() -> CGFloat
+    func getY() -> Double
     {
         return y
     }
@@ -225,7 +261,7 @@ class ZVector2: NSObject
         self.atan2Valid = v.atan2Valid
     }
 
-    func set(_ x: CGFloat, _ y: CGFloat)
+    func set(_ x: Double, _ y: Double)
     {
         self.x = x
         self.y = y
@@ -235,7 +271,7 @@ class ZVector2: NSObject
         atan2Valid = false
     }
 
-    func set(_ x: CGFloat, _ y: CGFloat, _ ofLength: CGFloat)
+    func set(_ x: Double, _ y: Double, _ ofLength: Double)
     {
         if (ofLength == 0.0 || (x == 0.0 && y == 0.0)) {
             self.x = 0.0
@@ -263,35 +299,45 @@ class ZVector2: NSObject
         atan2Valid = false
     }
 
-    func setD(_ newD: CGFloat)
+    func setD(_ newD: Double)
     {
         set(self.x, self.y, newD)
     }
 
-    func addVector(_ v: ZVector2)
+    func add(_ v: ZVector2)
     {
-        self.x += v.x
-        self.y += v.y
+        add(v.x, v.y)
+    }
+
+    func add(_ x: Double, _ y: Double)
+    {
+        self.x += x
+        self.y += y
         dValid = false
         d2Valid = false
         atanValid = false
         atan2Valid = false
     }
 
-    func subtractVector(_ v: ZVector2)
+    func subtract(_ v: ZVector2)
     {
-        self.x -= v.x
-        self.y -= v.y
+        subtract(v.x, v.y)
+    }
+    
+    func subtract(_ x: Double, _ y: Double)
+    {
+        self.x -= x
+        self.y -= y
         dValid = false
         d2Valid = false
         atanValid = false
         atan2Valid = false
     }
 
-    func projectAlong(_ orientation: CGFloat) -> CGFloat
+    func projectAlong(_ orientation: Double) -> Double
     {
-        let sinTheta = CGFloat(Foundation.sin(Double(orientation)))
-        let cosTheta = CGFloat(Foundation.cos(Double(orientation)))
+        let sinTheta = Double(Foundation.sin(Double(orientation)))
+        let cosTheta = Double(Foundation.cos(Double(orientation)))
         let dotProduct = (x * sinTheta) + (y * cosTheta)
         self.x = dotProduct * sinTheta
         self.y = dotProduct * cosTheta
@@ -300,17 +346,17 @@ class ZVector2: NSObject
         dValid = true
         atanValid = false
         //the result could be either the orientation specified or +M_PI, exactly the opposite direction
-        self._atan2 = dotProduct >= 0.0 ? orientation : addAngles(orientation, CGFloat.pi)
+        self._atan2 = dotProduct >= 0.0 ? orientation : addAngles(orientation, Double.pi)
         atan2Valid = true
         d2Valid = false
     
         return length
     }
 
-    func projectToward(_ orientation: CGFloat) -> CGFloat
+    func projectToward(_ orientation: Double) -> Double
     {
-        let sinTheta = CGFloat(Foundation.sin(Double(orientation)))
-        let cosTheta = CGFloat(Foundation.cos(Double(orientation)))
+        let sinTheta = Double(Foundation.sin(Double(orientation)))
+        let cosTheta = Double(Foundation.cos(Double(orientation)))
         let dotProduct = (x * sinTheta) + (y * cosTheta)
         let absDotProduct = abs(dotProduct)
         self.x = absDotProduct * sinTheta
@@ -328,23 +374,23 @@ class ZVector2: NSObject
         return length
     }
 
-    func getOrientation() -> CGFloat
+    func getOrientation() -> Double
     {
         return atan2
     }
 
-    func rotate(_ angleRadians: CGFloat)
+    func unrotate(_ angleRadians: Double)
     {
         let currentLength = getD()
         _atan2 = addAngles(getOrientation(), angleRadians)
     
-        self.x = currentLength * CGFloat(Foundation.sin(Double(_atan2)))
-        self.y = currentLength * CGFloat(Foundation.cos(Double(_atan2)))
+        self.x = currentLength * Foundation.sin(_atan2)
+        self.y = currentLength * Foundation.cos(_atan2)
         atanValid = false
         atan2Valid = true
     }
     
-    func rotate(_ rotation: ZRotation2) {
+    func unrotate(_ rotation: ZRotation2) {
         let newX = (self.x *  rotation.cos) + (self.y * -rotation.sin)
         let newY = (self.x *  rotation.sin) + (self.y *  rotation.cos)
         self.x = newX
@@ -353,7 +399,7 @@ class ZVector2: NSObject
         atan2Valid = false
     }
     
-    func unrotate(_ rotation: ZRotation2) {
+    func rotate(_ rotation: ZRotation2) {
         let newX = (self.x *  rotation.cos) + (self.y *  rotation.sin)
         let newY = (self.x * -rotation.sin) + (self.y *  rotation.cos)
         self.x = newX
@@ -362,36 +408,20 @@ class ZVector2: NSObject
         atan2Valid = false
     }
     
+    public override var description: String
+    {
+        get { return "(\(self.x), \(self.y))" }
+    }
+    
 }
 
-func distanceBetween(_ v1: ZVector2, _ v2: ZVector2) -> CGFloat
+func distanceBetween(_ v1: ZVector2, _ v2: ZVector2) -> Double
 {
     return distanceBetween(v1.getX(), v1.getY(), v2.getX(), v2.getY())
 }
 
-func distanceBetween(_ x1: CGFloat, _ y1: CGFloat, _ x2: CGFloat, _ y2: CGFloat) -> CGFloat
+func distanceBetween(_ x1: Double, _ y1: Double, _ x2: Double, _ y2: Double) -> Double
 {
     return sqrt(pow(x2 - x1, 2.0) + pow(y2 - y1, 2.0))
-}
-
-func snapAngle(_ angle: CGFloat) -> CGFloat
-{
-    if (angle <= -CGFloat.pi) {
-        return angle + (2.0 * CGFloat.pi)
-    }
-    else if (angle > CGFloat.pi) {
-        return angle - (2.0 * CGFloat.pi)
-    }
-    return angle
-}
-
-func subtractAngles(_ a1: CGFloat, _ a2: CGFloat) -> CGFloat
-{
-    return snapAngle(a1 - a2)
-}
-
-func addAngles(_ a1: CGFloat, _ a2: CGFloat) -> CGFloat
-{
-    return snapAngle(a1 + a2)
 }
 

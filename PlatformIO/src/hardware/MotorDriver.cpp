@@ -9,7 +9,7 @@
 #define _BV(bit) (1 << (bit))
 
 //the range of outputs from the PID over which to ramp through the motor dead zones
-#define DEAD_ZONE_RANGE 10.0d
+#define DEAD_ZONE_RANGE 10.0
 
 MotorDriver::MotorDriver()
   : started(false),
@@ -97,8 +97,8 @@ void MotorDriver::stopMotors()
 double MotorDriver::rampThroughDeadZone(double a, double deadZoneRamp)
 {
   //bail out early when power output is zero
-  if (a == 0.0d)
-    return 0.0d;
+  if (a == 0.0)
+    return 0.0;
 
   double absA = abs(a);
   /*
@@ -113,10 +113,10 @@ double MotorDriver::rampThroughDeadZone(double a, double deadZoneRamp)
     // rampedValue *= (-t * (t - 2.0d));
     // rampedValue *= t * (2.0d - t);
     //cubic ramp
-    rampedValue *= 1.0d + pow(t, 3.0d);
+    rampedValue *= 1.0 + pow(t, 3.0);
   }
 
-  return a < 0.0d ? -rampedValue : rampedValue;
+  return a < 0.0 ? -rampedValue : rampedValue;
   // */
 }
 

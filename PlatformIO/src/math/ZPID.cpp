@@ -18,15 +18,15 @@ ZPID::ZPID(int sps, double sp,
 
 void ZPID::start()
 {
-  previousInput = 0.0d;
-  outputSum = 0.0d;
+  previousInput = 0.0;
+  outputSum = 0.0;
   isStarted = true;
 }
 
 double ZPID::compute(double input)
 {
   if (!isStarted)
-    return 0.0d;
+    return 0.0;
 
   //compute all the working error variables
   double error = setPoint - input;

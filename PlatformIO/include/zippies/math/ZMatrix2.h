@@ -46,7 +46,7 @@ public:
   void concat(const ZMatrix2* m)
   {
       //unrotate and move
-      position.unrotate(&m->orientation);
+      position.rotate(&m->orientation);
       position.addVector(&m->position);
       orientation.add(&m->orientation);
   }
@@ -56,7 +56,7 @@ public:
       //move and rotate
       orientation.subtract(&m->orientation);
       position.subtractVector(&m->position);
-      position.rotate(&m->orientation);
+      position.unrotate(&m->orientation);
   }
 
   void reset() {

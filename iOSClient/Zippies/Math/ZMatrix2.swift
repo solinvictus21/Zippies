@@ -1,6 +1,5 @@
 
 import Foundation
-import UIKit
 
 class ZMatrix2: NSObject
 {
@@ -20,13 +19,13 @@ class ZMatrix2: NSObject
         orientation = ZRotation2(p.orientation)
     }
     
-    init(_ v: ZVector2, _ o: CGFloat)
+    init(_ v: ZVector2, _ o: Double)
     {
         position = ZVector2(v)
         self.orientation = ZRotation2(o)
     }
     
-    init(_ x: CGFloat, _ y: CGFloat, _ o: CGFloat)
+    init(_ x: Double, _ y: Double, _ o: Double)
     {
         position = ZVector2(x, y)
         self.orientation = ZRotation2(o)
@@ -38,7 +37,7 @@ class ZMatrix2: NSObject
         orientation.set(m.orientation)
     }
     
-    func set(_ x: CGFloat, _ y: CGFloat, _ o: CGFloat)
+    func set(_ x: Double, _ y: Double, _ o: Double)
     {
         position.set(x, y)
         orientation.rotation = o
@@ -46,18 +45,34 @@ class ZMatrix2: NSObject
     
     func concat(_ m: ZMatrix2)
     {
-        //rotate and move
-        self.position.unrotate(m.orientation)
-        self.position.addVector(m.position)
+        self.position.add(
+            (m.position.getX() * self.orientation.cos) + (m.position.getY() * -self.orientation.sin),
+            (m.position.getX() * self.orientation.sin) + (m.position.getY() * self.orientation.cos))
         self.orientation.add(m.orientation)
     }
     
-    func unconcat(_ m: ZMatrix2)
+    func concat(_ x: Double, _ y: Double, _ o: Double)
+    {
+        self.position.add(
+            (x * self.orientation.cos) + (y * -self.orientation.sin),
+            (x * self.orientation.sin) + (y * self.orientation.cos))
+        self.orientation.add(o)
+    }
+    
+    func concatTo(_ m: ZMatrix2)
+    {
+        //rotate and move
+        self.position.rotate(m.orientation)
+        self.position.add(m.position)
+        self.orientation.add(m.orientation)
+    }
+    
+    func unconcatFrom(_ m: ZMatrix2)
     {
         //rotate and move
         self.orientation.subtract(m.orientation)
-        self.position.subtractVector(m.position)
-        self.position.rotate(m.orientation)
+        self.position.subtract(m.position)
+        self.position.unrotate(m.orientation)
     }
     
 }

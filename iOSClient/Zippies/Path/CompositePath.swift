@@ -1,13 +1,12 @@
 
 import Foundation
-import UIKit
 
 class CompositePath: ZPath
 {
 
     fileprivate let paths: [ZPath]
     fileprivate let pathCount: Int32
-    fileprivate let totalLength: CGFloat
+    fileprivate let totalLength: Double
 
     init(_ p1: ZPath, _ p2: ZPath) {
         paths = [p1, p2]
@@ -16,13 +15,15 @@ class CompositePath: ZPath
     }
     
     func updatesPosition() -> Bool { return true }
-    func getLength() -> CGFloat { return totalLength }
+    func getLength() -> Double { return totalLength }
+    /*
     func getDrawable(_ color: UIColor) -> ZDrawable {
         return ZDrawablePath(color, paths)
     }
+    */
 
     func interpolate(
-        _ normalizedTime: CGFloat,
+        _ normalizedTime: Double,
         _ targetPosition: ZMatrix2)
     {
         var distance = normalizedTime * totalLength

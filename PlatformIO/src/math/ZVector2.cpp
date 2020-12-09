@@ -109,15 +109,15 @@ void ZVector2::multiply(double m)
 
 void ZVector2::reset()
 {
-  x = 0.0d;
-  y = 0.0d;
-  d = 0.0d;
+  x = 0.0;
+  y = 0.0;
+  d = 0.0;
   dValid = true;
-  d2 = 0.0d;
+  d2 = 0.0;
   d2Valid = true;
-  _arctan = 0.0d;
+  _arctan = 0.0;
   arctanValid = true;
-  _arctan2 = 0.0d;
+  _arctan2 = 0.0;
   arctan2Valid = true;
 }
 
@@ -171,10 +171,10 @@ void ZVector2::set(double newX,
   }
 
   //calculate the actual values from the unit vector
-  double vd = sqrt(newX*newX+newY*newY);
-  this->x = (newX*ofLength)/vd;
-  this->y = (newY*ofLength)/vd;
-  d = ofLength;
+  double lengthRatio = ofLength / getD();
+  this->x *= lengthRatio;
+  this->y *= lengthRatio;
+  d = abs(ofLength);
   dValid = true;
   d2 = d*d;
   d2Valid = true;
@@ -189,6 +189,12 @@ void ZVector2::setD(double newD)
   double lengthRatio = newD / getD();
   this->x *= lengthRatio;
   this->y *= lengthRatio;
+  d = abs(newD);
+  dValid = true;
+  d2 = d*d;
+  d2Valid = true;
+  arctanValid = false;
+  arctan2Valid = false;
 }
 // */
 
@@ -270,6 +276,7 @@ double ZVector2::atan2() const
   return _arctan2;
 }
 
+/*
 void ZVector2::rotate(double angleRadians)
 {
   double currentLength = getD();
@@ -280,11 +287,12 @@ void ZVector2::rotate(double angleRadians)
   arctan2Valid = true;
   arctanValid = false;
 }
+*/
 
 void ZVector2::rotate(const ZRotation2* rotation)
 {
-  double newX = (this->x *  rotation->cos()) + (this->y * -rotation->sin());
-  double newY = (this->x *  rotation->sin()) + (this->y *  rotation->cos());
+  double newX = (this->x *  rotation->cos()) + (this->y *  rotation->sin());
+  double newY = (this->x * -rotation->sin()) + (this->y *  rotation->cos());
   this->x = newX;
   this->y = newY;
   arctanValid = false;
@@ -293,8 +301,8 @@ void ZVector2::rotate(const ZRotation2* rotation)
 
 void ZVector2::unrotate(const ZRotation2* rotation)
 {
-  double newX = (this->x *  rotation->cos()) + (this->y *  rotation->sin());
-  double newY = (this->x * -rotation->sin()) + (this->y *  rotation->cos());
+  double newX = (this->x *  rotation->cos()) + (this->y * -rotation->sin());
+  double newY = (this->x *  rotation->sin()) + (this->y *  rotation->cos());
   this->x = newX;
   this->y = newY;
   arctanValid = false;

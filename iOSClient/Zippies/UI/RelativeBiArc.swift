@@ -1,6 +1,5 @@
 
 import Foundation
-import UIKit
 
 class RelativeBiArc
 {
@@ -39,7 +38,7 @@ class RelativeBiArc
             (relativeTargetPosition.position.getY() * (1.0 + t2y))
         //precalc = 2 * (1 - (t1 dot t2))
         let t1DotT2Inv2 = 2.0 * (1.0 - t2y)
-        let discrim = sqrt( CGFloat(pow(Double(vDotT), 2.0)) + ( t1DotT2Inv2 * relativeTargetPosition.position.getD2() ) )
+        let discrim = sqrt( pow(vDotT, 2.0) + ( t1DotT2Inv2 * relativeTargetPosition.position.getD2() ) )
         
         //now find the smallest d value of the bi-arc to create the shortest bi-arc to the target
         var d = -vDotT + discrim

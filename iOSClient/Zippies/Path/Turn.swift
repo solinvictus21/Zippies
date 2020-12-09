@@ -1,45 +1,47 @@
 
 import Foundation
-import UIKit
 
 class Turn: ZPath
 {
     
     let start: ZMatrix2
-//    let startO: CGFloat
-    let deltaO: CGFloat
+//    let startO: Double
+    let deltaO: Double
     
-    init(_ start: ZMatrix2, _ deltaO: CGFloat)
+    init(_ start: ZMatrix2, _ deltaO: Double)
     {
         self.start = start
         self.deltaO = deltaO
     }
     
     func updatesPosition() -> Bool { return false }
-    func getLength() -> CGFloat { return WHEEL_OFFSET_X * abs(deltaO) }
+    func getLength() -> Double { return WHEEL_OFFSET_X * abs(deltaO) }
 
+    /*
     func getDrawable(_ color: UIColor) -> ZDrawable
     {
         return ZDrawableTurn2(color, start, deltaO)
     }
+     */
     
-    func interpolate(_ t: CGFloat, _ p: ZMatrix2)
+    func interpolate(_ t: Double, _ p: ZMatrix2)
     {
         p.orientation.rotation = addAngles(start.orientation.get(), deltaO * t)
     }
 
 }
 
+/*
 class ZDrawableTurn: ZDrawable
 {
     
-    fileprivate let color: UIColor
+//    fileprivate let color: UIColor
     fileprivate let startPosition: ZVector2
     fileprivate let turn: Turn
     
-    init(_ color: UIColor, _ startX: CGFloat, _ startY: CGFloat, _ turn: Turn)
+    init(/*_ color: UIColor, */_ startX: Double, _ startY: Double, _ turn: Turn)
     {
-        self.color = color
+//        self.color = color
         self.startPosition = ZVector2(startX, startY)
         self.turn = turn
     }
@@ -63,9 +65,9 @@ class ZDrawableTurn2: ZDrawable
     
     fileprivate let color: UIColor
     fileprivate let start: ZMatrix2
-    fileprivate let deltaO: CGFloat
+    fileprivate let deltaO: Double
     
-    init(_ color: UIColor, _ start: ZMatrix2, _ deltaO: CGFloat)
+    init(_ color: UIColor, _ start: ZMatrix2, _ deltaO: Double)
     {
         self.color = color
         self.start = start
@@ -85,4 +87,4 @@ class ZDrawableTurn2: ZDrawable
     }
     
 }
-
+ */

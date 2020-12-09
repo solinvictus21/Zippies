@@ -39,8 +39,8 @@ void Routine::planCurrentRoutineSegment(unsigned long currentTime)
       routineSegments[currentRoutineSegmentIndex].pathSegmentCount);
   currentRoutineSegmentStartTime = currentTime;
 
-  if (!routineSegments[currentRoutineSegmentIndex].pathSegmentCount)
-    currentMovementState = MovementState::Stopped;
+  // if (!routineSegments[currentRoutineSegmentIndex].pathSegmentCount)
+    // currentMovementState = MovementState::Stopped;
 }
 
 void Routine::loop(unsigned long currentTime)
@@ -52,21 +52,26 @@ void Routine::loop(unsigned long currentTime)
   while (unsigned long completionTime = currentRoutineSegmentCompleted(currentTime)) {
     // SerialUSB.print("Completed routine segment: ");
     // SerialUSB.println(currentRoutineSegmentIndex);
+    /*
     if (routineSegments[currentRoutineSegmentIndex].pathSegmentCount) {
       if (path.interpolate(1.0, &currentTargetPosition))
         currentMovementState = MovementState::Moving;
       else
         currentMovementState = MovementState::Turning;
     }
+    */
 
     currentRoutineSegmentIndex++;
+    /*
     if (currentRoutineSegmentIndex >= routineSegmentCount) {
       // SerialUSB.println("Routine completed.");
       currentMovementState = MovementState::Stopped;
       return;
     }
+    */
 
-    planCurrentRoutineSegment(completionTime);
+    if (currentRoutineSegmentIndex < routineSegmentCount)
+      planCurrentRoutineSegment(completionTime);
   }
 
   if (routineSegments[currentRoutineSegmentIndex].pathSegmentCount) {
@@ -79,13 +84,15 @@ void Routine::loop(unsigned long currentTime)
     currentRoutineSegmentInterpolatedTime = bezierEaseInOut(
         currentRoutineSegmentInterpolatedTime,
         routineSegments[currentRoutineSegmentIndex].easeInFactor,
-        1.0d - routineSegments[currentRoutineSegmentIndex].easeOutFactor);
+        1.0 - routineSegments[currentRoutineSegmentIndex].easeOutFactor);
     // */
 
+    /*
     if (path.interpolate(currentRoutineSegmentInterpolatedTime, &currentTargetPosition))
       currentMovementState = MovementState::Moving;
     else
       currentMovementState = MovementState::Turning;
+    */
   }
 }
 

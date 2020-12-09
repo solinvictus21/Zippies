@@ -1,9 +1,11 @@
 
 #include "zippies/controllers/RoutineController.h"
+// #include "zippies/pursuit/PurePursuitController.h"
+#include "zippies/pursuit/ArcPursuitController.h"
 #include "zippies/ZippyRoutine.h"
 
 #define INITIAL_MOVE_VELOCITY           200.0
-#define INITIAL_MOVE_TIMING            3000
+#define INITIAL_MOVE_TIMING            2000
 
 ZippyWaypoint moveIntoPlaceWaypoints[2]
 {
@@ -14,6 +16,8 @@ ZippyWaypoint moveIntoPlaceWaypoints[2]
 RoutineController::RoutineController(SensorFusor* s)
   : sensors(s)
 {
+    // pursuitController = new PurePursuitController();
+    pursuitController = new ArcPursuitController();
     getZippyRoutine(
         &defaultRoutinesStartPosition,
         &defaultRoutines,
@@ -26,36 +30,64 @@ RoutineController::RoutineController(SensorFusor* s)
 
 void RoutineController::start(unsigned long currentTime)
 {
-    // reverseRoutine(defaultRoutines, defaultRoutinesCount);
+    /*
     sensors->syncWithPreamble();
     executionState = RoutineExecutionState::PreSyncingWithPreamble;
+    */
+    const ZMatrix2* currentPosition = sensors->getPosition();
+    moveIntoPlaceWaypoints[0].x = currentPosition->position.getX();
+    moveIntoPlaceWaypoints[0].y = currentPosition->position.getY();
+    moveIntoPlaceWaypoints[0].orientation = currentPosition->orientation.get();
+    path.setKeyframes(&moveIntoPlaceWaypoints[0], 2);
+    path.start(currentTime);
+    executionState = RoutineExecutionState::MovingIntoPlace;
 }
 
 void RoutineController::loop(unsigned long currentTime)
 {
-    switch (executionState) {
-        case RoutineExecutionState::PreSyncingWithPreamble:
-            if (sensors->foundPreamble()) {
-                //plan the move to the starting position
-                // SerialUSB.println("Found preamble. Moving into position.");
-                const ZMatrix2* currentPosition = sensors->getPosition();
-                moveIntoPlaceWaypoints[0].x = currentPosition->position.getX();
-                moveIntoPlaceWaypoints[0].y = currentPosition->position.getY();
-                moveIntoPlaceWaypoints[0].orientation = currentPosition->orientation.get();
-                path.setKeyframes(&moveIntoPlaceWaypoints[0], 2);
-                path.start(currentTime);
-                executionState = RoutineExecutionState::MovingIntoPlace;
-            }
-            break;
+    /*
+    if (executionState == RoutineExecutionState::PreSyncingWithPreamble) {
+        if (!sensors->foundPreamble())
+            return;
 
+        const ZMatrix2* currentPosition = sensors->getPosition();
+        moveIntoPlaceWaypoints[0].x = currentPosition->position.getX();
+        moveIntoPlaceWaypoints[0].y = currentPosition->position.getY();
+        moveIntoPlaceWaypoints[0].orientation = currentPosition->orientation.get();
+        path.setKeyframes(&moveIntoPlaceWaypoints[0], 2);
+        path.start(currentTime);
+        executionState = RoutineExecutionState::MovingIntoPlace;
+    }
+    */
+
+    switch (executionState) {
         case RoutineExecutionState::MovingIntoPlace:
             path.interpolate(currentTime);
-            pathFollowingController.followPath(
+            pursuitController->continuePursuit(
                 sensors->getPosition(),
                 path.getTargetPosition(),
                 path.getTargetVelocity());
 
             if (path.isCompleted()) {
+                /*
+                //begin execution of the routine
+                path.setKeyframes(defaultRoutines, defaultRoutinesCount);
+                path.start(currentTime);
+                executionState = RoutineExecutionState::Executing;
+                */
+               //sync with the preamble
+               sensors->syncWithPreamble();
+               executionState = RoutineExecutionState::SyncingWithPreamble;
+            }
+            break;
+
+        case RoutineExecutionState::SyncingWithPreamble:
+            pursuitController->stopPursuit(
+                sensors->getPosition(),
+                path.getTargetPosition(),
+                path.getTargetVelocity());
+
+            if (sensors->foundPreamble()) {
                 //begin execution of the routine
                 path.setKeyframes(defaultRoutines, defaultRoutinesCount);
                 path.start(currentTime);
@@ -65,7 +97,7 @@ void RoutineController::loop(unsigned long currentTime)
 
         case RoutineExecutionState::Executing:
             path.interpolate(currentTime);
-            pathFollowingController.followPath(
+            pursuitController->continuePursuit(
                 sensors->getPosition(),
                 path.getTargetPosition(),
                 path.getTargetVelocity());
@@ -73,20 +105,7 @@ void RoutineController::loop(unsigned long currentTime)
             if (path.isCompleted()) {
                 //sync with preamble again before start of each routine execution
                 sensors->syncWithPreamble();
-                executionState = RoutineExecutionState::PostSyncingWithPreamble;
-            }
-            break;
-
-        case RoutineExecutionState::PostSyncingWithPreamble:
-            pathFollowingController.stopPath(
-                sensors->getPosition(),
-                path.getTargetPosition(),
-                path.getTargetVelocity());
-
-            if (sensors->foundPreamble()) {
-                //restart the routine execution
-                path.start(currentTime);
-                executionState = RoutineExecutionState::Executing;
+                executionState = RoutineExecutionState::SyncingWithPreamble;
             }
             break;
     }
@@ -94,5 +113,5 @@ void RoutineController::loop(unsigned long currentTime)
 
 void RoutineController::stop()
 {
-    pathFollowingController.stop();
+    pursuitController->stop();
 }

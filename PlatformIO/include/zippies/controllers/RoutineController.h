@@ -3,8 +3,9 @@
 #define _ROUTINECONTROLLER_H_
 
 #include "ZippyController.h"
+#include "zippies/hardware/SensorFusor.h"
 #include "zippies/paths/Routine.h"
-#include "PathFollowingController.h"
+#include "zippies/pursuit/PursuitController.h"
 #include "zippies/config/PIDConfig.h"
 #include "zippies/math/StatisticsAccumulator.h"
 #include "zippies/math/ZCubicHermiteSpline.h"
@@ -12,10 +13,9 @@
 
 typedef enum class _RoutineExecutionState
 {
-  PreSyncingWithPreamble,
   MovingIntoPlace,
+  SyncingWithPreamble,
   Executing,
-  PostSyncingWithPreamble,
 } RoutineExecutionState;
 
 class RoutineController : public ZippyController
@@ -28,9 +28,9 @@ private:
   int defaultRoutinesCount;
 
   ZCubicHermiteSpline path;
-  PathFollowingController pathFollowingController;
+  PursuitController* pursuitController;
 
-  RoutineExecutionState executionState = RoutineExecutionState::PreSyncingWithPreamble;
+  RoutineExecutionState executionState = RoutineExecutionState::MovingIntoPlace;
 
 public:
   RoutineController(SensorFusor* s);
@@ -38,6 +38,10 @@ public:
   void start(unsigned long startTime);
   void loop(unsigned long currentTime);
   void stop();
+
+  ~RoutineController() {
+    delete pursuitController;
+  }
 
 };
 

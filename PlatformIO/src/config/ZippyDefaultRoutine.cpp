@@ -4,8 +4,8 @@
 #include "zippies/config/ZippyConfig.h"
 #include "zippies/paths/Path.h"
 
-// #define DEFAULT_PATH_TIMING                      42000
-#define DEFAULT_PATH_TIMING                      60000
+#define DEFAULT_PATH_TIMING                      42000
+// #define DEFAULT_PATH_TIMING                      60000
 
 #define PATH_OFFSET_Y                             1050.0
 #define PATH_SEPARATION_X                           60.0

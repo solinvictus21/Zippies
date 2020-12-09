@@ -1,22 +1,6 @@
 
-#include "zippies/controllers/PathFollowingController.h"
+#include "zippies/pursuit/PurePursuitController.h"
 #include <Arduino.h>
-
-// #define LINEAR_EPSILON                               10.00  //1cm
-#define LINEAR_EPSILON                               15.00  //1.5cm
-// #define LINEAR_EPSILON                               20.00  //2cm
-// #define LINEAR_EPSILON                               30.00  //3cm
-
-#define ANGULAR_EPSILON                               0.052359877559830  //3 degrees
-// #define ANGULAR_EPSILON                               0.069813170079773  //4 degrees
-// #define ANGULAR_EPSILON                               0.087266462599716  //5 degrees
-// #define ANGULAR_EPSILON                               0.104719755119660  //6 degrees
-// #define ANGULAR_EPSILON                               0.139626340159546  //8 degrees
-// #define ANGULAR_EPSILON                               0.174532925199433  //10 degrees
-// #define ANGULAR_EPSILON                               0.261799387799149  //15 degrees
-
-#define MAX_STATE_DOWNGRADE_ITERATIONS               30
-// #define MAX_STATE_DOWNGRADE_ITERATIONS              120
 
 #define MIN_DELTA_TARGET_EPSILON                      0.1
 #define MAX_DELTA_TARGET_EPSILON                      0.5
@@ -33,34 +17,8 @@ double pad(double value, double epsilon)
         : max(value, epsilon);
 }
 
-void PathFollowingController::followPath(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
-{
-    currentMovement.position.set(targetPosition);
-    currentMovement.orientation.set(targetVelocity->atan2());
-    currentMovement.unconcat(currentPosition);
-    currentVelocityTarget.set(
-        targetPosition->getX() + (targetVelocity->getX() / 60.0),
-        targetPosition->getY() + (targetVelocity->getY() / 60.0));
-    currentVelocityTarget.subtractVector(&currentPosition->position);
-    currentVelocityTarget.rotate(currentPosition->orientation.get());
-
-    /*
-    pluckerS.set(targetVelocity);
-    pluckerS.subtractVector(&currentPosition->position);
-    pluckerS.rotate(&currentPosition->orientation);
-    pluckerS.normalize();
-    double rotation =
-        (currentMovement.position.getX() * pluckerS.getY()) -
-        (currentMovement.position.getY() * pluckerS.getX());
-    */
-
-    continueMove();
-}
-
-void PathFollowingController::stopPath(
+/*
+void PurePursuitController::followPath(
     const ZMatrix2* currentPosition,
     const ZVector2* targetPosition,
     const ZVector2* targetVelocity)
@@ -69,13 +27,32 @@ void PathFollowingController::stopPath(
         targetPosition->getX(), targetPosition->getY(),
         targetVelocity->atan2());
     currentMovement.unconcat(currentPosition);
-    // double positionDotDirection =
-        // (currentMovement.position.getX() * currentMovement.orientation.sin()) +
-        // (currentMovement.position.getX() * currentMovement.orientation.cos());
-    completeStop();
+    currentVelocityTarget.set(
+        targetPosition->getX() + (targetVelocity->getX() / 60.0),
+        targetPosition->getY() + (targetVelocity->getY() / 60.0));
+    currentVelocityTarget.subtractVector(&currentPosition->position);
+    currentVelocityTarget.rotate(currentPosition->orientation.get());
+
+    continueMove(&currentMovement);
 }
 
-void PathFollowingController::continueMove()
+void PurePursuitController::stopPath(
+    const ZMatrix2* currentPosition,
+    const ZVector2* targetPosition,
+    const ZVector2* targetVelocity)
+{
+    currentMovement.set(
+        targetPosition->getX(), targetPosition->getY(),
+        targetVelocity->atan2());
+    currentMovement.unconcat(currentPosition);
+    completeStop(&currentMovement);
+}
+*/
+
+void PurePursuitController::continuePursuit(
+    const ZMatrix2* currentPosition,
+    const ZVector2* targetPosition,
+    const ZVector2* targetVelocity)
 {
     switch (currentMovementState) {
         case MovementState::Turning:
@@ -92,16 +69,78 @@ void PathFollowingController::continueMove()
             break;
     }
 
-    forward(false);
+    ZVector2 relativeTargetPosition(targetPosition);
+    relativeTargetPosition.subtractVector(&currentPosition->position);
+    relativeTargetPosition.unrotate(&currentPosition->orientation);
+    relativeTargetPosition.multiply(0.5);
+    // ZVector2 relativeTargetVelocity(targetVelocity);
+    // relativeTargetVelocity.unrotate(&currentPosition->orientation);
+
+    if (relativeTargetPosition.getX() == 0.0) {
+      zippy.moveLinear(relativeTargetPosition.getY());
+      return;
+    }
+
+    double movementRadius = relativeTargetPosition.getD2() / (2.0 * relativeTargetPosition.getX());
+    double movementTheta = 2.0 * relativeTargetPosition.atan();
+    zippy.moveArc(movementRadius, movementTheta);
 }
 
-bool PathFollowingController::completeMove()
+void PurePursuitController::stopPursuit(
+    const ZMatrix2* currentPosition,
+    const ZVector2* targetPosition,
+    const ZVector2* targetVelocity)
 {
-    if (currentMovement.position.getD() > LINEAR_EPSILON &&
+    ZVector2 relativeTargetPosition(targetPosition);
+    relativeTargetPosition.subtractVector(&currentPosition->position);
+    relativeTargetPosition.unrotate(&currentPosition->orientation);
+    ZVector2 relativeTargetVelocity(targetVelocity);
+    relativeTargetVelocity.unrotate(&currentPosition->orientation);
+
+    switch (currentMovementState) {
+        case MovementState::Moving:
+            if (!completeMove(&relativeTargetPosition, &relativeTargetVelocity))
+                return;
+
+        case MovementState::Turning:
+            if (!completeTurn(&relativeTargetPosition, &relativeTargetVelocity))
+                return;
+    }
+
+    stop();
+}
+
+void PurePursuitController::continueMove(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity)
+{
+    switch (currentMovementState) {
+        case MovementState::Turning:
+            //upgrade from turning to moving
+            stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+            currentMovementState = MovementState::Moving;
+            break;
+
+        case MovementState::Stopped:
+            //start moving
+            zippy.start();
+            stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+            currentMovementState = MovementState::Moving;
+            break;
+    }
+
+    forward(relativeTargetPosition, relativeTargetVelocity, false);
+}
+
+bool PurePursuitController::completeMove(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity)
+{
+    if (relativeTargetPosition->getD() > LINEAR_EPSILON &&
           stateDowngradeCounter)
     {
         stateDowngradeCounter--;
-        forward(true);
+        forward(relativeTargetPosition, relativeTargetVelocity, true);
         return false;
     }
 
@@ -110,7 +149,10 @@ bool PathFollowingController::completeMove()
     return true;
 }
 
-void PathFollowingController::forward(bool completingMove)
+void PurePursuitController::forward(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity,
+    bool completingMove)
 {
     /*
     if (distanceToMove < DEFAULT_LOOK_AHEAD_DISTANCE) {
@@ -138,20 +180,21 @@ void PathFollowingController::forward(bool completingMove)
     double factor = 1.0;
     if (!completingMove) {
         double deltaOrientationAtTarget = subtractAngles(
-            currentMovement.orientation.get(),
-            2.0 * currentMovement.position.atan());
+            relativeTargetVelocity->atan2(),
+            2.0 * relativeTargetPosition->atan());
         factor = MIN_DELTA_TARGET_EPSILON + (MAX_DELTA_TARGET_EPSILON * cos(deltaOrientationAtTarget / 2.0));
     }
 
-    if (currentMovement.position.getX() == 0.0) {
-      zippy.moveLinear(currentMovement.position.getY() * factor);
+    if (relativeTargetPosition->getX() == 0.0) {
+      zippy.moveLinear(relativeTargetPosition->getY() * factor);
       return;
     }
 
-    double movementRadius = currentVelocityTarget.getD2() / (2.0 * currentVelocityTarget.getX());
-    double movementTheta = 2.0 * atanSafe(
-        -currentMovement.position.getY(),
-        (currentMovement.position.getX() - movementRadius));
+    double movementRadius = relativeTargetPosition->getD2() / (2.0 * relativeTargetPosition->getX());
+    double movementTheta = 2.0 * relativeTargetPosition->atan();
+    // double movementTheta = 2.0 * atanSafe(
+        // -relativeTargetPosition->getY(),
+        // (relativeTargetPosition->getX() - movementRadius));
 
     //calculations below derived from the following source
     //    http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
@@ -165,11 +208,7 @@ void PathFollowingController::forward(bool completingMove)
     //        +/- moving backward to the right while the front of the Zippy is turning left
     //        -/- moving forward to the left
     //        -/+ moving backward to the left while the front of the Zippy is turning right
-    // double movementRadius = currentMovement.position.getD2() / (2.0 * currentMovement.position.getX());
-    // double movementTheta = snapAngle(2.0 * currentMovement.position.atan2());
-    // double movementTheta = 2.0 * currentMovement.position.atan();
     // movementTheta *= factor;
-    // movementTheta += subtractAngles(-snapAngle(2.0 * currentMovement.orientation.get()), movementTheta) * (1.0 - factor);
     movementRadius *= factor;
     /*
     ZVector2 radiusToTarget = ZVector2(
@@ -190,11 +229,13 @@ void PathFollowingController::forward(bool completingMove)
     // zippy.moveArc(movementRadius, movementTheta);
 }
 
-void PathFollowingController::continueTurn()
+void PurePursuitController::continueTurn(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
     switch (currentMovementState) {
         case MovementState::Moving:
-            if (!completeMove())
+            if (!completeMove(relativeTargetPosition, relativeTargetVelocity))
                 return;
             break;
 
@@ -205,17 +246,19 @@ void PathFollowingController::continueTurn()
             break;
     }
 
-    zippy.turn(pad(currentMovement.orientation.get(), ANGULAR_EPSILON));
+    zippy.turn(pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
 }
 
-bool PathFollowingController::completeTurn()
+bool PurePursuitController::completeTurn(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
     // if (abs(currentMovement.orientation.get()) > ANGULAR_EPSILON &&
         // stateDowngradeCounter)
     if (stateDowngradeCounter)
     {
         stateDowngradeCounter--;
-        zippy.turn(pad(currentMovement.orientation.get(), ANGULAR_EPSILON));
+        zippy.turn(pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
         return false;
     }
 
@@ -224,22 +267,24 @@ bool PathFollowingController::completeTurn()
     return true;
 }
 
-void PathFollowingController::completeStop()
+void PurePursuitController::completeStop(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
     switch (currentMovementState) {
         case MovementState::Moving:
-            if (!completeMove())
+            if (!completeMove(relativeTargetPosition, relativeTargetVelocity))
                 return;
 
         case MovementState::Turning:
-            if (!completeTurn())
+            if (!completeTurn(relativeTargetPosition, relativeTargetVelocity))
                 return;
     }
 
     stop();
 }
 
-void PathFollowingController::stop()
+void PurePursuitController::stop()
 {
     zippy.stop();
     currentMovementState = MovementState::Stopped;

@@ -5,7 +5,7 @@
 #include "ZippyController.h"
 // #include "RoutineController.h"
 #include "zippies/paths/Routine.h"
-#include "PathFollowingController.h"
+#include "zippies/pursuit/PursuitController.h"
 #include "zippies/config/PIDConfig.h"
 #include "zippies/math/StatisticsAccumulator.h"
 

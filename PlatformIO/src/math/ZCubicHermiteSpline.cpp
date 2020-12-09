@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "zippies/math/ZCubicHermiteSpline.h"
 
-#define DEFAULT_CARDINAL_TIGHTNESS        0.707106781186548
+// #define DEFAULT_CARDINAL_TIGHTNESS        0.707106781186548
 
 ZCubicHermiteSpline::ZCubicHermiteSpline()
 {
@@ -81,17 +81,38 @@ void ZCubicHermiteSpline::calculateTangent(
     const ZippyWaypoint* position2,
     ZVector2* tangent)
 {
-    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));
-    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));// *
-        // DEFAULT_CARDINAL_TIGHTNESS;
+    // /*
     double orientationRadians = M_PI * position1->orientation / 180.0;
     double orientationSin = sin(orientationRadians);
     double orientationCos = cos(orientationRadians);
+
+    // /*
+    double time02 = time01 + time12;
+    /*
+    double tangentX = M_PI * 1000.0 * (
+        ((position1->x - position0->x) / time01) -
+        ((position2->x - position0->x) / time02) +
+        ((position2->x - position1->x) / time12));
+    double tangentY = M_PI * 1000.0 * (
+        ((position1->y - position0->y) / time01) -
+        ((position2->y - position0->y) / time02) +
+        ((position2->y - position1->y) / time12));
+    */
+    double tangentX = 2.0 * (
+        ((position1->x - position0->x) * time01 / time02) -
+        ((position2->x - position0->x)) +
+        ((position2->x - position1->x) * time12 / time02));
+    double tangentY = 2.0 * (
+        ((position1->y - position0->y) * time01 / time02) -
+        ((position2->y - position0->y)) +
+        ((position2->y - position1->y) * time12 / time02));
+    // */
+    /*
     double tangentX = (2000.0 * (position2->x - position0->x)) / ((double)(time01 + time12));
     double tangentY = (2000.0 * (position2->y - position0->y)) / ((double)(time01 + time12));
+    */
+
     double tangentMagnitude = abs((tangentX * orientationSin) + (tangentY * orientationCos));
-    // double tangentMagnitude = sqrt(sq(position2->x - position0->x) + sq(position2->y - position0->y));// *
-    // tangentMagnitude /= ((double)(time01 + time12)) * 0.5 / 1000.0;
     tangent->set(
         orientationSin * tangentMagnitude,
         orientationCos * tangentMagnitude);
@@ -219,11 +240,12 @@ void ZCubicHermiteSpline::interpolate(
   double v10 = (3.0 * tt) - (4.0 * t) + 1.0;
   double v01 = (-6.0 * tt) + (6.0 * t);
   double v11 = (3.0 * tt) - (2.0 * t);
+//   double timeFactor = t / 60
   currentTargetVelocity.set(
       interpolateCubicHermite(v00, v10, v01, v11,
-          position1->getX(), tangent1->getX() * tangent1Factor, position2->getX(), tangent2->getX() * tangent2Factor),
+          position1->getX(), tangent1->getX() * tangent1Factor, position2->getX(), tangent2->getX() * tangent2Factor) / 60.0,
       interpolateCubicHermite(v00, v10, v01, v11,
-          position1->getY(), tangent1->getY() * tangent1Factor, position2->getY(), tangent2->getY() * tangent2Factor));
+          position1->getY(), tangent1->getY() * tangent1Factor, position2->getY(), tangent2->getY() * tangent2Factor) / 60.0);
 }
 
 double interpolateCubicHermite(

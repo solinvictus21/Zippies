@@ -5,13 +5,6 @@
 #include "Path.h"
 #include "zippies/ZippyMath.h"
 
-typedef enum class _MovementState
-{
-  Stopped,
-  Turning,
-  Moving,
-} MovementState;
-
 typedef struct _RoutineDefinition
 {
   unsigned long timing;
@@ -31,7 +24,6 @@ private:
   const RoutineDefinition* routineSegments;
   int routineSegmentCount = 0;
   int currentRoutineSegmentIndex = 0;
-  MovementState currentMovementState = MovementState::Stopped;
 
   unsigned long currentRoutineSegmentStartTime = 0;
   int currentRoutineSegmentLoopCount = 0;
@@ -55,7 +47,6 @@ public:
   bool isRoutineCompleted() { return currentRoutineSegmentIndex >= routineSegmentCount; }
 
   const ZMatrix2* getTargetPosition() const { return &currentTargetPosition; };
-  MovementState getTargetMovementState() { return currentMovementState; }
 
 };
 

@@ -294,9 +294,7 @@ bool LighthouseSensor::processSweepEnd(unsigned int totalSweepTickCount)
     SerialUSB.print(" ");
     SerialUSB.print(currentHitCycles[currentAxis].sweepHitEndTicks);
     SerialUSB.print(" ");
-    SerialUSB.print(deltaTickCount);
-    SerialUSB.print(" ");
-    SerialUSB.println(totalCycleLength);
+    SerialUSB.println(totalSweepTickCount);
 #endif
 
     resetSync();

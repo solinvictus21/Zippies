@@ -1,21 +1,21 @@
 
 import Foundation
-import UIKit
 
 class Move: ZPath
 {
     
     let start: ZMatrix2
-    let deltaDistance: CGFloat
+    let deltaDistance: Double
     
-    init(_ start: ZMatrix2, _ deltaDistance: CGFloat)
+    init(_ start: ZMatrix2, _ deltaDistance: Double)
     {
         self.start = ZMatrix2(start)
         self.deltaDistance = deltaDistance
     }
     
     func updatesPosition() -> Bool { return true }
-    func getLength() -> CGFloat { return deltaDistance }
+    func getLength() -> Double { return deltaDistance }
+    /*
     func getDrawable(_ color: UIColor) -> ZDrawable
     {
         let endX = start.position.getX() + (deltaDistance * sin(start.orientation.get()))
@@ -26,8 +26,9 @@ class Move: ZPath
             start.position,
             endX, endY)
     }
+     */
 
-    func interpolate(_ t: CGFloat, _ p: ZMatrix2)
+    func interpolate(_ t: Double, _ p: ZMatrix2)
     {
         let currentDistance = deltaDistance * t
         p.position.set(start.position.getX() + (currentDistance * sin(start.orientation.get())),

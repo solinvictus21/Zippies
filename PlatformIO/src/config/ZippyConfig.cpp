@@ -32,7 +32,7 @@ void initZippyConfiguration()
 {
   uint32_t mcuID[4];
   readMCUID(mcuID);
-  // printUniqueID();
+  // printUniqueID(mcuID);
   for (int i = 0; i < KNOWN_MCU_ID_COUNT; i++) {
     if (!memcmp(mcuID, KNOWN_MCU_IDS[i], 16)) {
       // SerialUSB.print("Found known Zippy config: ");
@@ -62,14 +62,18 @@ uint32_t KNOWN_MCU_IDS[][4]
 {
   //red
   { 0x3BCD3F11, 0x504B3233, 0x372E3120, 0xFF022719 },
-  //orange
-  { 0xA69E657C, 0x50515946, 0x392E3120, 0xFF192E1B },
+  //orange (new version)
+  { 0x9E104EE4, 0x5052534A, 0x352E3120, 0xFF091527 },
+  //RIP previous orange
+  // { 0xA69E657C, 0x50515946, 0x392E3120, 0xFF192E1B },
   //green
   { 0x82C95D68, 0x504D5257, 0x352E3120, 0xFF152F28 },
   //blue
   { 0x8A95E7ED, 0x504E5452, 0x372E3120, 0xFF181D37 },
-  //purple
-  { 0x27A3B213, 0x50533336, 0x372E3120, 0xFF142915 },
+  //purple (new version)
+  { 0x5A252B0E, 0x5052534A, 0x352E3120, 0xFF0C3222 },
+  //RIP previous purple
+  // { 0x27A3B213, 0x50533336, 0x372E3120, 0xFF142915 },
 };
 int KNOWN_MCU_ID_COUNT = sizeof(KNOWN_MCU_IDS) / 16;
 
@@ -86,14 +90,13 @@ double MOTOR_DEAD_ZONES[][2]
   // { 2200.0,  0.0500 },
   { 4000.0,  0.0000 },
   //orange
-  // { 1650.0, -0.3200 },
-  { 1800.0, -0.3200 },
+  { 4000.0,  0.0000 },
   //green
-  { 2800.0,  0.1800 },
+  { 4000.0,  0.0000 },
   //blue
-  { 2700.0,  0.2600 },
+  { 4000.0,  0.0000 },
   //purple
-  { 1900.0,  0.0500 },
+  { 4000.0,  0.0000 },
 };
 
 void readMCUID(uint32_t* outID)

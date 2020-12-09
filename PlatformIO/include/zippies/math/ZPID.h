@@ -22,8 +22,8 @@ private:
   bool isReversed;
 
   bool isStarted = false;
-  double previousInput = 0.0d;
-	double outputSum = 0.0d;
+  double previousInput = 0.0;
+	double outputSum = 0.0;
 
 public:
   ZPID(

@@ -37,10 +37,10 @@ public:
   void set(const ZVector2* v);
   void set(double x, double y);
   void set(double x, double y, double ofLength);
-  void rotate(double angleRadians);
+  // void rotate(double angleRadians);
   void rotate(const ZRotation2* rotation);
   void unrotate(const ZRotation2* rotation);
-
+  
   double getD() const;
   void setD(double newD);
   double getD2() const;
