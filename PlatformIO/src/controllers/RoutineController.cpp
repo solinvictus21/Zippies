@@ -43,6 +43,17 @@ void RoutineController::start(unsigned long currentTime)
     executionState = RoutineExecutionState::MovingIntoPlace;
 }
 
+void RoutineController::calculateRelativeTargets()
+{
+    const ZMatrix2* currentPosition = sensors->getPosition();
+    relativeTargetPosition.set(path.getTargetPosition());
+    relativeTargetPosition.subtractVector(&currentPosition->position);
+    relativeTargetPosition.unrotate(&currentPosition->orientation);
+    relativeTargetVelocity.set(path.getTargetVelocity());
+    relativeTargetVelocity.unrotate(&currentPosition->orientation);
+
+}
+
 void RoutineController::loop(unsigned long currentTime)
 {
     /*
@@ -63,10 +74,8 @@ void RoutineController::loop(unsigned long currentTime)
     switch (executionState) {
         case RoutineExecutionState::MovingIntoPlace:
             path.interpolate(currentTime);
-            pursuitController->continuePursuit(
-                sensors->getPosition(),
-                path.getTargetPosition(),
-                path.getTargetVelocity());
+            calculateRelativeTargets();
+            pursuitController->continuePursuit(&relativeTargetPosition, &relativeTargetVelocity);
 
             if (path.isCompleted()) {
                 /*
@@ -77,19 +86,17 @@ void RoutineController::loop(unsigned long currentTime)
                 */
                //sync with the preamble
                sensors->syncWithPreamble();
+               path.setKeyframes(defaultRoutines, defaultRoutinesCount);
                executionState = RoutineExecutionState::SyncingWithPreamble;
             }
             break;
 
         case RoutineExecutionState::SyncingWithPreamble:
-            pursuitController->stopPursuit(
-                sensors->getPosition(),
-                path.getTargetPosition(),
-                path.getTargetVelocity());
+            calculateRelativeTargets();
+            pursuitController->stopPursuit(&relativeTargetPosition, &relativeTargetVelocity);
 
             if (sensors->foundPreamble()) {
                 //begin execution of the routine
-                path.setKeyframes(defaultRoutines, defaultRoutinesCount);
                 path.start(currentTime);
                 executionState = RoutineExecutionState::Executing;
             }
@@ -97,10 +104,8 @@ void RoutineController::loop(unsigned long currentTime)
 
         case RoutineExecutionState::Executing:
             path.interpolate(currentTime);
-            pursuitController->continuePursuit(
-                sensors->getPosition(),
-                path.getTargetPosition(),
-                path.getTargetVelocity());
+            calculateRelativeTargets();
+            pursuitController->continuePursuit(&relativeTargetPosition, &relativeTargetVelocity);
             
             if (path.isCompleted()) {
                 //sync with preamble again before start of each routine execution

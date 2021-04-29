@@ -15,22 +15,25 @@ private:
     unsigned long stateDowngradeCounter = 0;
 
     void executeMove(
-        const ZMatrix2* currentPosition,
-        const ZVector2* targetPosition,
-        const ZVector2* targetVelocity);
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity);
+    bool completeMove(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity);
+    bool completeTurn(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity);
 
 public:
     ArcPursuitController()
     {}
 
     void continuePursuit(
-        const ZMatrix2* currentPosition,
-        const ZVector2* targetPosition,
-        const ZVector2* targetVelocity);
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity);
     void stopPursuit(
-        const ZMatrix2* currentPosition,
-        const ZVector2* targetPosition,
-        const ZVector2* targetVelocity);
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity);
     void stop();
     bool isStopped() { return currentMovementState == MovementState::Stopped; }
 

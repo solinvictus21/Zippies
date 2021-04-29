@@ -221,14 +221,6 @@ class TopDownView : UIView
             targetVector.getX() + velocityVector.getX(),
             targetVector.getY() + velocityVector.getY())
 
-        //display the path to the target
-        drawDirectPath(
-            currentPositionVector,
-            targetVector,
-            velocityVector,
-            targetEndVector)
-//        drawArc(relativeTargetPosition: targetVector)
-
         //newest approach; prioritize orientation over Y movement
         //first determine how closely we will match the desired orientation by moving directly to the target point
         ///*
@@ -238,8 +230,8 @@ class TopDownView : UIView
         let cosAngle = cos(angleAtTargetToVelocity)
         let linearMoveRatio = (cosAngle + 1.0) / 2.0
 //        let angularMoveRatio = 1.0 - linearMoveRatio
-        print("atv: ", RAD2DEG * velocityVector.atan2, " aat: ", RAD2DEG * angleAtTarget)
-        print("aattv: ", RAD2DEG * angleAtTargetToVelocity, " linear: ", linearMoveRatio)
+//        print("atv: ", RAD2DEG * velocityVector.atan2, " aat: ", RAD2DEG * angleAtTarget)
+//        print("aattv: ", RAD2DEG * angleAtTargetToVelocity, " linear: ", linearMoveRatio)
         //*/
         
         /*
@@ -249,21 +241,48 @@ class TopDownView : UIView
         drawArc(relativeTargetPosition: testPoint)
         */
         ///*
-        let scaledLinearDistance = targetVector.getY() * linearMoveRatio
-        let scaledAngularTurn = atan2(velocityVector.getX(), velocityVector.getY() - scaledLinearDistance)
+//        let scaledLinearDistance = targetVector.getY() * linearMoveRatio
+//        let scaledAngularTurn = atan2(velocityVector.getX(), velocityVector.getY() - scaledLinearDistance)
         let scaledVelocityVector = ZVector2(velocityVector)
         scaledVelocityVector.multiply(linearMoveRatio)
 //        scaledVelocityVector.add(velocityVector)
         let scaledEndVector = ZVector2(targetVector)
         scaledEndVector.add(scaledVelocityVector)
-        //*/
-        drawMonoArcPath(
+//        */
+        /*
+        drawConvergingArcPath(
+            currentPositionVector,
+            targetVector,
+            velocityVector,
+            targetEndVector)
+        */
+        /*
+        drawArcPath(
+            currentPositionVector,
+            targetVector,
+            targetEndVector)
+        */
+        /*
+        drawConvergingPath(
             currentPositionVector,
             targetVector,
             velocityVector,
             targetEndVector)
 //            scaledVelocityVector,
 //            scaledEndVector)
+         */
+        /*
+        drawApproachingPath(
+            targetVector,
+            velocityVector)
+         */
+
+        //display the path to the target
+        drawDirectPath(
+            currentPositionVector,
+            targetVector,
+            velocityVector)
+//        drawArc(relativeTargetPosition: targetVector)
 
         /*
         UIColor.green.setStroke()
@@ -494,8 +513,7 @@ class TopDownView : UIView
     fileprivate func drawDirectPath(
         _ fromPoint: ZVector2,
         _ toPoint: ZVector2,
-        _ velocity: ZVector2,
-        _ endPoint: ZVector2)
+        _ velocity: ZVector2)
     {
         UIColor.green.setStroke()
         UIColor.green.setFill()
@@ -505,20 +523,128 @@ class TopDownView : UIView
             start: fromPoint,
             end: toPoint)
         drawPoint(center: fromPoint)
-
-        drawArrow(
-            position: toPoint,
-            orientation: velocity.atan2)
+//        drawArc(relativeTargetPosition: toPoint)
 
         UIColor.purple.setStroke()
         UIColor.purple.setFill()
+        drawArrow(
+            position: toPoint,
+            orientation: velocity.atan2)
         let velocityEndPoint = ZVector2(
             toPoint.getX() + velocity.getX(),
             toPoint.getY() + velocity.getY())
         drawLine(
             start: toPoint,
             end: velocityEndPoint)
-        drawPoint(center: endPoint)
+        drawPoint(center: velocityEndPoint)
+//        drawArc(relativeTargetPosition: velocityEndPoint)
+    }
+    
+    fileprivate func drawApproachingPath(
+//        _ k1_: Double,
+//        _ k2_: Double,
+//        _ min_velocity_: Double,
+//        _ max_velocity_: Double,
+//        _ max_accel_: Double,
+//        _ max_angular_velocity_: Double,
+        _ targetPoint: ZVector2,
+        _ velocity: ZVector2)
+    {
+        let k1_ = 1.0
+        let k2_ = 2.0
+//        let max_velocity_ = targetPoint.getD() / k2_
+        let max_velocity_ = abs((targetPoint.getD2() * targetPoint.atan) / (k2_ * targetPoint.getX()))
+//        let max_velocity_ = targetPoint.getY()
+        let beta_ = 0.6
+        let lambda_ = 2.0
+
+        //distance to the target position
+        let r = targetPoint.getD()
+        //orientation from target position to current orientation
+        let delta = -targetPoint.atan2
+        //orientation from goal pose to the direction of the target position
+        let theta = subtractAngles(velocity.atan2, targetPoint.atan2)
+//        let theta = velocity.atan2 - targetPoint.atan2
+
+//        print("delta: ", (delta * RAD2DEG))
+//        print("theta: ", (theta * RAD2DEG))
+
+        let referenceDelta = atan(-k1_ * theta)
+        let proportionalControlTerm = k2_ * subtractAngles(delta, referenceDelta)
+        let feedforwardControlTerm = (1.0 + (k1_ / (1.0 + pow(k1_ * theta, 2.0)))) * sin(delta)
+        //compute curvature
+        let kappa = -(proportionalControlTerm + feedforwardControlTerm) / r
+
+//        print("p: ", proportionalControlTerm)
+//        print("f: ", feedforwardControlTerm)
+//        print("k: ", kappa)
+
+        //compute linear velocity
+        let outputLinearVelocity = max_velocity_ / (1.0 + (beta_ * pow(fabs(kappa), lambda_)))
+        //compute angular velocity
+        let outputAngularVelocity = kappa * outputLinearVelocity
+
+//        print("linear: ", outputLinearVelocity)
+//        print("angular: ", (outputAngularVelocity * RAD2DEG))
+
+        UIColor.black.setStroke()
+        drawArc(outputLinearVelocity, outputAngularVelocity)
+//        drawArc(-100.0, -Double.pi / 2.0)
+    }
+
+    fileprivate func drawConvergingPath(
+        _ fromPoint: ZVector2,
+        _ toPoint: ZVector2,
+        _ velocity: ZVector2,
+        _ endPoint: ZVector2)
+    {
+        //move linearly by halfway between toPoint y amount and endPoint y amount
+//        let ratio = 0.5
+//        let linearMovement = (toPoint.getY() * ratio) + (endPoint.getY() * (1.0 - ratio))
+        let crossProduct = (toPoint.getX() * velocity.cos) - (toPoint.getY() * velocity.sin)
+        let dotProduct = (toPoint.getX() * velocity.sin) + (toPoint.getY() * velocity.cos)
+        let intersectVelocityLineY = toPoint.getY() - (toPoint.getY() * velocity.cos)
+        let intersectionPoint1 = ZVector2(
+            toPoint.getX() - (dotProduct * velocity.sin),
+            toPoint.getY() - (dotProduct * velocity.cos))
+//        let intersectVelocityLineX = toPoint.getX() + (toPoint.getX() * velocity.sin)
+//        let intersectionPoint2 = ZVector2(
+//            intersectVelocityLineX,
+//            intersectVelocityLineY)
+//        let linearMovement = max(intersectionPoint.getD(), toPoint.getD())
+
+        //turn angularly to halfway between turn toPoint and turn to endPoint
+//        let angleFromVelocityAtTarget = subtractAngles(velocity.atan2, 2.0 * toPoint.atan2)
+//        let angularMovement = snapAngle((toPoint.atan2 + angleFromVelocityAtTarget) / 2.0)
+//        let angularMovement = snapAngle((toPoint.atan2 * ratio) + (velocity.atan2 * (1.0 - ratio)))
+//        let angularMovement = snapAngle((toPoint.atan2 + velocity.atan2) / 2.0)
+//        let angularMovement = intersectionPoint.atan2
+
+//        let targetPoint = ZVector2(linearMovement * Foundation.sin(angularMovement), linearMovement)
+        
+        UIColor.red.setStroke()
+        drawLine(start: fromPoint, end: intersectionPoint1)
+        drawLine(start: intersectionPoint1, end: toPoint)
+        drawArc(relativeTargetPosition: intersectionPoint1)
+//        drawLine(start: fromPoint, end: intersectionPoint2)
+//        drawArc(relativeTargetPosition: intersectionPoint2)
+//        drawPoint(center: intersectionPoint2)
+//        drawArc(relativeTargetPosition: targetPoint)
+//        drawPoint(center: targetPoint)
+
+        //determine if the move is converging or diverging
+        //angle at target / angle of velocity
+
+        //converging
+        //         left  / left
+        //         right / right
+        //determine if the converging move is over-converging or under-converging
+        //it is under-converging when the absolute value of the angle at the target is less than the absolute value of the angle of the velocity
+
+        //diverging
+        //         left  / right
+        //         right / left
+
     }
     
     fileprivate func calculateRelativeMonoArcPath()
@@ -562,20 +688,23 @@ class TopDownView : UIView
          */
     }
     
-    fileprivate func drawMonoArcPath(
+    fileprivate func drawConvergingPath2(
         _ fromPoint: ZVector2,
         _ toPoint: ZVector2,
         _ velocity: ZVector2,
         _ endPoint: ZVector2)
     {
-        let convergentRadius = velocity.getD()
-        let denominator = (2.0 * convergentRadius) + (2.0 * endPoint.getY())
-        let moveY = (endPoint.getD2() - pow(convergentRadius, 2.0)) / denominator
-//        let outerRadius = endPoint.getD()
-//        let innerRadius = velocity.getD()
-//        let denominator = ((2.0 * innerRadius) + (2.0 * endPoint.getY()))
-//        let moveY = (pow(outerRadius, 2.0) - pow(innerRadius, 2.0)) / denominator
+        let velocity_2 = ZVector2(velocity.getX() / 2.0, velocity.getY() / 2.0)
+        let endPoint_2 = ZVector2(toPoint.getX() + velocity_2.getX(), toPoint.getY() + velocity_2.getY())
+        /*
+        let denominator = (2.0 * velocity.getD()) + (2.0 * endPoint.getY())
+        let moveY = (endPoint.getD2() - velocity.getD2()) / denominator
         let convergencePoint = ZVector2(endPoint.getX(), endPoint.getY() - moveY)
+         */
+        let denominator = (2.0 * velocity_2.getD()) + (2.0 * endPoint_2.getY())
+        let moveY = (endPoint_2.getD2() - velocity_2.getD2()) / denominator
+        let convergencePoint = ZVector2(endPoint_2.getX(), endPoint_2.getY() - moveY)
+
         if denominator > 0.0 {
             convergencePoint.setD(moveY)
         }
@@ -585,7 +714,7 @@ class TopDownView : UIView
         convergencePoint.add(0.0, moveY)
 
         let color: UIColor
-        if abs(subtractAngles(2.0 * convergencePoint.atan, velocity.atan2)) <= (Double.pi / 2.0) {
+        if abs(subtractAngles(2.0 * convergencePoint.atan, velocity_2.atan2)) <= (Double.pi / 2.0) {
             color = UIColor.blue
         }
         else {
@@ -595,29 +724,55 @@ class TopDownView : UIView
         color.setFill()
         let turnPoint1 = ZVector2(0, moveY)
         
-        //draw the triangle around the arc
+        //draw the basics
+        drawLine(
+            start: fromPoint,
+            end: toPoint)
+        drawLine(
+            start: toPoint,
+            end: endPoint)
+        drawPoint(center: endPoint)
+
+        //draw the target velocity
+//        drawCircle(
+//            center: endPoint2,
+//            radius: velocity2.getD())
+        drawCircle(
+            center: endPoint_2,
+            radius: velocity_2.getD())
+
+        //draw the first arc and outline
+        drawLine(
+            start: fromPoint,
+            end: convergencePoint)
         drawLine(
             start: fromPoint,
             end: turnPoint1)
         drawLine(
             start: turnPoint1,
             end: convergencePoint)
-        drawLine(
-            start: fromPoint,
-            end: convergencePoint)
-        
-        drawCircle(
-            center: endPoint,
-            radius: velocity.getD())
-        //draw the arc
         drawArc(relativeTargetPosition: convergencePoint)
+        
+        //draw the second arc and outline
+        drawLine(
+            start: convergencePoint,
+            end: endPoint)
+        drawLine(
+            start: convergencePoint,
+            end: endPoint_2)
+
+        /*
+        //draw the triangle around the arc
+        
+        //draw the arc
         let radius = convergencePoint.getD2() / (2.0 * convergencePoint.getX())
         //draw the turn circle
         drawCircle(
             center: ZVector2(radius, 0),
             radius: abs(radius))
+        */
         
-        ///*
+        /*
         let denominator2 = -(2.0 * velocity.getD()) + (2.0 * endPoint.getY())
         let moveY2 = (endPoint.getD2() - velocity.getD2()) / denominator2
 //        print("moveY: ", moveY, " moveY2: ", moveY2)
@@ -637,19 +792,40 @@ class TopDownView : UIView
 //        drawCircle(
 //            center: ZVector2(radius2, 0),
 //            radius: abs(radius2))
-        //*/
+        */
 
         //draw the line from the destination point on the arc to the center of the target velocity circle
+        /*
         drawLine(
             start: convergencePoint,
-            end: endPoint)
+            end: endPoint_2)
+        drawLine(
+            start: endPoint_2,
+            end: endPoint2)
         drawPoint(center: convergencePoint)
+         */
 
         //draw the target velocity circle
 //        drawCircle(
 //            center: endPoint,
 //            radius: convergentRadius)
-        drawPoint(center: endPoint)
+    }
+    
+    fileprivate func drawConvergingArcPath(
+        _ currentPosition: ZVector2,
+        _ targetPosition: ZVector2,
+        _ targetVelocity: ZVector2,
+        _ endPoint: ZVector2)
+    {
+//        let dotProduct = targetPosition.dotOrientation(targetVelocity.atan2)
+//        let dotProduct =
+//            (targetPosition.getX() * targetVelocity.sin) +
+//            (targetPosition.getY() * targetVelocity.cos)
+        let dotProduct = targetPosition.dotVector(targetVelocity)
+        let targetPosition2 = ZVector2(
+            targetPosition.getX() + (dotProduct * targetVelocity.sin),
+            targetPosition.getY() + (dotProduct * targetVelocity.cos))
+        drawArcPath(currentPosition, targetPosition2, endPoint)
     }
     
     fileprivate func drawArcPath(

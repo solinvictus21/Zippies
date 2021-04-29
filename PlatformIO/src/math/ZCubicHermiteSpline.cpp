@@ -3,6 +3,7 @@
 #include "zippies/math/ZCubicHermiteSpline.h"
 
 // #define DEFAULT_CARDINAL_TIGHTNESS        0.707106781186548
+const double DEG2RAD = M_PI / 180.0;
 
 ZCubicHermiteSpline::ZCubicHermiteSpline()
 {
@@ -81,23 +82,7 @@ void ZCubicHermiteSpline::calculateTangent(
     const ZippyWaypoint* position2,
     ZVector2* tangent)
 {
-    // /*
-    double orientationRadians = M_PI * position1->orientation / 180.0;
-    double orientationSin = sin(orientationRadians);
-    double orientationCos = cos(orientationRadians);
-
-    // /*
     double time02 = time01 + time12;
-    /*
-    double tangentX = M_PI * 1000.0 * (
-        ((position1->x - position0->x) / time01) -
-        ((position2->x - position0->x) / time02) +
-        ((position2->x - position1->x) / time12));
-    double tangentY = M_PI * 1000.0 * (
-        ((position1->y - position0->y) / time01) -
-        ((position2->y - position0->y) / time02) +
-        ((position2->y - position1->y) / time12));
-    */
     double tangentX = 2.0 * (
         ((position1->x - position0->x) * time01 / time02) -
         ((position2->x - position0->x)) +
@@ -106,16 +91,14 @@ void ZCubicHermiteSpline::calculateTangent(
         ((position1->y - position0->y) * time01 / time02) -
         ((position2->y - position0->y)) +
         ((position2->y - position1->y) * time12 / time02));
-    // */
-    /*
-    double tangentX = (2000.0 * (position2->x - position0->x)) / ((double)(time01 + time12));
-    double tangentY = (2000.0 * (position2->y - position0->y)) / ((double)(time01 + time12));
-    */
 
-    double tangentMagnitude = abs((tangentX * orientationSin) + (tangentY * orientationCos));
+    double orientation1Radians =  DEG2RAD * position1->orientation;
+    double orientation1Sin = sin(orientation1Radians);
+    double orientation1Cos = cos(orientation1Radians);
+    double tangentMagnitude = abs((tangentX * orientation1Sin) + (tangentY * orientation1Cos));
     tangent->set(
-        orientationSin * tangentMagnitude,
-        orientationCos * tangentMagnitude);
+        orientation1Sin * tangentMagnitude,
+        orientation1Cos * tangentMagnitude);
 }
 
 void ZCubicHermiteSpline::deleteSpline()

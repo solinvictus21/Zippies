@@ -36,7 +36,7 @@ void initZippyConfiguration()
   for (int i = 0; i < KNOWN_MCU_ID_COUNT; i++) {
     if (!memcmp(mcuID, KNOWN_MCU_IDS[i], 16)) {
       // SerialUSB.print("Found known Zippy config: ");
-      // SerialUSB.println(i);
+      SerialUSB.println(i);
       ZIPPY_ID = i;
       // MOTOR_DEAD_ZONE_LEFT = MOTOR_DEAD_ZONE_CONFIGS[i][0];
       // MOTOR_DEAD_ZONE_RIGHT = MOTOR_DEAD_ZONE_CONFIGS[i][1];
@@ -88,7 +88,7 @@ double MOTOR_DEAD_ZONES[][2]
   //positive balance ratios give stronger turns on the right wheel (turns left harder)
   //red
   // { 2200.0,  0.0500 },
-  { 4000.0,  0.0000 },
+  { 3500.0,  0.0000 },
   //orange
   { 4000.0,  0.0000 },
   //green

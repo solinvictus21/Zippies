@@ -2,9 +2,8 @@
 #include "zippies/pursuit/ArcPursuitController.h"
 
 void ArcPursuitController::continuePursuit(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
     switch (currentMovementState) {
         case MovementState::Turning:
@@ -21,47 +20,64 @@ void ArcPursuitController::continuePursuit(
             break;
     }
 
-    executeMove(currentPosition, targetPosition, targetVelocity);
+    executeMove(relativeTargetPosition, relativeTargetVelocity);
+}
+
+bool ArcPursuitController::completeMove(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
+{
+    if (relativeTargetPosition->getD() > LINEAR_EPSILON &&
+          stateDowngradeCounter)
+    {
+        stateDowngradeCounter--;
+        executeMove(relativeTargetPosition, relativeTargetVelocity);
+        return false;
+    }
+
+    stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+    currentMovementState = MovementState::Turning;
+    return true;
+}
+
+bool ArcPursuitController::completeTurn(
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
+{
+    if (abs(relativeTargetVelocity->atan2()) > ANGULAR_EPSILON &&
+        stateDowngradeCounter)
+    {
+        stateDowngradeCounter--;
+        zippy.turn(relativeTargetVelocity->atan2());
+        return false;
+    }
+
+    stateDowngradeCounter = MAX_STATE_DOWNGRADE_ITERATIONS;
+    zippy.stop();
+    currentMovementState = MovementState::Stopped;
+    return true;
 }
 
 void ArcPursuitController::stopPursuit(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
-    /*
-    ZVector2 relativeTargetPosition(targetPosition);
-    relativeTargetPosition.subtractVector(&currentPosition->position);
-    relativeTargetPosition.unrotate(&currentPosition->orientation);
-    ZVector2 relativeTargetVelocity(targetVelocity);
-    relativeTargetVelocity.unrotate(&currentPosition->orientation);
-
     switch (currentMovementState) {
         case MovementState::Moving:
-            if (!completeMove(&relativeTargetPosition, &relativeTargetVelocity))
+            if (!completeMove(relativeTargetPosition, relativeTargetVelocity))
                 return;
 
         case MovementState::Turning:
-            if (!completeTurn(&relativeTargetPosition, &relativeTargetVelocity))
-                return;
+            completeTurn(relativeTargetPosition, relativeTargetVelocity);
     }
-    */
-
-    stop();
 }
 
 void ArcPursuitController::executeMove(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
-    ZVector2 relativeTargetPosition(targetPosition);
-    relativeTargetPosition.subtractVector(&currentPosition->position);
-    relativeTargetPosition.unrotate(&currentPosition->orientation);
-    ZVector2 relativeTargetVelocity(targetVelocity);
-    relativeTargetVelocity.unrotate(&currentPosition->orientation);
-    ZVector2 relativeEndPoint(&relativeTargetPosition);
-    relativeEndPoint.addVector(&relativeTargetVelocity);
+    ZVector2 relativeEndPoint(relativeTargetPosition);
+    relativeEndPoint.addVector(relativeTargetVelocity);
 
     /*
     double angleAtTargetToVelocity = subtractAngles(
@@ -76,23 +92,28 @@ void ArcPursuitController::executeMove(
     */
 
     //Reference: https://discourse.mcneel.com/t/how-to-make-an-arc-meet-another-curve-perpendicular/32778/9
-    double denominator = (2.0 * relativeTargetVelocity.getD()) + (2.0 * relativeEndPoint.getY());
-    double moveY = (relativeEndPoint.getD2() - relativeTargetVelocity.getD2()) / denominator;
-    relativeTargetPosition.set(relativeEndPoint.getX(), relativeEndPoint.getY() - moveY);
-    if (denominator > 0.0)
-        relativeTargetPosition.setD(moveY);
-    else
-        relativeTargetPosition.setD(-moveY);
-
-    if (relativeTargetPosition.getX() == 0.0) {
-        //just move forward or backward
-        zippy.moveLinear(relativeTargetPosition.getY());
+    double denominator = (2.0 * relativeTargetVelocity->getD()) + (2.0 * relativeEndPoint.getY());
+    if (denominator == 0.0) {
+        zippy.moveLinear(relativeTargetPosition->getY());
         return;
     }
 
-    relativeTargetPosition.setY(relativeTargetPosition.getY() + moveY);
-    double movementRadius = relativeTargetPosition.getD2() / (2.0 * relativeTargetPosition.getX());
-    double movementTheta = 2.0 * relativeTargetPosition.atan();
+    double moveY = (relativeEndPoint.getD2() - relativeTargetVelocity->getD2()) / denominator;
+    relativeEndPoint.setY(relativeEndPoint.getY() - moveY);
+    if (denominator > 0.0)
+        relativeEndPoint.setD(moveY);
+    else
+        relativeEndPoint.setD(-moveY);
+    relativeEndPoint.setY(relativeEndPoint.getY() + moveY);
+
+    if (relativeEndPoint.getX() == 0.0) {
+        //just move forward or backward
+        zippy.moveLinear(relativeEndPoint.getY());
+        return;
+    }
+
+    double movementRadius = relativeEndPoint.getD2() / (2.0 * relativeEndPoint.getX());
+    double movementTheta = 2.0 * relativeEndPoint.atan();
     zippy.moveArc(movementRadius, movementTheta);
 }
 

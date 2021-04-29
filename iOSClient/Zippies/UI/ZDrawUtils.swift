@@ -152,6 +152,17 @@ func drawArc(
 }
 
 func drawArc(
+    _ linearVelocity: Double,
+    _ angularVelocity: Double)
+{
+    let radius = linearVelocity / angularVelocity
+    drawArc(
+        centerPoint: ZVector2(radius, 0.0),
+        radius: -radius,
+        theta: angularVelocity)
+}
+
+func drawArc(
     centerPoint: ZVector2,
     radius: Double,
     theta: Double,

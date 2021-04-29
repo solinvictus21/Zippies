@@ -4,6 +4,16 @@
 
 #define EPSILON 0.0001
 
+double pad(double value, double epsilon)
+{
+    if (value == 0.0)
+        return 0.0;
+
+    return value < 0.0
+        ? min(value, -epsilon)
+        : max(value, epsilon);
+}
+
 ZVector2::ZVector2()
 {
   reset();

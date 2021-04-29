@@ -33,17 +33,6 @@ public:
     PursuitController() {}
 
     /*
-    virtual void followPath(
-        const ZMatrix2* currentPosition,
-        const ZVector2* targetPosition,
-        const ZVector2* targetVelocity) = 0;
-
-    virtual void stopPath(
-        const ZMatrix2* currentPosition,
-        const ZVector2* targetPosition,
-        const ZVector2* targetVelocity) = 0;
-    */
-
     virtual void continuePursuit(
         const ZMatrix2* currentPosition,
         const ZVector2* targetPosition,
@@ -53,6 +42,15 @@ public:
         const ZMatrix2* currentPosition,
         const ZVector2* targetPosition,
         const ZVector2* targetVelocity) = 0;
+    */
+
+    virtual void continuePursuit(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity) = 0;
+
+    virtual void stopPursuit(
+        const ZVector2* relativeTargetPosition,
+        const ZVector2* relativeTargetVelocity) = 0;
 
     virtual void stop() = 0;
 

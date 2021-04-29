@@ -27,10 +27,15 @@ private:
   ZippyWaypoint* defaultRoutines;
   int defaultRoutinesCount;
 
+  ZVector2 relativeTargetPosition;
+  ZVector2 relativeTargetVelocity;
+
   ZCubicHermiteSpline path;
   PursuitController* pursuitController;
 
   RoutineExecutionState executionState = RoutineExecutionState::MovingIntoPlace;
+
+  void calculateRelativeTargets();
 
 public:
   RoutineController(SensorFusor* s);

@@ -4,7 +4,7 @@
 
 #define DEFAULT_PATH_SEPARATION_X                           80.0
 #define DEFAULT_PATH_OFFSET_Y                              980.0
-#define DEFAULT_TIME_FACTOR                                350
+#define DEFAULT_TIME_FACTOR                                300
 
 extern ZippyWaypoint zippyPath[];
 extern const int zippyPathCount;

@@ -98,9 +98,9 @@ class ZVector2: NSObject
                     }
                 }
                 else {
-                    _atan = Double(Foundation.atan(Double(self.x / self.y)))
+                    _atan = Foundation.atan(self.x / self.y)
                 }
-                self.atanValid = true
+                atanValid = true
             }
             
             return self._atan
@@ -109,8 +109,8 @@ class ZVector2: NSObject
     
     var atan2: Double {
         get {
-            if (!atan2Valid) {
-                _atan2 = Double(Foundation.atan2(Double(self.x), Double(self.y)))
+            if !atan2Valid {
+                _atan2 = Foundation.atan2(self.x, self.y)
                 atan2Valid = true
             }
             
@@ -301,7 +301,16 @@ class ZVector2: NSObject
 
     func setD(_ newD: Double)
     {
-        set(self.x, self.y, newD)
+        let lengthRatio = newD / getD()
+        self.x *= lengthRatio
+        self.y *= lengthRatio
+        d = abs(newD)
+        dValid = true
+        d2 = d*d
+        d2Valid = true
+        atanValid = false;
+        atan2Valid = false;
+//        set(self.x, self.y, newD)
     }
 
     func add(_ v: ZVector2)

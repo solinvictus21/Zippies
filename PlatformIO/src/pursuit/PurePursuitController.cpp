@@ -7,16 +7,6 @@
 
 #define DEFAULT_LOOK_AHEAD_DISTANCE                  20.0
 
-double pad(double value, double epsilon)
-{
-    if (value == 0.0)
-        return 0.0;
-
-    return value < 0.0
-        ? min(value, -epsilon)
-        : max(value, epsilon);
-}
-
 /*
 void PurePursuitController::followPath(
     const ZMatrix2* currentPosition,
@@ -50,9 +40,8 @@ void PurePursuitController::stopPath(
 */
 
 void PurePursuitController::continuePursuit(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
     switch (currentMovementState) {
         case MovementState::Turning:
@@ -69,41 +58,42 @@ void PurePursuitController::continuePursuit(
             break;
     }
 
+    /*
     ZVector2 relativeTargetPosition(targetPosition);
     relativeTargetPosition.subtractVector(&currentPosition->position);
     relativeTargetPosition.unrotate(&currentPosition->orientation);
     relativeTargetPosition.multiply(0.5);
-    // ZVector2 relativeTargetVelocity(targetVelocity);
-    // relativeTargetVelocity.unrotate(&currentPosition->orientation);
+    */
 
-    if (relativeTargetPosition.getX() == 0.0) {
-      zippy.moveLinear(relativeTargetPosition.getY());
+    if (relativeTargetPosition->getX() == 0.0) {
+      zippy.moveLinear(relativeTargetPosition->getY());
       return;
     }
 
-    double movementRadius = relativeTargetPosition.getD2() / (2.0 * relativeTargetPosition.getX());
-    double movementTheta = 2.0 * relativeTargetPosition.atan();
+    double movementRadius = relativeTargetPosition->getD2() / (2.0 * relativeTargetPosition->getX());
+    double movementTheta = 2.0 * relativeTargetPosition->atan();
     zippy.moveArc(movementRadius, movementTheta);
 }
 
 void PurePursuitController::stopPursuit(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
+    const ZVector2* relativeTargetPosition,
+    const ZVector2* relativeTargetVelocity)
 {
+    /*
     ZVector2 relativeTargetPosition(targetPosition);
     relativeTargetPosition.subtractVector(&currentPosition->position);
     relativeTargetPosition.unrotate(&currentPosition->orientation);
     ZVector2 relativeTargetVelocity(targetVelocity);
     relativeTargetVelocity.unrotate(&currentPosition->orientation);
+    */
 
     switch (currentMovementState) {
         case MovementState::Moving:
-            if (!completeMove(&relativeTargetPosition, &relativeTargetVelocity))
+            if (!completeMove(relativeTargetPosition, relativeTargetVelocity))
                 return;
 
         case MovementState::Turning:
-            if (!completeTurn(&relativeTargetPosition, &relativeTargetVelocity))
+            if (!completeTurn(relativeTargetPosition, relativeTargetVelocity))
                 return;
     }
 

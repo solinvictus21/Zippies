@@ -5,6 +5,8 @@
 #include <Arduino.h>
 #include "ZRotation2.h"
 
+double pad(double value, double epsilon);
+
 class ZVector2
 {
 
