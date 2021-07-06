@@ -13,8 +13,12 @@
 
 MotorDriver::MotorDriver()
   : started(false),
-    leftDeadZoneRamp(MOTOR_DEAD_ZONE_LEFT),
-    rightDeadZoneRamp(MOTOR_DEAD_ZONE_RIGHT)
+    // leftDeadZoneRamp(MOTOR_DEAD_ZONE_LEFT),
+    // rightDeadZoneRamp(MOTOR_DEAD_ZONE_RIGHT),
+    leftWeight(1.0 - MOTOR_BALANCE),
+    rightWeight(1.0 + MOTOR_BALANCE)
+    // leftWeight(1.0),
+    // rightWeight(1.0)
 {
   // SerialUSB.println(MOTOR_DEAD_ZONE_LEFT, 1);
   // SerialUSB.println(MOTOR_DEAD_ZONE_RIGHT, 1);
@@ -66,8 +70,10 @@ void MotorDriver::start()
 
 void MotorDriver::setMotors(double left, double right)
 {
-  left = rampThroughDeadZone(left, leftDeadZoneRamp);
-  right = rampThroughDeadZone(right, rightDeadZoneRamp);
+  // left = leftWeight * rampThroughDeadZone(left, leftDeadZoneRamp);
+  // right = rightWeight * rampThroughDeadZone(right, rightDeadZoneRamp);
+  left = rampThroughDeadZone(leftWeight * left, MOTOR_DEAD_ZONE);
+  right = rampThroughDeadZone(rightWeight * right, MOTOR_DEAD_ZONE);
 
   writeCommand(COMMAND_ALL_PWM,
       left > 0 ? left : 0,

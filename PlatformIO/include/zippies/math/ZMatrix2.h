@@ -59,6 +59,22 @@ public:
       position.unrotate(&m->orientation);
   }
 
+  void append(const ZVector2* v)
+  {
+      position.set(
+          position.getX() + (v->getX() * this->orientation.cos()) + (v->getY() * this->orientation.sin()),
+          position.getY() + (v->getX() * -this->orientation.sin()) + (v->getY() * this->orientation.cos()));
+      orientation.add(2.0 * v->atan());
+  }
+
+  void append(const ZMatrix2* m)
+  {
+      position.set(
+          position.getX() + (m->position.getX() * this->orientation.cos()) + (m->position.getY() * this->orientation.sin()),
+          position.getY() + (m->position.getX() * -this->orientation.sin()) + (m->position.getY() * this->orientation.cos()));
+      orientation.add(&m->orientation);
+  }
+
   void reset() {
     position.reset();
     orientation.reset();

@@ -9,8 +9,10 @@ class MotorDriver
 
 private:
   bool started;
-  double leftDeadZoneRamp;
-  double rightDeadZoneRamp;
+  // double leftDeadZoneRamp;
+  // double rightDeadZoneRamp;
+  double leftWeight;
+  double rightWeight;
 
   void start();
   void writeByte(uint8_t);

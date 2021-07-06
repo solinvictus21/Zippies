@@ -108,6 +108,11 @@ double ZVector2::crossProduct(const ZVector2* v) const
   return (x*v->y) - (y*v->x);
 }
 
+double ZVector2::crossProduct(const ZRotation2* o) const
+{
+  return (x*o->cos()) - (y*o->sin());
+}
+
 void ZVector2::multiply(double m)
 {
   x *= m;
@@ -309,10 +314,30 @@ void ZVector2::rotate(const ZRotation2* rotation)
   arctan2Valid = false;
 }
 
+void ZVector2::rotate(double rotation)
+{
+  double newX = (this->x *  cos(rotation)) + (this->y *  sin(rotation));
+  double newY = (this->x * -sin(rotation)) + (this->y *  cos(rotation));
+  this->x = newX;
+  this->y = newY;
+  arctanValid = false;
+  arctan2Valid = false;
+}
+
 void ZVector2::unrotate(const ZRotation2* rotation)
 {
   double newX = (this->x *  rotation->cos()) + (this->y * -rotation->sin());
   double newY = (this->x *  rotation->sin()) + (this->y *  rotation->cos());
+  this->x = newX;
+  this->y = newY;
+  arctanValid = false;
+  arctan2Valid = false;
+}
+
+void ZVector2::unrotate(double rotation)
+{
+  double newX = (this->x *  cos(rotation)) + (this->y * -sin(rotation));
+  double newY = (this->x *  sin(rotation)) + (this->y *  cos(rotation));
   this->x = newX;
   this->y = newY;
   arctanValid = false;

@@ -8,11 +8,11 @@ void calculateRelativeBiArcKnot(ZMatrix2* relativeTargetPosition)
 
 void calculateRelativeBiArcKnot(const ZMatrix2* relativeTargetPosition, ZMatrix2* knot)
 {
-  if (relativeTargetPosition->orientation.get() == 0.0d) {
+  if (relativeTargetPosition->orientation.get() == 0.0) {
     //when the orientation is zero, this would create an asymptote in our bi-arc calculation because cos(0) = 1
     if (knot != relativeTargetPosition)
       knot->position.set(&relativeTargetPosition->position);
-    knot->position.multiply(0.5d);
+    knot->position.multiply(0.5);
     // knot->position.setD(relativeTargetPosition->position.dotOrientation(&relativeTargetPosition->orientation));
     // knot->orientation.set(2.0d * knot->position.atan());
     return;
@@ -56,7 +56,7 @@ void calculateRelativeBiArcKnot(const ZMatrix2* relativeTargetPosition, ZMatrix2
   knot->position.set(
     ( relativeTargetPosition->position.getX() + (d1 * -t2x) ) / 2.0,
     ( relativeTargetPosition->position.getY() + (d1 * (1.0 - t2y)) ) / 2.0);
-  knot->orientation.set(2.0d * knot->position.atan());
+  knot->orientation.set(2.0 * knot->position.atan());
 
   /*
   //v dot t1 = (v.x * t1.x)      + (v.y * t1.y)

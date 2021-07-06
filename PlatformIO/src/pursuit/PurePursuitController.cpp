@@ -7,38 +7,6 @@
 
 #define DEFAULT_LOOK_AHEAD_DISTANCE                  20.0
 
-/*
-void PurePursuitController::followPath(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
-{
-    currentMovement.set(
-        targetPosition->getX(), targetPosition->getY(),
-        targetVelocity->atan2());
-    currentMovement.unconcat(currentPosition);
-    currentVelocityTarget.set(
-        targetPosition->getX() + (targetVelocity->getX() / 60.0),
-        targetPosition->getY() + (targetVelocity->getY() / 60.0));
-    currentVelocityTarget.subtractVector(&currentPosition->position);
-    currentVelocityTarget.rotate(currentPosition->orientation.get());
-
-    continueMove(&currentMovement);
-}
-
-void PurePursuitController::stopPath(
-    const ZMatrix2* currentPosition,
-    const ZVector2* targetPosition,
-    const ZVector2* targetVelocity)
-{
-    currentMovement.set(
-        targetPosition->getX(), targetPosition->getY(),
-        targetVelocity->atan2());
-    currentMovement.unconcat(currentPosition);
-    completeStop(&currentMovement);
-}
-*/
-
 void PurePursuitController::continuePursuit(
     const ZVector2* relativeTargetPosition,
     const ZVector2* relativeTargetVelocity)
@@ -58,13 +26,6 @@ void PurePursuitController::continuePursuit(
             break;
     }
 
-    /*
-    ZVector2 relativeTargetPosition(targetPosition);
-    relativeTargetPosition.subtractVector(&currentPosition->position);
-    relativeTargetPosition.unrotate(&currentPosition->orientation);
-    relativeTargetPosition.multiply(0.5);
-    */
-
     if (relativeTargetPosition->getX() == 0.0) {
       zippy.moveLinear(relativeTargetPosition->getY());
       return;
@@ -79,14 +40,6 @@ void PurePursuitController::stopPursuit(
     const ZVector2* relativeTargetPosition,
     const ZVector2* relativeTargetVelocity)
 {
-    /*
-    ZVector2 relativeTargetPosition(targetPosition);
-    relativeTargetPosition.subtractVector(&currentPosition->position);
-    relativeTargetPosition.unrotate(&currentPosition->orientation);
-    ZVector2 relativeTargetVelocity(targetVelocity);
-    relativeTargetVelocity.unrotate(&currentPosition->orientation);
-    */
-
     switch (currentMovementState) {
         case MovementState::Moving:
             if (!completeMove(relativeTargetPosition, relativeTargetVelocity))
@@ -144,29 +97,6 @@ void PurePursuitController::forward(
     const ZVector2* relativeTargetVelocity,
     bool completingMove)
 {
-    /*
-    if (distanceToMove < DEFAULT_LOOK_AHEAD_DISTANCE) {
-        double remainingLookAhead = DEFAULT_LOOK_AHEAD_DISTANCE - distanceToMove;
-        ZVector2 actualTarget(
-            relativeTargetPosition.getX() + relativeTargetVelocity.);
-        actualTarget.set()
-    }
-    if (abs(currentMovement.orientation.get()) > M_PI_2) {
-        //we're facing the wrong way
-        zippy.turn(-currentMovement.orientation.get());
-        return;
-    }
-
-    //adjust the movement depending on how well we will arrive at our target orientation
-    double deltaOrientationAtTarget = subtractAngles(
-        currentMovement.orientation.get(),
-        2.0 * currentMovement.position.atan());
-    if (abs(deltaOrientationAtTarget) > M_PI_2) {
-        zippy.turn(-currentMovement.orientation.get());
-        return;
-    }
-    */
-
     double factor = 1.0;
     if (!completingMove) {
         double deltaOrientationAtTarget = subtractAngles(
@@ -236,7 +166,7 @@ void PurePursuitController::continueTurn(
             break;
     }
 
-    zippy.turn(pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
+    zippy.moveArc(0.0, pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
 }
 
 bool PurePursuitController::completeTurn(
@@ -248,7 +178,7 @@ bool PurePursuitController::completeTurn(
     if (stateDowngradeCounter)
     {
         stateDowngradeCounter--;
-        zippy.turn(pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
+        zippy.moveArc(0.0, pad(relativeTargetVelocity->atan2(), ANGULAR_EPSILON));
         return false;
     }
 

@@ -6,6 +6,7 @@
 #include "zippies/ZippyMath.h"
 #include "zippies/config/BodyConfig.h"
 #include "ZippyWheel.h"
+#include "zippies/math/ZPID.h"
 
 class Zippy
 {
@@ -26,12 +27,12 @@ public:
     }
 
     void start();
+    void setInput(const ZMatrix2* positionDelta);
+    void setInput(double linearVelocity, double angularVelocity);
     void setReverseMotion(bool r) { this->inReverse = r; }
     void moveLinear(double relativeVelocity);
     void moveArc(double radius, double theta);
-    void turn(double radius, double relativeOrientation);
-    void turn(double relativeOrientation);
-
+    void move(double linearVelocity, double angularVelocity);
     void stop();
 
 };

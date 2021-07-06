@@ -8,9 +8,11 @@
 //the diodes are ~39.7mm above the floor
 //the height of the lighthouse above the plane of the diodes on the top of the Zippy
 //from the top of the entertainment center
-#define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             908.0
+// #define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             908.0
 //from the top of the TV
 // #define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1962.0
+//on mic stand
+#define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1340.0
 
 //the Y offset of the center of the Zippy body from the center of the sensors
 //note that the sensors are assumed to be centered left/right, so there is no equivalent X offset

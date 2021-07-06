@@ -48,7 +48,7 @@ bool ArcPursuitController::completeTurn(
         stateDowngradeCounter)
     {
         stateDowngradeCounter--;
-        zippy.turn(relativeTargetVelocity->atan2());
+        zippy.moveArc(0.0, relativeTargetVelocity->atan2());
         return false;
     }
 

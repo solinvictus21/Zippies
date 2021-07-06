@@ -16,8 +16,6 @@ private:
 
     MovementState currentMovementState = MovementState::Stopped;
     unsigned long stateDowngradeCounter = 0;
-    // ZMatrix2 currentMovement;
-    // ZVector2 currentVelocityTarget;
 
     void clipMove();
 

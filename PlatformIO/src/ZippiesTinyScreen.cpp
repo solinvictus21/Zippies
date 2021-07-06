@@ -6,20 +6,20 @@ ZippyController* controller;
 
 void setup()
 {
-  Wire.begin();
+    Wire.begin();
 
-  // while (!SerialUSB);
-  // SerialUSB.println("Started serial port.");
-  initZippyConfiguration();
+    // while (!SerialUSB);
+    // SerialUSB.println("Started serial port.");
+    initZippyConfiguration();
 
-  // controller = new DirectController();
-  controller = new LighthouseController();
-  // controller = new BaseStationController();
+    // controller = new DirectController();
+    controller = new LighthouseController();
+    // controller = new BaseStationController();
 
-  controller->start(micros() / 1000);
+    controller->start(micros() / 1000);
 }
 
 void loop()
 {
-  controller->loop(micros() / 1000);
+    controller->loop(micros() / 1000);
 }

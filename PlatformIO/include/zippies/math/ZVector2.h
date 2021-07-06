@@ -41,7 +41,9 @@ public:
   void set(double x, double y, double ofLength);
   // void rotate(double angleRadians);
   void rotate(const ZRotation2* rotation);
+  void rotate(double rotation);
   void unrotate(const ZRotation2* rotation);
+  void unrotate(double rotation);
   
   double getD() const;
   void setD(double newD);
@@ -56,6 +58,7 @@ public:
   double dotOrientation(double orientation) const;
   double dotOrientation(const ZRotation2* orientation) const;
   double crossProduct(const ZVector2* v) const;
+  double crossProduct(const ZRotation2* v) const;
 
   void addVector(const ZVector2* v);
   void subtractVector(const ZVector2* v);

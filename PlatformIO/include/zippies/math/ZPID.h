@@ -14,32 +14,32 @@ class ZPID
 {
 
 private:
-  int samplesPerSecond;
-  double setPoint;
-  double kp, ki, kd;
-  double outMin, outMax;
-  bool pOnE;
-  bool isReversed;
+    int samplesPerSecond;
+    // double setPoint;
+    double kp, ki, kd;
+    double outMin, outMax;
+    bool proportionalOnMeasurement;
+    bool isReversed;
 
-  bool isStarted = false;
-  double previousInput = 0.0;
-	double outputSum = 0.0;
+    bool isStarted = false;
+    double previousInput = 0.0;
+    double outputSum = 0.0;
 
 public:
-  ZPID(
-    int samplesPerSecond, double setPoint,
-    double kP, double kI, double kD,
-    double outMin, double outMax,
-    bool pOnE, bool reverseMode);
+    ZPID(
+        int samplesPerSecond, //double setPoint,
+        double kP, double kI, double kD,
+        double outMin, double outMax,
+        bool proportionalOnMeasurement, bool reverseMode);
 
-  void setTunings(double, double, double);
-  void setOutputLimits(double, double);
-  void setReverseMode(bool);
-  bool isReverseMode() const { return isReversed; }
+    void setTunings(double, double, double);
+    void setOutputLimits(double, double);
+    void setReverseMode(bool);
+    bool isReverseMode() const { return isReversed; }
 
-  void start();
-  double compute(double input);
-  void stop();
+    void start();
+    double compute(double input, double setPoint);
+    void stop();
 
 };
 

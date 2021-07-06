@@ -1,9 +1,9 @@
 
 #include <Arduino.h>
 #include "zippies/math/ZCubicHermiteSpline.h"
+#include "zippies/ZippyMath.h"
 
 // #define DEFAULT_CARDINAL_TIGHTNESS        0.707106781186548
-const double DEG2RAD = M_PI / 180.0;
 
 ZCubicHermiteSpline::ZCubicHermiteSpline()
 {
@@ -131,7 +131,9 @@ void ZCubicHermiteSpline::start(unsigned long st)
     currentPoint = 0;
     currentOutboundFactor = 1.0;
     if (currentPoint < keyframeCount - 2)
-        nextInboundFactor = (2.0 * keyframes[currentPoint].timing) / (keyframes[currentPoint].timing + keyframes[currentPoint + 1].timing);
+        nextInboundFactor =
+            ((double)(2.0 * keyframes[currentPoint + 1].timing)) /
+            (keyframes[currentPoint].timing + keyframes[currentPoint + 1].timing);
     else
         nextInboundFactor = 1.0;
     currentPointStartTime = st;
@@ -153,8 +155,14 @@ void ZCubicHermiteSpline::interpolate(unsigned long currentTime)
         if (currentPoint >= keyframeCount - 1)
         {
             //end of the spline
-            currentTargetPosition.set(positions[keyframeCount - 1]);
-            currentTargetVelocity.set(tangents[keyframeCount - 1]);
+            interpolate(
+                1.0,
+                positions[keyframeCount - 2],
+                tangents[keyframeCount - 2],
+                currentOutboundFactor,
+                positions[keyframeCount - 1],
+                tangents[keyframeCount - 1],
+                nextInboundFactor);
             return;
         }
 
@@ -181,10 +189,17 @@ void ZCubicHermiteSpline::interpolate(unsigned long currentTime)
             ((double)(previousDeltaTime + keyframes[currentPoint].timing));
         if (currentPoint < keyframeCount - 2)
             nextInboundFactor =
-                ((double)(2.0 * keyframes[currentPoint].timing)) /
+                ((double)(2.0 * keyframes[currentPoint + 1].timing)) /
                 ((double)(keyframes[currentPoint].timing + keyframes[currentPoint + 1].timing));
         else
             nextInboundFactor = 1.0;
+
+        /*
+        SerialUSB.print("NEXT SPLINE: cof=");
+        SerialUSB.print(currentOutboundFactor);
+        SerialUSB.print(" nif=");
+        SerialUSB.println(nextInboundFactor);
+        */
     }
 
     interpolate(

@@ -23,7 +23,10 @@ int getCurrentZippyNumber();
 const ZippyConfig* getCurrentZippyConfig();
 int getTotalZippyCount();
 
-extern double MOTOR_DEAD_ZONE_LEFT;
-extern double MOTOR_DEAD_ZONE_RIGHT;
+// extern double MOTOR_DEAD_ZONE_LEFT;
+// extern double MOTOR_DEAD_ZONE_RIGHT;
+
+extern double MOTOR_DEAD_ZONE;
+extern double MOTOR_BALANCE;
 
 #endif

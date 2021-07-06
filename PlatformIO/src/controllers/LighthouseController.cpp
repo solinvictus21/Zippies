@@ -6,21 +6,19 @@
 #include "zippies/controllers/DebugDisplayController.h"
 #include "zippies/controllers/MotorTuningController.h"
 #include "zippies/controllers/RoutineController.h"
+#include "zippies/controllers/DrivingController.h"
 
 LighthouseController::LighthouseController()
 {
   // subController = new DebugDisplayController(&sensors);
   // subController = new MotorTuningController(&sensors);
   // subController = new PIDTuningController(&sensors);
-  subController = new RoutineController(&sensors);
+  // subController = new RoutineController(&sensors);
+  subController = new DrivingController(&sensors);
 }
 
 void LighthouseController::start(unsigned long currentTime)
 {
-  SerialUSB.begin(115200);
-  // while (!SerialUSB);
-  // SerialUSB.println("Serial port started.");
-
   sensorsReady = false;
   previousPositionTimeStamp = 0;
   sensors.start();
@@ -40,8 +38,10 @@ void LighthouseController::loop(unsigned long currentTime)
   }
   else if (!sensorsReady) {
     // SerialUSB.println("Starting subcontroller.");
+    //start the sub-controller, but don't loop it until the next update so that the first delta time is not zero
     sensorsReady = true;
     subController->start(currentTime);
+    return;
   }
 
   //check if we have a position update
@@ -49,6 +49,9 @@ void LighthouseController::loop(unsigned long currentTime)
   if (currentPositionTimeStamp <= previousPositionTimeStamp)
     return;
   previousPositionTimeStamp = currentPositionTimeStamp;
+
+  // SerialUSB.print("lighthouse update: ");
+  // SerialUSB.println(currentTime);
 
   subController->loop(currentTime);
 }

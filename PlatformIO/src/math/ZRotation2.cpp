@@ -14,8 +14,8 @@ double addAngles(double a1, double a2)
 double snapAngle(double angle)
 {
   while (angle <= -M_PI)
-    angle += 2.0d * M_PI;
+    angle += 2.0 * M_PI;
   while (angle > M_PI)
-    angle -= 2.0d * M_PI;
+    angle -= 2.0 * M_PI;
   return angle;
 }

@@ -21,9 +21,9 @@ typedef struct _DirectMove
 } DirectMove;
 
 DirectMove movements[] = {
-  // {   8000,   3000.0d,    300.0d },
-  {   8000,  10000.0d,  10000.0d },
-  {   5000,      0.0d,      0.0d },
+  // {   8000,   3000.0,    300.0 },
+  {   8000,  10000.0,  10000.0 },
+  {   5000,      0.0,      0.0 },
 };
 int movementCount = (int)(sizeof(movements) / sizeof(DirectMove));
 

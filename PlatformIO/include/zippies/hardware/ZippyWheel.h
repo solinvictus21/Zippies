@@ -10,62 +10,45 @@ class ZippyWheel
 {
 
 private:
-  ZVector2 wheelOffset;
-  double directTurnFactor;
-
-  ZPID wheelPID;
+    ZVector2 wheelOffset;
+    double input = 0.0;
+    ZPID wheelPID;
 
 public:
-  ZippyWheel(double wox, double woy)
-    : wheelOffset(wox, woy),
-      directTurnFactor(1.0 + sin(atan(woy / wox))),
-      wheelPID(60, 0.0,
-        PID_KP, PID_KI, PID_KD,
-        -PID_OUTPUT_LIMIT, PID_OUTPUT_LIMIT,
-        false, false)
-  {
-  }
+    ZippyWheel(double wox, double woy)
+      : wheelOffset(wox, woy),
+        wheelPID(60, //0.0,
+          PID_KP, PID_KI, PID_KD,
+          -PID_OUTPUT_LIMIT, PID_OUTPUT_LIMIT,
+          false, false)
+    {
+    }
 
-  void setTunings(double p, double i, double d) {
-    wheelPID.setTunings(p, i, d);
-  }
+    void setTunings(double p, double i, double d) {
+        wheelPID.setTunings(p, i, d);
+    }
 
-  void start() {
-    wheelPID.start();
-  }
+    void start() {
+        wheelPID.start();
+    }
 
-  double moveStraight(double linearVelocity) {
-    return wheelPID.compute(-linearVelocity);
-  }
+    void setInput(double i) {
+        input = i;
+    }
 
-  double turn(double subtendedAngle) {
-    return wheelPID.compute(wheelOffset.getX() * subtendedAngle);
-    // return wheelPID.compute(directTurnFactor * wheelOffset.getX() * subtendedAngle);
-  }
+    double moveStraight(double linearVelocity) {
+        return wheelPID.compute(input, linearVelocity);
+        // return wheelPID.compute(input, -linearVelocity);
+    }
 
-  double moveArc(double radius, double subtendedAngle) {
-    return wheelPID.compute(-(radius - wheelOffset.getX()) * subtendedAngle);
-    /*
-    double wheelRadius = radius - wheelOffset.getX();
-    if (wheelRadius == 0.0d)
-      return wheelPID.compute(0.0d);
+    double moveArc(double radius, double subtendedAngle) {
+        return wheelPID.compute(input, (radius - wheelOffset.getX()) * subtendedAngle);
+        // return wheelPID.compute(input, (wheelOffset.getX() - radius) * subtendedAngle);
+    }
 
-    // SerialUSB.print(wheelOffset.getX() < 0.0d ? "Left " : "Right ");
-    // SerialUSB.print(wheelRadius, 5);
-    // SerialUSB.print(" ");
-    // double wheelD2 = pow(invWheelRadius,2.0d)+pow(wheelOffset.getY(),2.0d);
-    // SerialUSB.println(1.0d + sin(atan(-wheelOffset.getY() / -(radius + wheelOffset.getX()))), 5);
-
-    // double wheelInput = -wheelRadius * subtendedAngle;
-    double wheelInput = wheelRadius * subtendedAngle;
-    wheelInput *= 1.0d + sin(atan(-wheelOffset.getY() / wheelRadius));
-    return wheelPID.compute(-wheelInput);
-    */
-  }
-
-  void stop() {
-    wheelPID.stop();
-  }
+    void stop() {
+        wheelPID.stop();
+    }
 
 };
 

@@ -30,8 +30,10 @@ const double ANGULAR_EPSILON_MAX = ANGULAR_EPSILON * (1.0d + EPSILON_FACTOR);
 
 MotorTuningController::MotorTuningController(SensorFusor* s)
   : sensors(s),
-    leftMotorDeadZone(MOTOR_DEAD_ZONE_LEFT),
-    rightMotorDeadZone(MOTOR_DEAD_ZONE_RIGHT),
+    // leftMotorDeadZone(MOTOR_DEAD_ZONE_LEFT),
+    // rightMotorDeadZone(MOTOR_DEAD_ZONE_RIGHT),
+    leftMotorDeadZone(3000.0),
+    rightMotorDeadZone(3000.0),
     currentTuningState(MotorTuningState::LeftWheelForward),
     velocityPID(
         &velocityInput, &velocityOutput, &velocitySetPoint,
