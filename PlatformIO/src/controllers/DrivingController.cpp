@@ -1,7 +1,6 @@
 
 #include "zippies/controllers/DrivingController.h"
 #include "zippies/config/ZippyPathConfig.h"
-#include "zippies/ZippyRoutine.h"
 #include "zippies/pursuit/PursuitController.h"
 
 #define MOVE_TO_START_TIMING            5000
