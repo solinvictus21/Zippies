@@ -4,6 +4,15 @@
 
 #include "zippies/ZippyMath.h"
 
+/**
+ * The Driver class provides an outer navigation loop intended to mimic the way that a human driver
+ * would attempt to arrive at a designated target pose (x/y/o). This implementation is based on
+ * research and sample code described in the follow document and related codebase.
+ * 
+ *     https://web.eecs.umich.edu/~kuipers/papers/Park-icra-11.pdf
+ *     https://github.com/h2ssh/Vulcan/blob/master/src/mpepc/control/kinematic_control_law.cpp
+ * 
+ */
 class Driver
 {
 
@@ -24,10 +33,6 @@ public:
 
     void reset();
 
-    // void setAnchorPosition(double anchorX, double anchorY, double anchorO) { anchorPosition.set(anchorX, anchorY, anchorO); }
-    // void setAnchorPosition(const ZMatrix2* anchor) { anchorPosition.set(anchor); }
-    // const ZMatrix2* getAnchorPosition() const { return &anchorPosition; }
-
     void setReverseDirection(bool rv) { reverseDirection = rv; }
     bool isReverseDirection() const { return reverseDirection; }
     
@@ -47,7 +52,6 @@ public:
     double getDistanceToTarget() const { return shadowToTargetPosition.getD(); }
 
     void stop();
-
 
 };
 

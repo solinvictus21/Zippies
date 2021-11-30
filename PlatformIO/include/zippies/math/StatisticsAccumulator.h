@@ -8,9 +8,9 @@ class StatisticsAccumulator
 {
 
 private:
-  double valueA = 0.0d;
-  double valueM = 0.0d;
-  double valueS = 0.0d;
+  double valueA = 0.0;
+  double valueM = 0.0;
+  double valueS = 0.0;
   int sampleCounter = 0;
 
 public:
@@ -19,9 +19,9 @@ public:
 
   void reset()
   {
-    valueA = 0.0d;
-    valueM = 0.0d;
-    valueS = 0.0d;
+    valueA = 0.0;
+    valueM = 0.0;
+    valueS = 0.0;
     sampleCounter = 0;
   }
 
@@ -36,12 +36,12 @@ public:
 
   double getAverage() const
   {
-    return sampleCounter == 0 ? 0.0d : (valueA / ((double)sampleCounter));
+    return sampleCounter == 0 ? 0.0 : (valueA / ((double)sampleCounter));
   }
 
   double getStandardDeviation() const
   {
-    return sampleCounter > 1 ? sqrt(valueS / ((double)(sampleCounter-1))) : 0.0d;
+    return sampleCounter > 1 ? sqrt(valueS / ((double)(sampleCounter-1))) : 0.0;
   }
 
   int getSampleCount() const { return sampleCounter; }

@@ -22,9 +22,9 @@ public:
   {
     this->startOrientation = startPosition->orientation.get();
     this->radius = relativeTargetPosition->position.getD() / (2.0 * sin(relativeTargetPosition->position.atan2()));
-    this->deltaAngle = 2.0d * relativeTargetPosition->position.atan();
+    this->deltaAngle = 2.0 * relativeTargetPosition->position.atan();
     this->center.set(radius, 0.0, -M_PI_2);
-    this->center.concat(startPosition);
+    this->center.concatTo(startPosition);
   }
 
   Arc(
@@ -34,8 +34,8 @@ public:
     this->startOrientation = startPosition->orientation.get();
     this->radius = abs(radius);
     this->deltaAngle = subtendedAngle;
-    this->center.set(radius, 0.0, radius < 0.0d ? M_PI_2 : -M_PI_2);
-    this->center.concat(startPosition);
+    this->center.set(radius, 0.0, radius < 0.0 ? M_PI_2 : -M_PI_2);
+    this->center.concatTo(startPosition);
   }
 
   void interpolate(

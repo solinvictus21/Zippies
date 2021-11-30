@@ -1,7 +1,8 @@
 
 #include "zippies/pursuit/ScissorPursuitController.h"
 
-#define CLIP_VELOCITY_FACTOR_MAX    0.4
+#define CLIP_VELOCITY_FACTOR_MAX      0.5
+#define CLIP_VELOCITY_DISTANCE_MAX    3.0
 
 void ScissorPursuitController::continuePursuit(
     const ZVector2* relativeTargetPosition,
@@ -22,7 +23,6 @@ void ScissorPursuitController::continuePursuit(
             break;
     }
 
-    zippy.setInput(sensors->getPositionDelta());
     executeMove(relativeTargetPosition, relativeTargetVelocity, true);
 }
 
@@ -66,8 +66,8 @@ void ScissorPursuitController::stopPursuit(
             if (!completeTurn(relativeTargetPosition, relativeTargetVelocity))
                 return;
 
-            // currentMovementState = MovementState::Stopped;
-            // zippy.stop();
+            currentMovementState = MovementState::Stopped;
+            zippy.stop();
     }
 }
 
@@ -79,7 +79,6 @@ bool ScissorPursuitController::completeMove(
           stateDowngradeCounter)
     {
         stateDowngradeCounter--;
-        zippy.setInput(sensors->getPositionDelta());
         executeMove(relativeTargetPosition, relativeTargetVelocity, false);
         return false;
     }
@@ -91,10 +90,11 @@ bool ScissorPursuitController::completeTurn(
     const ZVector2* relativeTargetPosition,
     const ZVector2* relativeTargetVelocity)
 {
-    if (abs(relativeTargetVelocity->atan2()))// > ANGULAR_EPSILON ||
+    // if (abs(relativeTargetVelocity->atan2()) > ANGULAR_EPSILON &&
         // stateDowngradeCounter)
+    if (stateDowngradeCounter)
     {
-        // stateDowngradeCounter--;
+        stateDowngradeCounter--;
         zippy.setInput(sensors->getPositionDelta());
         zippy.turn(relativeTargetPosition->getY(), relativeTargetVelocity->atan2());
         return false;
@@ -131,22 +131,21 @@ void ScissorPursuitController::executeMove(
         angularVelocity = 0.0;
         if (clipVelocities) {
             linearVelocity -= constrain(linearVelocity * CLIP_VELOCITY_FACTOR_MAX,
-                -LINEAR_EPSILON, LINEAR_EPSILON);
+                -CLIP_VELOCITY_DISTANCE_MAX, CLIP_VELOCITY_DISTANCE_MAX);
         }
     }
     else {
         angularVelocity = 2.0 * relativeEndPoint.atan();
         linearVelocity = angularVelocity * relativeEndPoint.getD2() / (2.0 * relativeEndPoint.getX());
         if (clipVelocities) {
-            // double clip = constrain(linearVelocity * CLIP_VELOCITY_FACTOR_MAX,
-                // -LINEAR_EPSILON, LINEAR_EPSILON);
-            // angularVelocity *= 1.0 - (clip / linearVelocity);
-            // linearVelocity -= clip;
-            angularVelocity *= CLIP_VELOCITY_FACTOR_MAX;
-            linearVelocity *= CLIP_VELOCITY_FACTOR_MAX;
+            double clip = constrain(linearVelocity * CLIP_VELOCITY_FACTOR_MAX,
+                -CLIP_VELOCITY_DISTANCE_MAX, CLIP_VELOCITY_DISTANCE_MAX);
+            angularVelocity *= 1.0 - (clip / linearVelocity);
+            linearVelocity -= clip;
         }
     }
 
+    zippy.setInput(sensors->getPositionDelta());
     zippy.move(linearVelocity, angularVelocity);
 }
 

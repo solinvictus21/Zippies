@@ -60,8 +60,10 @@ public:
   double crossProduct(const ZVector2* v) const;
   double crossProduct(const ZRotation2* v) const;
 
-  void addVector(const ZVector2* v);
-  void subtractVector(const ZVector2* v);
+  void add(const ZVector2* v);
+  void add(double x, double y);
+  void subtract(const ZVector2* v);
+  void subtract(double x, double y);
   void multiply(double factor);
   double projectAlong(double orientation);
   double projectToward(double orientation);

@@ -50,7 +50,7 @@ void RoutineController::calculateRelativeTargets()
 {
     const ZMatrix2* currentPosition = sensors->getPosition();
     relativeTargetPosition.set(path.getTargetPosition());
-    relativeTargetPosition.subtractVector(&currentPosition->position);
+    relativeTargetPosition.subtract(&currentPosition->position);
     relativeTargetPosition.unrotate(&currentPosition->orientation);
     relativeTargetVelocity.set(path.getTargetVelocity());
     relativeTargetVelocity.unrotate(&currentPosition->orientation);

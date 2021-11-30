@@ -26,6 +26,12 @@ typedef enum _DrivingMode
     Mimic,
 } DrivingMode;
 
+/**
+ * The DrivingController is intended to mimic the way that humans drive a care to a target destination
+ * point with a specific target orientation. This implementation makes use of several related sub-algorithms
+ * starting with the outer navigation loop in the form of the Driver class and feeding into the inner
+ * control loop handled by the ScissorPursuitController class.
+ */
 class DrivingController : public ZippyController
 {
 

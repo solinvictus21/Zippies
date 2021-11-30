@@ -3,29 +3,13 @@
 
 #include <Arduino.h>
 
-/*
-#define DEFAULT_PID_UPDATE_INTERVAL                   17
-#define DEFAULT_PID_OUTPUT_LIMIT                   40000.0
-
-//PID CONFIGURATION
-#define DEFAULT_MOTORS_10_1_PID_KP                    70.0
-#define DEFAULT_MOTORS_10_1_PID_KI                     0.0
-#define DEFAULT_MOTORS_10_1_PID_KD                     5.0
-#define DEFAULT_MOTORS_15_1_PID_KP                   160.0
-#define DEFAULT_MOTORS_15_1_PID_KI                     0.0
-#define DEFAULT_MOTORS_15_1_PID_KD                     7.0
-*/
-
 #define UUID_MEMORY_LOCATION_A 0x0080A00C
 #define UUID_MEMORY_LOCATION_B 0x0080A040
 
 int ZIPPY_ID = 0;
-// double MOTOR_DEAD_ZONE_LEFT = 3000.0;
-// double MOTOR_DEAD_ZONE_RIGHT = 3000.0;
 double MOTOR_DEAD_ZONE = 3000.0;
 double MOTOR_BALANCE = 0.0;
 extern double MOTOR_DEAD_ZONES[][2];
-// extern double MOTOR_DEAD_ZONE_CONFIGS[][2];
 
 extern uint32_t KNOWN_MCU_IDS[][4];
 extern int KNOWN_MCU_ID_COUNT;
@@ -42,13 +26,8 @@ void initZippyConfiguration()
             // SerialUSB.print("Found known Zippy config: ");
             // SerialUSB.println(i);
             ZIPPY_ID = i;
-            // MOTOR_DEAD_ZONE_LEFT = MOTOR_DEAD_ZONE_CONFIGS[i][0];
-            // MOTOR_DEAD_ZONE_RIGHT = MOTOR_DEAD_ZONE_CONFIGS[i][1];
             MOTOR_DEAD_ZONE = MOTOR_DEAD_ZONES[i][0];
             MOTOR_BALANCE = MOTOR_DEAD_ZONES[i][1];
-            // double deadZoneOffset = MOTOR_DEAD_ZONES[i][0] * MOTOR_DEAD_ZONES[i][1];
-            // MOTOR_DEAD_ZONE_LEFT = MOTOR_DEAD_ZONES[i][0] - deadZoneOffset;
-            // MOTOR_DEAD_ZONE_RIGHT = MOTOR_DEAD_ZONES[i][0] + deadZoneOffset;
             break;
         }
     }
@@ -67,17 +46,24 @@ int getTotalZippyCount()
 uint32_t KNOWN_MCU_IDS[][4]
 {
     //red
-    { 0x3BCD3F11, 0x504B3233, 0x372E3120, 0xFF022719 },
-    //orange (new version)
+    { 0x4AC29873, 0x50533748, 0x392E3120, 0xFF192F33 },
+    //orange
     { 0x9E104EE4, 0x5052534A, 0x352E3120, 0xFF091527 },
-    //RIP previous orange
-    // { 0xA69E657C, 0x50515946, 0x392E3120, 0xFF192E1B },
+    //yellow
+    { 0x4596FFCD, 0x50533748, 0x392E3120, 0xFF19103F },
     //green
     { 0x82C95D68, 0x504D5257, 0x352E3120, 0xFF152F28 },
     //blue
     { 0x8A95E7ED, 0x504E5452, 0x372E3120, 0xFF181D37 },
-    //purple (new version)
+    //purple
     { 0x5A252B0E, 0x5052534A, 0x352E3120, 0xFF0C3222 },
+
+    //GRAVEYARD BELOW THIS LINE --------
+
+    //RIP previous red
+    // { 0x3BCD3F11, 0x504B3233, 0x372E3120, 0xFF022719 },
+    //RIP previous orange
+    // { 0xA69E657C, 0x50515946, 0x392E3120, 0xFF192E1B },
     //RIP previous purple
     // { 0x27A3B213, 0x50533336, 0x372E3120, 0xFF142915 },
 };
@@ -93,15 +79,17 @@ double MOTOR_DEAD_ZONES[][2]
     //negative balance ratios give stronger turns on the left wheel (turns right harder)
     //positive balance ratios give stronger turns on the right wheel (turns left harder)
     //red
-    { 2800.0,  0.1000 },
+    { 2000.0,  0.0800 },
     //orange
     {  600.0,  0.1100 },
+    //yellow
+    { 2000.0,  0.0000 },
     //green
     { 2000.0, -0.0100 },
     //blue
-    { 2600.0,  0.1000 },
+    { 2200.0,  0.0200 },
     //purple
-    { 2400.0, -0.1000 },
+    {  600.0,  0.0000 },
 };
 
 void readMCUID(uint32_t* outID)

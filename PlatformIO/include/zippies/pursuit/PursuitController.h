@@ -16,8 +16,7 @@
 // #define ANGULAR_EPSILON                               0.174532925199433  //10 degrees
 // #define ANGULAR_EPSILON                               0.261799387799149  //15 degrees
 
-// #define MAX_STATE_DOWNGRADE_ITERATIONS               30
-#define MAX_STATE_DOWNGRADE_ITERATIONS               60
+#define MAX_STATE_DOWNGRADE_ITERATIONS               30
 
 typedef enum class _MovementState
 {
@@ -39,8 +38,6 @@ public:
     virtual void stopPursuit(
         const ZVector2* relativeTargetPosition,
         const ZVector2* relativeTargetVelocity) = 0;
-
-    // virtual void stopPursuit(const ZMatrix2* relativeTargetPosition) {}
 
     virtual void stop() = 0;
 

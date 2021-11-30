@@ -12,6 +12,8 @@ void DebugDisplayController::start(unsigned long currentTime)
 void DebugDisplayController::loop(unsigned long currentTime)
 {
   //capture sensor #0 stats
+//   const LighthouseSensorHitCycle* cycle = sensors->getLeftSensor()->getXHitCycle();
+//   SerialUSB.println(cycle->syncTicks + cycle->sweepHitStartTicks);
   captureAxisStatistics(sensors->getLeftSensor()->getXHitCycle(), &xSyncAccumulator, &xSweepHitStartAccumulator, &xSweepHitEndAccumulator);
   captureAxisStatistics(sensors->getLeftSensor()->getYHitCycle(), &ySyncAccumulator, &ySweepHitStartAccumulator, &ySweepHitEndAccumulator);
 

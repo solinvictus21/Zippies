@@ -810,7 +810,7 @@ void SensorFusor::calculatePosition()
     // /*
     //now calculate the change in position and orientation
     positionDelta.set(&position);
-    positionDelta.unconcat(&previousPosition);
+    positionDelta.unconcatFrom(&previousPosition);
 
     //the robot can only move along a straight line or circular path; this means that the velocity vector can only be along the line
     //represented by half of the change in orientation; project the velocity vector along this line to reduce velocity error
@@ -858,7 +858,7 @@ void SensorFusor::estimatePosition(unsigned long currentTime)
 
     //calculate the new position
     // SerialUSB.println("Esitmating position.");
-    position.append(&positionDelta);
+    position.concat(&positionDelta);
 
     /* old implementation
     position.orientation.set(addAngles(position.orientation.get(), deltaOrientation));

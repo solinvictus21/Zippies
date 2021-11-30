@@ -5,9 +5,9 @@
 #define PID_LINEAR_KP                        180.0
 #define PID_LINEAR_KI                          0.0
 #define PID_LINEAR_KD                         60.0
-#define PID_ANGULAR_KP                      8000.0
+#define PID_ANGULAR_KP                      9400.0
 #define PID_ANGULAR_KI                         0.0
-#define PID_ANGULAR_KD                       600.0
+#define PID_ANGULAR_KD                      1200.0
 #define PID_OUTPUT_LIMIT                   60000.0
 
 ZippyLA::ZippyLA()
@@ -56,8 +56,8 @@ void ZippyLA::move(double linearVelocity, double angularVelocity)
 void ZippyLA::turn(double yOffset, double angularVelocity)
 {
     double linearMotorOutput;
-    // linearMotorOutput = linearPID.compute(linearInput, yOffset);
-    // /*
+    linearMotorOutput = linearPID.compute(linearInput, yOffset);
+    /*
     if (yOffset == 0.0) {
         linearPID.compute(0.0, 0.0);
         linearMotorOutput = 0.0;
@@ -75,7 +75,7 @@ void ZippyLA::turn(double yOffset, double angularVelocity)
         double linearVelocity = (yOffset * thetaG) / tan(thetaG);
         linearMotorOutput = linearPID.compute(linearInput, linearVelocity);
     }
-    // */
+    */
 
     double angularMotorOutput = angularPID.compute(angularInput, angularVelocity);
     motors.setMotors(

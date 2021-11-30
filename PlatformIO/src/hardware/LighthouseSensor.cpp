@@ -35,8 +35,8 @@ void LighthouseSensor::loop(unsigned long currentTime)
   }
 #endif
 
-  //this is volatile, so grab it first
   // int processedHitCount = 0;
+  //this is volatile, so grab it first
   unsigned int* hitTickWritePtr = sensorInput->hitTickWritePtr;
   do {
     //we read behind the writer, and updates to our read pointer must be atomic, so check that we're not at the
@@ -117,7 +117,7 @@ void LighthouseSensor::loop(unsigned long currentTime)
 
   // SerialUSB.println("Ended sensor loop.");
   /*
-  if (processedHitCount > 2) {
+  if (processedHitCount) {
     SerialUSB.print("Processed hits: ");
     SerialUSB.println(processedHitCount);
   }

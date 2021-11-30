@@ -213,20 +213,30 @@ void ZVector2::setD(double newD)
 }
 // */
 
-void ZVector2::addVector(const ZVector2* v)
+void ZVector2::add(const ZVector2* v)
 {
-  this->x += v->x;
-  this->y += v->y;
+  add(v->x, v->y);
+}
+
+void ZVector2::add(double x, double y)
+{
+  this->x += x;
+  this->y += y;
   dValid = false;
   d2Valid = false;
   arctanValid = false;
   arctan2Valid = false;
 }
 
-void ZVector2::subtractVector(const ZVector2* v)
+void ZVector2::subtract(const ZVector2* v)
 {
-  this->x -= v->x;
-  this->y -= v->y;
+  subtract(v->x, v->y);
+}
+
+void ZVector2::subtract(double x, double y)
+{
+  this->x -= x;
+  this->y -= y;
   dValid = false;
   d2Valid = false;
   arctanValid = false;

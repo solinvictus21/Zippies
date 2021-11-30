@@ -77,7 +77,7 @@ void ArcPursuitController::executeMove(
     const ZVector2* relativeTargetVelocity)
 {
     ZVector2 relativeEndPoint(relativeTargetPosition);
-    relativeEndPoint.addVector(relativeTargetVelocity);
+    relativeEndPoint.add(relativeTargetVelocity);
 
     /*
     double angleAtTargetToVelocity = subtractAngles(

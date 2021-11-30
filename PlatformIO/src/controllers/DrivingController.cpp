@@ -91,7 +91,7 @@ void DrivingController::loop(unsigned long currentTime)
 unsigned long DrivingController::moveIntoPlace(unsigned long deltaTime)
 {
     if (deltaTime > currentTimeRemaining ||
-        primaryDriver.getLinearVelocity() > primaryDriver.getDistanceToTarget())
+        abs(primaryDriver.getLinearVelocity()) > primaryDriver.getDistanceToTarget())
     {
         //we've reached the starting position; hold there until the startup timer expires
         currentTimeRemaining = 0;
@@ -148,8 +148,8 @@ unsigned long DrivingController::syncWithPreamble(unsigned long deltaTime)
 
 unsigned long DrivingController::execute(unsigned long deltaTime)
 {
-    if (deltaTime > currentTimeRemaining)// ||
-        // abs(primaryDriver.getLinearVelocity()) > primaryDriver.getDistanceToTarget())
+    if (deltaTime > currentTimeRemaining ||
+        abs(primaryDriver.getLinearVelocity()) > primaryDriver.getDistanceToTarget())
     {
         //check if we have more commands to process
         if (!processCommands()) {
@@ -304,21 +304,16 @@ void DrivingController::pursue(unsigned long deltaTime)
         primaryDriver.update(max(currentTimeRemaining, deltaTime));
 
     relativeShadowPosition.set(&primaryDriver.getShadowPosition()->position);
-    relativeShadowPosition.addVector(&primaryAnchorPosition.position);
     relativeShadowPosition.rotate(&primaryAnchorPosition.orientation);
+    relativeShadowPosition.add(&primaryAnchorPosition.position);
 
     //normal velocity calculation
     relativeShadowVelocity.set(primaryDriver.getShadowVelocity());
-    relativeShadowVelocity.rotate(&primaryDriver.getTargetPosition()->orientation);
     relativeShadowVelocity.rotate(&primaryAnchorPosition.orientation);
 
     calculateRelativeTargets();
-    if (!isStopped) {
-        // relativeShadowPosition.set(
-            // relativeShadowPosition.getX() * 0.6,
-            // relativeShadowPosition.getY() * 0.6);
+    if (!isStopped)
         pursuitController.continuePursuit(&relativeShadowPosition, &relativeShadowVelocity);
-    }
     else
         pursuitController.stopPursuit(&relativeShadowPosition, &relativeShadowVelocity);
 }
@@ -329,14 +324,14 @@ void DrivingController::watch(unsigned long deltaTime)
         secondaryDriver.update(max(currentTimeRemaining, deltaTime));
 
     relativeShadowPosition.set(&primaryDriver.getTargetPosition()->position);
-    relativeShadowPosition.addVector(&primaryAnchorPosition.position);
     relativeShadowPosition.rotate(&primaryAnchorPosition.orientation);
+    relativeShadowPosition.add(&primaryAnchorPosition.position);
 
     //velocity is the direction from the current position to the secondary target position
     relativeShadowVelocity.set(&secondaryDriver.getShadowPosition()->position);
-    relativeShadowVelocity.addVector(&secondaryAnchorPosition.position);
     relativeShadowVelocity.rotate(&secondaryAnchorPosition.orientation);
-    relativeShadowVelocity.subtractVector(&relativeShadowPosition);
+    relativeShadowVelocity.add(&secondaryAnchorPosition.position);
+    relativeShadowVelocity.subtract(&relativeShadowPosition);
 
     calculateRelativeTargets();
     if (!isStopped)
@@ -351,12 +346,11 @@ void DrivingController::mimic(unsigned long deltaTime)
         secondaryDriver.update(max(currentTimeRemaining, deltaTime));
 
     relativeShadowPosition.set(&primaryDriver.getTargetPosition()->position);
-    relativeShadowPosition.addVector(&primaryAnchorPosition.position);
     relativeShadowPosition.rotate(&primaryAnchorPosition.orientation);
+    relativeShadowPosition.add(&primaryAnchorPosition.position);
 
     //velocity is the velocity of the secondary driver
     relativeShadowVelocity.set(secondaryDriver.getShadowVelocity());
-    relativeShadowVelocity.rotate(&secondaryDriver.getTargetPosition()->orientation);
     relativeShadowVelocity.rotate(&secondaryAnchorPosition.orientation);
     relativeShadowVelocity.unrotate(&primaryAnchorPosition.orientation);
 
@@ -371,7 +365,7 @@ void DrivingController::calculateRelativeTargets()
 {
     //make both relative to the current position
     const ZMatrix2* currentPosition = sensors->getPosition();
-    relativeShadowPosition.subtractVector(&currentPosition->position);
+    relativeShadowPosition.subtract(&currentPosition->position);
     relativeShadowPosition.unrotate(&currentPosition->orientation);
     relativeShadowVelocity.unrotate(&currentPosition->orientation);
 }

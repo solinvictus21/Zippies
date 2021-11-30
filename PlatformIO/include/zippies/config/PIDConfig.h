@@ -13,7 +13,7 @@
 //PID CONFIGURATION - with setpoints
 #define PID_KP                               180.0
 #define PID_KI                                 0.0
-#define PID_KD                                50.0
+#define PID_KD                                60.0
 #define PID_OUTPUT_LIMIT                   60000.0
 // */
 
