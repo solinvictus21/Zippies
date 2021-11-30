@@ -7,6 +7,5 @@
 #include "zippies/hardware/MotorDriver.h"
 #include "zippies/hardware/Lighthouse.h"
 #include "zippies/hardware/ZippyFace.h"
-#include "zippies/hardware/Zippy.h"
 
 #endif

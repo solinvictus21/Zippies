@@ -5,7 +5,6 @@
 #include "zippies/controllers/LighthouseController.h"
 #include "zippies/controllers/DebugDisplayController.h"
 #include "zippies/controllers/MotorTuningController.h"
-#include "zippies/controllers/RoutineController.h"
 #include "zippies/controllers/DrivingController.h"
 
 LighthouseController::LighthouseController()
@@ -13,7 +12,6 @@ LighthouseController::LighthouseController()
   // subController = new DebugDisplayController(&sensors);
   // subController = new MotorTuningController(&sensors);
   // subController = new PIDTuningController(&sensors);
-  // subController = new RoutineController(&sensors);
   subController = new DrivingController(&sensors);
 }
 

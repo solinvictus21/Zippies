@@ -6,9 +6,7 @@
 #include "zippies/ZippyMath.h"
 #include "zippies/hardware/SensorFusor.h"
 #include "zippies/config/ZippyPathConfig.h"
-#include "zippies/hardware/Zippy.h"
 #include "zippies/pursuit/ScissorPursuitController.h"
-#include "zippies/pursuit/PurePursuitController.h"
 #include "zippies/controllers/Driver.h"
 
 typedef enum class _DrivingState
