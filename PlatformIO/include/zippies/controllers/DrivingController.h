@@ -9,6 +9,8 @@
 #include "zippies/pursuit/ScissorPursuitController.h"
 #include "zippies/controllers/Driver.h"
 
+#include "zippies/config/ZippyRoutines.h"
+
 typedef enum class _DrivingState
 {
     MovingIntoPlace,
@@ -16,13 +18,6 @@ typedef enum class _DrivingState
     SyncingWithPreamble,
     Executing,
 } DrivingState;
-
-typedef enum _DrivingMode
-{
-    Move,
-    Watch,
-    Mimic,
-} DrivingMode;
 
 /**
  * The DrivingController is intended to mimic the way that humans drive a care to a target destination
@@ -35,34 +30,26 @@ class DrivingController : public ZippyController
 
 private:
     SensorFusor* sensors;
+    //the routine to execute
+    const ZippyRoutineData* routineData;
     ScissorPursuitController pursuitController;
 
-    ZippyWaypoint* waypoints;
-    ZippyWaypointTiming* timings;
-    int* commands;
-    int commandCount;
+    DrivingState currentState = DrivingState::MovingIntoPlace;
 
-    unsigned long previousTime = 0;
+    // unsigned long previousTime = 0;
     unsigned long moveIntoPlaceTimer = 0;
 
     int currentCommand = 0;
     int currentTiming = 0;
-    int currentTimingEnd = 0;
     unsigned long currentTimeRemaining = 0;
+    Driver driver;
+
+    //the pursuit controller, which translates target positions to wheel outputs
     bool isStopped = false;
-    ZMatrix2 primaryAnchorPosition;
-    Driver primaryDriver;
-    ZMatrix2 secondaryAnchorPosition;
-    Driver secondaryDriver;
-
-    DrivingState currentState = DrivingState::MovingIntoPlace;
-    DrivingMode currentDrivingMode = DrivingMode::Move;
-
     ZVector2 relativeShadowPosition;
     ZVector2 relativeShadowVelocity;
 
     void reset();
-    void setCurrentMode(DrivingMode mode);
 
     unsigned long moveIntoPlace(unsigned long deltaTime);
     unsigned long holdAtStart(unsigned long deltaTime);
@@ -73,15 +60,11 @@ private:
     void initCurrentTiming();
 
     void pursue(unsigned long deltaTime);
-    void watch(unsigned long deltaTime);
-    void mimic(unsigned long deltaTime);
-
-    void calculateRelativeTargets();
 
 public:
     DrivingController(SensorFusor* s);
-    void start(unsigned long startTime);
-    void loop(unsigned long currentTime);
+    void start();
+    void loop(unsigned long deltaTime);
     void stop();
 
     ~DrivingController() {}

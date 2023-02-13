@@ -33,11 +33,13 @@ public:
 
     virtual void continuePursuit(
         const ZVector2* relativeTargetPosition,
-        const ZVector2* relativeTargetVelocity) = 0;
+        const ZVector2* relativeTargetVelocity,
+        bool reverseDirection) = 0;
 
     virtual void stopPursuit(
         const ZVector2* relativeTargetPosition,
-        const ZVector2* relativeTargetVelocity) = 0;
+        const ZVector2* relativeTargetVelocity,
+        bool reverseDirection) = 0;
 
     virtual void stop() = 0;
 

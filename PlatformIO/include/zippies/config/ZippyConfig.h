@@ -5,6 +5,7 @@
 #include <Arduino.h>
 
 void readMCUID(uint32_t* outID);
+void printUniqueID(uint32_t* mcuID);
 
 typedef struct _ZippyConfig
 {

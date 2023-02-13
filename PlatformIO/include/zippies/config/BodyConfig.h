@@ -12,7 +12,8 @@
 //from the top of the TV
 // #define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1962.0
 //on mic stand
-#define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1340.0
+// #define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1560.0
+#define LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z             1210.0
 
 //the Y offset of the center of the Zippy body from the center of the sensors
 //note that the sensors are assumed to be centered left/right, so there is no equivalent X offset

@@ -3,6 +3,7 @@
 #include "Zippies.h"
 
 ZippyController* controller;
+unsigned long previousTime = 0;
 
 void setup()
 {
@@ -12,14 +13,19 @@ void setup()
     // SerialUSB.println("Started serial port.");
     initZippyConfiguration();
 
-    // controller = new DirectController();
-    controller = new LighthouseController();
-    // controller = new BaseStationController();
+    previousTime = micros() / 1000;
 
-    controller->start(micros() / 1000);
+    controller = new LighthouseController();
+    controller->start();
 }
 
 void loop()
 {
-    controller->loop(micros() / 1000);
+    unsigned long currentTime = micros() / 1000;
+    unsigned long deltaTime = currentTime - previousTime;
+    previousTime = currentTime;
+
+    // SerialUSB.print("Outer deltaTime: ");
+    // SerialUSB.println(deltaTime);
+    controller->loop(deltaTime);
 }

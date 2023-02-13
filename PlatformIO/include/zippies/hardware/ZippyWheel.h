@@ -6,6 +6,8 @@
 #include "zippies/ZippyMath.h"
 #include "zippies/config/PIDConfig.h"
 
+#define ZPID_CENTER_ON_ZERO
+
 class ZippyWheel
 {
 
@@ -24,29 +26,46 @@ public:
     {
     }
 
-    void setTunings(double p, double i, double d) {
+    void setTunings(double p, double i, double d)
+    {
         wheelPID.setTunings(p, i, d);
     }
 
-    void start() {
+    void start()
+    {
         wheelPID.start();
     }
 
-    void setInput(double i) {
+    void setInput(double i)
+    {
         input = i;
     }
 
-    double moveStraight(double linearVelocity) {
+    double moveStraight(double linearVelocity)
+    {
+#ifdef ZPID_CENTER_ON_ZERO
+        return wheelPID.compute(-linearVelocity, 0.0);
+#else
         return wheelPID.compute(input, linearVelocity);
-        // return wheelPID.compute(input, -linearVelocity);
+#endif
     }
 
-    double moveArc(double radius, double subtendedAngle) {
+    double moveArc(double radius, double subtendedAngle)
+    {
+        // SerialUSB.print("PID input: ");
+        // SerialUSB.print(input);
+        // SerialUSB.print("   ");
+        // SerialUSB.println((radius - wheelOffset.getX()) * subtendedAngle);
+
+#ifdef ZPID_CENTER_ON_ZERO
+        return wheelPID.compute(-((radius - wheelOffset.getX()) * subtendedAngle), 0.0);
+#else
         return wheelPID.compute(input, (radius - wheelOffset.getX()) * subtendedAngle);
-        // return wheelPID.compute(input, (wheelOffset.getX() - radius) * subtendedAngle);
+#endif
     }
 
-    void stop() {
+    void stop()
+    {
         wheelPID.stop();
     }
 

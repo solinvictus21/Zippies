@@ -21,11 +21,14 @@ private:
 
     ZMatrix2 shadowPosition;
     ZVector2 shadowVelocityVector;
+    ZMatrix2 previousTargetPosition;
     ZMatrix2 targetPosition;
     ZVector2 shadowToTargetPosition;
 
     double currentLinearVelocity = 0.0;
     double currentAngularVelocity = 0.0;
+
+    void calculateNewTarget();
 
 public:
     Driver()
@@ -33,11 +36,7 @@ public:
 
     void reset();
 
-    void setReverseDirection(bool rv) { reverseDirection = rv; }
-    bool isReverseDirection() const { return reverseDirection; }
-    
-    void setShadowPosition(const ZMatrix2* sp);
-    void setShadowPosition(double sx, double sy, double so);
+    void start(const ZMatrix2* sp, double tx, double ty, double to);
     const ZMatrix2* getShadowPosition() const { return &shadowPosition; }
 
     const ZMatrix2* getTargetPosition() const { return &targetPosition; }
@@ -50,6 +49,7 @@ public:
     const double getAngularVelocity() const { return currentAngularVelocity; }
     const ZVector2* getShadowVelocity() const { return &shadowVelocityVector; }
     double getDistanceToTarget() const { return shadowToTargetPosition.getD(); }
+    bool isReverseDirection() const { return reverseDirection; }
 
     void stop();
 

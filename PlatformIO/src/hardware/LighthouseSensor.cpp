@@ -35,7 +35,6 @@ void LighthouseSensor::loop(unsigned long currentTime)
   }
 #endif
 
-  // int processedHitCount = 0;
   //this is volatile, so grab it first
   unsigned int* hitTickWritePtr = sensorInput->hitTickWritePtr;
   do {
@@ -50,8 +49,6 @@ void LighthouseSensor::loop(unsigned long currentTime)
     //exit when the buffer is empty
     if (nextReadPtr == hitTickWritePtr)
       break;
-
-    // processedHitCount++;
 
     //get our next tick count prior to updating the read pointer so that our interrupt doesn't step on our value while
     //we're still in the process of retrieving it

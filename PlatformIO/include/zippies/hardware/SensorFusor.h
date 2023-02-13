@@ -55,6 +55,7 @@ private:
   RotorFactoryCalibrationData xRotor;
   RotorFactoryCalibrationData zRotor;
   ZQuaternion3 lighthouseOrientation;
+  ZVector2 originOffset;
   bool receivedLighthouseData = false;
 
   //after initialization, we can begin calculating the positions of each sensor
@@ -85,6 +86,7 @@ private:
 
   bool fuseSyncPulses();
   void calculateLighthouseData();
+  void calculateOriginOffsetFromLighthouse();
   void recalculatePosition(unsigned long currentTime);
   void calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, ZVector2* out);
   void calculatePosition();

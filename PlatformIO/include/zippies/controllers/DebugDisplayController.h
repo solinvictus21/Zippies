@@ -19,7 +19,7 @@ private:
   StatisticsAccumulator ySweepHitStartAccumulator;
   StatisticsAccumulator ySweepHitEndAccumulator;
 
-  unsigned long previousDisplayTime = 0;
+  unsigned long timeSinceLastDisplay = 0;
   ZippyFace face;
 
   void captureAxisStatistics(
@@ -33,8 +33,8 @@ public:
     : sensors(s)
   {}
 
-  void start(unsigned long currentTime);
-  void loop(unsigned long currentTime);
+  void start();
+  void loop(unsigned long deltaTime);
   void stop();
 
 

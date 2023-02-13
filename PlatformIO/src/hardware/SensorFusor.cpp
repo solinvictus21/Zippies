@@ -422,8 +422,9 @@ void TCC1_Handler()
     }
 }
 
-bool SensorFusor::loop(unsigned long currentTime)
+bool SensorFusor::loop(unsigned long deltaTime)
 {
+    unsigned long currentTime = micros() / 1000;
     //process all the sensors
     int sensorsWithSyncLock = 0;
     int sensorsWithUpdate = 0;
@@ -446,6 +447,14 @@ bool SensorFusor::loop(unsigned long currentTime)
         }
     }
 
+    /*
+    SerialUSB.print("Sensors statuses: ");
+    SerialUSB.print(sensorsWithSyncLock);
+    SerialUSB.print(" receivedLighthouseData: ");
+    SerialUSB.print(receivedLighthouseData);
+    SerialUSB.print(" acquiringSyncSignal: ");
+    SerialUSB.println((currentSignalState == LighthouseSignalState::AcquiringSyncSignal));
+    */
     if (sensorsWithSyncLock != SENSOR_COUNT) {
         //one or more sensors missed the sync pulses for the X and/or Z axes; wait for a sync pulse signal lock again
         // SerialUSB.println("WARNING: Some sensors not receiving signal.");
@@ -653,27 +662,32 @@ void SensorFusor::processPreambleBit(unsigned long syncTickCount)
     preambleBitCount++;
 }
 
+void SensorFusor::calculateOriginOffsetFromLighthouse()
+{
+    calculateSensorPosition(SWEEP_DURATION_TICK_COUNT / 2.0, SWEEP_DURATION_TICK_COUNT / 2.0, &originOffset);
+}
+
 void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, ZVector2* out)
 {
     //Step 1: Calculate the vector from the lighthouse in its reference frame to the diode by normalizing the angle on each axis
     //from the lighthouse to +/- M_PI_2
     double observedAngleX = ((((double)xTicks) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5) * M_PI;
-    double observedAngleY = ((((double)zTicks) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5) * M_PI;
+    double observedAngleZ = ((((double)zTicks) / ((double)SWEEP_DURATION_TICK_COUNT)) - 0.5) * M_PI;
 
     //correct for the factory calibration data; algorithm pulled from notes and code from the open source libsurvive project
     //    https://github.com/cnlohr/libsurvive/wiki/BSD-Calibration-Values
     observedAngleX += xRotor.phase;
-    observedAngleY += zRotor.phase;
-    double correctionX = sin(xRotor.tilt * observedAngleY);
+    observedAngleZ += zRotor.phase;
+    double correctionX = sin(xRotor.tilt * observedAngleZ);
     double correctionY = sin(zRotor.tilt * observedAngleX);
     observedAngleX += correctionX;
-    observedAngleY += correctionY;
-    correctionX = xRotor.curve * observedAngleY;
+    observedAngleZ += correctionY;
+    correctionX = xRotor.curve * observedAngleZ;
     correctionY = zRotor.curve * observedAngleX;
     observedAngleX += correctionX;
-    observedAngleY += correctionY;
+    observedAngleZ += correctionY;
     observedAngleX += cos(xRotor.gibbousPhase + observedAngleX) * xRotor.gibbousMagnitude;
-    observedAngleY += cos(zRotor.gibbousPhase + observedAngleY) * zRotor.gibbousMagnitude;
+    observedAngleZ += cos(zRotor.gibbousPhase + observedAngleZ) * zRotor.gibbousMagnitude;
 
     //calculate the normal for the plane of the intersection from the right-to-left sweep, which is a vertical plane whose normal
     //is a vector with no Y component
@@ -685,8 +699,8 @@ void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zT
     // observedAngleZ = -observedAngleZ;
     // double horizontalNormalY = sin(observedAngleY);
     // double horizontalNormalZ = cos(observedAngleY);
-    double horizontalNormalY = cos(observedAngleY);
-    double horizontalNormalZ = -sin(observedAngleY);
+    double horizontalNormalY = cos(observedAngleZ);
+    double horizontalNormalZ = -sin(observedAngleZ);
 
     //now cross the plane of the vertical sweep with the plane of the horizontal sweep and normalize it; this will give us a
     //unit vector which represents the intersection of these two planes in the local coordinate system of the lighthouse
@@ -730,8 +744,8 @@ void SensorFusor::calculateSensorPosition(unsigned long xTicks, unsigned long zT
     */
     double t = -LIGHTHOUSE_CENTER_BODY_TOP_OFFSET_Z / directionFromLighthouse.getY();
     out->set(
-        -directionFromLighthouse.getX() * t,
-        directionFromLighthouse.getZ() * t);
+        (-directionFromLighthouse.getX() * t) - originOffset.getX(),
+        (directionFromLighthouse.getZ() * t) - originOffset.getY());
 }
 
 void SensorFusor::calculateLighthouseData()
@@ -750,13 +764,13 @@ void SensorFusor::calculateLighthouseData()
     zRotor.gibbousPhase = ootxParser.getZRotorGibbousPhase();
     zRotor.gibbousMagnitude = ootxParser.getZRotorGibbousMagnitude();
 
-    //The accelerometer reading from the lighthouse provides a vector that represents the lighthouse orientation vector
+    //The accelerometer reading from the lighthouse provides a vector that represents the lighthouse orientation
     //in a coordinate system where...
     //  X axis = -right to +left
     //  Y axis = -down to +up
     //  Z axis = -bock to +front
     // ZVector3 rotationUnitVector(-ootxParser.getAccelDirX(), ootxParser.getAccelDirZ(), ootxParser.getAccelDirY(), 1.0d);
-    ZVector3 rotationUnitVector(ootxParser.getAccelDirX(), ootxParser.getAccelDirY(), ootxParser.getAccelDirZ(), 1.0d);
+    ZVector3 rotationUnitVector(ootxParser.getAccelDirX(), ootxParser.getAccelDirY(), ootxParser.getAccelDirZ(), 1.0);
 
     //now calculate the angle of rotation from the "up" normal (0,1,0) to the rotation unit vector
     //this calculation ultimately reduces to the inverse cosine of the Y axis of the rotation unit vector
@@ -781,10 +795,17 @@ void SensorFusor::calculateLighthouseData()
 
     //now that we have both the axis and angle of rotation, we can calculate our quaternion
     lighthouseOrientation.set(rotationUnitVector.getX(), rotationUnitVector.getY(), rotationUnitVector.getZ(), angleOfRotation);
+    // lighthouseOrientation.printDebug();
 
 #ifdef LIGHTHOUSE_ORIENTATION_Z
     lighthouseOrientation.rotateZ(LIGHTHOUSE_ORIENTATION_Z);
 #endif
+
+    //now calculate the offset of the origin (where the center of the lighthouse is pointing) from the x/y position of the lighthouse
+    originOffset.reset();
+    calculateSensorPosition(SWEEP_DURATION_TICK_COUNT / 2.0, SWEEP_DURATION_TICK_COUNT / 2.0, &originOffset);
+    // SerialUSB.print("origin offset: ");
+    // originOffset.printDebug()
 
     receivedLighthouseData = true;
 }

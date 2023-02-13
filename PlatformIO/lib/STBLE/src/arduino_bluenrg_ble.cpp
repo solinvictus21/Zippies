@@ -177,13 +177,16 @@ void BNRG_SPI_Init(void)
   pinMode(BNRG_SPI_EXTI_PIN,INPUT);
   
   BLESPI->begin();
-  BLESPI->setDataMode(SPI_MODE0);
-  BLESPI->setBitOrder(MSBFIRST);
+
+  // BLESPI->setDataMode(SPI_MODE0);
+  // BLESPI->setBitOrder(MSBFIRST);
 #if defined(ARDUINO_ARCH_AVR)
-  BLESPI->setClockDivider(SPI_CLOCK_DIV8);
+  BLESPI->beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+  // BLESPI->setClockDivider(SPI_CLOCK_DIV8);
   attachInterrupt(0,HCI_Isr,RISING);
 #elif defined(ARDUINO_ARCH_SAMD)
-  BLESPI->setClockDivider(48);
+  BLESPI->beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+  // BLESPI->setClockDivider(48);
   attachInterrupt(BNRG_SPI_EXTI_PIN,HCI_Isr,RISING);
 #endif
 

@@ -15,7 +15,7 @@ let TARGET_DISTANCE_VELOCITY_TOTAL: Double = 300.0
 
 let TARGET_POSITION_ANGULAR_INCREMENT: Double = 0.004
 let TARGET_ORIENTATION_ANGULAR_INCREMENT: Double = 0.1
-let TARGET_DISTANCE_VELOCITY_INCREMENT: Double = 0.05
+let TARGET_DISTANCE_VELOCITY_INCREMENT: Double = 0.10
 
 let TARGET_FPS: Double = 20.0
 let TARGET_SPF: Double = 1 / TARGET_FPS
@@ -211,7 +211,15 @@ class TopDownView : UIView
         drawScissorPath(
             currentPositionVector,
             targetVector,
-            velocityVector)
+            velocityVector,
+            false)
+//        /*
+        drawScissorPath(
+            currentPositionVector,
+            targetVector,
+            velocityVector,
+            true)
+//        */
     }
     
     fileprivate func drawDirectPath(
@@ -243,11 +251,12 @@ class TopDownView : UIView
         drawPoint(center: velocityEndPoint)
 //        drawArc(relativeTargetPosition: velocityEndPoint)
     }
-    
+
     fileprivate func drawScissorPath(
         _ fromPoint: ZVector2,
         _ toPoint: ZVector2,
-        _ velocity: ZVector2)
+        _ velocity: ZVector2,
+        _ reverseDirection: Bool)
     {
         let targetLinearDistance = (toPoint.getY() / 2.0) + (velocity.getY() / 4.0)
         let velocityConvergencePoint = ZVector2(
@@ -257,9 +266,17 @@ class TopDownView : UIView
         let velocityConvergenceVector = ZVector2(
             velocityConvergencePoint.getX(),
             velocityConvergencePoint.getY() - targetLinearDistance)
-        let targetPoint = ZVector2(
-            fromPoint.getX() + (targetLinearDistance * velocityConvergenceVector.sin),
-            targetLinearDistance + (targetLinearDistance * velocityConvergenceVector.cos))
+        let targetPoint: ZVector2
+        if reverseDirection {
+            targetPoint = ZVector2(
+                -fromPoint.getX() + (targetLinearDistance * velocityConvergenceVector.sin),
+                targetLinearDistance - (targetLinearDistance * velocityConvergenceVector.cos))
+        }
+        else {
+            targetPoint = ZVector2(
+                fromPoint.getX() + (targetLinearDistance * velocityConvergenceVector.sin),
+                targetLinearDistance + (targetLinearDistance * velocityConvergenceVector.cos))
+        }
 //        let targetPoint = ZVector2(
 //            fromPoint.getX() - (targetLinearDistance * velocityConvergenceVector.sin),
 //            targetLinearDistance - (targetLinearDistance * velocityConvergenceVector.cos))
@@ -271,8 +288,14 @@ class TopDownView : UIView
         drawLine(start: fromPoint, end: convergencePoint)
         drawLine(start: convergencePoint, end: targetPoint)
         drawLine(start: convergencePoint, end: velocityConvergencePoint)
-        UIColor.blue.setStroke()
-        UIColor.blue.setFill();
+        if reverseDirection {
+            UIColor.purple.setStroke()
+            UIColor.purple.setFill();
+        }
+        else {
+            UIColor.blue.setStroke()
+            UIColor.blue.setFill();
+        }
         drawPoint(center: targetPoint)
         drawArc(relativeTargetPosition: targetPoint)
     }

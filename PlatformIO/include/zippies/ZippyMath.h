@@ -7,6 +7,7 @@
 #define M2_PI    6.283185307179586
 #define M2_PI_34 4.712388980384690
 const double DEG2RAD = M_PI / 180.0;
+const double RAD2DEG = 180.0 / M_PI;
 
 //2D math objects
 #include "zippies/math/ZMatrix2.h"

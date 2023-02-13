@@ -9,22 +9,22 @@
 LighthouseController::LighthouseController()
 {
   // subController = new DebugDisplayController(&sensors);
-  // subController = new MotorTuningController(&sensors);
-  // subController = new PIDTuningController(&sensors);
   subController = new DrivingController(&sensors);
 }
 
-void LighthouseController::start(unsigned long currentTime)
+void LighthouseController::start()
 {
   sensorsReady = false;
   previousPositionTimeStamp = 0;
+  subControllerDeltaTime = 0;
   sensors.start();
 }
 
-void LighthouseController::loop(unsigned long currentTime)
+void LighthouseController::loop(unsigned long deltaTime)
 {
+  subControllerDeltaTime += deltaTime;
   //wait until we have a stable signal
-  if (!sensors.loop(currentTime)) {
+  if (!sensors.loop(deltaTime)) {
     if (sensorsReady) {
       // SerialUSB.println("Lighthouse signal lost.");
       sensorsReady = false;
@@ -37,7 +37,9 @@ void LighthouseController::loop(unsigned long currentTime)
     // SerialUSB.println("Starting subcontroller.");
     //start the sub-controller, but don't loop it until the next update so that the first delta time is not zero
     sensorsReady = true;
-    subController->start(currentTime);
+    // subController->start(currentTime);
+    subControllerDeltaTime = 0;
+    subController->start();
     return;
   }
 
@@ -50,7 +52,8 @@ void LighthouseController::loop(unsigned long currentTime)
   // SerialUSB.print("lighthouse update: ");
   // SerialUSB.println(currentTime);
 
-  subController->loop(currentTime);
+  subController->loop(subControllerDeltaTime);
+  subControllerDeltaTime = 0;
 }
 
 void LighthouseController::stop()

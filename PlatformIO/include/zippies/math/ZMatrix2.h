@@ -51,6 +51,11 @@ public:
         orientation.add(2.0 * v->atan());
     }
 
+    /**
+     * @brief Append the designated position and orientation to this position and orientation.
+     * 
+     * @param m the designated position and orientation to append
+     */
     void concat(const ZMatrix2* m)
     {
         position.add(
@@ -59,6 +64,11 @@ public:
         orientation.add(&m->orientation);
     }
 
+    /**
+     * @brief Append this position and orientation to the designated position and orientation.
+     * 
+     * @param m the designated position and orientation to be appended to
+     */
     void concatTo(const ZMatrix2* m)
     {
         //unrotate and move
@@ -67,6 +77,12 @@ public:
         orientation.add(&m->orientation);
     }
 
+    /**
+     * @brief Calculate the relative position and orientation from the designed orientation and position to the
+     *        current position and orientation.
+     * 
+     * @param m the designation position and orientation from which to calculate the relative position and orientation
+     */
     void unconcatFrom(const ZMatrix2* m)
     {
         //move and rotate
