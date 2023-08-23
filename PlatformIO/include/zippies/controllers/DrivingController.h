@@ -7,9 +7,11 @@
 #include "zippies/hardware/SensorFusor.h"
 #include "zippies/config/ZippyPathConfig.h"
 #include "zippies/pursuit/ScissorPursuitController.h"
+#include "zippies/pursuit/StanleyPursuitController.h"
 #include "zippies/controllers/Driver.h"
 
 #include "zippies/config/ZippyRoutines.h"
+#include "zippies/hardware/Zippy.h"
 
 typedef enum class _DrivingState
 {
@@ -18,6 +20,13 @@ typedef enum class _DrivingState
     SyncingWithPreamble,
     Executing,
 } DrivingState;
+
+typedef enum class _MovementState
+{
+  Stopped,
+  Turning,
+  Moving,
+} MovementState;
 
 /**
  * The DrivingController is intended to mimic the way that humans drive a care to a target destination
@@ -29,27 +38,32 @@ class DrivingController : public ZippyController
 {
 
 private:
+    //on loan from parent
     SensorFusor* sensors;
+
     //the routine to execute
     const ZippyRoutineData* routineData;
-    ScissorPursuitController pursuitController;
 
-    DrivingState currentState = DrivingState::MovingIntoPlace;
-
-    // unsigned long previousTime = 0;
     unsigned long moveIntoPlaceTimer = 0;
-
     int currentCommand = 0;
-    int currentTiming = 0;
     unsigned long currentTimeRemaining = 0;
     Driver driver;
+    DrivingState currentDrivingState = DrivingState::MovingIntoPlace;
 
-    //the pursuit controller, which translates target positions to wheel outputs
-    bool isStopped = false;
     ZVector2 relativeShadowPosition;
     ZVector2 relativeShadowVelocity;
 
-    void reset();
+    //the pursuit controller, which translates target positions to linear/angular velocities
+    // ScissorPursuitController pursuitController;
+    StanleyPursuitController pursuitController;
+
+    Zippy zippy;
+    double currentLinearVelocity = 0.0;
+    double currentAngularVelocity = 0.0;
+    MovementState currentMovementState = MovementState::Stopped;
+    int stateDowngradeCounter = 0;
+
+    void resetRoutine();
 
     unsigned long moveIntoPlace(unsigned long deltaTime);
     unsigned long holdAtStart(unsigned long deltaTime);
@@ -60,6 +74,12 @@ private:
     void initCurrentTiming();
 
     void pursue(unsigned long deltaTime);
+    void continuePursuit();
+    void completePursuit();
+    bool completeMove();
+    bool completeTurn();
+    void executeMove();
+    
 
 public:
     DrivingController(SensorFusor* s);

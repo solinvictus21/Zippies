@@ -1311,7 +1311,7 @@ ZippyRoutineData routines[] = {
     219,
   },
   {
-    0x9E104EE4,    0x5052734A,    0x352E3120,    0xFF091527,
+    0x9E104EE4,    0x5052534A,    0x352E3120,    0xFF091527,
            150,          0,          0,
     &routine1[0],
     201,
@@ -1323,7 +1323,7 @@ ZippyRoutineData routines[] = {
     222,
   },
   {
-    0x82C95D68,    0x504D5277,    0x352E3120,    0xFF152F28,
+    0x82C95D68,    0x504D5257,    0x352E3120,    0xFF152F28,
            -50,          0,          0,
     &routine3[0],
     222,
@@ -1335,11 +1335,10 @@ ZippyRoutineData routines[] = {
     201,
   },
   {
-    0x5A252B0E,    0x5052734A,    0x352E3120,    0xFF0C3222,
+    0x5A252B0E,    0x5052534A,    0x352E3120,    0xFF0C3222,
           -250,          0,          0,
     &routine5[0],
     219,
   },
 };
 int routinesCount = 6;
-

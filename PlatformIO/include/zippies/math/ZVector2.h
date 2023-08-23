@@ -1,6 +1,6 @@
 
-#ifndef _KVECTOR2_H_
-#define _KVECTOR2_H_
+#ifndef _ZVECTOR2_H_
+#define _ZVECTOR2_H_
 
 #include <Arduino.h>
 #include "ZRotation2.h"
@@ -14,22 +14,19 @@ protected:
   double x;
   double y;
   mutable double d;
-  mutable bool dValid;
+  mutable bool dValid = false;
   mutable double d2;
-  mutable bool d2Valid;
+  mutable bool d2Valid = false;
   mutable double _arctan;
-  mutable bool arctanValid;
+  mutable bool arctanValid = false;
   mutable double _arctan2;
-  mutable bool arctan2Valid;
+  mutable bool arctan2Valid = false;
 
 public:
   ZVector2();
   ZVector2(const ZVector2* v);
   ZVector2(double x,
            double y);
-  ZVector2(double x,
-           double y,
-           double ofLength);
 
   void reset();
   void setX(double x);
@@ -44,6 +41,7 @@ public:
   void rotate(double rotation);
   void unrotate(const ZRotation2* rotation);
   void unrotate(double rotation);
+  void flip();
   
   double getD() const;
   void setD(double newD);

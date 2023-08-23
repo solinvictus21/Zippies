@@ -6,10 +6,9 @@
 
 // /*
 //PID CONFIGURATION - no setpoint changes
-// #define PID_KP                               140.0
-#define PID_KP                               250.0
+#define PID_KP                               300.0
 #define PID_KI                                 0.0
-#define PID_KD                                12.0
+#define PID_KD                                36.0
 // */
 
 /*

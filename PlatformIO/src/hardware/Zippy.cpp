@@ -75,19 +75,6 @@ void Zippy::move(double linearVelocity, double angularVelocity)
     }
 
     double radius = linearVelocity / angularVelocity;
-    /*
-    double left = leftWheel.moveArc(radius, angularVelocity);
-    double right = rightWheel.moveArc(radius, angularVelocity);
-    SerialUSB.print("lv: ");
-    SerialUSB.print(linearVelocity);
-    SerialUSB.print("   av: ");
-    SerialUSB.print(angularVelocity);
-    SerialUSB.print("   left: ");
-    SerialUSB.print(left);
-    SerialUSB.print("  right: ");
-    SerialUSB.println(right);
-    motors.setMotors(left, right);
-    */
     motors.setMotors(
         leftWheel.moveArc(radius, angularVelocity),
         rightWheel.moveArc(radius, angularVelocity));

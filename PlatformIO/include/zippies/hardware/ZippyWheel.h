@@ -52,11 +52,6 @@ public:
 
     double moveArc(double radius, double subtendedAngle)
     {
-        // SerialUSB.print("PID input: ");
-        // SerialUSB.print(input);
-        // SerialUSB.print("   ");
-        // SerialUSB.println((radius - wheelOffset.getX()) * subtendedAngle);
-
 #ifdef ZPID_CENTER_ON_ZERO
         return wheelPID.compute(-((radius - wheelOffset.getX()) * subtendedAngle), 0.0);
 #else

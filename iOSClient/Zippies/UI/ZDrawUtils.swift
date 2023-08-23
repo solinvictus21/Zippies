@@ -3,9 +3,10 @@ import Foundation
 import UIKit
 
 fileprivate let ZIPPY_ARROW_RADIUS_DEFAULT: Double = 20
-fileprivate let ZIPPY_LINE_WIDTH_DEFAULT: Double = 0.8
+fileprivate let ZIPPY_LINE_WIDTH_DEFAULT: Double = 2.0
 fileprivate let ZIPPY_LINE_WIDTH_THICK: Double = 3
 fileprivate let ZIPPY_POINT_RADIUS_DEFAULT: Double = 5
+fileprivate let ZIPPY_RECT_SIZE_DEFAULT: Double = 10
 //fileprivate let ZIPPY_WHEEL_RADIUS: CGFloat = 18.27840255602223
 
 func drawPoint(
@@ -19,6 +20,23 @@ func drawPoint(
             y: center.getY() - radius,
             width: 2 * radius,
             height: 2 * radius))
+    drawingPath.lineWidth = CGFloat(lineWidth)
+    drawingPath.fill()
+    drawingPath.stroke()
+}
+
+func drawRect(
+    center: ZVector2,
+    width: Double = ZIPPY_RECT_SIZE_DEFAULT,
+    height: Double = ZIPPY_RECT_SIZE_DEFAULT,
+    lineWidth: Double = 1.0)
+{
+    let drawingPath = UIBezierPath(
+        rect: CGRect(
+            x: center.getX() - (width / 2.0),
+            y: center.getY() - (height / 2.0),
+            width: width,
+            height: height))
     drawingPath.lineWidth = CGFloat(lineWidth)
     drawingPath.fill()
     drawingPath.stroke()
@@ -45,8 +63,8 @@ func drawLine(
 func drawArrow(
     position: ZVector2,
     orientation: Double,
-    lineWidth: Double = ZIPPY_LINE_WIDTH_DEFAULT,
-    arrowRadius: Double = ZIPPY_ARROW_RADIUS_DEFAULT)
+    arrowRadius: Double = ZIPPY_ARROW_RADIUS_DEFAULT,
+    lineWidth: Double = ZIPPY_LINE_WIDTH_DEFAULT)
 {
     let radiusSinO = arrowRadius * sin(orientation)
     let radiusCosO = arrowRadius * cos(orientation)

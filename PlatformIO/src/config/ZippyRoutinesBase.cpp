@@ -13,6 +13,7 @@ const ZippyRoutineData* getZippyRoutineData()
     int routineIndex = 0;
     for (int i = 0; i < routinesCount; i++)
     {
+        // printUniqueID((uint32_t*)(&routines[i]));
         if (!memcmp(mcuID, &routines[i], 16)) {
             //found a matching MCU ID; this is the one
             routineIndex = i;

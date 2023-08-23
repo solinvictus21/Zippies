@@ -8,7 +8,7 @@
 
 int ZIPPY_ID = 0;
 double MOTOR_DEAD_ZONE = 3000.0;
-double MOTOR_BALANCE = 0.0;
+// double MOTOR_BALANCE = 0.0;
 extern double MOTOR_DEAD_ZONES[][2];
 
 extern uint32_t KNOWN_MCU_IDS[][4];
@@ -79,17 +79,17 @@ double MOTOR_DEAD_ZONES[][2]
     //negative balance ratios give stronger turns on the left wheel (turns right harder)
     //positive balance ratios give stronger turns on the right wheel (turns left harder)
     //red
-    { 3000.0,  0.0800 },
+    { 2000.0,  0.0800 },
     //orange
-    {  600.0,  0.1100 },
+    {  600.0,  0.1000 },
     //yellow
-    { 2000.0,  0.0000 },
+    { 2000.0,  0.4000 },
     //green
-    { 2000.0, -0.0100 },
+    {  200.0, -0.0100 },
     //blue
-    { 2200.0,  0.0200 },
-    //purple
     {  600.0,  0.0000 },
+    //purple
+    {  500.0, -0.1000 },
 };
 
 void readMCUID(uint32_t* outID)

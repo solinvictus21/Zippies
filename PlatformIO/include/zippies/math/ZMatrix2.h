@@ -99,11 +99,11 @@ public:
     void printDebug() const
     {
         SerialUSB.print("(");
-        SerialUSB.print(position.getX(), 2);
+        SerialUSB.print(position.getX(), 5);
         SerialUSB.print(", ");
-        SerialUSB.print(position.getY(), 2);
+        SerialUSB.print(position.getY(), 5);
         SerialUSB.print(", ");
-        SerialUSB.print((180.0 * orientation.get()) / M_PI, 2);
+        SerialUSB.print((180.0 * orientation.get()) / M_PI, 5);
         SerialUSB.println(")");
     }
 

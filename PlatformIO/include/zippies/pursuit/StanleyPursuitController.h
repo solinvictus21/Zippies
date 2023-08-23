@@ -1,14 +1,14 @@
 
-#ifndef _SCISSORPURSUITCONTROLLER_H_
-#define _SCISSORPURSUITCONTROLLER_H_
+#ifndef _STANLEYPURSUITCONTROLLER_H_
+#define _STANLEYPURSUITCONTROLLER_H_
 
 #include "PursuitController.h"
 
-class ScissorPursuitController : public PursuitController
+class StanleyPursuitController : public PursuitController
 {
 
 public:
-    ScissorPursuitController()
+    StanleyPursuitController()
     {}
 
     void executeMove(

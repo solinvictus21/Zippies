@@ -462,6 +462,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
             display.clearScreen();
             display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
         }
+        // SerialUSB.println("Acquiring sync signal.");
         currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
         return false;
     }
@@ -469,7 +470,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
     if (sensorsWithUpdate != SENSOR_COUNT) {
         //one or more sensors did not yet receive an updated sweep cycle; this is not an error condition; the Lighthouse may
         //just not have completed their sweep cycles by the time we completed this processing loop
-        return currentSignalState == LighthouseSignalState::SignalLocked;
+        return currentSignalState == LighthouseSignalState::SignalLocked || currentSignalState == LighthouseSignalState::SignalUnlocked;
     }
 
     //all sensors have at least received sync pulses for both the X and Z axes; try to fuse the sync pulses together
@@ -480,6 +481,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
             display.clearScreen();
             display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
         }
+        // SerialUSB.println("Acquiring sync signal #2.");
         currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
         return false;
     }
@@ -508,16 +510,16 @@ bool SensorFusor::loop(unsigned long deltaTime)
     switch (currentSignalState) {
         case LighthouseSignalState::AcquiringSyncSignal:
             if (!receivedLighthouseData) {
-                // SerialUSB.println("Starting receipt of lighthouse data.");
                 ootxParser.restart();
+                // SerialUSB.println("Starting receipt of lighthouse data.");
                 currentSignalState = LighthouseSignalState::ReceivingLighthouseData;
                 display.clearScreen();
                 display.displayTextCentered(LIGHTHOUSE_STATUS_DOWNLOADING);
             }
             else {
                 //transition to acquiring position
-                // SerialUSB.println("Starting acquisition of position lock.");
                 positionLockedTimeStamp = 0;
+                // SerialUSB.println("Starting acquisition of position lock.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
                 // display.clearScreen();
                 // display.displayTextCentered("Ready");
@@ -529,7 +531,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 calculateLighthouseData();
 
                 //transition to waiting for sensor hits
-                // SerialUSB.println("Starting acquisition of position lock.");
+                // SerialUSB.println("Acquiring sensor hits.");
                 positionLockedTimeStamp = 0;
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
                 display.displayFace();
@@ -544,6 +546,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 //transition to the initial pause after receiving the first set of sweep hits to allow the signal to
                 //"settle" such as, for instance, when the user is in the process of setting the Zippy on the ground
                 positionLockedTimeStamp = currentTime;
+                // SerialUSB.println("Acquiring position lock.");
                 currentSignalState = LighthouseSignalState::AwaitingPositionLock;
                 // display.clearScreen();
                 // display.displayTextCentered("Locking");
@@ -554,11 +557,13 @@ bool SensorFusor::loop(unsigned long deltaTime)
             if (sensorsReceivingSweepHit != SENSOR_COUNT) {
                 //we're no long receiving sweep hits for both axes on all sensors
                 positionLockedTimeStamp = 0;
+                // SerialUSB.println("Acquiring sensor hits.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
                 // display.clearScreen();
                 // display.displayTextCentered("Ready");
             }
             else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
+                // SerialUSB.println("Signal locked.");
                 currentSignalState = LighthouseSignalState::SignalLocked;
                 // display.displayFace();
             }
@@ -569,6 +574,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 //we're no long receiving sweep hits for both axes on all sensors
                 signalUnlockedTimeStamp = currentTime;
                 preambleBitCount = 0;
+                // SerialUSB.println("Signal unlocked.");
                 currentSignalState = LighthouseSignalState::SignalUnlocked;
                 // display.clearScreen();
             }
@@ -577,10 +583,12 @@ bool SensorFusor::loop(unsigned long deltaTime)
         case LighthouseSignalState::SignalUnlocked:
             if (sensorsReceivingSweepHit == SENSOR_COUNT) {
                 //we have the signal again
+                // SerialUSB.println("Signal locked.");
                 currentSignalState = LighthouseSignalState::SignalLocked;
             }
             else if (currentTime - signalUnlockedTimeStamp >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
                 positionLockedTimeStamp = 0;
+                // SerialUSB.println("Acquiring sensor hits.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
             }
             break;

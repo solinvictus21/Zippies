@@ -187,6 +187,16 @@ class ZVector2: NSObject
         return (x * Double(Foundation.sin(Double(o)))) + (y * Double(Foundation.cos(Double(o))))
     }
 
+    func crossProduct(_ v: ZVector2) -> Double
+    {
+        return (x*v.y) - (y*v.x)
+    }
+
+    func crossProduct(_ o: ZRotation2) -> Double
+    {
+        return (x*o.cos) - (y*o.sin);
+    }
+
     func multiply(_ m: Double)
     {
         x *= m
@@ -345,6 +355,8 @@ class ZVector2: NSObject
 
     func projectAlong(_ orientation: Double) -> Double
     {
+//        let sinTheta = Foundation.sin(orientation)
+//        let cosTheta = Foundation.cos(orientation)
         let sinTheta = Double(Foundation.sin(Double(orientation)))
         let cosTheta = Double(Foundation.cos(Double(orientation)))
         let dotProduct = (x * sinTheta) + (y * cosTheta)
