@@ -1,7 +1,7 @@
 
 #include "zippies/pursuit/StanleyPursuitController.h"
 
-#define STANLEY_KV                    1.0
+#define STANLEY_KV                    1.5
 
 void StanleyPursuitController::executeMove(
     const ZVector2* relativeTargetPosition,
@@ -23,8 +23,6 @@ void StanleyPursuitController::executeMove(
         (relativeTargetPosition->getY() * relativeTargetVelocity->getY())) /
         relativeTargetVelocity->getD();
 
-    linearVelocity = relativeTargetVelocity->getD() + dotProduct;
-    angularVelocity = addAngles(relativeTargetVelocity->atan2(), atanSafe(STANLEY_KV * crossProduct, linearVelocity));
-
-    // linearVelocity *= 1.0 - abs(angularVelocity / M_PI);
+    linearVelocity = dotProduct;
+    angularVelocity = 2.0 * addAngles(relativeTargetVelocity->atan2(), atanSafe(STANLEY_KV * crossProduct, linearVelocity));
 }

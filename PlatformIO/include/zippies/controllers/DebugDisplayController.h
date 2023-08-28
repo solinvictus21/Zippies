@@ -34,7 +34,7 @@ public:
   {}
 
   void start();
-  void loop(unsigned long deltaTime);
+  bool loop(unsigned long deltaTime);
   void stop();
 
 

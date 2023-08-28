@@ -44,14 +44,20 @@ void SensorFusor::start()
     positionTimeStamp = 0;
     positionLockedTimeStamp = 0;
 
+#ifdef DISPLAY_SENSOR_STATUS
     display.clearScreen();
+#endif
     if (!receivedLighthouseData) {
         preambleBitCount = 0;
         ootxParser.restart();
+#ifdef DISPLAY_SENSOR_STATUS
         display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
+#endif
     }
+#ifdef DISPLAY_SENSOR_STATUS
     else
         display.displayFace();
+#endif
     currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
 
     //configure the timing clock we'll use for counting cycles between IR pules
@@ -458,10 +464,12 @@ bool SensorFusor::loop(unsigned long deltaTime)
     if (sensorsWithSyncLock != SENSOR_COUNT) {
         //one or more sensors missed the sync pulses for the X and/or Z axes; wait for a sync pulse signal lock again
         // SerialUSB.println("WARNING: Some sensors not receiving signal.");
+#ifdef DISPLAY_SENSOR_STATUS
         if (!receivedLighthouseData && currentSignalState != LighthouseSignalState::AcquiringSyncSignal) {
             display.clearScreen();
             display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
         }
+#endif
         // SerialUSB.println("Acquiring sync signal.");
         currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
         return false;
@@ -477,10 +485,12 @@ bool SensorFusor::loop(unsigned long deltaTime)
     //by averaging the pulse widths together
     if (!fuseSyncPulses()) {
         // SerialUSB.println("WARNING: Sensors receiving differing sync pulse numbers.");
+#ifdef DISPLAY_SENSOR_STATUS
         if (!receivedLighthouseData && currentSignalState != LighthouseSignalState::AcquiringSyncSignal) {
             display.clearScreen();
             display.displayTextCentered(LIGHTHOUSE_STATUS_SEARCHING);
         }
+#endif
         // SerialUSB.println("Acquiring sync signal #2.");
         currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
         return false;
@@ -513,16 +523,16 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 ootxParser.restart();
                 // SerialUSB.println("Starting receipt of lighthouse data.");
                 currentSignalState = LighthouseSignalState::ReceivingLighthouseData;
+#ifdef DISPLAY_SENSOR_STATUS
                 display.clearScreen();
                 display.displayTextCentered(LIGHTHOUSE_STATUS_DOWNLOADING);
+#endif
             }
             else {
                 //transition to acquiring position
                 positionLockedTimeStamp = 0;
                 // SerialUSB.println("Starting acquisition of position lock.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
-                // display.clearScreen();
-                // display.displayTextCentered("Ready");
             }
             break;
 
@@ -534,9 +544,9 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 // SerialUSB.println("Acquiring sensor hits.");
                 positionLockedTimeStamp = 0;
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
+#ifdef DISPLAY_SENSOR_STATUS
                 display.displayFace();
-                // display.clearScreen();
-                // display.displayTextCentered("Ready");
+#endif
             }
             break;
 
@@ -548,8 +558,6 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 positionLockedTimeStamp = currentTime;
                 // SerialUSB.println("Acquiring position lock.");
                 currentSignalState = LighthouseSignalState::AwaitingPositionLock;
-                // display.clearScreen();
-                // display.displayTextCentered("Locking");
             }
             break;
 
@@ -559,13 +567,10 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 positionLockedTimeStamp = 0;
                 // SerialUSB.println("Acquiring sensor hits.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
-                // display.clearScreen();
-                // display.displayTextCentered("Ready");
             }
             else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
                 // SerialUSB.println("Signal locked.");
                 currentSignalState = LighthouseSignalState::SignalLocked;
-                // display.displayFace();
             }
             break;
 
@@ -576,7 +581,6 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 preambleBitCount = 0;
                 // SerialUSB.println("Signal unlocked.");
                 currentSignalState = LighthouseSignalState::SignalUnlocked;
-                // display.clearScreen();
             }
             break;
 

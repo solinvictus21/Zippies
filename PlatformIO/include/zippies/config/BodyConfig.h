@@ -32,7 +32,9 @@
 
 //new body redesign
 #define BODY_CENTER_SENSOR_CENTER_OFFSET_Y                4.4
-#define WHEEL_CENTER_BODY_CENTER_OFFSET_X                17.1
-#define WHEEL_CENTER_BODY_CENTER_OFFSET_Y                 6.1
+//#define WHEEL_CENTER_BODY_CENTER_OFFSET_X                17.1
+//#define WHEEL_CENTER_BODY_CENTER_OFFSET_Y                 6.1
+//#define WHEEL_CENTER_BODY_CENTER_OFFSET                  17.1
+#define WHEEL_CENTER_BODY_CENTER_OFFSET                  18.155439956112328
 
 #endif

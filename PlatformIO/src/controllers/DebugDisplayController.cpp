@@ -10,7 +10,7 @@ void DebugDisplayController::start()
     timeSinceLastDisplay = 0;
 }
 
-void DebugDisplayController::loop(unsigned long deltaTime)
+bool DebugDisplayController::loop(unsigned long deltaTime)
 {
     timeSinceLastDisplay += deltaTime;
 
@@ -21,7 +21,7 @@ void DebugDisplayController::loop(unsigned long deltaTime)
     captureAxisStatistics(sensors->getLeftSensor()->getYHitCycle(), &ySyncAccumulator, &ySweepHitStartAccumulator, &ySweepHitEndAccumulator);
 
     if (timeSinceLastDisplay < DEBUG_DISPLAY_INTERVAL)
-        return;
+        return true;
     timeSinceLastDisplay -= DEBUG_DISPLAY_INTERVAL;
 
     // SerialUSB.println("1 Displaying");
@@ -117,6 +117,7 @@ void DebugDisplayController::loop(unsigned long deltaTime)
     ySweepHitStartAccumulator.reset();
     ySweepHitEndAccumulator.reset();
     // SerialUSB.println("Completed display");
+    return true;
 }
 
 void DebugDisplayController::captureAxisStatistics(

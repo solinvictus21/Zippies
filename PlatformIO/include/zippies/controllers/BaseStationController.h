@@ -17,7 +17,7 @@ public:
   BaseStationController();
 
   void start(unsigned long currentTime);
-  void loop(unsigned long currentTime);
+  bool loop(unsigned long currentTime);
   void stop();
 
   ~BaseStationController() {}

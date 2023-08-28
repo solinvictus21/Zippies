@@ -8,7 +8,7 @@
 
 #define DRIVER_PARAM_MAX_LINEAR_ACCELERATION  10.0
 
-double estimateDistance(const ZVector2* toRelativePosition, const ZRotation2* targetOrientation);
+double estimateDistance(const ZVector2* toRelativePosition, double deltaOrientation);
 
 void Driver::reset()
 {
@@ -55,26 +55,20 @@ void Driver::setTargetPosition(double targetX, double targetY, double targetO)
     calculateNewTarget();
 }
 
+void Driver::setTargetPosition(const ZMatrix2* tp)
+{
+    previousTargetPosition.set(&targetPosition);
+    targetPosition.set(tp);
+    holdingPosition = false;
+    
+    calculateNewTarget();
+}
+
 void Driver::calculateNewTarget()
 {
     shadowToTargetPosition.set(
         targetPosition.position.getX() - shadowPosition.position.getX(),
         targetPosition.position.getY() - shadowPosition.position.getY());
-
-    //calculate how much of a forward turn we would need to make to arrive at the new target endpoint
-    /*
-    double directionToTarget = atan2(
-            targetPosition.position.getX() - previousTargetPosition.position.getX(),
-            targetPosition.position.getY() - previousTargetPosition.position.getY());
-    double directionFromPreviousOrientationToTarget = subtractAngles(
-        directionToTarget, previousTargetPosition.position.atan2());
-    double forwardTurn = addAngles(
-        previousTargetPosition.orientation.get(),
-        atan2(
-            targetPosition.position.getX() - previousTargetPosition.position.getX(),
-            targetPosition.position.getY() - previousTargetPosition.position.getY());
-    double arrivalOrientation = addAngles(previousTargetPosition.orientation.get(), forwardTurn);
-    */
 
     double forwardTurn = 2.0 * subtractAngles(
         atan2(
@@ -86,23 +80,12 @@ void Driver::calculateNewTarget()
         addAngles(previousTargetPosition.orientation.get(), forwardTurn));
     //if we need to do more than a 180 degree turn to arrive at the target orientation, then move backwards instead
     reverseDirection = abs(forwardTurn) > M_PI;
-    // SerialUSB.print("Reverse: ");
-    // SerialUSB.println(reverseDirection);
-}
-
-void Driver::setTargetPosition(const ZMatrix2* tp)
-{
-    targetPosition.set(tp);
-    shadowToTargetPosition.set(
-        targetPosition.position.getX() - shadowPosition.position.getX(),
-        targetPosition.position.getY() - shadowPosition.position.getY());
 }
 
 const double velocityFactor = 1000.0 / 60.0;
 
 /* The following implementation is based on a research paper documented here...
  *        https://web.eecs.umich.edu/~kuipers/papers/Park-icra-11.pdf
- *
  *    ...and the associated code example availabile here...
  *        https://github.com/h2ssh/Vulcan/blob/master/src/mpepc/control/kinematic_control_law.cpp
  */
@@ -111,13 +94,9 @@ void Driver::update(unsigned long remainingTime)
     if (holdingPosition)
         return;
 
-    double distance = estimateDistance(&shadowToTargetPosition, &targetPosition.orientation);
-    //this may be needed eventually to prevent "division by zero" halts from long-running routines; needs more analysis
-    // if (distance == 0.0)
-        // return;
-
+    double distance = estimateDistance(&shadowToTargetPosition,
+            subtractAngles(targetPosition.orientation.get(), shadowPosition.orientation.get()));
     double lineOfSightOrientation = shadowToTargetPosition.atan2();
-
     double theta, delta;
     if (reverseDirection)
     {
@@ -144,7 +123,6 @@ void Driver::update(unsigned long remainingTime)
     //choose a linear velocity based on our remaining distance to our current target point; note that velocity is represented
     //as millimeters per "frame" with a timing of 60 frames per second
     double idealLinearVelocity = remainingTime == 0 ? 0.0 : velocityFactor * distance / ((double)remainingTime);
-    // double idealLinearAcceleration = idealLinearVelocity - currentLinearVelocity;
 
     //calculate the output linear and angular velocities, clipping acceleration to our predefined limits
     //currentLinearVelocity += ZMath.Clamp(idealLinearAcceleration,
@@ -152,16 +130,14 @@ void Driver::update(unsigned long remainingTime)
     currentLinearVelocity = idealLinearVelocity / (1.0 + (DRIVER_PARAM_BETA * pow(abs(referenceKappa), DRIVER_PARAM_LAMBDA)));
     currentAngularVelocity = referenceKappa * currentLinearVelocity;
 
-    if (currentAngularVelocity != 0.0)
-    {
+    if (currentAngularVelocity != 0.0) {
         double radius = currentLinearVelocity / currentAngularVelocity;
         shadowVelocityVector.set(
             radius - (radius * cos(currentAngularVelocity)),
             radius * sin(currentAngularVelocity));
         shadowVelocityVector.rotate(shadowPosition.orientation.get());
     }
-    else
-    {
+    else {
         shadowVelocityVector.set(
             currentLinearVelocity * shadowPosition.orientation.sin(),
             currentLinearVelocity * shadowPosition.orientation.cos());
@@ -169,12 +145,6 @@ void Driver::update(unsigned long remainingTime)
 
     shadowPosition.position.add(&shadowVelocityVector);
     shadowPosition.orientation.add(currentAngularVelocity);
-
-    /*
-    SerialUSB.print(micros() / 1000);
-    SerialUSB.print(", ");
-    shadowPosition.printDebug();
-    */
 
     //calculate the new position of our robot; this will eventually be used as the "current target position" on the actual robots
     shadowToTargetPosition.set(
@@ -188,29 +158,16 @@ void Driver::holdPosition()
     currentAngularVelocity = 0.0;
     //move the shadow to the target
     shadowPosition.set(&targetPosition);
-    // shadowVelocityVector.set(
-        // shadowToTargetPosition.getX() * targetPosition.orientation.sin(),
-        // shadowToTargetPosition.getY() * targetPosition.orientation.cos());
-    // shadowVelocityVector.set(
-        // shadowToTargetPosition.getD() * targetPosition.orientation.sin(),
-        // shadowToTargetPosition.getD() * targetPosition.orientation.cos());
     shadowVelocityVector.set(targetPosition.orientation.sin(), targetPosition.orientation.cos());
-    if (reverseDirection)
-        shadowVelocityVector.flip();
-
+    reverseDirection = false;
     shadowToTargetPosition.reset();
-
-    /*
-    shadowPosition.printDebug();
-    shadowVelocityVector.printDebug();
-    // */
 
     holdingPosition = true;
 }
 
-double estimateDistance(const ZVector2* toRelativePosition, const ZRotation2* targetOrientation)
+double estimateDistance(const ZVector2* toRelativePosition, double deltaOrientation)
 {
-    return toRelativePosition->getD();
+   return toRelativePosition->getD();
     /* //need to figure out how to calculate a decent length estimation
     double dotVector = abs((toRelativePosition->getX() * targetOrientation->sin()) +
         (toRelativePosition->getY() * targetOrientation->cos()));

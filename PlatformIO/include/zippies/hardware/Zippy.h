@@ -2,6 +2,10 @@
 #ifndef _ZIPPY_H_
 #define _ZIPPY_H_
 
+#ifdef WEBOTS_SUPPORT
+#include <webots/Robot.hpp>
+using namespace webots;
+#endif
 #include "zippies/ZippyHardware.h"
 #include "zippies/ZippyMath.h"
 #include "zippies/config/BodyConfig.h"
@@ -12,13 +16,16 @@ class Zippy
 {
 
 private:
-  bool inReverse = false;
-  ZippyWheel leftWheel;
-  ZippyWheel rightWheel;
-  MotorDriver motors;
+    MotorDriver motors;
+    ZippyWheel leftWheel;
+    ZippyWheel rightWheel;
 
 public:
+#ifdef WEBOTS_SUPPORT
+    Zippy(Robot* zippyWebots);
+#else
     Zippy();
+#endif
 
     //for auto-tuning; only call this while the Zippy is stopped
     void setTunings(double p, double i, double d) {
@@ -29,11 +36,8 @@ public:
     void start();
     void setInput(const ZMatrix2* positionDelta);
     void setInput(double linearVelocity, double angularVelocity);
-    void setReverseMotion(bool r) { this->inReverse = r; }
     void moveLinear(double relativeVelocity);
-    void moveArc(double radius, double theta);
     void move(double linearVelocity, double angularVelocity);
-    void turn(double yOffset, double angularVelocity);
     void stop();
 
 };

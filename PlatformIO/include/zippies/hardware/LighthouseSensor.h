@@ -5,7 +5,6 @@
 #include <Arduino.h>
 
 #include "zippies/ZippyMath.h"
-#include "Lighthouse.h"
 #include "LighthouseOOTX.h"
 
 #define BUFFER_SIZE 128

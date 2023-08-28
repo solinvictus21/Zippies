@@ -25,9 +25,10 @@ void BaseStationController::start(unsigned long currentTime)
   }
 }
 
-void BaseStationController::loop(unsigned long currentTime)
+bool BaseStationController::loop(unsigned long currentTime)
 {
   processBluetoothInput();
+  return true;
 }
 
 void BaseStationController::processBluetoothInput()

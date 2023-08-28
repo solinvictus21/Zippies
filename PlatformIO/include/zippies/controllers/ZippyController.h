@@ -7,7 +7,7 @@ class ZippyController
 
 public:
   virtual void start() {}
-  virtual void loop(unsigned long deltaTime) = 0;
+  virtual bool loop(unsigned long deltaTime) = 0;
   virtual void stop() {}
 
   virtual ~ZippyController() {}

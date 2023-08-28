@@ -37,11 +37,15 @@ typedef struct _RotorFactoryCalibrationData
   double gibbousMagnitude = 0.0;
 } RotorFactoryCalibrationData;
 
+#define DISPLAY_SENSOR_STATUS
+
 class SensorFusor
 {
 
 private:
+#ifdef DISPLAY_SENSOR_STATUS
   ZippyFace display;
+#endif
 
   //sensors
   LighthouseSensor sensors[SENSOR_COUNT];

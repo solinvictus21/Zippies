@@ -11,39 +11,16 @@ void ScissorPursuitController::executeMove(
     ZVector2 relativeEndPoint(
         relativeTargetPosition->getX() + (relativeTargetVelocity->getX() / 2.0),
         linearTargetDistance);
-    /*
-    if (reverseDirection) {
-        relativeEndPoint.set(
-            -linearTargetDistance * sin(relativeEndPoint.atan2()),
-            linearTargetDistance - (linearTargetDistance * cos(relativeEndPoint.atan2())));
-    }
-    else {
-    */
-        relativeEndPoint.set(
-            linearTargetDistance * sin(relativeEndPoint.atan2()),
-            linearTargetDistance + (linearTargetDistance * cos(relativeEndPoint.atan2())));
-    // }
+    relativeEndPoint.set(
+        linearTargetDistance * sin(relativeEndPoint.atan2()),
+        linearTargetDistance + (linearTargetDistance * cos(relativeEndPoint.atan2())));
 
     if (relativeEndPoint.getX() == 0.0) {
         linearVelocity = relativeEndPoint.getY();
         angularVelocity = 0.0;
-        /*
-        if (clipVelocities) {
-            linearVelocity -= constrain(linearVelocity * CLIP_VELOCITY_FACTOR_MAX,
-                -CLIP_VELOCITY_DISTANCE_MAX, CLIP_VELOCITY_DISTANCE_MAX);
-        }
-        */
     }
     else {
         angularVelocity = 2.0 * relativeEndPoint.atan();
         linearVelocity = angularVelocity * relativeEndPoint.getD2() / (2.0 * relativeEndPoint.getX());
-        /*
-        if (clipVelocities) {
-            double clip = constrain(linearVelocity * CLIP_VELOCITY_FACTOR_MAX,
-                -CLIP_VELOCITY_DISTANCE_MAX, CLIP_VELOCITY_DISTANCE_MAX);
-            angularVelocity *= 1.0 - (clip / linearVelocity);
-            linearVelocity -= clip;
-        }
-        */
     }
 }

@@ -8,7 +8,7 @@
 
 int ZIPPY_ID = 0;
 double MOTOR_DEAD_ZONE = 3000.0;
-// double MOTOR_BALANCE = 0.0;
+double MOTOR_BALANCE = 0.0;
 extern double MOTOR_DEAD_ZONES[][2];
 
 extern uint32_t KNOWN_MCU_IDS[][4];
@@ -81,7 +81,8 @@ double MOTOR_DEAD_ZONES[][2]
     //red
     { 2000.0,  0.0800 },
     //orange
-    {  600.0,  0.1000 },
+    // {  600.0,  0.1000 },
+    {  600.0, -0.1200 },
     //yellow
     { 2000.0,  0.4000 },
     //green
@@ -90,6 +91,14 @@ double MOTOR_DEAD_ZONES[][2]
     {  600.0,  0.0000 },
     //purple
     {  500.0, -0.1000 },
+};
+
+double MOTOR_PROFILES[][2]
+{
+    //these profiles contain information about how to linearize motor output across all Zippies
+    //    stiction - the minimum power required to initiate movement in each motor when the motor
+    //               is starting from a stopped position
+    //    power differential - PCM value that represents the difference in power output
 };
 
 void readMCUID(uint32_t* outID)

@@ -50,6 +50,7 @@ void MotorDriver::start()
   writeByte(T841_TCCR2A, _BV(T841_COM2A1) | _BV(T841_COM0B1) | _BV(T841_WGM21));
   writeByte(T841_TCCR1B, _BV(T841_WGM13) | _BV(T841_WGM12) | _BV(T841_CS10));
   writeByte(T841_TCCR2B, _BV(T841_WGM23) | _BV(T841_WGM22) | _BV(T841_CS20));
+  writeByte(T841_PUEB, _BV(1) | _BV(0));
 
   //change mode to send interpreted commands- see header file
   writeByte(COMMAND_SET_MODE, MODE_COMMAND);
@@ -70,8 +71,8 @@ void MotorDriver::start()
 
 void MotorDriver::setMotors(double left, double right)
 {
-  // left = leftWeight * rampThroughDeadZone(left, leftDeadZoneRamp);
-  // right = rightWeight * rampThroughDeadZone(right, rightDeadZoneRamp);
+  // left = leftWeight * rampThroughDeadZone(left, MOTOR_DEAD_ZONE);
+  // right = rightWeight * rampThroughDeadZone(right, MOTOR_DEAD_ZONE);
   left = rampThroughDeadZone(leftWeight * left, MOTOR_DEAD_ZONE);
   right = rampThroughDeadZone(rightWeight * right, MOTOR_DEAD_ZONE);
 
