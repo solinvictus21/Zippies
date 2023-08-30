@@ -90,7 +90,7 @@ extension Lighthouse: CBPeripheralDelegate
     {
         guard error == nil else {
             print("ERROR Bluetooth: ", error!.localizedDescription)
-            return;
+            return
         }
     }
     
@@ -100,7 +100,7 @@ extension Lighthouse: CBPeripheralDelegate
     {
         guard error == nil else {
             print("ERROR Bluetooth: ", error!.localizedDescription)
-            return;
+            return
         }
         
         switch (characteristic) {

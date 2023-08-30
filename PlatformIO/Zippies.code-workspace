@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "PlatformIO",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp"
+		}
+	}
+}
