@@ -4,6 +4,7 @@
 
 #ifdef WEBOTS_SUPPORT
 #include <webots/Supervisor.hpp>
+#include <webots/Node.hpp>
 #include <webots/Field.hpp>
 using namespace webots;
 #endif
@@ -21,7 +22,6 @@ using namespace webots;
 typedef enum class _DrivingState
 {
     MovingIntoPlace,
-    HoldingAtStart,
     SyncingWithPreamble,
     Executing,
 } DrivingState;
@@ -36,9 +36,8 @@ class DrivingController : public ZippyController
 {
 
 private:
-    //provided by the parent controller
 #ifdef WEBOTS_SUPPORT
-    Supervisor* zippyWebots;
+    //provided by the parent controller
     Field* zippyShadowTranslation;
     double translationValues[3] = { 0.0, 0.0, 0.0};
     Field* zippyShadowRotation;
@@ -49,7 +48,6 @@ private:
     //the routine to execute
     const ZippyRoutineData* routineData;
 
-    unsigned long moveIntoPlaceTimer = 0;
     int currentCommand = 0;
     unsigned long currentTimeRemaining = 0;
     Driver driver;
@@ -57,10 +55,6 @@ private:
 
     ZVector2 relativeShadowPosition;
     ZVector2 relativeShadowVelocity;
-
-    //the pursuit controller, which translates target positions to linear/angular velocities
-    ScissorPursuitController pursuitController;
-//    StanleyPursuitController pursuitController;
 
     Zippy zippy;
     double currentLinearVelocity = 0.0;
@@ -71,23 +65,23 @@ private:
     void resetRoutine();
 
     unsigned long moveIntoPlace(unsigned long deltaTime);
-    unsigned long holdAtStart(unsigned long deltaTime);
     unsigned long syncWithPreamble(unsigned long deltaTime);
     unsigned long execute(unsigned long deltaTime);
-
     bool processCommands();
-    void initCurrentTiming();
+
+    //the pursuit controller, which translates target positions to linear/angular velocities
+    ScissorPursuitController pursuitController;
+    // StanleyPursuitController pursuitController; 
 
     void pursue(unsigned long deltaTime);
     bool completeMove();
     void executeMove();
-    
 
 public:
 #ifdef WEBOTS_SUPPORT
-    DrivingController(Supervisor* zw, SensorFusor* s);
+    DrivingController(const ZippyConfig* zc, SensorFusor* s, Robot* zw, Node* zws);
 #else
-    DrivingController(SensorFusor* s);
+    DrivingController(const ZippyConfig* zc, SensorFusor* s);
 #endif
 
     void start();

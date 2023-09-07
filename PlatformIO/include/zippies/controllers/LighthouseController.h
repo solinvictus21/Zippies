@@ -7,6 +7,7 @@
 using namespace webots;
 #endif
 #include "ZippyController.h"
+#include "zippies/config/ZippyRoutines.h"
 #include "zippies/hardware/SensorFusor.h"
 
 class LighthouseController : public ZippyController
@@ -21,9 +22,9 @@ private:
 
 public:
 #ifdef WEBOTS_SUPPORT
-    LighthouseController(Supervisor* zippyWebots);
+    LighthouseController(const ZippyConfig* zippyConfig, Supervisor* zippyWebots);
 #else
-    LighthouseController();
+    LighthouseController(const ZippyConfig* zippyConfig);
 #endif
 
     void start();

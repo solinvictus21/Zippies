@@ -25,6 +25,7 @@ private:
 public:
   ZippyFace();
 
+  uint8_t getButtons() { return display.getButtons(); }
   uint8_t getFontHeight() { return display.getFontHeight(); }
 
   void displayFace();

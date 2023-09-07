@@ -2,17 +2,34 @@
 #ifndef _MOTORDRIVER_H_
 #define _MOTORDRIVER_H_
 
+#ifdef WEBOTS_SUPPORT
+#include <stdlib.h>
+#include <webots/Robot.hpp>
+#include <webots/Motor.hpp>
+#include <webots/Node.hpp>
+using namespace webots;
+#else
 #include <Arduino.h>
+#endif
+
+#include "zippies/config/ZippyRoutines.h"
 
 class MotorDriver
 {
 
 private:
-  bool started;
-  // double leftDeadZoneRamp;
-  // double rightDeadZoneRamp;
-  double leftWeight;
-  double rightWeight;
+#ifdef WEBOTS_SUPPORT
+    Motor* leftWheelMotor = NULL;
+    Motor* rightWheelMotor = NULL;
+#endif
+  double leftStictionPower;
+  double leftDeadZone;
+  double leftGain;
+  double leftCurrentPower = 0.0;
+  double rightStictionPower;
+  double rightDeadZone;
+  double rightGain;
+  double rightCurrentPower = 0.0;
 
   void start();
   void writeByte(uint8_t);
@@ -23,7 +40,11 @@ private:
   double rampThroughDeadZone(double a, double deadZoneRamp);
 
 public:
-  MotorDriver();
+#ifdef WEBOTS_SUPPORT
+    MotorDriver(const ZippyConfig* zippyConfig, Robot* zippyWebots);
+#else
+    MotorDriver(const ZippyConfig* zippyConfig);
+#endif
   void setFailsafe(uint16_t ms);
 
   void setMotors(double left, double right);

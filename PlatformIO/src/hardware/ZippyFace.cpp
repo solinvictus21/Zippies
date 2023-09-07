@@ -43,6 +43,12 @@ void ZippyFace::displayText(uint8_t x, uint8_t y, const char* text)
   // */
 }
 
+/*
+ * It has been discovered through testing that the use of special characters can cause memory
+ * corruption. This is obviously somewhere in the font-handling code of the Tinyscreen code
+ * somewhere, but I have not had a chance to root out the issue. For now, it is just very important
+ * to remember that attempting to display special characters could cause memory corruption.
+ */
 void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data)
 {
   displayLabelAndData(x, y, label, data, 1);
@@ -50,6 +56,7 @@ void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, dou
 
 void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, double data, uint8_t digits)
 {
+  display.clearWindow(x, y, SCREEN_WIDTH_PIXELS_2, getFontHeight());
   displayText(x, y, label);
 
   //data
@@ -62,6 +69,7 @@ void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, dou
 
 void ZippyFace::displayLabelAndData(uint8_t x, uint8_t y, const char* label, int data)
 {
+  display.clearWindow(x, y, SCREEN_WIDTH_PIXELS_2, getFontHeight());
   displayText(x, y, label);
 
   //data

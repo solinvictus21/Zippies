@@ -3,12 +3,12 @@
 #define _ZIPPY_H_
 
 #ifdef WEBOTS_SUPPORT
-#include <webots/Robot.hpp>
+#include <webots/Node.hpp>
 using namespace webots;
 #endif
 #include "zippies/ZippyHardware.h"
 #include "zippies/ZippyMath.h"
-#include "zippies/config/BodyConfig.h"
+#include "zippies/config/ZippyRoutines.h"
 #include "ZippyWheel.h"
 #include "zippies/math/ZPID.h"
 
@@ -22,9 +22,9 @@ private:
 
 public:
 #ifdef WEBOTS_SUPPORT
-    Zippy(Robot* zippyWebots);
+    Zippy(const ZippyConfig* zippyConfig, Robot* zippyWebots);
 #else
-    Zippy();
+    Zippy(const ZippyConfig* zippyConfig);
 #endif
 
     //for auto-tuning; only call this while the Zippy is stopped
@@ -35,8 +35,6 @@ public:
 
     void start();
     void setInput(const ZMatrix2* positionDelta);
-    void setInput(double linearVelocity, double angularVelocity);
-    void moveLinear(double relativeVelocity);
     void move(double linearVelocity, double angularVelocity);
     void stop();
 

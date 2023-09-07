@@ -5,8 +5,13 @@
 #define PID_OUTPUT_LIMIT                   60000.0
 
 //PID CONFIGURATION
-#define PID_KP                               300.0
+#define PID_KP                               220.0
 #define PID_KI                                 0.0
-#define PID_KD                                22.0
+#define PID_KD                                17.0
+
+//orange with new motors
+// #define PID_KP                              4000.0
+// #define PID_KI                                 0.0
+// #define PID_KD                                10.0
 
 #endif

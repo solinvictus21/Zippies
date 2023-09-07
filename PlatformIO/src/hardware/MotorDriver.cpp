@@ -4,25 +4,32 @@
 #include "zippies/hardware/T841Defs.h"
 #include "zippies/hardware/MotorDriver.h"
 #include "zippies/hardware/MotorDriverConstants.h"
-#include "zippies/config/ZippyConfig.h"
 
 #define _BV(bit) (1 << (bit))
 
 //the range of outputs from the PID over which to ramp through the motor dead zones
-#define DEAD_ZONE_RANGE 10.0
+#define DEAD_ZONE_INPUT_RANGE 10.0
 
-MotorDriver::MotorDriver()
-  : started(false),
-    // leftDeadZoneRamp(MOTOR_DEAD_ZONE_LEFT),
-    // rightDeadZoneRamp(MOTOR_DEAD_ZONE_RIGHT),
-    leftWeight(1.0 - MOTOR_BALANCE),
-    rightWeight(1.0 + MOTOR_BALANCE)
-    // leftWeight(1.0),
-    // rightWeight(1.0)
+MotorDriver::MotorDriver(const ZippyConfig* zc)
+  : leftStictionPower(zc->leftMotorConfig.motorStictionPower),
+    leftDeadZone(zc->leftMotorConfig.motorMinPower),
+    leftGain(zc->leftMotorConfig.motorGain),
+    rightStictionPower(zc->rightMotorConfig.motorStictionPower),
+    rightDeadZone(zc->rightMotorConfig.motorMinPower),
+    rightGain(zc->rightMotorConfig.motorGain)
 {
-  // SerialUSB.println(MOTOR_DEAD_ZONE_LEFT, 1);
-  // SerialUSB.println(MOTOR_DEAD_ZONE_RIGHT, 1);
   start();
+
+  /* code for testing the function to ramp through the dead zone
+  double testInput = 0.0;
+  double testIncrement = 0.1;
+  for (int i = 0; i < 300; i++) {
+    SerialUSB.print(testInput);
+    SerialUSB.print(", ");
+    SerialUSB.println(rampThroughDeadZone(testInput, leftDeadZone));
+    testInput += testIncrement;
+  }
+  // */
 }
 
 void MotorDriver::start()
@@ -51,6 +58,9 @@ void MotorDriver::start()
   writeByte(T841_TCCR1B, _BV(T841_WGM13) | _BV(T841_WGM12) | _BV(T841_CS10));
   writeByte(T841_TCCR2B, _BV(T841_WGM23) | _BV(T841_WGM22) | _BV(T841_CS20));
   writeByte(T841_PUEB, _BV(1) | _BV(0));
+  //turn off all unnecessary T841 peripherals so that more power is available for the motors
+  writeByte(T841_ADCSRA, 0);
+  writeByte(T841_PRR, _BV(T841_PRADC) | _BV(T841_PRSPI) | _BV(T841_PRUSART0) | _BV(T841_PRUSART1));
 
   //change mode to send interpreted commands- see header file
   writeByte(COMMAND_SET_MODE, MODE_COMMAND);
@@ -65,39 +75,51 @@ void MotorDriver::start()
   writeCommand(COMMAND_SET_FAILSAFE_TIMEOUT, 0);
 
   writeCommand(COMMAND_ALL_PWM, 0, 0, 0, 0);
-
-  started = true;
 }
 
 void MotorDriver::setMotors(double left, double right)
 {
-  // left = leftWeight * rampThroughDeadZone(left, MOTOR_DEAD_ZONE);
-  // right = rightWeight * rampThroughDeadZone(right, MOTOR_DEAD_ZONE);
-  left = rampThroughDeadZone(leftWeight * left, MOTOR_DEAD_ZONE);
-  right = rampThroughDeadZone(rightWeight * right, MOTOR_DEAD_ZONE);
+  // leftCurrentPower = leftGain * left;
+  // rightCurrentPower = rightGain * right;
+  leftCurrentPower = leftGain * rampThroughDeadZone(left, leftDeadZone);
+  rightCurrentPower = rightGain * rampThroughDeadZone(right, rightDeadZone);
+  // leftCurrentPower = rampThroughDeadZone(leftGain * left, leftDeadZone);
+  // rightCurrentPower = rampThroughDeadZone(rightGain * right, rightDeadZone);
+  /* when starting from zero, jump the output to the required stiction power before returning to the requested PWM
+  left = rampThroughDeadZone(leftGain * left, leftDeadZone);
+  if (leftCurrentPower == 0 && fabs(left) < leftStictionPower)
+    leftCurrentPower = left < 0 ? -leftStictionPower : leftStictionPower;
+  else
+    leftCurrentPower = left;
+  right = rampThroughDeadZone(rightGain * right, rightDeadZone);
+  if (rightCurrentPower == 0 && fabs(right) < rightStictionPower)
+    rightCurrentPower = right < 0 ? -rightStictionPower : rightStictionPower;
+  else
+    rightCurrentPower = right;
+  // */
 
   writeCommand(COMMAND_ALL_PWM,
-      left > 0 ? left : 0,
-      left < 0 ? -left : 0,
-      right > 0 ? right : 0,
-      right < 0 ? -right : 0);
-      // left < 0 ? -left : 0,
-      // left > 0 ? left : 0,
-      // right < 0 ? -right : 0,
-      // right > 0 ? right : 0);
+      leftCurrentPower > 0 ? leftCurrentPower : 0,
+      leftCurrentPower < 0 ? -leftCurrentPower : 0,
+      rightCurrentPower > 0 ? rightCurrentPower : 0,
+      rightCurrentPower < 0 ? -rightCurrentPower : 0);
 }
 
 void MotorDriver::setMotorsDirect(double left, double right)
 {
+  leftCurrentPower = leftGain * left;
+  rightCurrentPower = rightGain * right;
   writeCommand(COMMAND_ALL_PWM,
-      left > 0 ? left : 0,
-      left < 0 ? -left : 0,
-      right > 0 ? right : 0,
-      right < 0 ? -right : 0);
+      leftCurrentPower > 0 ? leftCurrentPower : 0,
+      leftCurrentPower < 0 ? -leftCurrentPower : 0,
+      rightCurrentPower > 0 ? rightCurrentPower : 0,
+      rightCurrentPower < 0 ? -rightCurrentPower : 0);
 }
 
 void MotorDriver::stopMotors()
 {
+  leftCurrentPower = 0.0;
+  rightCurrentPower = 0.0;
   writeCommand(COMMAND_ALL_PWM, 0, 0, 0, 0);
 }
 
@@ -108,23 +130,22 @@ double MotorDriver::rampThroughDeadZone(double a, double deadZoneRamp)
     return 0.0;
 
   double absA = abs(a);
-  /*
-  double rampedValue = MOTOR_DEAD_ZONE + absA;
-  if (absA < MOTOR_RAMP_ZONE) {
-    double t = absA / MOTOR_RAMP_ZONE;
-  */
-  double rampedValue = deadZoneRamp + absA;
-  if (absA < DEAD_ZONE_RANGE) {
-    double t = absA / DEAD_ZONE_RANGE;
+  double rampedValue;
+  if (absA < DEAD_ZONE_INPUT_RANGE) {
+    double t = absA / DEAD_ZONE_INPUT_RANGE;
+    //linear ramp
+    // rampedValue = (deadZoneRamp * t) + absA;
     //quadratic ramp
-    // rampedValue *= (-t * (t - 2.0d));
-    // rampedValue *= t * (2.0d - t);
+    // rampedValue *= (-t * (t - 2.0));
+    // rampedValue *= t * (2.0 - t);
     //cubic ramp
-    rampedValue *= 1.0 + pow(t, 3.0);
+    // rampedValue = (deadZoneRamp + absA) * (1.0 + pow(t, 3.0));
+    rampedValue = (deadZoneRamp * (1.0 - pow(1.0 - t, 3.0))) + absA;
   }
+  else
+    rampedValue = deadZoneRamp + absA;
 
   return a < 0.0 ? -rampedValue : rampedValue;
-  // */
 }
 
 void MotorDriver::setFailsafe(uint16_t ms)

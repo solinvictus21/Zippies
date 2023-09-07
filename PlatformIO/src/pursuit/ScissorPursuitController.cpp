@@ -15,12 +15,13 @@ void ScissorPursuitController::executeMove(
         linearTargetDistance * sin(relativeEndPoint.atan2()),
         linearTargetDistance + (linearTargetDistance * cos(relativeEndPoint.atan2())));
 
-    if (relativeEndPoint.getX() == 0.0) {
+    double horizontalDistance = relativeEndPoint.getX();
+    if (horizontalDistance == 0.0) {
         linearVelocity = relativeEndPoint.getY();
         angularVelocity = 0.0;
     }
     else {
         angularVelocity = 2.0 * relativeEndPoint.atan();
-        linearVelocity = angularVelocity * relativeEndPoint.getD2() / (2.0 * relativeEndPoint.getX());
+        linearVelocity = angularVelocity * relativeEndPoint.getD2() / (2.0 * horizontalDistance);
     }
 }

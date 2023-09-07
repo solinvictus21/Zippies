@@ -19,28 +19,27 @@ using namespace webots;
 //3 degrees
 #define ANGULAR_EPSILON                               0.052359877559830
 
-#define LIMIT_LINEAR_ACCELERATION_MIN                30.0
-#define LIMIT_LINEAR_ACCELERATION                     0.5
-#define LIMIT_LINEAR_VELOCITY_MAX                    50.0
+//#define LIMIT_LINEAR_ACCELERATION_MIN                30.0
+//#define LIMIT_LINEAR_ACCELERATION                     0.5
+//#define LIMIT_LINEAR_VELOCITY_MAX                    50.0
 
 #ifdef WEBOTS_SUPPORT
-DrivingController::DrivingController(Supervisor* zw, SensorFusor* s)
-  : zippyWebots(zw),
-    sensors(s),
-    zippy(zw)
+DrivingController::DrivingController(const ZippyConfig* zc, SensorFusor* s, Robot* zw, Node* zippyShadow)
+  : sensors(s),
+    zippy(zc, zw)
 {
-    Node* zippyShadow = zippyWebots->getFromDef("ZippyShadow");
     zippyShadowTranslation = zippyShadow->getField("translation");
     zippyShadowRotation = zippyShadow->getField("rotation");
     const double* currentValues = zippyShadowTranslation->getSFVec3f();
     translationValues[2] = currentValues[2];
-    routineData = getZippyRoutineData();
+    routineData = &zc->routine[0];
 }
 #else
-DrivingController::DrivingController(SensorFusor* s)
-  : sensors(s)
+DrivingController::DrivingController(const ZippyConfig* zc, SensorFusor* s)
+  : sensors(s),
+    zippy(zc)
 {
-    routineData = getZippyRoutineData();
+    routineData = &zc->routine[0];
 }
 #endif
 
@@ -52,16 +51,18 @@ void DrivingController::start()
     driver.reset();
 
     //setup the initial move to the starting position
+    double distanceToStart = sqrt(
+        pow(routineData->startingPosition[0] - sensors->getPosition()->position.getX(), 2.0) +
+        pow(routineData->startingPosition[1] - sensors->getPosition()->position.getY(), 2.0));
     driver.start(sensors->getPosition(),
         routineData->startingPosition[0],
         routineData->startingPosition[1],
-        routineData->startingPosition[2] * DEG2RAD);
+        routineData->startingPosition[2] * DEG2RAD,
+        fmin((unsigned long)(1000.0 * distanceToStart / MOVE_TO_START_VELOCITY),
+             (unsigned long)MOVE_TO_START_TIMING));
 
     //setup the timings to drive to the start position
-    currentTimeRemaining = fmin(
-        (unsigned long)(1000.0 * driver.getDistanceToTarget() / MOVE_TO_START_VELOCITY),
-        (unsigned long)MOVE_TO_START_TIMING);
-    moveIntoPlaceTimer = MOVE_TO_START_TIMING;
+    currentTimeRemaining = MOVE_TO_START_TIMING;
     currentDrivingState = DrivingState::MovingIntoPlace;
 }
 
@@ -81,10 +82,6 @@ bool DrivingController::loop(unsigned long deltaTime)
                 deltaTime = moveIntoPlace(deltaTime);
                 break;
 
-            case DrivingState::HoldingAtStart:
-                deltaTime = holdAtStart(deltaTime);
-                break;
-
             case DrivingState::SyncingWithPreamble:
                 deltaTime = syncWithPreamble(deltaTime);
                 break;
@@ -99,42 +96,14 @@ bool DrivingController::loop(unsigned long deltaTime)
 
 unsigned long DrivingController::moveIntoPlace(unsigned long deltaTime)
 {
-    if (deltaTime > currentTimeRemaining)// ||
-        // abs(driver.getLinearVelocity()) > driver.getDistanceToTarget())
-    {
-        //we've reached the starting position
-        deltaTime -= currentTimeRemaining;
-        moveIntoPlaceTimer -= currentTimeRemaining;
-        currentTimeRemaining = 0;
-
+    if (deltaTime > currentTimeRemaining) {
         //hold at the starting position until the startup timer expires
-        // SerialUSB.println("Debug hold #2");
-        driver.holdPosition();
-        currentDrivingState = DrivingState::HoldingAtStart;
-
-        return deltaTime;
-    }
-
-    currentTimeRemaining -= deltaTime;
-    moveIntoPlaceTimer -= deltaTime;
-    pursue(deltaTime);
-    return 0;
-}
-
-unsigned long DrivingController::holdAtStart(unsigned long deltaTime)
-{
-    if (deltaTime > moveIntoPlaceTimer) {
-        //initial movement time expired
-        deltaTime -= moveIntoPlaceTimer;
-        moveIntoPlaceTimer = 0;
-
-        //sync with the preamble before starting routine so that all robots are potentially on the same timing
         sensors->syncWithPreamble();
         currentDrivingState = DrivingState::SyncingWithPreamble;
         return deltaTime;
     }
 
-    moveIntoPlaceTimer -= deltaTime;
+    currentTimeRemaining -= deltaTime;
     pursue(deltaTime);
     return 0;
 }
@@ -160,9 +129,7 @@ unsigned long DrivingController::syncWithPreamble(unsigned long deltaTime)
 
 unsigned long DrivingController::execute(unsigned long deltaTime)
 {
-    if (deltaTime > currentTimeRemaining /* ||
-        abs(driver.getLinearVelocity()) > driver.getDistanceToTarget()*/)
-    {
+    if (deltaTime >= currentTimeRemaining) {
         //check if we have more commands to process
         if (!processCommands()) {
             //sync with the preamble
@@ -181,26 +148,24 @@ bool DrivingController::processCommands()
 {
     if (currentCommand >= routineData->routineMovementCount) {
         //we've reached the end of the routine
-        // SerialUSB.println("Debug hold #3");
-        driver.holdPosition();
         return false;
     }
 
-    int timing = routineData->routineMovements[currentCommand++];
-
     //increment the timing
-    currentTimeRemaining += abs(timing);
+    int timing = routineData->routineMovements[currentCommand++];
     if (timing < 0) {
-        //we're temporarily stopping at this position
-        driver.holdPosition();
+        //a negative timing indicates that we're temporarily stopping at this position
+        currentTimeRemaining += -timing;
         return true;
     }
 
     //pull the waypoint
+    currentTimeRemaining += timing;
     driver.setTargetPosition(
         routineData->routineMovements[currentCommand],
         routineData->routineMovements[currentCommand+1],
-        routineData->routineMovements[currentCommand+2] * DEG2RAD);
+        routineData->routineMovements[currentCommand+2] * DEG2RAD,
+        timing);
     currentCommand += 3;
 
     //just in case we were in the middle of a state downgrade, reset the downgrade counter
@@ -211,8 +176,9 @@ bool DrivingController::processCommands()
 
 void DrivingController::pursue(unsigned long deltaTime)
 {
-    driver.update(fmax(currentTimeRemaining, deltaTime));
-    
+//    driver.update(fmax(currentTimeRemaining, deltaTime));
+    driver.loop(deltaTime);
+
 #ifdef WEBOTS_SUPPORT
     const ZVector2* shadowPosition = driver.getShadowPosition();
     translationValues[0] = shadowPosition->getX() / 1000.0;
@@ -253,22 +219,21 @@ void DrivingController::pursue(unsigned long deltaTime)
 
 void DrivingController::executeMove()
 {
-    double linearVelocity, angularVelocity;
     if (driver.isReverseDirection()) {
         relativeShadowPosition.flip();
         relativeShadowVelocity.flip();
         pursuitController.executeMove(
             &relativeShadowPosition,
             &relativeShadowVelocity);
-        linearVelocity = -pursuitController.getLinearVelocity();
-        angularVelocity = pursuitController.getAngularVelocity();
+        currentLinearVelocity = -pursuitController.getLinearVelocity();
+        currentAngularVelocity = pursuitController.getAngularVelocity();
     }
     else {
         pursuitController.executeMove(
             &relativeShadowPosition,
             &relativeShadowVelocity);
-        linearVelocity = pursuitController.getLinearVelocity();
-        angularVelocity = pursuitController.getAngularVelocity();
+        currentLinearVelocity = pursuitController.getLinearVelocity();
+        currentAngularVelocity = pursuitController.getAngularVelocity();
     }
 
     /*
@@ -277,8 +242,6 @@ void DrivingController::executeMove()
         LIMIT_LINEAR_ACCELERATION_MIN);
     currentLinearVelocity += constrain(linearVelocity - currentLinearVelocity, -limit, limit);
      */
-    currentLinearVelocity = linearVelocity;
-    currentAngularVelocity = angularVelocity;
     zippy.move(currentLinearVelocity, currentAngularVelocity);
 }
 
@@ -288,9 +251,9 @@ bool DrivingController::completeMove()
         (relativeShadowPosition.getD() > LINEAR_EPSILON || relativeShadowVelocity.atan2() < ANGULAR_EPSILON))
     {
         stateDowngradeCounter--;
-        //while completing a move (preparing to stop at the current target position), we should just
-        //prioritize ensuring that we line up with the target position along our X axis and turn toward
-        //the velocity orientation only insomuch as that will get us closer to our final target position
+        //while completing a move (preparing to stop at the current target position), we prioritize ensuring
+        //that we line up with the target position along our X axis and turn toward the velocity orientation
+        //only insomuch as that will get us closer to our final target orientation
         zippy.move(relativeShadowPosition.getY(),
                    relativeShadowVelocity.atan2());
         return false;

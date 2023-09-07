@@ -17,19 +17,23 @@ class Driver
 {
 
 private:
-    bool holdingPosition = false;
+    unsigned long remainingMovementTime = 0;
     bool reverseDirection = false;
 
-    ZMatrix2 shadowPosition;
-    ZVector2 shadowVelocityVector;
     ZMatrix2 previousTargetPosition;
     ZMatrix2 targetPosition;
+
+    //intermediate movement metrics
     ZVector2 shadowToTargetPosition;
 
+    //output metrics
     double currentLinearVelocity = 0.0;
     double currentAngularVelocity = 0.0;
+    ZMatrix2 shadowPosition;
+    ZVector2 shadowVelocityVector;
 
     void calculateNewTarget();
+    void holdAtTarget();
 
 public:
     Driver()
@@ -37,23 +41,25 @@ public:
 
     void reset();
 
-    void start(const ZMatrix2* sp, double tx, double ty, double to);
-    void start(double sx, double sy, double so, double tx, double ty, double to);
+    void start(const ZMatrix2* sp,
+               double tx, double ty, double to,
+               unsigned long movementTime);
+    void start(double sx, double sy, double so,
+               double tx, double ty, double to,
+               unsigned long movementTime);
 
-    void setTargetPosition(const ZMatrix2* tp);
-    void setTargetPosition(double targetX, double targetY, double targetO);
-    const ZMatrix2* getTargetPosition() const { return &targetPosition; }
+    void setTargetPosition(const ZMatrix2* tp,
+                           unsigned long movementTime);
+    void setTargetPosition(double targetX, double targetY, double targetO,
+                           unsigned long movementTime);
 
-    void update(unsigned long remainingTime);
+    bool loop(unsigned long deltaTime);
 
+    bool isHoldingPosition() const { return !remainingMovementTime; }
+    
     const ZVector2* getShadowPosition() const { return &shadowPosition.position; }
     const ZVector2* getShadowVelocity() const { return &shadowVelocityVector; }
-    const ZVector2* getShadowToTargetPosition() const { return &shadowToTargetPosition; }
-    double getDistanceToTarget() const { return shadowToTargetPosition.getD(); }
-    bool isHoldingPosition() const { return holdingPosition; }
     bool isReverseDirection() const { return reverseDirection; }
-
-    void holdPosition();
 
 };
 

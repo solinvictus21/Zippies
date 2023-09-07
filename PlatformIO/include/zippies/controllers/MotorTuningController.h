@@ -10,29 +10,38 @@
 
 typedef enum class _MotorTuningTestState
 {
+    StictionStart,
+    StictionRamp,
+    StictionLow,
     PowerDifferential,
     Stiction,
     MinimumStraightSpeed,
+    Completed,
 } MotorTuningTestState;
 
 class MotorTuningController : public ZippyController
 {
 
 private:
-    SensorFusor* sensors;
+    // SensorFusor* sensors;
     MotorDriver motors;
     ZippyFace display;
+    uint8_t buttonsStatus = 0;
 
     MotorTuningTestState currentTestState = MotorTuningTestState::Stiction;
-    double leftMotorPower = 0.0;
-    double rightMotorPower = 0.0;
+    double motorPowerTesting = 0.0;
+    double stictionPowerTesting = 0.0;
+    double currentMotorPower = 0.0;
+    // double leftMotorPower = 0.0;
+    // double rightMotorPower = 0.0;
     ZMatrix2 testStartingPosition;
     unsigned long testTimer = 0;
-    bool testComplete = false;
 
     //test metrics
     ZMatrix2 deltaPosition;
     double linearVelocity = 0.0;
+    double linearVelocityLeft = 0.0;
+    double linearVelocityRight = 0.0;
     double turnRadius = 0.0;
     double powerDifferential = 0.0;
 
@@ -45,7 +54,8 @@ private:
     void displayMetrics();
 
 public:
-    MotorTuningController(SensorFusor* sensors);
+    // MotorTuningController(const ZippyConfig* zc, SensorFusor* sensors);
+    MotorTuningController(const ZippyConfig* zc);
 
     void start();
     bool loop(unsigned long deltaTime);
