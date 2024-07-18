@@ -1,0 +1,222 @@
+
+path QuarterFlower2
+              1         1         1       135
+              1         0         0       -90
+
+path HalfFlower4
+              1      QuarterFlower2         1         1
+              1      QuarterFlower2        -1         1
+
+path FullFlower8
+              1         HalfFlower4         1         1
+              1         HalfFlower4        -1         1
+
+path Circle4
+              1         1         1        90
+              1         2         0       180
+              1         1        -1       -90
+              1         0         0         0
+
+path FigureEight8
+           //forward right
+              1             Circle4         1         1
+           //forward left
+              1             Circle4        -1         1
+
+path FasterAndFaster
+           //circular figure 8
+           1400        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1400        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1300        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1300        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1200        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1200        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1100        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1100        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1000        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1000        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+            900        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+            900        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+            800        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+            800        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+            700        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+            700        FigureEight8       200      -200
+           //pause
+           1000
+
+path SlowerAndSlower
+           //circular figure 8
+           1400        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1400        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1500        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1500        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1600        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1600        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1700        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1700        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1800        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1800        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           1900        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           1900        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           2000        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           2000        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+           2100        FigureEight8       200       200
+           //pause
+           1000
+           //circular figure 8 (backward)
+           2100        FigureEight8       200      -200
+           //pause
+           1000
+
+path SmallerAndSmaller
+           //circular figure 8
+           1000        FigureEight8       200       200
+           //pause
+           1000
+
+           //circular figure 8 (backward)
+           1000        FigureEight8       200      -200
+           //pause
+           1000
+
+           //circular figure 8
+            900        FigureEight8       180       180
+           //pause
+           1000
+
+           //circular figure 8 (backward)
+            900        FigureEight8       180      -180
+           //pause
+           1000
+
+           //circular figure 8
+            800        FigureEight8       160       160
+           //pause
+           1000
+
+           //circular figure 8 (backward)
+            800        FigureEight8       160      -160
+           //pause
+           1000
+
+           //circular figure 8
+            700        FigureEight8       140       140
+           //pause
+           1000
+
+           //circular figure 8 (backward)
+            700        FigureEight8       140      -140
+           //pause
+           1000
+
+path FlowerPath
+           //flower petal figure 8
+           //forward
+           1000         FullFlower8       200       200
+           //pause
+           1000
+           //forward
+           1000         FullFlower8       200      -200
+           //pause
+           1000

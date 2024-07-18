@@ -3,12 +3,14 @@ import Foundation
 import CoreBluetooth
 import UIKit
 
+let ZippyMotorControlServiceUUID = CBUUID(string: "5BF1CEC2-EFC2-44D2-81AE-73FCFD5F7A13")
+let ZippyMotorControlCharacteristicUUID = CBUUID(string: "C9589239-D751-47F7-9C5B-38355F0E9811")
+let ZippyPositionCharacteristicUUID = CBUUID(string: "7E94E051-995E-4ECB-92C6-12EE64729C4D")
+
 protocol ZippyManagerDelegate: class
 {
-    func zippyDiscovered(_ zippy: Zippy2)
-    
-    func zippyConnected(_ zippy: Zippy2)
-    func zippyDisconnected(_ zippy: Zippy2)
+    func zippyConnected(_ zippy: Zippy)
+    func zippyDisconnected(_ zippy: Zippy)
 }
 
 class ZippyManager: NSObject
@@ -16,188 +18,274 @@ class ZippyManager: NSObject
     
     var delegate: ZippyManagerDelegate?
     
-    fileprivate var peripheralFinder = PeripheralFinder()
-    fileprivate var _zippies = [UUID : Zippy2]()
+    fileprivate var centralManager: CBCentralManager?
+    fileprivate var discoveredPeripherals = Set<CBPeripheral>()
+    fileprivate var zippies = [CBPeripheral : Zippy]()
     
-    var zippies : [UUID : Zippy2]!
-    {
-        get
-        {
-            return _zippies
+    /**
+     * Starts the process of discovering the available Zippies, represented as Bluetooth peripherals.
+     */
+    func startDiscovery() {
+        stopDiscovery()
+        
+        if centralManager == nil {
+            self.centralManager = CBCentralManager(delegate: self, queue: DispatchQueue.main)
+        }
+
+        //TODO: handle the situation where the user has Bluetooth powered off
+        if self.centralManager!.state == CBManagerState.poweredOn {
+            //start scanning
+            print("Starting discovery.")
+            self.centralManager!.scanForPeripherals(withServices: [ZippyMotorControlServiceUUID],
+                                                    options: [CBCentralManagerScanOptionSolicitedServiceUUIDsKey : [ZippyMotorControlServiceUUID]])
         }
     }
     
-    /*
-    fileprivate var zippies = [CBPeripheral: Zippy2]()
-    fileprivate var lighthouse: Lighthouse?
-    */
-
-    override init() {
-        super.init()
-        
-        self.peripheralFinder.delegate = self
-    }
-    
-    func startObserving() {
-        self.peripheralFinder.startObserving(ZippyBroadcastUUID)
-    }
-    
-    func startDiscovery() {
-        discoverZippies()
-    }
-    
-    fileprivate func discoverZippies() {
-        self.peripheralFinder.startDiscovery(ZippyServiceUUID,
-                                             characteristicUUIDs: [ZippyTxUUID,
-                                                                   ZippySensorLeftRxUUID,
-                                                                   ZippySensorRightRxUUID,
-                                                                   ZippyComputedDataRxUUID])
-    }
-    
-    fileprivate func discoverLighthouse() {
-        self.peripheralFinder.stopDiscovery()
-        /*
-        self.peripheralFinder.startDiscovery(LighthouseAdvertisedUUID,
-                                             primaryServiceUUID: LighthouseServiceUUID,
-                                             characteristicUUIDs: [LighthouseReadWriteUUID])
-        */
-    }
-    
-    func clearDevices() {
-        //TODO: iterate the dictionary of zippies and remove them
-        /*
-         DispatchQueue.main.async(execute: {
-         self.delegate?.zippyDisconnected(disconnectedZippy!)
-         })
-         */
-    }
-    
-    /*
-    func anyZippy() -> Zippy? {
-        return zippies.first?.value
-    }
-    */
-    
     func stopDiscovery() {
-        self.peripheralFinder.stopDiscovery()
+        if self.centralManager == nil || !self.centralManager!.isScanning {
+            return
+        }
+        
+        //stop scanning for new peripherals
+        self.centralManager!.stopScan()
+    }
+    
+    fileprivate func zippyDiscoveryComplete(_ peripheral: CBPeripheral,
+                                            motorControlService: CBService,
+                                            motorControlCharacteristic: CBCharacteristic,
+                                            positionCharacteristic: CBCharacteristic)
+    {
+        print("Completed Zippy discovery.")
+        let zippy = Zippy(peripheral,
+                          motorControlService: motorControlService,
+                          motorControlCharacteristic: motorControlCharacteristic,
+                          positionCharacteristic: positionCharacteristic)
+        zippies[peripheral] = zippy
+        delegate?.zippyConnected(zippy)
+    }
+    
+    fileprivate func reset() {
+        //iterate the dictionary of zippies and remove them
+        for (nextPeripheral, nextZippy) in zippies {
+            nextPeripheral.delegate = nil
+            nextZippy.delegate = nil
+            delegate?.zippyDisconnected(nextZippy)
+        }
+        zippies.removeAll()
+        discoveredPeripherals.removeAll()
     }
     
     deinit {
         stopDiscovery()
-        peripheralFinder.delegate = nil
+        centralManager?.delegate = nil
+        centralManager = nil
     }
     
 }
 
-extension ZippyManager: PeripheralFinderDelegate
+extension ZippyManager: CBCentralManagerDelegate
 {
     
-    func peripheral(_ peripheral: CBPeripheral,
-                    didDiscover advertisementData: [String : Any])
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        switch (central.state) {
+        case .poweredOn:
+            //step #1. Bluetooth is now on. scan for Zippies
+//            print("Bluetooth powered on. Starting discovery")
+//            self.centralManager!.scanForPeripherals(withServices: [advertisedServiceUUID!], options: nil)
+            self.startDiscovery()
+            break
+        case .resetting:
+//            print("Bluetooth resetting.")
+            //we'll have to restart the scan when it powers back on
+            self.reset()
+            break
+        case .poweredOff:
+//            print("Bluetooth powered off.")
+            self.reset()
+            break
+        case .unauthorized:
+//            print("Bluetooth unauthorized.")
+            break
+        case .unsupported:
+//            print("Bluetooth unsupported.")
+            break
+        case .unknown:
+            break
+        }
+    }
+    
+    func centralManager(_ central: CBCentralManager,
+                        didDiscover peripheral: CBPeripheral,
+                        advertisementData: [String : Any],
+                        rssi RSSI: NSNumber)
     {
-        let id = peripheral.identifier
-        let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
-        let zippyX = extractFloat32(values, position: 0)
-        let zippyY = extractFloat32(values, position: 4)
-        let zippyO = extractFloat32(values, position: 8)
-        let zippyV = extractFloat32(values, position: 12)
-        let zippyTV = extractFloat32(values, position: 16)
-        print("  1: ", zippyX,
-              "  2: ", zippyY,
-              "  3: ", zippyO,
-              "  4: ", zippyV,
-              "  5: ", zippyTV)
+//        print("Peripheral discovered.")
+        discoveredPeripherals.insert(peripheral)
+        //now try to connect to it
+        peripheral.delegate = self
+        central.connect(peripheral, options: nil)
+    }
 
-        DispatchQueue.main.async(execute: {
-            if let zippy = self._zippies[id]
-            {
-                zippy.setPosition(x: zippyX, y: zippyY, o: zippyO)
-                self.delegate?.zippyDiscovered(zippy)
-            }
-            else
-            {
-                let zippy = Zippy2(id, x: zippyX, y: zippyY, o: zippyO)
-                self._zippies[id] = zippy
-                self.delegate?.zippyDiscovered(zippy)
-            }
-        })
+    //by the time we reach the point of connecting, all services and characteristics have been discovered and the Zippy object
+    //has already been created to represent this peripheral
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        attemptServiceDiscovery(peripheral)
+    }
 
-        /*
-        guard let serviceUUIDs = advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID] else
-        {
+    func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        //a peripheral disconnected
+        print("Zippy got disconnected")
+        peripheral.delegate = nil
+        discoveredPeripherals.remove(peripheral)
+
+        guard let removedZippy = zippies.removeValue(forKey: peripheral) else {
+            //peripheral disconnected before all services and characteristics were discovered
+            return
+        }
+
+        //notify the delegate that the Zippy has disconnected; requires mapping from peripheral to Zippy; remove mapping after
+        removedZippy.delegate = nil
+        self.delegate?.zippyDisconnected(removedZippy)
+    }
+    
+}
+
+/**
+ * The CBPeripheralDelegate is only used by the ZippyManager during the setup phase while discovering the necessary services and characteristics. Once those
+ * have been discovered, the Zippy instance is created and delegate responsibility is handled by the Zippy o
+ */
+extension ZippyManager: CBPeripheralDelegate
+{
+    
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        guard error == nil else {
+            discoveredPeripherals.remove(peripheral)
+            print("Received unexpected bluetooth error during service discovery.")
             return
         }
         
-//        print(peripheral.identifier.uuidString)
-//        print(advertisementData.count)
-        let values = [UInt8](advertisementData[CBAdvertisementDataManufacturerDataKey] as! Data)
-        print(serviceUUIDs.first!.uuidString, ", X=", extractFloat32(values, position: 0), ", Y=", extractFloat32(values, position: 4))
-        */
+        guard let services = peripheral.services else {
+            discoveredPeripherals.remove(peripheral)
+            print("Failed to discover characteristics.")
+            return
+        }
+        
+        completeServiceDiscovery(peripheral,
+                                 services: services)
     }
     
-    func peripheral(_ peripheral: CBPeripheral,
-                    didConnect service: CBService,
-                    characteristics: [CBUUID: CBCharacteristic])
-    {
-        /*
-        if service.uuid == ZippyServiceUUID {
-            //found the zippy
-            let zippy = Zippy(peripheral,
-                              primaryService: service,
-                              characteristics: characteristics)
-            zippies[peripheral] = zippy
-            self.delegate?.zippyConnected(zippy)
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        //no matter what we do after this point, there is no need for us to continue retaining this data, since
+        //it has all been collected to be passed along to the delegate
+        guard error == nil else {
+            discoveredPeripherals.remove(peripheral)
+            print("Received unexpected bluetooth error during characteristic discovery.")
+            return
+        }
+        
+        guard let characteristics = service.characteristics else {
+            discoveredPeripherals.remove(peripheral)
+            print("Failed to discover characteristics.")
+            return
+        }
+        
+        completeCharacteristicDiscovery(peripheral,
+                                        motorControlService: service,
+                                        characteristics: characteristics)
+    }
+    
+    fileprivate func attemptServiceDiscovery(_ peripheral: CBPeripheral) {
+        guard let services = peripheral.services else {
+            print("Starting service discovery.")
+            peripheral.discoverServices([ZippyMotorControlServiceUUID])
+            return
+        }
 
-            //now discover the lighthouse if we still need it (this could just be a Zippy reconnect)
-            if lighthouse == nil {
-                discoverLighthouse()
-            }
-            else {
-                stopDiscovery()
-            }
-        }
-        else {
-            //found the lighthouse
-            self.lighthouse = Lighthouse(peripheral,
-                                         primaryService: service,
-                                         characteristics: characteristics)
-            
-            if zippies.count == 0 {
-                //if we lost our zippies, rediscover them
-                discoverZippies()
-            }
-            else {
-                //stop further discovery
-                self.peripheralFinder.stopDiscovery()
-            }
-        }
-        */
+        //service have already been discovered
+        print("Found services without discovery.")
+        completeServiceDiscovery(peripheral,
+                                 services: services)
     }
     
-    func peripheral(didDisconnect peripheral: CBPeripheral) {
-        /*
-        if peripheral == lighthouse?.peripheral {
-            //lighthouse disconnected. rediscover it
-            self.lighthouse = nil
-            discoverLighthouse()
-        }
-        else if let zippy = zippies.removeValue(forKey: peripheral) {
-            self.delegate?.zippyDisconnected(zippy)
-            if zippies.count == 0 {
-                discoverZippies()
-            }
-        }
-        */
-    }
-    
-    func extractFloat32(_ data: [UInt8],
-                        position: Int) -> CGFloat
+    fileprivate func completeServiceDiscovery(_ peripheral: CBPeripheral,
+                                              services: [CBService])
     {
-        var bitPatternU32 = UInt32(data[position+3]) << 24
-        bitPatternU32 |= UInt32(data[position+2]) << 16
-        bitPatternU32 |= UInt32(data[position+1]) << 8
-        bitPatternU32 |= UInt32(data[position])
-        return CGFloat(Float32(bitPattern: bitPatternU32))
+        guard let motorControlService = findMotorService(peripheral.services!) else {
+            discoveredPeripherals.remove(peripheral)
+            print("Failed to discover all services.")
+            return
+        }
+
+        //done with services; now find the characteristics
+        attemptCharacteristicDiscovery(peripheral,
+                                       motorControlService: motorControlService)
+    }
+    
+    fileprivate func attemptCharacteristicDiscovery(_ peripheral: CBPeripheral,
+                                                    motorControlService: CBService)
+    {
+        guard let characteristics = motorControlService.characteristics else {
+            //characteristics have not yet been discovered
+            print("Starting characteristic discovery.")
+            peripheral.discoverCharacteristics([ZippyMotorControlCharacteristicUUID, ZippyPositionCharacteristicUUID], for: motorControlService)
+            return
+        }
+        
+        print("Found characterics without discovery.")
+        completeCharacteristicDiscovery(peripheral,
+                                        motorControlService: motorControlService,
+                                        characteristics: characteristics)
+    }
+
+    fileprivate func completeCharacteristicDiscovery(_ peripheral: CBPeripheral,
+                                                     motorControlService: CBService,
+                                                     characteristics: [CBCharacteristic])
+    {
+        guard let (motorControlCharacteristic, positionCharacteristic) = findCharacteristics(characteristics) else {
+            discoveredPeripherals.remove(peripheral)
+            print("Failed to discover all characteristics.")
+            return
+        }
+        
+        //found all the services and characteristics
+        zippyDiscoveryComplete(peripheral,
+                               motorControlService: motorControlService,
+                               motorControlCharacteristic: motorControlCharacteristic,
+                               positionCharacteristic: positionCharacteristic)
+    }
+    
+    fileprivate func findMotorService(_ services: [CBService]) -> CBService? {
+        for service in services {
+            if service.uuid == ZippyMotorControlServiceUUID {
+                return service
+            }
+        }
+        return nil
+    }
+    
+    fileprivate func findCharacteristics(_ characteristics: [CBCharacteristic]) -> (CBCharacteristic, CBCharacteristic)? {
+        var motorControlCharacteristic: CBCharacteristic? = nil
+        var positionCharacteristic: CBCharacteristic? = nil
+        for characteristic in characteristics {
+            if characteristic.uuid == ZippyMotorControlCharacteristicUUID {
+                if positionCharacteristic != nil {
+                    return (characteristic, positionCharacteristic!)
+                }
+                
+                //keep looking for the others
+                motorControlCharacteristic = characteristic
+            }
+            else if characteristic.uuid == ZippyPositionCharacteristicUUID {
+                if motorControlCharacteristic != nil {
+                    return (motorControlCharacteristic!, characteristic)
+                }
+                
+                //keep looking for the others
+                positionCharacteristic = characteristic
+            }
+        }
+        //only succeed if both characteristics are found
+        return nil
     }
     
 }

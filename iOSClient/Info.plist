@@ -24,6 +24,8 @@
 	<true/>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Bluetooth is required to connect to Zippy robots.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>App uses Bluetooth to connect to and control Zippy robots.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -4,130 +4,110 @@ import CoreBluetooth
 
 //services & characteristics UUIDs
 let ZippyBroadcastUUID = CBUUID(string: "B00B")
-let ZippyServiceUUID = CBUUID(string: "5BF1CEC2-EFC2-44D2-81AE-73FCFD5F7A13")
-let ZippyTxUUID = CBUUID(string: "C9589239-D751-47F7-9C5B-38355F0E9811")
 let ZippySensorRightRxUUID = CBUUID(string: "F652B269-4405-42D7-8CD8-0630E778E0D0")
 let ZippySensorLeftRxUUID = CBUUID(string: "53372C2D-2BD5-44C9-990F-A329E5E1F4B5")
 let ZippyComputedDataRxUUID = CBUUID(string: "7965B674-B7AE-4E02-B334-872ABBE5999D")
 
-let MESSAGE_SEND_MOTORS_STOP: UInt8     = 0x00
-let MESSAGE_SEND_MOTORS_SET: UInt8      = 0x15
-let MESSAGE_RECEIVE_DEBUG: UInt8        = 0x16
-let MESSAGE_AUTODRIVE_MODE: UInt8       = 0x20
-let MESSAGE_MANUAL_MODE: UInt8          = 0x21
-
 protocol ZippyDelegate: class
 {
-    func sensorLeftDataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
-                               ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
-    
-    func sensorRightDataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
-                                ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
-    
-    func computedDataUpdated(xPosition: Float32, yPosition: Float32, linearVelocity: Float32,
-                             orientation: Float32, rotationalVelocity: Float32)
+    func positionUpdated(_ zippy: Zippy)
 }
 
-struct SensorData {
-    var xSyncTicks: UInt16 = 0
-    var xSweepTicks: UInt32 = 0
-    var xPosition: Float32 = 0.0
-    var ySyncTicks: UInt16 = 0
-    var ySweepTicks: UInt32 = 0
-    var yPosition: Float32 = 0.0
-}
-
-class Zippy: BluetoothPeripheral
+class Zippy: NSObject
 {
     
     var delegate: ZippyDelegate?
 
-    var sendCharacteristic: CBCharacteristic
-    var sensorLeftReceiveCharacteristic: CBCharacteristic
-    var sensorRightReceiveCharacteristic: CBCharacteristic
-    var computedDataReceiveCharacteristic: CBCharacteristic
+    var zippyPeripheral: CBPeripheral
+    var motorControlService: CBService
+    var motorControlCharacteristic: CBCharacteristic
+    var positionCharacteristic: CBCharacteristic
     
-    var sensorLeftData = SensorData()
-    var sensorRightData = SensorData()
-    var xPosition: Float32 = 0.0
-    var yPosition: Float32 = 0.0
+    var lighthouseVisible: Bool = false
+    var pose = ZMatrix2()
     var linearVelocity: Float32 = 0.0
-    var orientation: Float32 = 0.0
-    var rotationalVelocity: Float32 = 0.0
+    var angularVelocity: Float32 = 0.0
 
-    override init(_ peripheral: CBPeripheral,
-                  primaryService: CBService,
-                  characteristics: [CBUUID: CBCharacteristic])
+    init(_ peripheral: CBPeripheral,
+         motorControlService: CBService,
+         motorControlCharacteristic: CBCharacteristic,
+         positionCharacteristic: CBCharacteristic)
     {
-        self.sendCharacteristic = characteristics[ZippyTxUUID]!
-        self.sensorLeftReceiveCharacteristic = characteristics[ZippySensorLeftRxUUID]!
-        self.sensorRightReceiveCharacteristic = characteristics[ZippySensorRightRxUUID]!
-        self.computedDataReceiveCharacteristic = characteristics[ZippyComputedDataRxUUID]!
-        
-        super.init(peripheral,
-                   primaryService: primaryService,
-                   characteristics: characteristics)
+        self.zippyPeripheral = peripheral
+        self.motorControlService = motorControlService
+        self.motorControlCharacteristic = motorControlCharacteristic
+        self.positionCharacteristic = positionCharacteristic
+        super.init()
 
-        self.peripheral.delegate = self
-        self.peripheral.setNotifyValue(true, for: sensorLeftReceiveCharacteristic)
-        self.peripheral.setNotifyValue(true, for: sensorRightReceiveCharacteristic)
-        self.peripheral.setNotifyValue(true, for: computedDataReceiveCharacteristic)
-    }
-    
-    func setManualModeEnabled(_ e: Bool) {
-        let data = NSMutableData(capacity: 1)
-        var header: UInt8 = e ? MESSAGE_MANUAL_MODE : MESSAGE_AUTODRIVE_MODE
-        data!.append(&header, length: 1)
-        writeValue(data! as Data)
+        self.zippyPeripheral.delegate = self
+        self.zippyPeripheral.setNotifyValue(true, for: positionCharacteristic)
     }
     
     func setMotors(left: Float32, right: Float32) {
-        let data = NSMutableData(capacity: 9)
-        var header : UInt8 = MESSAGE_SEND_MOTORS_SET
-        data!.append(&header, length: 1)
-        var f = left
-        data!.append(&f, length: 4)
-        f = right
-        data!.append(&f, length: 4)
-        writeValue(data! as Data)
+//        print(String(format: "Setting motors: %.1f, %.1f", left, right))
+//        print("Setting motors: \(left), \(right)")
+        var data = Data(capacity: 8)
+        withUnsafePointer(to: left) { pointer in
+            data.append(UnsafeBufferPointer(start: pointer, count: 1))
+        }
+        withUnsafePointer(to: right) { pointer in
+            data.append(UnsafeBufferPointer(start: pointer, count: 1))
+        }
+
+        self.zippyPeripheral.writeValue(data, for: self.motorControlCharacteristic, type: CBCharacteristicWriteType.withoutResponse)
     }
     
-    func stop() {
-        let data = Data.init(bytes: [MESSAGE_SEND_MOTORS_STOP])
-        writeValue(data)
+    fileprivate func extractPositionData(_ positionData: [UInt8]) {
+        lighthouseVisible = positionData[0] == 0 ? false : true
+        pose.position.setX(Double(extractInt16(positionData, position: 1)) / 10.0)
+        pose.position.setY(Double(extractInt16(positionData, position: 3)) / 10.0)
+        pose.orientation.rotation = Double(extractInt16(positionData, position: 5)) / 10.0
+        linearVelocity = Float32(extractInt16(positionData, position: 7)) / 10.0
+        angularVelocity = Float32(extractInt16(positionData, position: 9)) / 10.0
+        
+        delegate?.positionUpdated(self)
     }
     
-    fileprivate func writeValue(_ data: Data) {
-        self.peripheral.writeValue(data, for: self.sendCharacteristic, type: CBCharacteristicWriteType.withoutResponse)
+    fileprivate func extractUInt16(_ data: [UInt8],
+                       position: Int) -> UInt16
+    {
+        return (UInt16(data[position+1]) << 8) | UInt16(data[position])
     }
     
-    fileprivate func extractSensorData(values: [UInt8], sensorData: inout SensorData) {
-        sensorData.xSyncTicks = UInt16(bitPattern: Int16(values[1]) << 8 | Int16(values[0]))
-        var bitPattern32 = Int32(values[5]) << 24
-        bitPattern32 |= Int32(values[4]) << 16
-        bitPattern32 |= Int32(values[3]) << 8
-        bitPattern32 |= Int32(values[2])
-        sensorData.xSweepTicks = UInt32(bitPattern: bitPattern32)
-        var bitPatternU32 = UInt32(values[9]) << 24
-        bitPatternU32 |= UInt32(values[8]) << 16
-        bitPatternU32 |= UInt32(values[7]) << 8
-        bitPatternU32 |= UInt32(values[6])
-        sensorData.xPosition = Float32(bitPattern: bitPatternU32)
-        sensorData.ySyncTicks = UInt16(bitPattern: Int16(values[11]) << 8 | Int16(values[10]))
-        bitPattern32 = Int32(values[15]) << 24
-        bitPattern32 |= Int32(values[14]) << 16
-        bitPattern32 |= Int32(values[13]) << 8
-        bitPattern32 |= Int32(values[12])
-        sensorData.ySweepTicks = UInt32(bitPattern: bitPattern32)
-        bitPatternU32 = UInt32(values[19]) << 24
-        bitPatternU32 |= UInt32(values[18]) << 16
-        bitPatternU32 |= UInt32(values[17]) << 8
-        bitPatternU32 |= UInt32(values[16])
-        sensorData.yPosition = Float32(bitPattern: bitPatternU32)
+    fileprivate func extractInt16(_ data: [UInt8],
+                       position: Int) -> Int16
+    {
+        return (Int16(data[position+1]) << 8) | Int16(data[position])
+    }
+    
+    fileprivate func extractUInt32(_ data: [UInt8],
+                       position: Int) -> UInt32
+    {
+        return (UInt32(data[position+3]) << 24) | (UInt32(data[position+2]) << 16) |
+                (UInt32(data[position+1]) << 8) | UInt32(data[position])
+    }
+    
+    fileprivate func extractInt32(_ data: [UInt8],
+                       position: Int) -> Int32
+    {
+        return (Int32(data[position+3]) << 24) | (Int32(data[position+2]) << 16) |
+                (Int32(data[position+1]) << 8) | Int32(data[position])
+    }
+    
+    fileprivate func extractFloat16(_ data: [UInt8],
+                       position: Int) -> Float16
+    {
+        return Float16(bitPattern: extractUInt16(data, position: position))
+    }
+    
+    fileprivate func extractFloat32(_ data: [UInt8],
+                        position: Int) -> Float32
+    {
+        return Float32(bitPattern: extractUInt32(data, position: position))
     }
     
     deinit {
-        self.peripheral.delegate = nil
+        self.zippyPeripheral.delegate = nil
     }
     
 }
@@ -135,66 +115,10 @@ class Zippy: BluetoothPeripheral
 extension Zippy: CBPeripheralDelegate
 {
 
-    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: (any Error)?) {
         switch (characteristic) {
-        case sensorLeftReceiveCharacteristic:
-            let values = [UInt8](characteristic.value!)
-            extractSensorData(values: values, sensorData: &sensorLeftData)
-            DispatchQueue.main.async(execute: {
-                self.delegate?.sensorLeftDataUpdated(xSyncTicks: self.sensorLeftData.xSyncTicks,
-                                                     xSweepTicks: self.sensorLeftData.xSweepTicks,
-                                                     xPosition: self.sensorLeftData.xPosition,
-                                                     ySyncTicks: self.sensorLeftData.ySyncTicks,
-                                                     ySweepTicks: self.sensorLeftData.ySweepTicks,
-                                                     yPosition: self.sensorLeftData.yPosition)
-            })
-            break
-        case sensorRightReceiveCharacteristic:
-            let values = [UInt8](characteristic.value!)
-            extractSensorData(values: values, sensorData: &sensorRightData)
-            DispatchQueue.main.async(execute: {
-                self.delegate?.sensorRightDataUpdated(xSyncTicks: self.sensorRightData.xSyncTicks,
-                                                      xSweepTicks: self.sensorRightData.xSweepTicks,
-                                                      xPosition: self.sensorRightData.xPosition,
-                                                      ySyncTicks: self.sensorRightData.ySyncTicks,
-                                                      ySweepTicks: self.sensorRightData.ySweepTicks,
-                                                      yPosition: self.sensorRightData.yPosition)
-            })
-            break
-        case computedDataReceiveCharacteristic:
-            let values = [UInt8](characteristic.value!)
-            var bitPatternU32 = UInt32(values[3]) << 24
-            bitPatternU32 |= UInt32(values[2]) << 16
-            bitPatternU32 |= UInt32(values[1]) << 8
-            bitPatternU32 |= UInt32(values[0])
-            self.xPosition = Float32(bitPattern: bitPatternU32)
-            bitPatternU32 = UInt32(values[7]) << 24
-            bitPatternU32 |= UInt32(values[6]) << 16
-            bitPatternU32 |= UInt32(values[5]) << 8
-            bitPatternU32 |= UInt32(values[4])
-            self.yPosition = Float32(bitPattern: bitPatternU32)
-            bitPatternU32 = UInt32(values[11]) << 24
-            bitPatternU32 |= UInt32(values[10]) << 16
-            bitPatternU32 |= UInt32(values[9]) << 8
-            bitPatternU32 |= UInt32(values[8])
-            self.linearVelocity = Float32(bitPattern: bitPatternU32)
-            bitPatternU32 = UInt32(values[15]) << 24
-            bitPatternU32 |= UInt32(values[14]) << 16
-            bitPatternU32 |= UInt32(values[13]) << 8
-            bitPatternU32 |= UInt32(values[12])
-            self.orientation = Float32(bitPattern: bitPatternU32)
-            bitPatternU32 = UInt32(values[19]) << 24
-            bitPatternU32 |= UInt32(values[18]) << 16
-            bitPatternU32 |= UInt32(values[17]) << 8
-            bitPatternU32 |= UInt32(values[16])
-            self.rotationalVelocity = Float32(bitPattern: bitPatternU32)
-            DispatchQueue.main.async(execute: {
-                self.delegate?.computedDataUpdated(xPosition: self.xPosition,
-                                                   yPosition: self.yPosition,
-                                                   linearVelocity: self.linearVelocity,
-                                                   orientation: self.orientation,
-                                                   rotationalVelocity: self.rotationalVelocity)
-            })
+        case positionCharacteristic:
+            self.extractPositionData([UInt8](characteristic.value!))
             break
         default:
             break

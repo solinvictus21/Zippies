@@ -11,8 +11,11 @@
 #define SWEEP_DURATION_EPSILON      3000
 #define SWEEP_HIT_MAX_DURATION      1500
 
-void LighthouseSensor::restart()
+bool LighthouseSensor::start()
 {
+  if (running)
+    stop();
+
   sensorInput->hitTickWritePtr = sensorInput->hitTickBuffer;
   sensorInput->hitTickReadPtr = sensorInput->hitTickEndPtr;
   previousTickCount = 0;
@@ -22,10 +25,16 @@ void LighthouseSensor::restart()
   memset(&completedHitCycles, 0, sizeof(completedHitCycles));
   completedCycleTimeStamp = 0;
   currentCaptureState = HitCycleState::Unknown;
+  
+  running = true;
+  return true;
 }
 
-void LighthouseSensor::loop(unsigned long currentTime)
+bool LighthouseSensor::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
+  if (!running)
+    return false;
+
   // SerialUSB.println("Looping sensor.");
 #ifdef DEBUG_LIGHTHOUSE_ERRORS
   //ensure we didn't overflow our buffer; show a warning if so
@@ -88,21 +97,21 @@ void LighthouseSensor::loop(unsigned long currentTime)
         // SerialUSB.println("Sensor sync pulse received.");
         if (processHitPulseStart(deltaTickCount)) {
           memcpy(&completedHitCycles, &currentHitCycles, sizeof(currentHitCycles));
-          completedCycleTimeStamp = currentTime;
+          completedCycleTimeStamp = currentTimeMicros;
         }
         break;
 
       case HitCycleState::HitPulseStarted:
         if (processHitPulseEnd(deltaTickCount)) {
           memcpy(&completedHitCycles, &currentHitCycles, sizeof(currentHitCycles));
-          completedCycleTimeStamp = currentTime;
+          completedCycleTimeStamp = currentTimeMicros;
         }
         break;
 
       case HitCycleState::HitPulseReceived:
         if (processSweepEnd(deltaTickCount)) {
           memcpy(&completedHitCycles, &currentHitCycles, sizeof(currentHitCycles));
-          completedCycleTimeStamp = currentTime;
+          completedCycleTimeStamp = currentTimeMicros;
         }
         break;
 
@@ -112,21 +121,12 @@ void LighthouseSensor::loop(unsigned long currentTime)
     }
   } while (true);
 
-  // SerialUSB.println("Ended sensor loop.");
-  /*
-  if (processedHitCount) {
-    SerialUSB.print("Processed hits: ");
-    SerialUSB.println(processedHitCount);
-  }
-  // */
+  return true;
+}
 
-/*
-  if (currentCycleTimeStamp &&
-      currentTime - currentCycleTimeStamp >= 20)
-  {
-    resetSync();
-  }
-// */
+void LighthouseSensor::stop()
+{
+  //TODO: tear down all the setup we did in the start
 }
 
 void LighthouseSensor::resetSync()

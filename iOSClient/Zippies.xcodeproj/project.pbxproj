@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,9 +12,44 @@
 		2729248A24E5856D00591D80 /* ZMathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2729248924E5856D00591D80 /* ZMathUtils.swift */; };
 		2756237424FFFD0B005152E2 /* ZCubicHemiteSpline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2756237324FFFD0B005152E2 /* ZCubicHemiteSpline.swift */; };
 		2756237625000D93005152E2 /* PathSegmentKeyFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2756237525000D93005152E2 /* PathSegmentKeyFrame.swift */; };
+		27E42EA92C349F6600DF8D42 /* ZippyAnalysis.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27E42EA82C349F6600DF8D42 /* ZippyAnalysis.storyboard */; };
+		27E42EAC2C349F7400DF8D42 /* SnappingSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E36D242049B85F005759AC /* SnappingSlider.swift */; };
+		27E42EAD2C349F7400DF8D42 /* Arc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C422B021E000838FCB /* Arc.swift */; };
+		27E42EAE2C349F7400DF8D42 /* ZMatrix2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C022AED33400838FCB /* ZMatrix2.swift */; };
+		27E42EAF2C349F7400DF8D42 /* BluetoothPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */; };
+		27E42EB02C349F7400DF8D42 /* ZBiArc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2729248524E466F000591D80 /* ZBiArc.swift */; };
+		27E42EB12C349F7400DF8D42 /* ZVector3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37FCE5624C8F2E400FB5812 /* ZVector3.swift */; };
+		27E42EB22C349F7400DF8D42 /* TopDownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E62175376600CE8E6D /* TopDownView.swift */; };
+		27E42EB32C349F7400DF8D42 /* UserDriveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026382048F616004C817B /* UserDriveViewController.swift */; };
+		27E42EB42C349F7400DF8D42 /* ZPlucker3.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37FCE5424C8F2AA00FB5812 /* ZPlucker3.swift */; };
+		27E42EB52C349F7400DF8D42 /* CompositePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7022F27E58002F0EAA /* CompositePath.swift */; };
+		27E42EB62C349F7400DF8D42 /* ZippyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */; };
+		27E42EB72C349F7400DF8D42 /* ZMathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2729248924E5856D00591D80 /* ZMathUtils.swift */; };
+		27E42EB82C349F7400DF8D42 /* RelativeBiArc.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */; };
+		27E42EB92C349F7400DF8D42 /* ZippyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262E2048F608004C817B /* ZippyNavigationController.swift */; };
+		27E42EBA2C349F7400DF8D42 /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E22175112B00CE8E6D /* SummaryViewController.swift */; };
+		27E42EBB2C349F7400DF8D42 /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7CE22BAA7FA00838FCB /* Move.swift */; };
+		27E42EBC2C349F7400DF8D42 /* Zippy2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37AE0E821753EB900CE8E6D /* Zippy2.swift */; };
+		27E42EBD2C349F7400DF8D42 /* ZippyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026302048F608004C817B /* ZippyManager.swift */; };
+		27E42EBE2C349F7400DF8D42 /* ZDrawUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2729248724E5808000591D80 /* ZDrawUtils.swift */; };
+		27E42EBF2C349F7400DF8D42 /* ZPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7C622B9494B00838FCB /* ZPath.swift */; };
+		27E42EC02C349F7400DF8D42 /* PathSegmentKeyFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2756237525000D93005152E2 /* PathSegmentKeyFrame.swift */; };
+		27E42EC12C349F7400DF8D42 /* Turn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7CC22BAA3C900838FCB /* Turn.swift */; };
+		27E42EC22C349F7400DF8D42 /* ZRotation2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E02F6E22EB7E70002F0EAA /* ZRotation2.swift */; };
+		27E42EC32C349F7400DF8D42 /* ZVector2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C311A7BE22AEC9E100838FCB /* ZVector2.swift */; };
+		27E42EC52C349F7400DF8D42 /* ZCubicHemiteSpline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2756237324FFFD0B005152E2 /* ZCubicHemiteSpline.swift */; };
+		27E42EC62C349F7400DF8D42 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026352048F616004C817B /* DebugViewController.swift */; };
+		27E42EC72C349F7400DF8D42 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31026362048F616004C817B /* AppDelegate.swift */; };
+		27E42EC82C349F7400DF8D42 /* Zippy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262D2048F608004C817B /* Zippy.swift */; };
+		27E42EC92C349F7400DF8D42 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC04209CB89300963FDF /* Lighthouse.swift */; };
+		27E42ECB2C349F7400DF8D42 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C33485C01F0FE85F000E02E0 /* CoreBluetooth.framework */; };
+		27E42ECD2C349F7400DF8D42 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C36A5FFE21750A9800713527 /* Images.xcassets */; };
+		27E42ECE2C349F7400DF8D42 /* ZippyControls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C310262F2048F608004C817B /* ZippyControls.storyboard */; };
+		27E42ECF2C349F7400DF8D42 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C3E36D262049B875005759AC /* Default-568h@2x.png */; };
+		27E42ED02C349F7400DF8D42 /* ZippyAnalysis.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27E42EA82C349F6600DF8D42 /* ZippyAnalysis.storyboard */; };
+		27FFA24D2C45B44700D216B2 /* ZippyMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FFA24C2C45B44700D216B2 /* ZippyMapView.swift */; };
 		C309BC05209CB89300963FDF /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC04209CB89300963FDF /* Lighthouse.swift */; };
 		C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */; };
-		C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C309BC08209CD3C900963FDF /* PeripheralFinder.swift */; };
 		C31026312048F608004C817B /* Zippy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262D2048F608004C817B /* Zippy.swift */; };
 		C31026322048F608004C817B /* ZippyNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310262E2048F608004C817B /* ZippyNavigationController.swift */; };
 		C31026332048F608004C817B /* ZippyControls.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C310262F2048F608004C817B /* ZippyControls.storyboard */; };
@@ -49,9 +84,12 @@
 		2729248924E5856D00591D80 /* ZMathUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMathUtils.swift; sourceTree = "<group>"; };
 		2756237324FFFD0B005152E2 /* ZCubicHemiteSpline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZCubicHemiteSpline.swift; sourceTree = "<group>"; };
 		2756237525000D93005152E2 /* PathSegmentKeyFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathSegmentKeyFrame.swift; sourceTree = "<group>"; };
+		27E42EA82C349F6600DF8D42 /* ZippyAnalysis.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ZippyAnalysis.storyboard; sourceTree = "<group>"; };
+		27E42ED42C349F7400DF8D42 /* Zippy Analysis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Zippy Analysis.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		27E42ED52C349F7500DF8D42 /* Zippies copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Zippies copy-Info.plist"; path = "/Users/kyle/Personal/Zippies/iOSClient/Zippies copy-Info.plist"; sourceTree = "<absolute>"; };
+		27FFA24C2C45B44700D216B2 /* ZippyMapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZippyMapView.swift; sourceTree = "<group>"; };
 		C309BC04209CB89300963FDF /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = SOURCE_ROOT; };
 		C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BluetoothPeripheral.swift; path = Zippies/Communication/BluetoothPeripheral.swift; sourceTree = SOURCE_ROOT; };
-		C309BC08209CD3C900963FDF /* PeripheralFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeripheralFinder.swift; sourceTree = "<group>"; };
 		C310262D2048F608004C817B /* Zippy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Zippy.swift; path = Zippies/Communication/Zippy.swift; sourceTree = SOURCE_ROOT; };
 		C310262E2048F608004C817B /* ZippyNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ZippyNavigationController.swift; path = Zippies/UI/ZippyNavigationController.swift; sourceTree = SOURCE_ROOT; };
 		C310262F2048F608004C817B /* ZippyControls.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = ZippyControls.storyboard; path = Zippies/UI/ZippyControls.storyboard; sourceTree = SOURCE_ROOT; };
@@ -78,11 +116,19 @@
 		C3E02F6E22EB7E70002F0EAA /* ZRotation2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZRotation2.swift; sourceTree = "<group>"; };
 		C3E02F7022F27E58002F0EAA /* CompositePath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositePath.swift; sourceTree = "<group>"; };
 		C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZippyConfig.swift; sourceTree = "<group>"; };
-		C3E36D242049B85F005759AC /* SnappingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnappingSlider.swift; sourceTree = SOURCE_ROOT; };
+		C3E36D242049B85F005759AC /* SnappingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SnappingSlider.swift; path = Zippies/UI/SnappingSlider.swift; sourceTree = SOURCE_ROOT; };
 		C3E36D262049B875005759AC /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		27E42ECA2C349F7400DF8D42 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27E42ECB2C349F7400DF8D42 /* CoreBluetooth.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C33485A71F0FE6FF000E02E0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -103,7 +149,6 @@
 				C37AE0E4217512F600CE8E6D /* Communication */,
 				C31026372048F616004C817B /* Info.plist */,
 				C309BC04209CB89300963FDF /* Lighthouse.swift */,
-				C3E36D242049B85F005759AC /* SnappingSlider.swift */,
 				C3E36D262049B875005759AC /* Default-568h@2x.png */,
 				C36A5FFE21750A9800713527 /* Images.xcassets */,
 				C3E02F7222F2832E002F0EAA /* ZippyConfig.swift */,
@@ -117,6 +162,7 @@
 				C310262C2048F5EB004C817B /* Zippies */,
 				C33485AB1F0FE6FF000E02E0 /* Products */,
 				C33485BF1F0FE85F000E02E0 /* Frameworks */,
+				27E42ED52C349F7500DF8D42 /* Zippies copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -124,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				C33485AA1F0FE6FF000E02E0 /* Zippies.app */,
+				27E42ED42C349F7400DF8D42 /* Zippy Analysis.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -142,7 +189,6 @@
 				C310262D2048F608004C817B /* Zippy.swift */,
 				C37AE0E821753EB900CE8E6D /* Zippy2.swift */,
 				C309BC06209CBAB100963FDF /* BluetoothPeripheral.swift */,
-				C309BC08209CD3C900963FDF /* PeripheralFinder.swift */,
 				C31026302048F608004C817B /* ZippyManager.swift */,
 			);
 			path = Communication;
@@ -152,6 +198,7 @@
 			isa = PBXGroup;
 			children = (
 				C310262F2048F608004C817B /* ZippyControls.storyboard */,
+				27E42EA82C349F6600DF8D42 /* ZippyAnalysis.storyboard */,
 				C31026362048F616004C817B /* AppDelegate.swift */,
 				C310262E2048F608004C817B /* ZippyNavigationController.swift */,
 				C31026352048F616004C817B /* DebugViewController.swift */,
@@ -161,6 +208,8 @@
 				C3B042A5239C36A3005CBD9F /* RelativeBiArc.swift */,
 				2729248724E5808000591D80 /* ZDrawUtils.swift */,
 				2756237525000D93005152E2 /* PathSegmentKeyFrame.swift */,
+				C3E36D242049B85F005759AC /* SnappingSlider.swift */,
+				27FFA24C2C45B44700D216B2 /* ZippyMapView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -195,6 +244,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		27E42EAA2C349F7400DF8D42 /* Zippy Analysis */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 27E42ED12C349F7400DF8D42 /* Build configuration list for PBXNativeTarget "Zippy Analysis" */;
+			buildPhases = (
+				27E42EAB2C349F7400DF8D42 /* Sources */,
+				27E42ECA2C349F7400DF8D42 /* Frameworks */,
+				27E42ECC2C349F7400DF8D42 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Zippy Analysis";
+			productName = Zippies;
+			productReference = 27E42ED42C349F7400DF8D42 /* Zippy Analysis.app */;
+			productType = "com.apple.product-type.application";
+		};
 		C33485A91F0FE6FF000E02E0 /* Zippies */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C33485BC1F0FE700000E02E0 /* Build configuration list for PBXNativeTarget "Zippies" */;
@@ -218,8 +284,9 @@
 		C33485A21F0FE6FF000E02E0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 1230;
+				LastUpgradeCheck = 1540;
 				ORGANIZATIONNAME = "Davis, Kyle";
 				TargetAttributes = {
 					C33485A91F0FE6FF000E02E0 = {
@@ -244,11 +311,23 @@
 			projectRoot = "";
 			targets = (
 				C33485A91F0FE6FF000E02E0 /* Zippies */,
+				27E42EAA2C349F7400DF8D42 /* Zippy Analysis */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		27E42ECC2C349F7400DF8D42 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27E42ECD2C349F7400DF8D42 /* Images.xcassets in Resources */,
+				27E42ECE2C349F7400DF8D42 /* ZippyControls.storyboard in Resources */,
+				27E42ECF2C349F7400DF8D42 /* Default-568h@2x.png in Resources */,
+				27E42ED02C349F7400DF8D42 /* ZippyAnalysis.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C33485A81F0FE6FF000E02E0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -256,12 +335,49 @@
 				C36A5FFF21750A9800713527 /* Images.xcassets in Resources */,
 				C31026332048F608004C817B /* ZippyControls.storyboard in Resources */,
 				C3E36D272049B875005759AC /* Default-568h@2x.png in Resources */,
+				27E42EA92C349F6600DF8D42 /* ZippyAnalysis.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		27E42EAB2C349F7400DF8D42 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27E42EAC2C349F7400DF8D42 /* SnappingSlider.swift in Sources */,
+				27E42EAD2C349F7400DF8D42 /* Arc.swift in Sources */,
+				27E42EAE2C349F7400DF8D42 /* ZMatrix2.swift in Sources */,
+				27E42EAF2C349F7400DF8D42 /* BluetoothPeripheral.swift in Sources */,
+				27E42EB02C349F7400DF8D42 /* ZBiArc.swift in Sources */,
+				27E42EB12C349F7400DF8D42 /* ZVector3.swift in Sources */,
+				27E42EB22C349F7400DF8D42 /* TopDownView.swift in Sources */,
+				27E42EB32C349F7400DF8D42 /* UserDriveViewController.swift in Sources */,
+				27E42EB42C349F7400DF8D42 /* ZPlucker3.swift in Sources */,
+				27E42EB52C349F7400DF8D42 /* CompositePath.swift in Sources */,
+				27E42EB62C349F7400DF8D42 /* ZippyConfig.swift in Sources */,
+				27E42EB72C349F7400DF8D42 /* ZMathUtils.swift in Sources */,
+				27E42EB82C349F7400DF8D42 /* RelativeBiArc.swift in Sources */,
+				27E42EB92C349F7400DF8D42 /* ZippyNavigationController.swift in Sources */,
+				27E42EBA2C349F7400DF8D42 /* SummaryViewController.swift in Sources */,
+				27E42EBB2C349F7400DF8D42 /* Move.swift in Sources */,
+				27E42EBC2C349F7400DF8D42 /* Zippy2.swift in Sources */,
+				27E42EBD2C349F7400DF8D42 /* ZippyManager.swift in Sources */,
+				27E42EBE2C349F7400DF8D42 /* ZDrawUtils.swift in Sources */,
+				27E42EBF2C349F7400DF8D42 /* ZPath.swift in Sources */,
+				27E42EC02C349F7400DF8D42 /* PathSegmentKeyFrame.swift in Sources */,
+				27E42EC12C349F7400DF8D42 /* Turn.swift in Sources */,
+				27E42EC22C349F7400DF8D42 /* ZRotation2.swift in Sources */,
+				27E42EC32C349F7400DF8D42 /* ZVector2.swift in Sources */,
+				27E42EC52C349F7400DF8D42 /* ZCubicHemiteSpline.swift in Sources */,
+				27E42EC62C349F7400DF8D42 /* DebugViewController.swift in Sources */,
+				27E42EC72C349F7400DF8D42 /* AppDelegate.swift in Sources */,
+				27E42EC82C349F7400DF8D42 /* Zippy.swift in Sources */,
+				27E42EC92C349F7400DF8D42 /* Lighthouse.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C33485A61F0FE6FF000E02E0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -270,6 +386,7 @@
 				C311A7C522B021E000838FCB /* Arc.swift in Sources */,
 				C311A7C122AED33400838FCB /* ZMatrix2.swift in Sources */,
 				C309BC07209CBAB100963FDF /* BluetoothPeripheral.swift in Sources */,
+				27FFA24D2C45B44700D216B2 /* ZippyMapView.swift in Sources */,
 				2729248624E466F000591D80 /* ZBiArc.swift in Sources */,
 				C37FCE5724C8F2E400FB5812 /* ZVector3.swift in Sources */,
 				C37AE0E72175376600CE8E6D /* TopDownView.swift in Sources */,
@@ -290,7 +407,6 @@
 				C311A7CD22BAA3C900838FCB /* Turn.swift in Sources */,
 				C3E02F6F22EB7E70002F0EAA /* ZRotation2.swift in Sources */,
 				C311A7BF22AEC9E100838FCB /* ZVector2.swift in Sources */,
-				C309BC09209CD3C900963FDF /* PeripheralFinder.swift in Sources */,
 				2756237424FFFD0B005152E2 /* ZCubicHemiteSpline.swift in Sources */,
 				C31026392048F616004C817B /* DebugViewController.swift in Sources */,
 				C310263A2048F616004C817B /* AppDelegate.swift in Sources */,
@@ -302,6 +418,47 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		27E42ED22C349F7400DF8D42 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = "Zippies copy-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		27E42ED32C349F7400DF8D42 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				INFOPLIST_FILE = "Zippies copy-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 		C33485BA1F0FE700000E02E0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -338,6 +495,7 @@
 				DEVELOPMENT_TEAM = 84MU2LDRQH;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -398,6 +556,7 @@
 				DEVELOPMENT_TEAM = 84MU2LDRQH;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -409,7 +568,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -422,7 +582,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
@@ -440,7 +603,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.kyledavis.Zippies;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
@@ -453,6 +619,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		27E42ED12C349F7400DF8D42 /* Build configuration list for PBXNativeTarget "Zippy Analysis" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27E42ED22C349F7400DF8D42 /* Debug */,
+				27E42ED32C349F7400DF8D42 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C33485A51F0FE6FF000E02E0 /* Build configuration list for PBXProject "Zippies" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

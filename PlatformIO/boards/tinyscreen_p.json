@@ -39,9 +39,6 @@
     "use_1200bps_touch": true,
     "wait_for_upload_port": true,
     "native_usb": true,
-
-    "require_upload_port": true,
-    "disable_flushing": true,
     "maximum_ram_size": 32768,
     "protocols": [
       "sam-ba"

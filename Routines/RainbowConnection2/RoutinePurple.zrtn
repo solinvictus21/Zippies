@@ -1,0 +1,73 @@
+
+include RoutineBase
+
+point PurpleCircleStart         175      -130       -60
+
+path PurpleChorus
+         Beats5
+       Beats1_5         HalfFlower4      -100      -100
+         Beats1
+
+       Beats1_5         HalfFlower4       100       100
+         Beats6
+
+
+path PurpleFirstVerse72
+         Beats1           DoSeeDo12        50        50
+
+         Beats1        FullCircle12       100       100
+
+         Beats2   PurpleCircleStart
+         Beats1
+         Beats1       CircleDance18        -1        -1
+         Beats3
+
+
+       Beats1_5         HalfFlower4       100      -100
+         Beats3
+         Beats1    StepForwardBack3        -1        -1
+
+         Beats2
+       Beats1_5         HalfFlower4      -100       100
+         Beats1
+         Beats1    StepForwardBack3         1         1
+
+//PURPLE ROUTINE
+routine PurpleStart
+     //intro
+//         Beats1             Intro30        50        50
+       Beats0_5           Intro2_30        50        50
+
+     //first verse
+              1  PurpleFirstVerse72         1         1
+
+     //chorus
+              1        PurpleChorus         1         1
+
+     //bridge to second verse
+         Beats6
+
+     //second verse
+              1  PurpleFirstVerse72         1         1
+
+     //chorus
+              1        PurpleChorus         1         1
+
+     //bridge to third verse
+         Beats9
+
+     //push to third verse
+         Beats12
+
+     //third verse
+              1  PurpleFirstVerse72         1         1
+
+     //chorus
+              1        PurpleChorus         1         1
+
+     //outro
+        Beats12
+        Beats12
+
+//END URPLE ROUTINE
+

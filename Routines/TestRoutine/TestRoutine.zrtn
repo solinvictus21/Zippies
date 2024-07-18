@@ -1,0 +1,7 @@
+
+include TestRoutineBase
+
+point TestRoutineStart            0         0         0
+
+routine TestRoutineStart
+              1     SlowerAndSlower

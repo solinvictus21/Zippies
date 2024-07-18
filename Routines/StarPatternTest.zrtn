@@ -1,0 +1,104 @@
+
+//routineset <time_step>
+//  where:
+//       time_step - the amount of time in milliseconds to multiply every timing encountered in the routine
+//
+//point <point_alias> <x> <y> <o>
+//  defines a point as x/y/o coordinates
+//  any point can be executed as either a relative movement or an absolute position
+//
+//path <path_alias>
+//  defines a path for which each subsequent point is relative to the starting point of the entire path
+//  each line of the path should be one of the following formats:
+//      <time_factor> <alias>
+//  or:
+//      <time_factor> <x> <y> <o>
+//  where:
+//       time_factor - the multiple of time for each step of the path
+//       alias - the alias of the point or path to include into this path
+//       x/y/o - the absolute position of each point in the path
+//
+//rpath <path_alias>
+//  defines a path for which each subsequent point is relative to the previous point in the path
+//  the format of each line is the same as the path, but each step of the path will be treated as
+//  movement commands relative to the previous position instead of absolute target positions
+//
+//routine <starting_position> <UUID>
+//  defines an entire routine for an individual Zippy to execute
+//  where:
+//        starting_position - an absolute position specified as x/y/o coordinates or an a point alias
+//        UUID - the UUID of the Zippy to execute this routine
+//move
+//  move <point_alias>
+//  move <x> <y> <o>
+//watch
+//  watch <point_alias>
+//  watch <x> <y> <o>
+//mimic
+//  mimic <point_alias>
+//  mimic <x> <y> <o>
+//forward
+//  forward <time_factor> <alias>
+//  forward <time_factor> <x> <y> <o>
+//reverse
+//  reverse <time_factor> <alias>
+//  reverse <time_factor> <x> <y> <o>
+//hold
+//  hold <time_factor> <point_alias>
+//  hold <time_factor> <x> <y> <o>
+
+//named points
+point RedStart                   0.0    -100.0    -170.0
+point OrangeStart               95.1     -30.9     -98.0
+point GreenStart                58.8      80.9     -26.0
+point BlueStart                -58.8      80.9      46.0
+point PurpleStart              -95.1     -30.9     118.0
+
+//path definitions
+path StarPointRight
+              2      90      90      90
+              2     210       0     180
+              2      60    -150     -90
+              2    -120       0       0
+              2      90     210      90
+              2     270       0     180
+              2     120    -150     -90
+              2       0       0       0
+
+
+//RED ROUTINE
+routine          RedStart                  4AC2987350533748392E3120FF192F33
+forward     300  StarPointRight
+forward     300  StarPointRight
+hold        600
+//END RED ROUTINE
+
+	
+//ORANGE ROUTINE
+routine          OrangeStart               9E104EE45052534A352E3120FF091527
+forward     300  StarPointRight
+forward     300  StarPointRight
+hold        600
+//END ORANGE ROUTINE
+
+
+//GREEN ROUTINE
+routine          GreenStart                82C95D68504D5257352E3120FF152F28
+forward     300  StarPointRight
+forward     300  StarPointRight
+hold        600
+//END GREEN ROUTINE
+
+//BLUE ROUTINE
+routine          BlueStart                 8A95E7ED504E5452372E3120FF181D37
+forward     300  StarPointRight
+forward     300  StarPointRight
+hold        600
+//END BLUE ROUTINE
+
+//PURPLE ROUTINE
+routine          PurpleStart               5A252B0E5052534A352E3120FF0C3222
+forward     300  StarPointRight
+forward     300  StarPointRight
+hold        600
+//END PURPLE ROUTINE

@@ -8,7 +8,7 @@ let ZIPPY_HEIGHT: Double = 24.8
 let ZIPPY_HALF_WIDTH: Double = ZIPPY_WIDTH / 2.0
 let ZIPPY_HALF_HEIGHT: Double = ZIPPY_HEIGHT / 2.0
 let ZIPPY_AREA_WIDTH: Double = 2000.0
-let ZIPPY_AREA_HEIGHT: Double = 1000.0
+//let ZIPPY_AREA_HEIGHT: Double = 1000.0
 
 let TARGET_UPDATE_TIMER_INTERVAL = 100
 //let TARGET_DISTANCE: CGFloat = 300.0
@@ -178,7 +178,8 @@ class TopDownView : UIView
         }
 
         let interpolationX = self.frame.width / CGFloat(ZIPPY_AREA_WIDTH)
-        let interpolationY = self.frame.height / CGFloat(ZIPPY_AREA_HEIGHT)
+//        let interpolationY = self.frame.height / CGFloat(ZIPPY_AREA_HEIGHT)
+        let interpolationY = self.frame.height * CGFloat(ZIPPY_AREA_WIDTH) / self.frame.width
         context.translateBy(x: self.frame.width/2, y: self.frame.height/2)
         context.scaleBy(x: interpolationX, y: -interpolationY)
 

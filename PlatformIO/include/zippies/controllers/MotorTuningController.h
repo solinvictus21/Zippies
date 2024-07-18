@@ -57,8 +57,8 @@ public:
     // MotorTuningController(const ZippyConfig* zc, SensorFusor* sensors);
     MotorTuningController(const ZippyConfig* zc);
 
-    void start();
-    bool loop(unsigned long deltaTime);
+    bool start();
+    bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
     void stop();
 
     ~MotorTuningController() {}

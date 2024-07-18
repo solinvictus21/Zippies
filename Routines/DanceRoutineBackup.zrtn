@@ -1,0 +1,297 @@
+
+//point <point_alias> <x> <y> <o>
+//  defines a point as x/y/o coordinates
+//  any point can be executed as either a relative movement or an absolute position
+//
+//path <path_alias>
+//  defines a path for which each subsequent point is relative to the starting point of the entire path
+//  each line of the path should be one of the following formats:
+//      <time_factor> <alias>
+//  or:
+//      <time_factor> <x> <y> <o>
+//  where:
+//       time_factor - the multiple of time for each step of the path
+//       alias - the alias of the point or path to include into this path
+//       x/y/o - the absolute position of each point in the path
+//
+//routine <starting_position> <UUID>
+//  defines an entire routine for an individual Zippy to execute
+//  where:
+//        starting_position - an absolute position specified as x/y/o coordinates or an a point alias
+//        UUID - the UUID of the Zippy to execute this routine
+//
+
+
+//named points
+point RedStart                 150.0       0.0       0.0
+point OrangeStart               90.0       0.0       0.0
+point YellowStart               30.0       0.0       0.0
+point GreenStart               -30.0       0.0       0.0
+point BlueStart                -90.0       0.0       0.0
+point PurpleStart             -150.0       0.0       0.0
+
+//path definitions
+path SmallCircleRight
+              1      80      80      90
+              1     160       0     180
+              1      80     -80     -90
+              1       0       0       0
+
+path SmallCircleLeft
+              1     -80      80     -90
+              1    -160       0     180
+              1     -80     -80      90
+              1       0       0       0
+
+path SmallHalfCircleRightLeft6
+              1      80      80      90
+              1     160       0     180
+              1
+              1      80      80      90
+              1       0       0       0
+              1
+
+path SmallHalfCircleLeftRight6
+              1     -80      80     -90
+              1    -160       0     180
+              1
+              1     -80      80     -90
+              1       0       0       0
+              1
+
+path SmallCircleRight6
+              1      70      70      90
+              2     160       0     180
+              2      70     -70     -90
+              1       0       0       0
+
+path SmallCircleLeft6
+              1     -70      70     -90
+              2    -160       0     180
+              2     -70     -70      90
+              1       0       0       0
+
+path Intro
+//first half; 6 measures; 18 beats
+              1  SmallCircleRight
+              5
+              1  SmallCircleLeft
+              5
+//second half; 4 measures; 12 beats
+              1  SmallHalfCircleRightLeft6
+              1  SmallHalfCircleLeftRight6
+
+path RedVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              1  SmallCircleRight6
+              6
+//first verse; 2rd line; "and what's on the other side"
+              5
+              1  SmallCircleLeft6
+              1
+
+path OrangeVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              1
+              1  SmallCircleRight6
+              5
+//first verse; 2rd line; "and what's on the other side"
+              4
+              1  SmallCircleLeft6
+              2
+
+path YellowVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              2
+              1  SmallCircleRight6
+              4
+//first verse; 2rd line; "and what's on the other side"
+              3
+              1  SmallCircleLeft6
+              3
+
+path GreenVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              3
+              1  SmallCircleRight6
+              3
+//first verse; 2rd line; "and what's on the other side"
+              2
+              1  SmallCircleLeft6
+              4
+
+path BlueVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              4
+              1  SmallCircleRight6
+              2
+//first verse; 2rd line; "and what's on the other side"
+              1
+              1  SmallCircleLeft6
+              5
+
+path PurpleVerse1
+//first verse; 1st line; "Why are there so many songs about rainbows"
+              5
+              1  SmallCircleRight6
+              1
+//first verse; 2rd line; "and what's on the other side"
+              1  SmallCircleLeft6
+              6
+
+path RedFollowPath1
+              3      80      80      90
+              3     160       0     180
+              3      80     -80     -90
+              9    -300     -80     -90
+              1    -340     -40       0
+              1    -300       0      90
+              4    -120       0      90
+              1     -80     -40     180
+              1     -40     -80      90
+              1       0     -40       0
+              1       0       0       0
+              3
+
+path InterlacePath1
+              1      80      80      90
+              1     160     160       0
+              1      80     240     -90
+              1       0     160     180
+              1     -80      80     -90
+              1    -160     160       0
+              1     -80     240     -90
+              1    -160     160     180
+              1     -80      80      90
+              1       0       0     180
+              3
+
+//RED ROUTINE
+routine          RedStart                  4AC2987350533748392E3120FF192F33
+            527  InterlacePath1
+            527  Intro
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  RedVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//the push
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//            527  SmallCircleRight
+//            527  SmallCircleLeft
+//          25344
+//END RED ROUTINE
+
+
+//ORANGE ROUTINE
+routine          OrangeStart               9E104EE45052734A352E3120FF091527
+            527
+            527  InterlacePath1
+            527  Intro
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  OrangeVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//END ORANGE ROUTINE
+
+
+//YELLOW ROUTINE
+routine          YellowStart               00000000000000000000000000000000
+            527  Intro
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  YellowVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//END YELLOW ROUTINE
+
+
+//GREEN ROUTINE
+routine          GreenStart                82C95D68504D5277352E3120FF152F28
+            527  Intro
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  GreenVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//END GREEN ROUTINE
+
+//BLUE ROUTINE
+routine          BlueStart                 8A95E7ED504E5452372E3120FF181D37
+            527  Intro
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  BlueVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//END BLUE ROUTINE
+
+//PURPLE ROUTINE
+routine          PurpleStart               5A252B0E5052734A352E3120FF0C3222
+            527  Intro
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  PurpleVerse1
+            527  SmallCircleRight
+            527  SmallCircleLeft
+            527  SmallHalfCircleRightLeft6
+            527  SmallHalfCircleLeftRight6
+//END PURPLE ROUTINE

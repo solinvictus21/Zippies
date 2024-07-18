@@ -43,7 +43,7 @@ DrivingController::DrivingController(const ZippyConfig* zc, SensorFusor* s)
 }
 #endif
 
-void DrivingController::start()
+bool DrivingController::start()
 {
     //this function is only called when the Zippy loses and then reacquires the LIghthouse signal
     //in this scenario, we need to do a full restart of the driving capabilities
@@ -64,6 +64,8 @@ void DrivingController::start()
     //setup the timings to drive to the start position
     currentTimeRemaining = MOVE_TO_START_TIMING;
     currentDrivingState = DrivingState::MovingIntoPlace;
+
+    return true;
 }
 
 void DrivingController::resetRoutine()
@@ -73,9 +75,10 @@ void DrivingController::resetRoutine()
     currentTimeRemaining = 0;
 }
 
-bool DrivingController::loop(unsigned long deltaTime)
+bool DrivingController::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
     //this function is invoked by the outer loop whenever a new position has become available from the Lighthouse
+    unsigned long deltaTime = deltaTimeMicros / 1000;
     while (deltaTime) {
         switch (currentDrivingState) {
             case DrivingState::MovingIntoPlace:
@@ -248,14 +251,14 @@ void DrivingController::executeMove()
 bool DrivingController::completeMove()
 {
     if (stateDowngradeCounter &&
-        (relativeShadowPosition.getD() > LINEAR_EPSILON || relativeShadowVelocity.atan2() < ANGULAR_EPSILON))
+        (relativeShadowPosition.getD() > LINEAR_EPSILON || relativeShadowVelocity.atan2() > ANGULAR_EPSILON))
     {
         stateDowngradeCounter--;
         //while completing a move (preparing to stop at the current target position), we prioritize ensuring
         //that we line up with the target position along our X axis and turn toward the velocity orientation
         //only insomuch as that will get us closer to our final target orientation
         zippy.move(relativeShadowPosition.getY(),
-                   relativeShadowVelocity.atan2());
+                   2.0 * relativeShadowVelocity.atan2());
         return false;
     }
 

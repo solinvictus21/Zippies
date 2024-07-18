@@ -7,15 +7,10 @@
 #define LIGHTHOUSE_STATUS_SEARCHING          "Searching"
 #define LIGHTHOUSE_STATUS_DOWNLOADING        "Downloading"
 
-// #define DEBUG_LIGHTHOUSE_SENSOR_SYNC              1
-
-#define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
-#define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      100
-// #define SENSOR_OFFSET_X  10.8d
-// #define SENSOR_OFFSET_Y   4.2d
-//height of the lighthouse from the diode plane
-//mounted on surface of entertainment center
-// #define LIGHTHOUSE_HEIGHT            908.0d
+// #define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE         2000
+// #define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT      100
+#define LIGHTHOUSE_LOCKED_SIGNAL_PAUSE_MICROS         2000000
+#define LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT_MICROS      100000
 
 SensorFusor* currentSensorFusor = NULL;
 LighthouseSensorInput leftSensorInput;
@@ -31,14 +26,14 @@ SensorFusor::SensorFusor()
 #endif
 }
 
-void SensorFusor::start()
+bool SensorFusor::start()
 {
     if (currentSensorFusor != NULL)
         currentSensorFusor->stop();
     currentSensorFusor = this;
 
     for (int i = 0; i < SENSOR_COUNT; i++)
-        sensors[i].restart();
+        sensors[i].start();
 
     previousPositionTimeStamp = 0;
     positionTimeStamp = 0;
@@ -71,6 +66,8 @@ void SensorFusor::start()
     connectInterruptsToTimer();
 
     setupTimer();
+
+    return true;
 }
 
 //#define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
@@ -428,15 +425,14 @@ void TCC1_Handler()
     }
 }
 
-bool SensorFusor::loop(unsigned long deltaTime)
+bool SensorFusor::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
-    unsigned long currentTime = micros() / 1000;
     //process all the sensors
     int sensorsWithSyncLock = 0;
     int sensorsWithUpdate = 0;
     int sensorsReceivingSweepHit = 0;
     for (int i = 0; i < SENSOR_COUNT; i++) {
-        sensors[i].loop(currentTime);
+        sensors[i].loop(currentTimeMicros, deltaTimeMicros);
         if (sensors[i].completedCycleTimeStamp) {
             //sensor is still locked onto the Lighthouse sync signals
             sensorsWithSyncLock++;
@@ -453,14 +449,6 @@ bool SensorFusor::loop(unsigned long deltaTime)
         }
     }
 
-    /*
-    SerialUSB.print("Sensors statuses: ");
-    SerialUSB.print(sensorsWithSyncLock);
-    SerialUSB.print(" receivedLighthouseData: ");
-    SerialUSB.print(receivedLighthouseData);
-    SerialUSB.print(" acquiringSyncSignal: ");
-    SerialUSB.println((currentSignalState == LighthouseSignalState::AcquiringSyncSignal));
-    */
     if (sensorsWithSyncLock != SENSOR_COUNT) {
         //one or more sensors missed the sync pulses for the X and/or Z axes; wait for a sync pulse signal lock again
         // SerialUSB.println("WARNING: Some sensors not receiving signal.");
@@ -495,7 +483,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
         currentSignalState = LighthouseSignalState::AcquiringSyncSignal;
         return false;
     }
-    cycleProcessedTime = currentTime;
+    cycleProcessedTime = currentTimeMicros;
 
     //count the number of zero bits received from the sync pulses; used to sync with the preamble upon request via
     //a call to syncWithPreable()
@@ -555,7 +543,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 //we received sweep hits on all sensors for both the X and Z axes during the most recent sweep cycle
                 //transition to the initial pause after receiving the first set of sweep hits to allow the signal to
                 //"settle" such as, for instance, when the user is in the process of setting the Zippy on the ground
-                positionLockedTimeStamp = currentTime;
+                positionLockedTimeStamp = currentTimeMicros;
                 // SerialUSB.println("Acquiring position lock.");
                 currentSignalState = LighthouseSignalState::AwaitingPositionLock;
             }
@@ -568,7 +556,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 // SerialUSB.println("Acquiring sensor hits.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
             }
-            else if (currentTime - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE) {
+            else if (currentTimeMicros - positionLockedTimeStamp >= LIGHTHOUSE_LOCKED_SIGNAL_PAUSE_MICROS) {
                 // SerialUSB.println("Signal locked.");
                 currentSignalState = LighthouseSignalState::SignalLocked;
             }
@@ -577,7 +565,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
         case LighthouseSignalState::SignalLocked:
             if (sensorsReceivingSweepHit != SENSOR_COUNT) {
                 //we're no long receiving sweep hits for both axes on all sensors
-                signalUnlockedTimeStamp = currentTime;
+                signalUnlockedTimeStamp = currentTimeMicros;
                 preambleBitCount = 0;
                 // SerialUSB.println("Signal unlocked.");
                 currentSignalState = LighthouseSignalState::SignalUnlocked;
@@ -590,7 +578,7 @@ bool SensorFusor::loop(unsigned long deltaTime)
                 // SerialUSB.println("Signal locked.");
                 currentSignalState = LighthouseSignalState::SignalLocked;
             }
-            else if (currentTime - signalUnlockedTimeStamp >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT) {
+            else if (currentTimeMicros - signalUnlockedTimeStamp >= LIGHTHOUSE_UNLOCKED_SIGNAL_TIMEOUT_MICROS) {
                 positionLockedTimeStamp = 0;
                 // SerialUSB.println("Acquiring sensor hits.");
                 currentSignalState = LighthouseSignalState::AcquiringSensorHits;
@@ -607,14 +595,14 @@ bool SensorFusor::loop(unsigned long deltaTime)
 
         case LighthouseSignalState::AwaitingPositionLock:
         case LighthouseSignalState::SignalLocked:
-            recalculatePosition(currentTime);
-            positionTimeStamp = currentTime;
+            recalculatePosition();
+            positionTimeStamp = currentTimeMicros;
             break;
 
         case LighthouseSignalState::SignalUnlocked:
             //estimate position updates until we have a signal lock again or until we timeout
-            estimatePosition(currentTime);
-            positionTimeStamp = currentTime;
+            estimatePosition();
+            positionTimeStamp = currentTimeMicros;
             break;
     }
 
@@ -653,7 +641,7 @@ bool SensorFusor::fuseSyncPulses()
   return true;
 }
 
-void SensorFusor::recalculatePosition(unsigned long currentTime)
+void SensorFusor::recalculatePosition()
 {
     //recalculate the new position
     for (int i = 0; i < SENSOR_COUNT; i++) {
@@ -840,7 +828,7 @@ void SensorFusor::calculatePosition()
         (BODY_CENTER_SENSOR_CENTER_OFFSET_Y * position.orientation.sin()) + ((sensorPositions[0].getX() + sensorPositions[1].getX()) / 2.0),
         (BODY_CENTER_SENSOR_CENTER_OFFSET_Y * position.orientation.cos()) + ((sensorPositions[0].getY() + sensorPositions[1].getY()) / 2.0));
 
-    // /*
+    // /*Abs
     //now calculate the change in position and orientation
     positionDelta.set(&position);
     positionDelta.unconcatFrom(&previousPosition);
@@ -860,7 +848,7 @@ void SensorFusor::calculatePosition()
 */
 }
 
-void SensorFusor::estimatePosition(unsigned long currentTime)
+void SensorFusor::estimatePosition()
 {
     //calculate the change from the last known position to the position prior to that; this change occurred over the time delta between
     //those two positions, but we need to scale that over the time delta between our last known position time stamp to the new time stamp

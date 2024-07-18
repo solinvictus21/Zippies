@@ -1,0 +1,88 @@
+
+path SynchronizedPath
+//ever-tighter figure eights
+   0    0    0
+ 400    0  180
+   0    0    0
+-350    0  180
+   0    0    0
+ 300    0  180
+   0    0    0
+-250    0  180
+   0    0    0
+ 200    0  180
+   0    0    0
+//small half-arcs synchronized; west
+-100    0  180
+-200    0    0
+-300    0  180
+//east
+-200    0    0
+-100    0  180
+   0    0    0
+ 100    0  180
+ 200    0    0
+ 300    0  180
+//west
+ 200    0    0
+ 100    0  180
+   0    0    0
+//move into position to start FollowPath
+-180    0  180
+ -90  -90   90
+ -90    0  -90
+
+path FollowPath
+//medium figure eight right
+ 200    0  180
+   0    0    0
+-200    0  180
+   0    0    0
+//exit figure eight toward south
+ 200    0  180
+ 100 -100  -90
+//medium half circles left/right
+ 100 -300   90
+ 100 -500  -90
+//medium full circle left
+ 100 -700   90
+ 100 -500  -90
+//small linear move
+  50 -500  -90
+//small half circles right/left/right/left/right
+  50 -400   90
+  50 -300  -90
+  50 -200   90
+  50 -100  -90
+  50    0   90
+//medium full circle left
+  50  200  -90
+  50    0   90
+//small half circles right/left/right/left/right
+  50 -100  -90
+  50 -200   90
+  50 -300  -90
+  50 -400   90
+  50 -500  -90
+//medium full circle left
+  50 -700   90
+  50 -500  -90
+//turn around
+ -50 -600  180
+-250 -600    0
+
+path EndRoutine
+//turn toward starting point and move back into place
+ 100  100   90
+ 250  100   90
+
+//red
+routine     120   1050      0    100
+   20
+  280 SynchronizedPath
+   18 move  420
+  300 FollowPath
+    8 move   80
+   20 EndRoutine
+
+

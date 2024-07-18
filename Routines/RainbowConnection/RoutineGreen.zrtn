@@ -1,0 +1,49 @@
+
+include RoutineBase
+
+path GreenChorus
+         Beats3
+       Beats1_5         HalfFlower4      -100      -100
+         Beats3
+
+         Beats2
+       Beats1_5         HalfFlower4       100       100
+         Beats4
+
+//GREEN ROUTINE
+routine GreenStart
+     //intro
+//         Beats1             Intro30       100       100
+
+     //first verse
+              1   GreenFirstVerse72         1         1
+
+     //chorus
+              1         GreenChorus         1         1
+
+     //bridge to second verse
+         Beats6
+
+     //second verse
+              1  GreenSecondVerse72         1         1
+
+     //chorus
+              1         GreenChorus         1         1
+
+     //bridge to third verse
+         Beats9
+
+     //push to third verse
+        Beats12
+
+     //third verse
+              1   GreenFirstVerse72         1         1
+
+     //chorus
+              1         GreenChorus         1         1
+
+     //outro
+        Beats12
+        Beats12
+
+//END GREEN ROUTINE

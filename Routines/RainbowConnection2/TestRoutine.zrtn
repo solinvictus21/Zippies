@@ -1,0 +1,55 @@
+
+include RoutineBase
+
+path Circle50_3
+              1        75        43       120
+              1        75       -43      -120
+              1         0         0         0
+
+path Circle50_4
+              1        50        50        90
+              1       100         0       180
+              1        50       -50       -90
+              1         0         0         0
+
+path Circle50_5
+              1        35        48        72
+              1        90        29       144
+              1        90       -29      -144
+              1        35       -48       -72
+              1         0         0         0
+
+routine RedStart
+//10 beats
+         Beats2          Circle50_5        -5         5
+         Beats2
+
+routine OrangeStart
+//9 beats
+       Beats1_5          Circle50_3        -3         3
+       Beats1_5          Circle50_3        -3         3
+         Beats3
+
+routine YellowStart
+//12 beats; 4 measures
+         Beats1          Circle50_4        -1         1
+         Beats2
+         Beats1          Circle50_4        -1         1
+         Beats2
+         Beats6
+
+routine GreenStart
+         Beats1          Circle50_4         1        -1
+         Beats2
+         Beats1          Circle50_4         1        -1
+         Beats2
+         Beats6
+
+routine BlueStart
+       Beats1_5          Circle50_3         3        -3
+       Beats1_5          Circle50_3         3        -3
+         Beats3
+
+routine PurpleStart
+         Beats2          Circle50_5         5        -5
+         Beats2

@@ -75,11 +75,7 @@ class DebugViewController: UIViewController
 extension DebugViewController: ZippyManagerDelegate
 {
     
-    func zippyDiscovered(_ zippy: Zippy2)
-    {
-    }
-    
-    func zippyConnected(_ zippy: Zippy2)
+    func zippyConnected(_ zippy: Zippy)
     {
         /*
         if self.zippy == nil {
@@ -90,7 +86,7 @@ extension DebugViewController: ZippyManagerDelegate
         */
     }
     
-    func zippyDisconnected(_ zippy: Zippy2)
+    func zippyDisconnected(_ zippy: Zippy)
     {
         /*
         if self.zippy == zippy {
@@ -106,7 +102,11 @@ extension DebugViewController: ZippyManagerDelegate
 
 extension DebugViewController: ZippyDelegate
 {
+    func positionUpdated(_ zippy: Zippy) {
+        
+    }
     
+    /*
     func sensorLeftDataUpdated(xSyncTicks: UInt16, xSweepTicks: UInt32, xPosition: Float32,
                                ySyncTicks: UInt16, ySweepTicks: UInt32, yPosition: Float32)
     {
@@ -143,5 +143,6 @@ extension DebugViewController: ZippyDelegate
         orientationLabel.text = String(format: "%0.3f", orientation)
         rotationalVelocityLabel.text = String(format: "%0.3f", rotationalVelocity)
     }
+     */
     
 }

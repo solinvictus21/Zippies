@@ -19,18 +19,19 @@ LighthouseController::LighthouseController(const ZippyConfig* zippyConfig)
 }
 #endif
 
-void LighthouseController::start()
+bool LighthouseController::start()
 {
     sensorsReady = false;
     previousPositionTimeStamp = 0;
-    subControllerDeltaTime = 0;
+    subControllerStartTime = 0;
     sensors.start();
+    return true;
 }
 
-bool LighthouseController::loop(unsigned long deltaTime)
+bool LighthouseController::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
     //wait until we have a stable signal
-    if (!sensors.loop(deltaTime)) {
+    if (!sensors.loop(currentTimeMicros, deltaTimeMicros)) {
         if (sensorsReady) {
             //lost the lighthouse signal
             sensorsReady = false;
@@ -44,20 +45,18 @@ bool LighthouseController::loop(unsigned long deltaTime)
         //start the sub-controller, but don't loop it until the next update so that the first delta time is not zero
         sensorsReady = true;
         // subController->start(currentTime);
-        subControllerDeltaTime = 0;
+        subControllerStartTime = currentTimeMicros;
         subController->start();
         return false;
     }
 
     //check if we have a position update
-    subControllerDeltaTime += deltaTime;
     unsigned long currentPositionTimeStamp = sensors.getPositionTimeStamp();
     if (currentPositionTimeStamp <= previousPositionTimeStamp)
         return false;
     previousPositionTimeStamp = currentPositionTimeStamp;
 
-    subController->loop(subControllerDeltaTime);
-    subControllerDeltaTime = 0;
+    subController->loop(currentTimeMicros - subControllerStartTime, deltaTimeMicros);
     return true;
 }
 

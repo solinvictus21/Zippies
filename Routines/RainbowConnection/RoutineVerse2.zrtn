@@ -1,0 +1,160 @@
+
+path RedSecondVerse72
+     //"Who said that every wish"
+     //"Would be heard and answered"
+     //12 beats
+         Beats1           DoSeeDo12       -50       -50
+
+     //"When wished on the morning star?"
+     //12 beats
+         Beats1        FullCircle12      -100       100
+
+     //"Somebody thought of that"
+     //"And someone believed it"
+     //"Look what it's done so far"
+     //3 beats into circle starting position
+         Beats2      RedCircleStart
+         Beats1
+     //18 beats around the circle
+         Beats1       CircleDance18         1         1
+     //3 beats back out of circle position
+         Beats2              Origin
+         Beats1
+
+     //"What's so amazing that keeps us stargazing"
+     //12 beats
+         Beats2
+       Beats1_5         HalfFlower4       100       100
+         Beats1
+         Beats1    StepForwardBack3        -1         1
+
+     //"And what do we think we might see?"
+     //12 beats
+       Beats1_5         HalfFlower4      -100      -100
+         Beats3
+         Beats1    StepForwardBack3         1        -1
+
+path OrangeSecondVerse72
+//         Beats1           DoSeeDo12        50        50
+         Beats2         HalfCircle2      -150       100
+         Beats2
+         Beats2         HalfCircle2      -150       100
+         Beats2
+
+//SPICE THIS UP
+         Beats12
+
+         Beats3
+         Beats1       CircleDance18         1         1
+         Beats2              Origin
+         Beats1
+
+         Beats1
+       Beats1_5         HalfFlower4       100      -100
+         Beats2
+         Beats1    StepForwardBack3        -1        -1
+
+         Beats1
+       Beats1_5         HalfFlower4      -100       100
+         Beats2
+         Beats1    StepForwardBack3         1         1
+
+path YellowSecondVerse72
+//         Beats1           DoSeeDo12       -50       -50
+         Beats2         HalfCircle2      -150       100
+         Beats2
+         Beats2         HalfCircle2      -150       100
+         Beats2
+
+         Beats1        FullCircle12       100      -100
+
+         Beats2   YellowCircleStart
+         Beats1
+         Beats1       CircleDance18         1         1
+         Beats2              Origin
+         Beats1
+
+
+       Beats1_5         HalfFlower4       100       100
+         Beats3
+         Beats1    StepForwardBack3        -1         1
+
+         Beats2
+       Beats1_5         HalfFlower4      -100      -100
+         Beats1
+         Beats1    StepForwardBack3         1        -1
+
+path GreenSecondVerse72
+//         Beats1           DoSeeDo12        50        50
+         Beats2         HalfCircle2       150      -100
+         Beats2
+         Beats2         HalfCircle2       150      -100
+         Beats2
+
+         Beats1        FullCircle12      -100      -100
+
+         Beats2    GreenCircleStart
+         Beats1
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+         Beats2
+       Beats1_5         HalfFlower4       100      -100
+         Beats1
+         Beats1    StepForwardBack3        -1        -1
+
+
+       Beats1_5         HalfFlower4      -100       100
+         Beats3
+         Beats1    StepForwardBack3         1         1
+
+path BlueSecondVerse72
+//         Beats1           DoSeeDo12       -50       -50
+         Beats2         HalfCircle2       150      -100
+         Beats2
+         Beats2         HalfCircle2       150      -100
+         Beats2
+
+//SPICE THIS UP
+         Beats12
+
+         Beats3
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+         Beats1
+       Beats1_5         HalfFlower4       100       100
+         Beats2
+         Beats1    StepForwardBack3        -1         1
+
+         Beats1
+       Beats1_5         HalfFlower4      -100      -100
+         Beats2
+         Beats1    StepForwardBack3         1        -1
+
+path PurpleSecondVerse72
+//         Beats1           DoSeeDo12        50        50
+         Beats2         HalfCircle2       150      -100
+         Beats2
+         Beats2         HalfCircle2       150      -100
+         Beats2
+
+         Beats1        FullCircle12       100       100
+
+         Beats2   PurpleCircleStart
+         Beats1
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+
+       Beats1_5         HalfFlower4       100      -100
+         Beats3
+         Beats1    StepForwardBack3        -1        -1
+
+         Beats2
+       Beats1_5         HalfFlower4      -100       100
+         Beats1
+         Beats1    StepForwardBack3         1         1

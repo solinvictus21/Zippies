@@ -1,0 +1,41 @@
+
+//timing <timing_alias> <timing>
+//  defines a named timing with a value in milliseconds that can be referenced by name wherever a timing is expected
+//
+//point <point_alias> <x> <y> <o>
+//  defines a named point as x/y/o coordinates where x/y are in millimeters and o is is the target orientation in
+//  degrees; coordinates are relative to the current anchor position
+//
+//path <path_alias>
+//  defines a path to follow; each point of the path should be one of the following formats:
+//      <time_factor> <flags> <point_name>
+//  or:
+//      <time_factor> <flags> <path_name>
+//  or:
+//      <time_factor> <flags> <x> <y> <o>
+//  where:
+//       time_factor - the multiple of time for each step of the path
+//       flags - any combination of four possible flags as described below
+//       alias - the alias of the point or path to include into this path
+//       x/y/o - the absolute position of each point in the path
+//  flags:
+//       w: weigh anchor before moving (specified positions are assumed to be absolute positions wrt the origin)
+//       d: drop anchor after moving (subsequent positions after movement will be relative to final position of
+//          the specified movement)
+//       x: reverse x position
+//       y: reverse y position
+//
+//routine <starting_position> <UUID>
+//  defines an entire routine for an individual Zippy to execute
+//  where:
+//        starting_position - an absolute position specified as x/y/o coordinates or a point alias
+//        UUID - the UUID identify of the Zippy that should execute this routine
+//
+
+include RoutineRed
+include RoutineOrange
+include RoutineYellow
+include RoutineGreen
+include RoutineBlue
+include RoutinePurple
+

@@ -1,0 +1,60 @@
+
+include RoutineBase
+include RoutineRedVerses
+
+path RedChorus
+     //"someday we'll find it, the Rainbow Connection"
+     //12 beats
+       Beats1_5         HalfFlower4      -100       100
+         Beats6
+
+     //"the lovers, the dreamers and me"
+     //12 beats
+         Beats5
+       Beats1_5         HalfFlower4       100      -100
+         Beats1
+
+//RED ROUTINE
+routine RedStart
+     //intro
+//         Beats1             Intro30        50        50
+       Beats0_5           Intro2_30        50        50
+
+     //first verse
+              1     RedFirstVerse72         1         1
+
+     //chorus
+              1           RedChorus         1         1
+
+     //bridge to second verse
+         Beats6
+
+     //second verse
+              1    RedSecondVerse72         1         1
+
+     //chorus
+              1           RedChorus         1         1
+
+     //bridge to third verse
+     //"all of us under its spell"
+     //3 measures; 9 beats
+         Beats9
+
+     //"we know that it's probably magic"
+     //the "push"; position for the final verse
+     //4 measures; 12 beats
+        Beats12
+
+     //third verse
+              1     RedFirstVerse72         1         1
+
+     //chorus
+              1           RedChorus         1         1
+
+     //outro
+        Beats12
+        Beats12
+
+//END RED ROUTINE
+
+

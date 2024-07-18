@@ -5,7 +5,6 @@ import UIKit
 class Zippy2 : NSObject
 {
     
-    fileprivate let id : UUID
     fileprivate var _x : CGFloat = 0
     fileprivate var _y : CGFloat = 0
     fileprivate var _o : CGFloat = 0
@@ -31,12 +30,8 @@ class Zippy2 : NSObject
         }
     }
     
-    init(_ id: UUID, x: CGFloat, y: CGFloat, o: CGFloat)
+    override init()
     {
-        self.id = id
-        self._x = x
-        self._y = y
-        self._o = o
     }
     
     func setPosition(x: CGFloat, y: CGFloat, o: CGFloat)

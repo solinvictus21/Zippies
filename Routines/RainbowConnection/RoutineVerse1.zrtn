@@ -1,0 +1,179 @@
+
+point RainbowRed               -100         0       -67
+point RainbowOrange             -45       -61       -40
+point RainbowYellow             -12       -96       -14
+point RainbowGreen               12       -96        14
+point RainbowBlue                45       -61        40
+point RainbowPurple             100         0        67
+
+path Circle50_3
+              1        75        43       120
+              1        75       -43      -120
+              1         0         0         0
+
+path RedFirstVerse72
+     //"why are there so many"
+     //"songs about rainbows"
+     //12 beats
+         Beats2
+         Beats2                  50      -100       -67
+         Beats2
+         Beats1          Circle50_3         1         1
+         Beats1          RainbowRed
+         Beats2
+
+     //"and what's on the other side"
+     //12 beats
+         Beats1        FullCircle12      -100       100
+
+     //"rainbows are visions, but only illusions"
+     //"and rainbows have nothing to hide"
+     //3 beats into circle starting position
+         Beats2      RedCircleStart
+         Beats1
+     //18 beats around the circle
+         Beats1       CircleDance18         1         1
+     //3 beats back out of circle position
+         Beats2              Origin
+         Beats1
+
+     //"so we've been told and some choose to believe it"
+     //12 beats
+         Beats2
+       Beats1_5         HalfFlower4       100       100
+         Beats1
+         Beats1    StepForwardBack3        -1         1
+
+     //"but I know they're wrong. wait and see"
+     //12 beats
+       Beats1_5         HalfFlower4      -100      -100
+         Beats3
+         Beats1    StepForwardBack3         1        -1
+
+path OrangeFirstVerse72
+         Beats1
+         Beats3                  61      -222       -40
+         Beats2
+            348          Circle50_3         1         1
+         Beats2       RainbowOrange
+         Beats2
+
+//SPICE THIS UP
+         Beats12
+
+         Beats3
+         Beats1       CircleDance18         1         1
+         Beats2              Origin
+         Beats1
+
+         Beats1
+       Beats1_5         HalfFlower4       100      -100
+         Beats2
+         Beats1    StepForwardBack3        -1        -1
+
+         Beats1
+       Beats1_5         HalfFlower4      -100       100
+         Beats2
+         Beats1    StepForwardBack3         1         1
+
+path YellowFirstVerse72
+         Beats4                  26      -291       -14
+         Beats2
+       Beats0_5             Circle4        50        50
+         Beats2       RainbowYellow
+         Beats2
+
+         Beats1        FullCircle12       100      -100
+
+         Beats2   YellowCircleStart
+         Beats1
+         Beats1       CircleDance18         1         1
+         Beats2              Origin
+         Beats1
+
+
+       Beats1_5         HalfFlower4       100       100
+         Beats3
+         Beats1    StepForwardBack3        -1         1
+
+         Beats2
+       Beats1_5         HalfFlower4      -100      -100
+         Beats1
+         Beats1    StepForwardBack3         1        -1
+
+path GreenFirstVerse72
+         Beats4                 -26      -291        14
+         Beats2
+         Beats2
+         Beats2        RainbowGreen
+         Beats2
+
+         Beats1        FullCircle12      -100      -100
+
+         Beats2    GreenCircleStart
+         Beats1
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+         Beats2
+       Beats1_5         HalfFlower4       100      -100
+         Beats1
+         Beats1    StepForwardBack3        -1        -1
+
+
+       Beats1_5         HalfFlower4      -100       100
+         Beats3
+         Beats1    StepForwardBack3         1         1
+
+path BlueFirstVerse72
+         Beats1
+         Beats3                 -61      -222        40
+         Beats2
+         Beats2
+         Beats2         RainbowBlue
+         Beats2
+
+//SPICE THIS UP
+         Beats12
+
+         Beats3
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+         Beats1
+       Beats1_5         HalfFlower4       100       100
+         Beats2
+         Beats1    StepForwardBack3        -1         1
+
+         Beats1
+       Beats1_5         HalfFlower4      -100      -100
+         Beats2
+         Beats1    StepForwardBack3         1        -1
+
+path PurpleFirstVerse72
+         Beats2
+         Beats2                 -50      -100        67
+         Beats2
+         Beats2
+         Beats2       RainbowPurple
+         Beats2
+
+         Beats1        FullCircle12       100       100
+
+         Beats2   PurpleCircleStart
+         Beats1
+         Beats1       CircleDance18        -1        -1
+         Beats2              Origin
+         Beats1
+
+
+       Beats1_5         HalfFlower4       100      -100
+         Beats3
+         Beats1    StepForwardBack3        -1        -1
+
+         Beats2
+       Beats1_5         HalfFlower4      -100       100
+         Beats1
+         Beats1    StepForwardBack3         1         1

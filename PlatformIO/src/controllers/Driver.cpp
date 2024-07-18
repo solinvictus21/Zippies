@@ -20,8 +20,6 @@ void Driver::reset()
     targetPosition.reset();
     shadowToTargetPosition.reset();
     
-    currentLinearVelocity = 0.0;
-    currentAngularVelocity = 0.0;
     shadowVelocityVector.reset();
 }
 
@@ -107,17 +105,17 @@ bool Driver::loop(unsigned long deltaTime)
     {
         theta = subtractAngles(addAngles(targetPosition.orientation.get(), M_PI), lineOfSightOrientation);
         delta = subtractAngles(addAngles(shadowPosition.orientation.get(), M_PI), lineOfSightOrientation);
-        remainingDistance = -(delta == 0.0 ? fabs(shadowToTargetPosition.getY()) :
-            (shadowToTargetPosition.getD() * delta) / sin(delta));
+        remainingDistance = -(delta == 0.0 ? shadowToTargetPosition.getD() :
+            (shadowToTargetPosition.getD() * delta / sin(delta)));
     }
     else
     {
         theta = subtractAngles(targetPosition.orientation.get(), lineOfSightOrientation);
         delta = subtractAngles(shadowPosition.orientation.get(), lineOfSightOrientation);
-        remainingDistance = delta == 0.0 ? fabs(shadowToTargetPosition.getY()) :
-            (shadowToTargetPosition.getD() * delta) / sin(delta);
+        remainingDistance = delta == 0.0 ? shadowToTargetPosition.getD() :
+            (shadowToTargetPosition.getD() * delta / sin(delta));
     }
-    
+
     //choose a linear velocity based on our remaining distance to our current target point; note that velocity is represented
     //as millimeters per "frame" with a timing of 60 frames per second
     double idealLinearVelocity = ((double)deltaTime) * remainingDistance / ((double)remainingMovementTime);
@@ -130,27 +128,27 @@ bool Driver::loop(unsigned long deltaTime)
     //that the robot will move; as such, it is unitless and should not necessarily be used to calculate an appropriate
     //linear velocity
     double referenceKappa = remainingDistance == 0.0 ? 0.0 :
-        -(proportionalControlTerm + feedforwardControlTerm) / fabs(remainingDistance);
+        -(proportionalControlTerm + feedforwardControlTerm) / remainingDistance;
 
     //calculate the output linear and angular velocities
-    currentLinearVelocity = idealLinearVelocity / (1.0 + (DRIVER_PARAM_BETA * pow(abs(referenceKappa), DRIVER_PARAM_LAMBDA)));
-    currentAngularVelocity = referenceKappa * currentLinearVelocity;
+    double targetLinearVelocity = idealLinearVelocity / (1.0 + (DRIVER_PARAM_BETA * pow(abs(referenceKappa), DRIVER_PARAM_LAMBDA)));
+    double targetAngularVelocity = referenceKappa * targetLinearVelocity;
 
-    if (currentAngularVelocity != 0.0) {
-        double radius = currentLinearVelocity / currentAngularVelocity;
+    if (targetAngularVelocity != 0.0) {
+        double radius = targetLinearVelocity / targetAngularVelocity;
         shadowVelocityVector.set(
-            radius - (radius * cos(currentAngularVelocity)),
-            radius * sin(currentAngularVelocity));
+            radius - (radius * cos(targetAngularVelocity)),
+            radius * sin(targetAngularVelocity));
         shadowVelocityVector.rotate(shadowPosition.orientation.get());
     }
     else {
         shadowVelocityVector.set(
-            currentLinearVelocity * shadowPosition.orientation.sin(),
-            currentLinearVelocity * shadowPosition.orientation.cos());
+            targetLinearVelocity * shadowPosition.orientation.sin(),
+            targetLinearVelocity * shadowPosition.orientation.cos());
     }
 
     shadowPosition.position.add(&shadowVelocityVector);
-    shadowPosition.orientation.add(currentAngularVelocity);
+    shadowPosition.orientation.add(targetAngularVelocity);
 
     //calculate the new position of our robot; this will eventually be used as the "current target position" on the actual robots
     shadowToTargetPosition.set(
@@ -161,11 +159,9 @@ bool Driver::loop(unsigned long deltaTime)
 
 void Driver::holdAtTarget()
 {
-    currentLinearVelocity = 0.0;
-    currentAngularVelocity = 0.0;
     //move the shadow to the target
     shadowPosition.set(&targetPosition);
     shadowVelocityVector.set(targetPosition.orientation.sin(), targetPosition.orientation.cos());
-    reverseDirection = false;
     shadowToTargetPosition.reset();
+    reverseDirection = false;
 }

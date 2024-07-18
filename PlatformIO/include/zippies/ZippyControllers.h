@@ -6,5 +6,6 @@
 #include "zippies/controllers/LighthouseController.h"
 #include "zippies/controllers/DrivingController.h"
 #include "zippies/controllers/MotorTuningController.h"
+#include "zippies/controllers/RemoteDrivingController.h"
 
 #endif

@@ -84,8 +84,8 @@ public:
     DrivingController(const ZippyConfig* zc, SensorFusor* s);
 #endif
 
-    void start();
-    bool loop(unsigned long deltaTime);
+    bool start();
+    bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
     void stop();
 
     ~DrivingController() {}

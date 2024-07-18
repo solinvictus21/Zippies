@@ -4,15 +4,17 @@
 #define DEBUG_DISPLAY_INTERVAL        1000
 #define DEBUG_CALCULATION_INTERVAL      17
 
-void DebugDisplayController::start()
+bool DebugDisplayController::start()
 {
     face.clearScreen();
     timeSinceLastDisplay = 0;
+
+    return true;
 }
 
-bool DebugDisplayController::loop(unsigned long deltaTime)
+bool DebugDisplayController::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
-    timeSinceLastDisplay += deltaTime;
+    timeSinceLastDisplay += deltaTimeMicros / 1000;
 
     //capture sensor #0 stats
     // SerialUSB.print("Calculating: ");

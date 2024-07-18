@@ -4,6 +4,8 @@
 
 #include <cstdint>
 
+extern int KNOWN_ZIPPY_COUNT;
+
 typedef struct _ZippyRoutinePoint
 {
     int x, y, o;
@@ -34,6 +36,7 @@ typedef struct _ZippyConfig
     ZippyRoutineData* routine;
 } ZippyConfig;
 
+int getZippyNumber();
 const ZippyConfig* getZippyConfig();
 const ZippyConfig* getZippyConfig(int zippyNumber);
 const ZippyConfig* getZippyTestConfig();

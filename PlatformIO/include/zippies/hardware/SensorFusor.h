@@ -8,6 +8,7 @@
 #include "LighthouseOOTX.h"
 #include "zippies/ZippyMath.h"
 #include "zippies/hardware/ZippyFace.h"
+#include "zippies/controllers/ZippyController.h"
 
 // #define SENSOR_COUNT      1
 #define SENSOR_COUNT      2
@@ -37,9 +38,9 @@ typedef struct _RotorFactoryCalibrationData
   double gibbousMagnitude = 0.0;
 } RotorFactoryCalibrationData;
 
-#define DISPLAY_SENSOR_STATUS
+// #define DISPLAY_SENSOR_STATUS
 
-class SensorFusor
+class SensorFusor : ZippyController
 {
 
 private:
@@ -91,17 +92,17 @@ private:
   bool fuseSyncPulses();
   void calculateLighthouseData();
   void calculateOriginOffsetFromLighthouse();
-  void recalculatePosition(unsigned long currentTime);
+  void recalculatePosition();
   void calculateSensorPosition(unsigned long xTicks, unsigned long zTicks, ZVector2* out);
   void calculatePosition();
   void processPreambleBit(unsigned long syncTickCount);
-  void estimatePosition(unsigned long currentTime);
+  void estimatePosition();
 
 public:
   SensorFusor();
 
-  void start();
-  bool loop(unsigned long currentTime);
+  bool start();
+  bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
   void syncWithPreamble() { preambleBitCount = 0; }
   bool foundPreamble() const { return preambleBitCount == 17; }
 

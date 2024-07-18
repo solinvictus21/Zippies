@@ -42,7 +42,7 @@ void MotorTuningController::resetTest()
     displayMetrics();
 }
 
-void MotorTuningController::start()
+bool MotorTuningController::start()
 {
     deltaPosition.reset();
     linearVelocity = 0.0;
@@ -60,9 +60,11 @@ void MotorTuningController::start()
     testTimer = DEFAULT_TEST_TIME;
     currentTestState = MotorTuningTestState::StictionStart;
     display.displayText(0, 5 * display.getFontHeight(), "STARTED");
+
+    return true;
 }
 
-bool MotorTuningController::loop(unsigned long deltaTime)
+bool MotorTuningController::loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros)
 {
     // /*
     //process button presses
@@ -96,8 +98,8 @@ bool MotorTuningController::loop(unsigned long deltaTime)
     if (currentTestState == MotorTuningTestState::Completed)
         return true;
 
-    if (deltaTime < testTimer) {
-        testTimer -= deltaTime;
+    if (deltaTimeMicros / 1000 < testTimer) {
+        testTimer -= deltaTimeMicros / 1000;
         return true;
     }
     testTimer = DEFAULT_TEST_TIME;

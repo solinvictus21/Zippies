@@ -1,0 +1,340 @@
+
+//point <point_alias> <x> <y> <o>
+//  defines a point as x/y/o coordinates
+//  any point can be executed as either a relative movement or an absolute position
+//
+//path <path_alias>
+//  defines a path for which each subsequent point is relative to the starting point of the entire path
+//  each line of the path should be one of the following formats:
+//      <time_factor> <alias>
+//  or:
+//      <time_factor> <x> <y> <o>
+//  where:
+//       time_factor - the multiple of time for each step of the path
+//       alias - the alias of the point or path to include into this path
+//       x/y/o - the absolute position of each point in the path
+//
+//routine <starting_position> <UUID>
+//  defines an entire routine for an individual Zippy to execute
+//  where:
+//        starting_position - an absolute position specified as x/y/o coordinates or an a point alias
+//        UUID - the UUID of the Zippy to execute this routine
+//
+//flags
+//  x: reverse x position
+//  y: reverse y position
+//  w: weigh anchor (subsequent positions relative to origin)
+//  d: drop anchor (subsequent positions relative to current position)
+//
+
+//named timings
+timing Beats1                  522
+timing Beats1_5                783
+timing Beats2                 1044
+timing Beats3                 1566
+timing Beats4                 2088
+timing Beats5                 2610
+timing Beats6                 3132
+
+//named points
+point RedStart                 250       0       0
+point OrangeStart              150       0       0
+point YellowStart               50       0       0
+point GreenStart               -50       0       0
+point BlueStart               -150       0       0
+point PurpleStart             -250       0       0
+
+point CirclePosition1           75    -130      60
+point CirclePosition3           75     130     -60
+point CirclePosition4          -75     130      60
+point CirclePosition6          -75    -130     -60
+
+//path definitions
+path IntroFullCircle
+              1        50      50      90
+              1       100       0     180
+              1        50     -50     -90
+              1         0       0       0
+              2
+
+path IntroHalfCircle
+              1        50      50      90
+              1       100       0     180
+              1
+              1        50      50      90
+              1         0       0       0
+              1
+
+path Intro
+//first half; 6 measures; 18 beats
+              1      IntroFullCircle
+              3
+              1   x  IntroFullCircle
+              3
+//second half; 4 measures; 12 beats
+              1      IntroHalfCircle
+              1   x  IntroHalfCircle
+
+path HalfFlower
+              1       100     100     135
+              1         0       0     -90
+              1      -100    -100     135
+              1         0       0       0
+
+path DoSeeDo
+              1        50      50      90
+              1       100       0     180
+              1
+              1        50     -50     -90
+              1         0       0       0
+              1
+
+path CircleCounterClockwise
+              2       -75     130     -60
+              1
+              2      -186     108     150
+              1
+              2      -300       0       0
+              1
+              2      -186    -108    -150
+              1
+              2       -75    -130      60
+              1
+              2         0       0       0
+              1
+
+path Wriggle
+              1        30      50      60
+              1        70      50     120
+              1  d    100       0     180
+
+//RED ROUTINE
+routine          RedStart                  4AC2988350533748392E3120FF192F33
+//         Beats1   x  Wriggle
+//         Beats1      Wriggle
+//         Beats1   x  Wriggle
+//         Beats1      Wriggle
+//         Beats1   x  Wriggle
+//         Beats1   x  Wriggle
+//         Beats1      Wriggle
+//         Beats1   x  Wriggle
+//         Beats1      Wriggle
+//         Beats1   x  Wriggle
+
+         Beats1      Intro
+
+//why are there so many
+         Beats1   xy DoSeeDo
+//songs about rainbows
+         Beats1   x  DoSeeDo
+
+
+//and what's on the other side
+//rainbows are visions, but only illusions
+         Beats2 wd   CirclePosition1
+         Beats1
+         Beats1      CircleCounterClockwise
+         Beats2 wd   RedStart
+         Beats1
+
+//and rainbows have nothing to hide
+         Beats1   xy DoSeeDo
+         Beats1   x  DoSeeDo
+
+//so we've been told and some choose to believe it
+         Beats2
+       Beats1_5      HalfFlower
+         Beats4
+
+//but I know they're wrong. wait and see
+       Beats1_5   xy HalfFlower
+         Beats6
+
+//someday we'll find it
+//the Rainbow Connection
+       Beats1_5   x  HalfFlower
+         Beats6
+
+//the lovers, the dreamers and
+//me
+         Beats5
+       Beats1_5    y HalfFlower
+         Beats1
+
+         Beats1   xy DoSeeDo
+//END RED ROUTINE
+
+
+//ORANGE ROUTINE
+routine          OrangeStart               9E104EE45052734A352E3120FF091527
+         Beats1      Intro
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+         Beats3
+         Beats1      CircleCounterClockwise
+         Beats2 wd   OrangeStart
+         Beats1
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+         Beats1
+       Beats1_5    y HalfFlower
+         Beats5
+
+         Beats1
+       Beats1_5   x  HalfFlower
+         Beats5
+
+         Beats1
+       Beats1_5   xy HalfFlower
+         Beats5
+
+         Beats4
+       Beats1_5      HalfFlower
+         Beats2
+
+         Beats1      DoSeeDo
+//END ORANGE ROUTINE
+
+
+//YELLOW ROUTINE
+routine          YellowStart               4596FFCD50533748392E3120FF19103F
+         Beats1      Intro
+
+         Beats1   xy DoSeeDo
+         Beats1   x  DoSeeDo
+
+         Beats2 wd   CirclePosition3
+         Beats1
+         Beats1      CircleCounterClockwise
+         Beats2 wd   YellowStart
+         Beats1
+
+         Beats1   xy DoSeeDo
+         Beats1   x  DoSeeDo
+
+       Beats1_5      HalfFlower
+         Beats6
+
+         Beats2
+       Beats1_5   xy HalfFlower
+         Beats4
+
+         Beats2
+       Beats1_5   x  HalfFlower
+         Beats4
+
+         Beats3
+       Beats1_5    y HalfFlower
+         Beats3
+
+         Beats1   xy DoSeeDo
+//END YELLOW ROUTINE
+
+
+//GREEN ROUTINE
+routine          GreenStart                82C95D68504D5277352E3120FF152F28
+         Beats1      Intro
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+         Beats2 wd   CirclePosition4
+         Beats1
+         Beats1   xy CircleCounterClockwise
+         Beats2 wd   GreenStart
+         Beats1
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+         Beats2
+       Beats1_5    y HalfFlower
+         Beats4
+
+       Beats1_5   x  HalfFlower
+         Beats6
+
+         Beats3
+       Beats1_5   xy HalfFlower
+         Beats3
+
+         Beats2
+       Beats1_5      HalfFlower
+         Beats4
+
+         Beats1      DoSeeDo
+//END GREEN ROUTINE
+
+
+//BLUE ROUTINE
+routine          BlueStart                 8A95E7ED504E5452372E3120FF181D37
+         Beats1      Intro
+
+         Beats1   xy DoSeeDo
+         Beats1   x  DoSeeDo
+
+         Beats3
+         Beats1   xy CircleCounterClockwise
+         Beats2 wd   BlueStart
+         Beats1
+
+         Beats1   xy DoSeeDo
+         Beats1   x  DoSeeDo
+
+         Beats1
+       Beats1_5      HalfFlower
+         Beats5
+
+         Beats1
+       Beats1_5   xy HalfFlower
+         Beats5
+
+         Beats4
+       Beats1_5   x  HalfFlower
+         Beats2
+
+         Beats1
+       Beats1_5    y HalfFlower
+         Beats5
+
+         Beats1   xy DoSeeDo
+//END BLUE ROUTINE
+
+
+//PURPLE ROUTINE
+routine          PurpleStart               5A252B0E5052734A352E3120FF0C3222
+         Beats1      Intro
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+         Beats2 wd   CirclePosition6
+         Beats1
+         Beats1   xy CircleCounterClockwise
+         Beats2 wd   PurpleStart
+         Beats1
+
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+       Beats1_5    y HalfFlower
+         Beats6
+
+         Beats2
+       Beats1_5   x  HalfFlower
+         Beats4
+
+         Beats5
+       Beats1_5   xy HalfFlower
+         Beats1
+
+       Beats1_5      HalfFlower
+         Beats6
+
+         Beats1      DoSeeDo
+//PEND URPLE ROUTINE
+

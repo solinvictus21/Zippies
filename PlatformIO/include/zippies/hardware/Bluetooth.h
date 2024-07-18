@@ -3,71 +3,50 @@
 #define _BLUETOOTH_H_
 
 #include <STBLE.h>
+#include "zippies/controllers/ZippyController.h"
 
-// #define SENSOR_DATA_LENGTH 20
-#define ADVERTISEMENT_PACKET_LENGTH 31
+#define CHAR_MOTOR_CONTROL_DATA_LENGTH 8
+#define CHAR_POSITION_DATA_LENGTH 11
 
-class Bluetooth
+class Bluetooth : ZippyController
 {
 
 private:
-  uint16_t serviceHandle;
-  uint16_t serviceNameHandle;
-  uint16_t apperanceNameHandle;
+    uint16_t gapServiceHandle;
+    uint16_t deviceNameCharacteristicHandle;
+    uint16_t appearanceCharacteristicHandle;
 
-  uint16_t primaryServiceHandle;
-  uint16_t characteristicTransmitHandle;
-  uint16_t lighthouseReceiveHandle;
-  // uint16_t sensorLeftReceiveHandle;
-  // uint16_t sensorRightReceiveHandle;
-  // uint16_t computedDataReceiveHandle;
+    uint16_t motorControlServiceHandle;
+    uint16_t motorControlCharacteristicHandle;
+    uint8_t motorControlData[CHAR_MOTOR_CONTROL_DATA_LENGTH];
+    unsigned long motorControlTimestamp;
 
-  bool discoveryEnabled;
-  bool started;
+    uint16_t positionCharacteristicHandle;
 
-  uint16_t connectionHandle;
+    unsigned long currentTimeMicros = 0;
+    bool running;
 
-  uint8_t* receivedData;
-  uint8_t receivedDataLength;
+    uint16_t connectionHandle;
 
-  /*
-  uint8_t broadcastData[ADVERTISEMENT_PACKET_LENGTH] = {
-    3, AD_TYPE_16_BIT_SERV_UUID, 0x0B, 0xB0,
-    26, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0
-  };
-  */
+    const char* errorReason = NULL;
 
-  bool startAsPeripheral();
-  bool startAsObserver();
-  // bool startAsBroadcaster();
-  bool enableDiscovery();
-  friend void HCI_Event_CB(void *pckt);
-  void packetReceived(uint8_t dataLength, uint8_t *data);
+    bool startAsPeripheral();
+    tBleStatus enableDiscovery();
+    void packetReceived(uint8_t dataLength, uint8_t *data);
+
+    friend void HCI_Event_CB(void *pckt);
 
 public:
-  Bluetooth();
+    Bluetooth();
 
-  bool start(bool observerMode);
-  uint8_t loop();
-  // void sendBroadcastData(float x, float y, float orientation, float linearVelocity, float targetVelocity);
-  bool sendLighthouseData(float x, float y, float orientation, float linearVelocity, float angularVelocity);
-  /*
-  tBleStatus sendLighthouseData(uint8_t* lighthouseDataBuffer);
-  tBleStatus sendSensorLeft(uint8_t* sendBuffer);
-  tBleStatus sendSensorRight(uint8_t* sendBuffer);
-  tBleStatus sendComputedData(uint8_t* sendBuffer);
-  */
-  uint8_t getReceivedDataLength() { return receivedDataLength; }
-  uint8_t* getReceivedData() { return receivedData; }
-  void stop();
-
-  bool isConnected();
+    bool start();
+    bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
+    bool isClientConnected() { return connectionHandle != 0; }
+    uint8_t* getMotorControlData() { return motorControlData; }
+    unsigned long getMotorControlTimestamp() { return motorControlTimestamp; }
+    bool sendLighthouseData(bool lighthouseIsVisible, float x, float y, float orientation, float linearVelocity, float angularVelocity);
+    const char* getError() { return errorReason; }
+    void stop();
 
 };
 

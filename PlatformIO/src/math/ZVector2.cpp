@@ -192,6 +192,24 @@ void ZVector2::set(double newX,
 void ZVector2::setD(double newD)
 {
   // set(this->x, this->y, newD);
+  if (newD == 0.0) {
+    reset();
+    return;
+  }
+
+  double currentD = getD();
+  if (currentD == 0.0) {
+    this->y = newD;
+    d = fabs(newD);
+    dValid = true;
+    d2Valid = false;
+    _arctan = 0.0;
+    arctanValid = true;
+    _arctan2 = 0.0;
+    arctan2Valid = true;
+    return;
+  }
+
   double lengthRatio = newD / getD();
   this->x *= lengthRatio;
   this->y *= lengthRatio;
@@ -236,8 +254,15 @@ void ZVector2::subtract(double x, double y)
 
 double ZVector2::projectAlong(double orientation)
 {
-  double sinTheta = sin(orientation);
   double cosTheta = cos(orientation);
+  if (cosTheta == 0.0) {
+    //the orientation along which we're attempting to project this vector is orthogonal to
+    //our current orientation, so a projection along it will be a zero-length vector
+    reset();
+    return 0.0;
+  }
+
+  double sinTheta = sin(orientation);
   double dotProduct = (x * sinTheta) + (y * cosTheta);
   this->x = dotProduct * sinTheta;
   this->y = dotProduct * cosTheta;
@@ -255,8 +280,13 @@ double ZVector2::projectAlong(double orientation)
 
 double ZVector2::projectToward(double orientation)
 {
-  double sinTheta = sin(orientation);
   double cosTheta = cos(orientation);
+  if (cosTheta == 0.0) {
+    reset();
+    return 0.0;
+  }
+
+  double sinTheta = sin(orientation);
   double dotProduct = (x * sinTheta) + (y * cosTheta);
   double absDotProduct = abs(dotProduct);
   this->x = absDotProduct * sinTheta;

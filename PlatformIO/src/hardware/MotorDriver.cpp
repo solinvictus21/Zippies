@@ -18,6 +18,7 @@ MotorDriver::MotorDriver(const ZippyConfig* zc)
     rightDeadZone(zc->rightMotorConfig.motorMinPower),
     rightGain(zc->rightMotorConfig.motorGain)
 {
+  Wire.setTimeout(3000);
   start();
 
   /* code for testing the function to ramp through the dead zone
@@ -109,6 +110,8 @@ void MotorDriver::setMotorsDirect(double left, double right)
 {
   leftCurrentPower = leftGain * left;
   rightCurrentPower = rightGain * right;
+  // leftCurrentPower = left;
+  // rightCurrentPower = right;
   writeCommand(COMMAND_ALL_PWM,
       leftCurrentPower > 0 ? leftCurrentPower : 0,
       leftCurrentPower < 0 ? -leftCurrentPower : 0,
@@ -139,7 +142,6 @@ double MotorDriver::rampThroughDeadZone(double a, double deadZoneRamp)
     // rampedValue *= (-t * (t - 2.0));
     // rampedValue *= t * (2.0 - t);
     //cubic ramp
-    // rampedValue = (deadZoneRamp + absA) * (1.0 + pow(t, 3.0));
     rampedValue = (deadZoneRamp * (1.0 - pow(1.0 - t, 3.0))) + absA;
   }
   else

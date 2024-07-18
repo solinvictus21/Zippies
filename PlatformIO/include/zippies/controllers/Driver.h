@@ -27,8 +27,6 @@ private:
     ZVector2 shadowToTargetPosition;
 
     //output metrics
-    double currentLinearVelocity = 0.0;
-    double currentAngularVelocity = 0.0;
     ZMatrix2 shadowPosition;
     ZVector2 shadowVelocityVector;
 

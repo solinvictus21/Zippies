@@ -1,0 +1,906 @@
+
+//timing <timing_alias> <timing>
+//  defines a named timing with a value in milliseconds that can be referenced by name wherever a timing is expected
+//
+//point <point_alias> <x> <y> <o>
+//  defines a named point as x/y/o coordinates where x/y are in millimeters and o is is the target orientation in
+//  degrees; coordinates are relative to the current anchor position
+//
+//path <path_alias>
+//  defines a path to follow; each point of the path should be one of the following formats:
+//      <time_factor> <flags> <point_name>
+//  or:
+//      <time_factor> <flags> <path_name>
+//  or:
+//      <time_factor> <flags> <x> <y> <o>
+//  where:
+//       time_factor - the multiple of time for each step of the path
+//       flags - any combination of four possible flags as described below
+//       alias - the alias of the point or path to include into this path
+//       x/y/o - the absolute position of each point in the path
+//  flags:
+//       w: weigh anchor before moving (specified positions are assumed to be absolute positions wrt the origin)
+//       d: drop anchor after moving (subsequent positions after movement will be relative to final position of
+//          the specified movement)
+//       x: reverse x position
+//       y: reverse y position
+//
+//routine <starting_position> <UUID>
+//  defines an entire routine for an individual Zippy to execute
+//  where:
+//        starting_position - an absolute position specified as x/y/o coordinates or a point alias
+//        UUID - the UUID identify of the Zippy that should execute this routine
+//
+
+//named timings
+timing Beats1                  522
+timing Beats1_5                783
+timing Beats2                 1044
+timing Beats2_5               1305
+timing Beats3                 1566
+timing Beats3_5               1827
+timing Beats4                 2088
+timing Beats5                 2610
+timing Beats6                 3132
+timing Beats7                 3654
+timing Beats8                 4176
+timing Beats9                 4698
+timing Beats12                6264
+
+//named points
+point RedStart                 250       0       0
+point OrangeStart              150       0       0
+point YellowStart               50       0       0
+point GreenStart               -50       0       0
+point BlueStart               -150       0       0
+point PurpleStart             -250       0       0
+
+point CirclePosition1           75    -130      60
+point CirclePosition3           75     130     -60
+point CirclePosition4          -75     130      60
+point CirclePosition6          -75    -130     -60
+
+//named path definitions
+path IntroFirstHalf
+         Beats1        50      50      90
+         Beats1       100       0     180
+         Beats1        50     -50     -90
+         Beats1         0       0       0
+         Beats5
+
+path IntroSecondHalf
+         Beats1        50      50      90
+         Beats1       100       0     180
+         Beats1
+         Beats1        50      50      90
+         Beats1         0       0       0
+         Beats1
+
+path Intro
+//first half; 6 measures; 18 beats
+              1      IntroFirstHalf
+              1   x  IntroFirstHalf
+//second half; 4 measures; 12 beats
+              1      IntroSecondHalf
+              1   x  IntroSecondHalf
+
+//forward right half circle; pause; reverse; pause
+path DoSeeDo
+              1        50      50      90
+              1       100       0     180
+              1
+              1        50     -50     -90
+              1         0       0       0
+              1
+
+path DoSeeDo2
+         Beats1      DoSeeDo
+         Beats1    y DoSeeDo
+
+path HalfFlower
+              1       100     100     135
+              1         0       0     -90
+              1      -100    -100     135
+              1         0       0       0
+
+path CircleHalf50
+         Beats1        50     50      90
+         Beats1       100      0     180
+
+path CircleThreeQuarter50
+         Beats1        50     50      90
+         Beats1       100      0     180
+         Beats1        50    -50     -90
+
+path Circle50
+         Beats1        50     50      90
+         Beats1       100      0     180
+         Beats1        50    -50     -90
+         Beats1         0      0       0
+
+path FullCircle100
+         Beats2       100     100      90
+         Beats1
+         Beats2       200       0     180
+         Beats1
+         Beats2       100    -100     -90
+         Beats1
+         Beats2         0       0       0
+         Beats1
+
+path CircleCounterClockwise
+         Beats2       -75     130     -60
+         Beats1
+         Beats2      -186     108     150
+         Beats1
+         Beats2      -300       0       0
+         Beats1
+         Beats2      -186    -108    -150
+         Beats1
+         Beats2       -75    -130      60
+         Beats1
+         Beats2         0       0       0
+         Beats1
+
+path StepForwardBack
+         Beats1        30      52      60
+         Beats1         0       0       0
+         Beats1
+
+path RedChorus
+     //someday we'll find it, the Rainbow Connection
+     //12 beats
+       Beats1_5   x  HalfFlower
+         Beats6
+
+     //the lovers, the dreamers and me
+     //12 beats
+         Beats5
+       Beats1_5    y HalfFlower
+         Beats1
+
+path OrangeChorus
+         Beats1
+       Beats1_5   xy HalfFlower
+         Beats5
+
+         Beats4
+       Beats1_5      HalfFlower
+         Beats2
+
+path YellowChorus
+         Beats2
+       Beats1_5   x  HalfFlower
+         Beats4
+
+         Beats3
+       Beats1_5    y HalfFlower
+         Beats3
+
+path GreenChorus
+         Beats3
+       Beats1_5   xy HalfFlower
+         Beats3
+
+         Beats2
+       Beats1_5      HalfFlower
+         Beats4
+
+path BlueChorus
+         Beats4
+       Beats1_5   x  HalfFlower
+         Beats2
+
+         Beats1
+       Beats1_5    y HalfFlower
+         Beats5
+
+path PurpleChorus
+         Beats5
+       Beats1_5   xy HalfFlower
+         Beats1
+
+       Beats1_5      HalfFlower
+         Beats6
+
+path RedVerse1
+     //why are there so many
+     //songs about rainbows
+     //12 beats
+              1   xy DoSeeDo2
+
+     //and what's on the other side
+     //12 beats
+              1   x  FullCircle100
+
+     //rainbows are visions, but only illusions
+     //and rainbows have nothing to hide
+     //3 beats into circle position
+         Beats2 wd   CirclePosition1
+         Beats1
+     //18 beats around the circle
+              1      CircleCounterClockwise
+     //3 beats back out of circle position
+         Beats2 wd   RedStart
+         Beats1
+
+     //so we've been told and some choose to believe it
+     //12 beats
+         Beats2
+       Beats1_5      HalfFlower
+         Beats1
+              1   x  StepForwardBack
+
+     //but I know they're wrong. wait and see
+     //12 beats
+       Beats1_5   xy HalfFlower
+         Beats3
+              1    y StepForwardBack
+
+path OrangeVerse1
+              1      DoSeeDo2
+
+//SPICE THIS UP
+         Beats6
+         Beats6
+
+         Beats3
+              1      CircleCounterClockwise
+         Beats2 wd   OrangeStart
+         Beats1
+
+         Beats1
+       Beats1_5    y HalfFlower
+         Beats2
+
+              1   xy StepForwardBack
+
+         Beats1
+       Beats1_5   x  HalfFlower
+         Beats2
+
+              1      StepForwardBack
+
+path YellowVerse1
+              1   xy DoSeeDo2
+
+              1    y FullCircle100
+
+         Beats2 wd   CirclePosition3
+         Beats1
+              1      CircleCounterClockwise
+         Beats2 wd   YellowStart
+         Beats1
+
+       Beats1_5      HalfFlower
+         Beats3
+
+              1   x  StepForwardBack
+
+         Beats2
+       Beats1_5   xy HalfFlower
+         Beats1
+
+              1    y StepForwardBack
+
+path GreenVerse1
+              1      DoSeeDo2
+
+              1   xy FullCircle100
+
+         Beats2 wd   CirclePosition4
+         Beats1
+              1   xy CircleCounterClockwise
+         Beats2 wd   GreenStart
+         Beats1
+
+         Beats2
+       Beats1_5    y HalfFlower
+         Beats1
+
+              1   xy StepForwardBack
+
+       Beats1_5   x  HalfFlower
+         Beats3
+
+              1      StepForwardBack
+
+path BlueVerse1
+              1   xy DoSeeDo2
+
+//SPICE THIS UP
+         Beats6
+         Beats6
+
+         Beats3
+              1   xy CircleCounterClockwise
+         Beats2 wd   BlueStart
+         Beats1
+
+         Beats1
+       Beats1_5      HalfFlower
+         Beats2
+
+              1   x  StepForwardBack
+
+         Beats1
+       Beats1_5   xy HalfFlower
+         Beats2
+
+              1    y StepForwardBack
+
+path PurpleVerse1
+              1      DoSeeDo2
+
+              1      FullCircle100
+
+         Beats2 wd   CirclePosition6
+         Beats1
+              1   xy CircleCounterClockwise
+         Beats2 wd   PurpleStart
+         Beats1
+
+       Beats1_5    y HalfFlower
+         Beats3
+
+              1   xy StepForwardBack
+
+         Beats2
+       Beats1_5   x  HalfFlower
+         Beats1
+
+              1      StepForwardBack
+
+path Verse2LeftStart
+     //12 beats
+         Beats2  d    -25     150       0
+              1      Circle50
+              1  dx  CircleHalf50
+         Beats2        80      80     135
+         Beats2  d      0       0     -90
+
+path Verse2RightStart
+     //12 beats
+         Beats2  d    -25     150       0
+              1   x  Circle50
+              1  d   CircleHalf50
+         Beats2       -80      80    -135
+         Beats2  d      0       0      90
+
+path Verse2Follow
+     //3 beats; turn around right and move forward
+         Beats1        50      50      90
+         Beats1       100       0     180
+         Beats1       100    -100     180
+     //3 beats; turn right and move forward
+         Beats1        50    -150     -90
+         Beats2      -150    -150     -90
+     //3 beats; turn around left and move forward
+         Beats1      -200    -200     180
+         Beats1      -150    -250      90
+         Beats1       -50    -250      90
+     //3 beats; turn left and move forward
+         Beats1         0    -200       0
+         Beats2         0       0       0
+
+path Verse2Circle
+     //6 beats; circle right
+         Beats1        48      83      60
+         Beats1       143      83     120
+         Beats1       191       0     180
+         Beats1       143     -83    -120
+         Beats1        48     -83     -60
+         Beats1         0       0       0
+
+path Verse2FigureEight
+     //5 beats; circle right
+         Beats1        48      83      60
+         Beats1       143      83     120
+         Beats1       191       0     180
+         Beats1       143     -83    -120
+         Beats1        48     -83     -60
+     //2 beats; cross to other circle
+         Beats2       -48      83     -60
+     //5 beats; circle left
+         Beats1      -143      83    -120
+         Beats1      -191       0     180
+         Beats1      -143     -83     120
+         Beats1       -48     -83      60
+         Beats1         0       0       0
+
+path Verse2SpiralInOut
+     //3 beats; half circle right
+         Beats1        48      83      60
+         Beats1       143      83     120
+         Beats1       191       0     180
+     //6 beats; circle right
+         Beats1       119     -41     -60
+         Beats1       119      41      60
+         Beats1       191       0     180
+         Beats1       119     -41     -60
+         Beats1       119      41      60
+         Beats1       191       0     180
+     //3 beats; half circle right
+         Beats1       143     -83    -120
+         Beats1        48     -83     -60
+         Beats1         0       0       0
+
+path RedVerse2
+     //who said that every wish
+     //would be heard and answered
+     //12 beats
+//              1      Verse2LeftStart
+         Beats1         0     100       0
+         Beats1        50     150      90
+         Beats4       450     150      90
+         Beats6
+
+     //when wished on the morning star
+     //12 beats
+//         Beats5  d      0     250       0
+              1      Verse2Follow
+
+     //somebody thought of that
+     //and someone believed it
+     //12 beats
+              1      Verse2FigureEight
+
+     //look what it's done so far
+     //12 beats
+              1   x  Verse2SpiralInOut
+
+     //what's so amazing
+     //that keeps us star gazing
+     //12 beats
+              1   x  Verse2Circle
+              1   x  Verse2Circle
+
+     //and what do you think we might see
+     //move into position for the chorus after the second verse
+     //12 beats; red is last to arrive, so pauses the least at the end
+         Beats6 wd   RedStart
+         Beats1
+
+path OrangeVerse2
+//              1      Verse2LeftStart
+         Beats3
+         Beats1         0     100       0
+         Beats1        50     150      90
+         Beats3       350     150      90
+         Beats4
+
+//         Beats3  d      0     150       0
+              1      Verse2Follow
+
+              1      Verse2FigureEight
+
+              1   x  Verse2SpiralInOut
+
+              1   x  Verse2Circle
+              1   x  Verse2Circle
+
+         Beats6 wd   OrangeStart
+         Beats3
+
+path YellowVerse2
+//              1      Verse2LeftStart
+         Beats6
+         Beats1         0     100       0
+         Beats1        50     150      90
+         Beats2       250     150      90
+         Beats2
+
+//         Beats1  d      0      50       0
+              1      Verse2Follow
+
+              1      Verse2FigureEight
+
+              1   x  Verse2SpiralInOut
+
+              1   x  Verse2Circle
+              1   x  Verse2Circle
+
+         Beats1 w     -48      83     -60
+         Beats1      -143      83    -120
+         Beats1      -191       0     180
+         Beats1      -127     -64      90
+         Beats2 wd   YellowStart
+         Beats5
+
+path GreenVerse2
+//              1      Verse2RightStart
+         Beats7
+         Beats1         0     100       0
+         Beats1       -50     150     -90
+         Beats2      -250     150     -90
+         Beats1
+
+              1      Verse2Follow
+
+              1      Verse2FigureEight
+
+              1      Verse2SpiralInOut
+
+              1      Verse2Circle
+              1      Verse2Circle
+
+         Beats1 w      48      83      60
+         Beats1       143      83     120
+         Beats1       191       0     180
+         Beats1       127     -64     -90
+         Beats2 wd   GreenStart
+         Beats6
+
+path BlueVerse2
+//              1      Verse2RightStart
+         Beats4
+         Beats1         0     100       0
+         Beats1       -50     150     -90
+         Beats3      -350     150     -90
+         Beats3
+
+//         Beats2  d      0     100       0
+              1      Verse2Follow
+
+              1      Verse2FigureEight
+
+              1      Verse2SpiralInOut
+
+              1      Verse2Circle
+              1      Verse2Circle
+
+         Beats1 w     -64      64     -90
+         Beats1      -164      64     -90
+         Beats1      -192       0     180
+         Beats1      -164     -64      90
+         Beats2 wd   BlueStart
+         Beats4
+
+path PurpleVerse2
+//              1      Verse2RightStart
+         Beats1
+         Beats1         0     100       0
+         Beats1       -50     150     -90
+         Beats4      -450     150     -90
+         Beats5
+
+//         Beats4  d      0     200       0
+              1      Verse2Follow
+
+              1      Verse2FigureEight
+
+              1      Verse2SpiralInOut
+
+              1      Verse2Circle
+              1      Verse2Circle
+
+         Beats6 wd   PurpleStart
+         Beats2
+
+path RedVerse3
+     //have you been half asleep
+     //and have you heard voices
+     //12 beats
+        Beats12
+
+     //I've heard them calling my name
+     //12 beats
+        Beats12
+
+     //is this the sweet sound
+     //that calls the young sailors
+     //12 beats
+        Beats12
+
+     //the voice might be one and the same
+     //12 beats
+        Beats12
+
+     //I've heard it too many times to ignore it
+     //12 beats
+        Beats12
+
+     //it's something that I'm supposed to be
+     //12 beats
+        Beats12
+
+path OrangeVerse3
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+
+path YellowVerse3
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+
+path GreenVerse3
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+
+path BlueVerse3
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+
+path PurpleVerse3
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+        Beats12
+
+//RED ROUTINE
+routine              RedStart                  4AC2988350533748392E3120FF192F33
+
+//              1      Intro
+
+     //first verse
+//              1      RedVerse1
+
+     //chorus
+//              1      RedChorus
+
+     //bridge to second verse
+     //6 beats to get into position
+         Beats1        25      25      90
+         Beats1        50       0     180
+         Beats3  d   -100    -100     -90
+         Beats1
+
+     //second verse
+              1      RedVerse2
+
+     //chorus
+              1      RedChorus
+
+     //bridge to third verse
+     //all of us under its spell
+     //3 measures; 9 beats
+         Beats9
+
+     //we know that it's probably magic
+     //the "push"; position for the final verse
+     //4 measures; 12 beats
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      RedVerse1
+
+     //final chorus
+              1      RedChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END RED ROUTINE
+
+
+//ORANGE ROUTINE
+routine              OrangeStart               9E104EE45052734A352E3120FF091527
+
+//              1      Intro
+
+     //first verse
+//              1      OrangeVerse1
+
+     //chorus
+//              1      OrangeChorus
+
+     //bridge to second verse
+       Beats2_5        75     75     135
+       Beats2_5  d      0      0     -90
+         Beats1
+
+     //second verse
+              1      OrangeVerse2
+
+     //chorus
+              1      OrangeChorus
+
+     //bridge to third verse
+         Beats9
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      OrangeVerse1
+
+     //final chorus
+              1      OrangeChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END ORANGE ROUTINE
+
+
+//YELLOW ROUTINE
+routine              YellowStart               4596FFCD50533748392E3120FF19103F
+
+//              1      Intro
+
+     //first verse
+//              1      YellowVerse1
+
+     //chorus
+//              1      YellowChorus
+
+     //bridge to second verse
+       Beats3_5       125    150     120
+       Beats1_5  d    100    100     -90
+         Beats1
+
+     //second verse
+              1      YellowVerse2
+
+     //chorus
+              1      YellowChorus
+
+     //bridge to third verse
+         Beats9
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      YellowVerse1
+
+     //final chorus
+              1      YellowChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END YELLOW ROUTINE
+
+
+//GREEN ROUTINE
+routine              GreenStart                82C95D68504D5277352E3120FF152F28
+
+//              1      Intro
+
+     //first verse
+//              1      GreenVerse1
+
+     //chorus
+//              1      GreenChorus
+
+     //bridge to second verse
+       Beats3_5      -125    150    -120
+       Beats1_5  d   -100    100      90
+         Beats1
+
+     //second verse
+              1      GreenVerse2
+
+     //chorus
+              1      GreenChorus
+
+     //bridge to third verse
+         Beats9
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      GreenVerse1
+
+     //final chorus
+              1      GreenChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END GREEN ROUTINE
+
+
+//BLUE ROUTINE
+routine              BlueStart                 8A95E7ED504E5452372E3120FF181D37
+
+//              1      Intro
+
+     //first verse
+//              1      BlueVerse1
+
+     //chorus
+//              1      BlueChorus
+
+     //bridge to second verse
+       Beats2_5       -75     75    -135
+       Beats2_5  d      0      0      90
+         Beats1
+
+     //second verse
+              1      BlueVerse2
+
+     //chorus
+              1      BlueChorus
+
+     //bridge to third verse
+         Beats9
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      BlueVerse1
+
+     //final chorus
+              1      BlueChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END BLUE ROUTINE
+
+
+//PURPLE ROUTINE
+routine              PurpleStart               5A252B0E5052734A352E3120FF0C3222
+
+//              1      Intro
+
+     //first verse
+//              1      PurpleVerse1
+
+     //chorus
+//              1      PurpleChorus
+
+     //bridge to second verse
+         Beats1       -25     25     -90
+         Beats1       -50      0     180
+         Beats3  d    100   -100      90
+         Beats1
+
+     //second verse
+              1      PurpleVerse2
+
+     //chorus
+              1      PurpleChorus
+
+     //bridge to third verse
+         Beats9
+              1  d   Circle50
+         Beats2
+              1  d   Circle50
+         Beats2
+
+     //third verse
+              1      PurpleVerse1
+
+     //final chorus
+              1      PurpleChorus
+
+     //outro
+        Beats12
+        Beats12
+
+//END URPLE ROUTINE
+

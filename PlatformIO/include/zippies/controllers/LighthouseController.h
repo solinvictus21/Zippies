@@ -17,7 +17,7 @@ private:
     SensorFusor sensors;
     bool sensorsReady = false;
     unsigned long previousPositionTimeStamp = 0;
-    unsigned long subControllerDeltaTime = 0;
+    unsigned long subControllerStartTime = 0;
     ZippyController* subController;
 
 public:
@@ -27,8 +27,8 @@ public:
     LighthouseController(const ZippyConfig* zippyConfig);
 #endif
 
-    void start();
-    bool loop(unsigned long deltaTime);
+    bool start();
+    bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
     void stop();
 
     ~LighthouseController();

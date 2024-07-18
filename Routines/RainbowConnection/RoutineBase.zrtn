@@ -1,0 +1,109 @@
+
+//named timings
+timing Beats0_5                261
+timing Beats1                  522
+timing Beats1_5                783
+timing Beats2                 1044
+timing Beats2_5               1305
+timing Beats3                 1566
+timing Beats3_5               1827
+timing Beats4                 2088
+timing Beats5                 2610
+timing Beats6                 3132
+timing Beats7                 3654
+timing Beats8                 4176
+timing Beats9                 4698
+timing Beats12                6264
+
+//named points
+point Origin                     0         0         0
+point RedStart                 250         0         0
+point OrangeStart              150         0         0
+point YellowStart               50         0         0
+point GreenStart               -50         0         0
+point BlueStart               -150         0         0
+point PurpleStart             -250         0         0
+
+point CirclePosition6          -75      -130       -60
+
+//generic path definitions
+//half-circle in 2 beats
+path HalfCircle2
+              1         1         1        90
+              1         2         0       180
+
+//full circle in 4 beats
+path Circle4
+              1         1         1        90
+              1         2         0       180
+              1         1        -1       -90
+              1         0         0         0
+
+path HalfFlower4
+              1         1         1       135
+              1         0         0       -90
+              1        -1        -1       135
+              1         0         0         0
+
+//routine-specific path definitions
+path Intro30
+//first half; 6 measures; 18 beats
+              1             Circle4         1         1
+              5
+              1             Circle4        -1         1
+              5
+//second half; 4 measures; 12 beats
+              1         HalfCircle2         1         1
+              1
+              1         HalfCircle2         1        -1
+              1
+              1         HalfCircle2        -1         1
+              1
+              1         HalfCircle2        -1        -1
+              1
+
+//half circle forward right; pause; half circle forward right; pause
+//half circle reverse left; pause; half circle reverse left; pause
+path DoSeeDo12
+              1         HalfCircle2         1         1
+              1
+              1         HalfCircle2         1         1
+              1
+              1         HalfCircle2         1        -1
+              1
+              1         HalfCircle2         1        -1
+              1
+
+path FullCircle12
+              2         1         1        90
+              1
+              2         2         0       180
+              1
+              2         1        -1       -90
+              1
+              2         0         0         0
+              1
+
+path CircleDance18
+              2       -75       130       -60
+              1
+              2      -186       108       150
+              1
+              2      -300         0         0
+              1
+              2      -186      -108      -150
+              1
+              2       -75      -130        60
+              1
+              2         0         0         0
+              1
+
+path StepForwardBack3
+              1        30        52        60
+              1         0         0         0
+              1
+
+point RedCircleStart           -175      -130        60
+point YellowCircleStart          25       130       -60
+point GreenCircleStart          -25       130        60
+point PurpleCircleStart         175      -130       -60

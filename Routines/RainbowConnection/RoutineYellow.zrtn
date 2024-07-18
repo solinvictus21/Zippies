@@ -1,0 +1,50 @@
+
+include RoutineBase
+
+path YellowChorus
+         Beats2
+       Beats1_5         HalfFlower4      -100       100
+         Beats4
+
+         Beats3
+       Beats1_5         HalfFlower4       100      -100
+         Beats3
+
+//YELLOW ROUTINE
+routine YellowStart
+     //intro
+//         Beats1             Intro30       100       100
+
+     //first verse
+              1  YellowFirstVerse72         1         1
+
+     //chorus
+              1        YellowChorus         1         1
+
+     //bridge to second verse
+         Beats6
+
+     //second verse
+              1 YellowSecondVerse72         1         1
+
+     //chorus
+              1        YellowChorus         1         1
+
+     //bridge to third verse
+         Beats9
+
+     //push to third verse
+        Beats12
+
+     //third verse
+              1  YellowFirstVerse72         1         1
+
+     //chorus
+              1        YellowChorus         1         1
+
+     //outro
+        Beats12
+        Beats12
+
+//END YELLOW ROUTINE
+

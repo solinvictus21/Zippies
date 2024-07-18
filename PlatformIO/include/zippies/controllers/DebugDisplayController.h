@@ -33,8 +33,8 @@ public:
     : sensors(s)
   {}
 
-  void start();
-  bool loop(unsigned long deltaTime);
+  bool start();
+  bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
   void stop();
 
 

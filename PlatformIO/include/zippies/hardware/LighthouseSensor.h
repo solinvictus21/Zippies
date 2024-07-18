@@ -6,6 +6,7 @@
 
 #include "zippies/ZippyMath.h"
 #include "LighthouseOOTX.h"
+#include "zippies/controllers/ZippyController.h"
 
 #define BUFFER_SIZE 128
 
@@ -36,7 +37,7 @@ typedef struct _LighthouseSensorHitCycle
   unsigned long sweepHitEndTicks = 0;
 } LighthouseSensorHitCycle;
 
-class LighthouseSensor
+class LighthouseSensor : ZippyController
 {
 
 private:
@@ -56,6 +57,8 @@ private:
   LighthouseSensorHitCycle completedHitCycles[2];
   unsigned long completedCycleTimeStamp = 0;
 
+  bool running = false;
+
   void resetSync();
   void reacquireSync(unsigned int deltaTickCount);
   void processSyncPulseEnd(unsigned int deltaTickCount);
@@ -63,14 +66,15 @@ private:
   bool processHitPulseEnd(unsigned int deltaTickCount);
   bool processSweepEnd(unsigned int deltaTickCount);
 
-  void restart();
-
   friend class SensorFusor;
 
   LighthouseSensor() {}
 
 public:
-  void loop(unsigned long currentTime);
+
+  bool start();
+  bool loop(unsigned long currentTimeMicros, unsigned long deltaTimeMicros);
+  void stop();
 
   const LighthouseSensorHitCycle* getXHitCycle() const { return &completedHitCycles[0]; }
   const LighthouseSensorHitCycle* getYHitCycle() const { return &completedHitCycles[1]; }

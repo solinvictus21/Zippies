@@ -69,6 +69,9 @@ class SnappingSlider: UIView
         sliderView.frame = CGRect(x: 4.0, y: zeroY, width: bounds.size.width - 8.0, height: height)
         sliderView.backgroundColor = sliderColor
         
+//        let sliderValue = (self.sliderView.frame.minY - zeroY)/centerY
+//        print("Slider value: \(sliderValue)")
+
         layer.cornerRadius = cornerRadius
     }
     
@@ -80,6 +83,7 @@ class SnappingSlider: UIView
         else if sliderValue > 1.0 {
             return 1.0
         }
+//        print(String(format: "Slider values: %.1f, %.1f, %.1f, %.1f", self.sliderView.frame.minY, self.sliderView.frame.minY, zeroY, sliderValue))
         return sliderValue
     }
     
@@ -96,7 +100,7 @@ class SnappingSlider: UIView
             
         case .changed:
             let translationInView = sliderPanGestureRecognizer.translation(in: sliderView)
-            let translatedCenter: CGFloat = (bounds.size.width * 0.5) + (touchesBeganPoint.y + translationInView.y)
+            let translatedCenter: CGFloat = (bounds.size.height * 0.5) + (touchesBeganPoint.y + translationInView.y)
             sliderView.center = CGPoint(x: sliderView.center.x, y: translatedCenter)
             
             delegate?.snappingSliderDidChangeValue(self)
@@ -110,6 +114,8 @@ class SnappingSlider: UIView
         case .cancelled:
             //user released the view
             sliderView.frame = CGRect(x: 4.0, y: zeroY, width: bounds.size.width - 8.0, height: bounds.size.height * 0.25)
+//            let sliderValue = (self.sliderView.frame.minY - zeroY)/centerY
+//            print("Slider value: \(sliderValue)")
             delegate?.snappingSliderDidChangeValue(self)
             
         case .possible:
